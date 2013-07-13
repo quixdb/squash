@@ -1,0 +1,341 @@
+/* Copyright (c) 2013 The Squash Authors
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Authors:
+ *   Evan Nemerson <evan@coeus-group.com>
+ */
+
+#include <assert.h>
+
+#include "config.h"
+#include "squash.h"
+#include "config.h"
+
+#if defined HAVE___SYNC_FETCH_AND_ADD && defined HAVE___SYNC_FETCH_AND_SUB
+#  define squash_atomic_ref(var) __sync_fetch_and_add(var, 1)
+#  define squash_atomic_unref(var) __sync_fetch_and_sub(var, 1)
+#  define squash_atomic_cas(var, orig, val) __sync_bool_compare_and_swap(var, orig, val)
+#elif HAVE_PTHREAD
+
+#include <pthread.h>
+
+pthread_mutex_t squash_atomic_ref_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static unsigned int
+squash_atomic_ref (volatile unsigned int* var) {
+  unsigned int old_val;
+
+  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  old_val = (*var)++;
+  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+
+  return old_val;
+}
+
+static unsigned int
+squash_atomic_unref (volatile unsigned int* var) {
+  unsigned int old_val;
+
+  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  old_val = (*var)--;
+  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+
+  return old_val;
+}
+
+static unsigned int
+squash_atomic_cas (volatile unsigned int* var,
+                unsigned int orig,
+                unsigned int val) {
+  unsigned int res;
+
+  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  res = (*var == orig) ? ((*var = val), 1) : 0;
+  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+
+  return res;
+}
+
+#else
+#  warning Reference counting will not be thread safe.
+#  define squash_atomic_ref(var) (*var)++
+#  define squash_atomic_unref(var) (*var)--
+#  define squash_atomic_cas(var,orig,val) ((*var == orig) ? ((*var = val), 1) : 0)
+#endif
+
+/**
+ * @var _SquashObject::ref_count
+ * @brief The reference count.
+ */
+
+/**
+ * @var _SquashObject::is_floating
+ * @brief Whether or not the object has a floating reference.
+ */
+
+/**
+ * @var _SquashObject::destroy_notify
+ * @brief Function to squashl when the reference count reaches 0.
+ */
+
+/**
+ * @defgroup SquashObject SquashObject
+ * @brief Base object for several Squash types.
+ *
+ * @ref SquashObject is designed to provide a lightweight
+ * reference-counted type which can be used as a base class for other
+ * types in Squash.
+ *
+ * @section Subclassing Subclassing
+ *
+ * Subclassing @ref SquashObject is relatively straightforward.  The
+ * first step is to embed @ref SquashObject in your object.  Assuming
+ * you're inheriting directly from @ref SquashObject, your code would
+ * look something like this:
+ *
+ * @code
+ * struct MyObject {
+ *   SquashObject base_object;
+ *   char* greeting;
+ * }
+ * @endcode
+ *
+ * If you are subclassing another type (which inherits, possibly
+ * indirectly, from @ref SquashObject) then you should use that type
+ * instead.
+ *
+ * Next, you should to create an *_init function which takes an
+ * existing instance of your class, chains up to the *_init function
+ * provided by your base class, and initializes any fields you want
+ * initialized:
+ *
+ * @code
+ * void
+ * my_object_init (MyObject* obj,
+ *                 char* greeting,
+ *                 SquashDestroyNotify destroy_notify) {
+ *   squash_object_init ((SquashObject*) obj, false, destroy_notify);
+ *
+ *   obj->greeting = strdup (greeting);
+ * }
+ * @endcode
+ *
+ * Of course, whatever is created must be destroyed, so you'll also
+ * want to create a *_destroy method to be squashled when the reference
+ * count reaches 0.  Destroy any of your fields first, then chain up
+ * to the base class' *_destroy function:
+ *
+ * @code
+ * void
+ * my_object_destroy (MyObject* obj) {
+ *   if (obj->greeting != NULL) {
+ *     free (obj->greeting);
+ *   }
+ *
+ *   squash_object_destroy (obj);
+ * }
+ * @endcode
+ *
+ * If your class is not abstract (it is meant to be instantiated, not
+ * just subclassed), you should create two more functions.  First, a
+ * *_free function which will squashl your *_destroy function and release
+ * any memory you've allocated for the struct itself:
+ *
+ * @code
+ * void
+ * my_object_free (MyObject* obj) {
+ *   my_object_destroy (obj);
+ *   free (obj);
+ * }
+ * @endcode
+ *
+ * Finally, a constructor:
+ *
+ * @code
+ * MyObject*
+ * my_object_new (char* greeting) {
+ *   MyObject obj;
+ *
+ *   obj = malloc (sizeof (MyObject));
+ *   my_object_init (obj, greeting, (SquashDestroyNotify) my_object_free);
+ *
+ *   return obj;
+ * }
+ * @endcode
+ *
+ * @{
+ */
+
+/**
+ * @struct _SquashObject
+ * @brief Reference-counting base class for other types
+ */
+
+/**
+ * @typedef SquashDestroyNotify
+ * @brief Squashlback to be invoked when information @a data is no longer
+ *   needed.
+ *
+ * When you are not subclassing @ref SquashObject, ::SquashDestroyNotify is
+ * used almost exclusively for memory management, most simply by
+ * passing free().
+ */
+
+/**
+ * @brief Increment the reference count on an object.
+ *
+ * @param obj The object to increase the reference count of.
+ * @return The object which was passed in.
+ */
+void*
+squash_object_ref (void* obj) {
+  SquashObject* object = (SquashObject*) obj;
+
+  if (object == NULL)
+    return object;
+
+  if (object->is_floating) {
+    if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
+      squash_atomic_ref (&(object->ref_count));
+    }
+  } else {
+    squash_atomic_ref (&(object->ref_count));
+  }
+
+  return obj;
+}
+
+/**
+ * @brief Sink a floating reference if one exists.
+ *
+ * If a floating reference exists on the object, sink it.
+ *
+ * For a description of how floating references work, see <a href
+ * ="https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html#floating-ref">GObject's
+ * documentation of the concept</a>.  The implementation here is
+ * different, but the concept remains the same.
+ *
+ * @param obj The object to sink the floating reference on.
+ * @return The object which was passed in.
+ */
+void*
+squash_object_ref_sink (void* obj) {
+  SquashObject* object = (SquashObject*) obj;
+
+  if (object == NULL)
+    return object;
+
+  if (object->is_floating) {
+    squash_atomic_cas (&(object->is_floating), 1, 0);
+  }
+
+  return obj;
+}
+
+/**
+ * @brief Decrement the reference count on an object.
+ *
+ * Once the reference count reaches 0 the object will be freed.
+ *
+ * @param obj The object to decrease the reference count of.
+ * @return NULL
+ */
+void*
+squash_object_unref (void* obj) {
+  SquashObject* object = (SquashObject*) obj;
+
+  if (object == NULL)
+    return object;
+
+  unsigned int ref_count = squash_atomic_unref (&(object->ref_count));
+
+  if (ref_count == 1) {
+    if (object->destroy_notify != NULL) {
+      object->destroy_notify (obj);
+    }
+    return NULL;
+  } else {
+    return NULL;
+  }
+}
+
+/**
+ * @brief Get the current reference count of an object.
+ *
+ * @param obj The object in question.
+ * @return The reference count of _obj_.
+ */
+unsigned int
+squash_object_get_ref_count (void* obj) {
+  if (obj == NULL)
+    return 0;
+
+  return ((SquashObject*) obj)->ref_count;
+}
+
+/**
+ * @brief Initialize a new object.
+ * @protected
+ *
+ * This function should only be used to implement a subclass of @ref
+ * SquashObject.  Objects returned by *_new functions will already be
+ * initialized, and you *must* *not* squashl this function on them.
+ *
+ * @param obj The object to initialize.
+ * @param is_floating Whether or not the object's reference is
+ *   floating
+ * @param destroy_notify Function to squashl when the reference count
+ *     reaches 0
+ */
+void
+squash_object_init (void* obj, bool is_floating, SquashDestroyNotify destroy_notify) {
+  SquashObject* object = (SquashObject*) obj;
+
+  assert (object != NULL);
+
+  object->ref_count = 1;
+  object->is_floating = is_floating;
+  object->destroy_notify = destroy_notify;
+}
+
+/**
+ * @brief Destroy an object.
+ * @protected
+ *
+ * This function should only be used to implement a subclass of @ref
+ * SquashObject.  Each subclass should implement a *_destroy function
+ * which should perform any operations needed to destroy their own
+ * data and chain up to the *_destroy function of the base class,
+ * eventually invoking ::squash_object_destroy.
+ *
+ * @param obj The object to destroy.
+ */
+void
+squash_object_destroy (void* obj) {
+  SquashObject* object = (SquashObject*) obj;
+
+  assert (object != NULL);
+}
+
+/**
+ * @}
+ */

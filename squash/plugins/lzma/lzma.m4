@@ -1,0 +1,1 @@
+SQUASH_ENABLE_PLUGIN_PKG_CONFIG([lzma],[LZMA],[liblzma])
