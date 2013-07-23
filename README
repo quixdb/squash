@@ -16,5 +16,4 @@ not place many restrictions on using Squash itself, please keep in
 mind that some plugins use libraries which are subject to more
 restrictive terms (such as LZO).
 
-Squash was originally written for, and is maintained as part of, the
-QuixDB project.
+Documentation is available at http://quixdb.github.io/squash/
