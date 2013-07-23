@@ -79,6 +79,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -94,6 +95,12 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__SquashCodec.html">SquashCodec</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A compression/decompression codec.  <a href="struct__SquashCodec.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga376dab62c07b48724a5d68b4928fecc1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga376dab62c07b48724a5d68b4928fecc1"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SQUASH_CODEC_FILE_BUF_SIZE</b>&#160;&#160;&#160;4096</td></tr>
+<tr class="separator:ga376dab62c07b48724a5d68b4928fecc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -160,6 +167,30 @@ Functions</h2></td></tr>
 <tr class="memitem:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gad9af84f04edf39e699764e0ef23f5bf9">squash_decompress_with_options</a> (const char *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length, SquashOptions *options)</td></tr>
 <tr class="memdesc:gad9af84f04edf39e699764e0ef23f5bf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#gad9af84f04edf39e699764e0ef23f5bf9">More...</a><br/></td></tr>
 <tr class="separator:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c27f07889c3cc525e0a14435df1b7da"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga3c27f07889c3cc525e0a14435df1b7da">squash_codec_compress_file_with_options</a> (SquashCodec *codec, FILE *compressed, FILE *uncompressed, SquashOptions *options)</td></tr>
+<tr class="memdesc:ga3c27f07889c3cc525e0a14435df1b7da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a standard I/O stream with options.  <a href="#ga3c27f07889c3cc525e0a14435df1b7da">More...</a><br/></td></tr>
+<tr class="separator:ga3c27f07889c3cc525e0a14435df1b7da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeb7e7b0e313b1deb9807b5ea57dfb02d"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gaeb7e7b0e313b1deb9807b5ea57dfb02d">squash_codec_decompress_file_with_options</a> (SquashCodec *codec, FILE *decompressed, FILE *compressed, SquashOptions *options)</td></tr>
+<tr class="memdesc:gaeb7e7b0e313b1deb9807b5ea57dfb02d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a standard I/O stream.  <a href="#gaeb7e7b0e313b1deb9807b5ea57dfb02d">More...</a><br/></td></tr>
+<tr class="separator:gaeb7e7b0e313b1deb9807b5ea57dfb02d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad199f5b27c3a3d697c1f0d48b84576bb"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gad199f5b27c3a3d697c1f0d48b84576bb">squash_codec_compress_file</a> (SquashCodec *codec, FILE *compressed, FILE *uncompressed,...)</td></tr>
+<tr class="memdesc:gad199f5b27c3a3d697c1f0d48b84576bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a standard I/O stream.  <a href="#gad199f5b27c3a3d697c1f0d48b84576bb">More...</a><br/></td></tr>
+<tr class="separator:gad199f5b27c3a3d697c1f0d48b84576bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5dce49c06cd3fd31fde9ae42662994df"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga5dce49c06cd3fd31fde9ae42662994df">squash_codec_decompress_file</a> (SquashCodec *codec, FILE *decompressed, FILE *compressed,...)</td></tr>
+<tr class="memdesc:ga5dce49c06cd3fd31fde9ae42662994df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a standard I/O stream.  <a href="#ga5dce49c06cd3fd31fde9ae42662994df">More...</a><br/></td></tr>
+<tr class="separator:ga5dce49c06cd3fd31fde9ae42662994df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1836cea3255c9a48db3da13e6108d59d"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga1836cea3255c9a48db3da13e6108d59d">squash_compress_file_with_options</a> (const char *codec, FILE *compressed, FILE *uncompressed, SquashOptions *options)</td></tr>
+<tr class="memdesc:ga1836cea3255c9a48db3da13e6108d59d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a standard I/O stream with options.  <a href="#ga1836cea3255c9a48db3da13e6108d59d">More...</a><br/></td></tr>
+<tr class="separator:ga1836cea3255c9a48db3da13e6108d59d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2a44883c1147a39e9e14e4e401de6bcb"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga2a44883c1147a39e9e14e4e401de6bcb">squash_decompress_file_with_options</a> (const char *codec, FILE *decompressed, FILE *compressed, SquashOptions *options)</td></tr>
+<tr class="memdesc:ga2a44883c1147a39e9e14e4e401de6bcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a standard I/O stream.  <a href="#ga2a44883c1147a39e9e14e4e401de6bcb">More...</a><br/></td></tr>
+<tr class="separator:ga2a44883c1147a39e9e14e4e401de6bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaff17fd9e8444bf8941c6b06799a9e67b"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gaff17fd9e8444bf8941c6b06799a9e67b">squash_compress_file</a> (const char *codec, FILE *compressed, FILE *uncompressed,...)</td></tr>
+<tr class="memdesc:gaff17fd9e8444bf8941c6b06799a9e67b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a standard I/O stream.  <a href="#gaff17fd9e8444bf8941c6b06799a9e67b">More...</a><br/></td></tr>
+<tr class="separator:gaff17fd9e8444bf8941c6b06799a9e67b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8461d6467942971cca19eff7cae8e239"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga8461d6467942971cca19eff7cae8e239">squash_decompress_file</a> (const char *codec, FILE *decompressed, FILE *compressed,...)</td></tr>
+<tr class="memdesc:ga8461d6467942971cca19eff7cae8e239"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a standard I/O stream.  <a href="#ga8461d6467942971cca19eff7cae8e239">More...</a><br/></td></tr>
+<tr class="separator:ga8461d6467942971cca19eff7cae8e239"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>A compression/decompression codec. </p>
@@ -183,7 +214,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00062">62</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00064">64</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -251,6 +282,112 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
 <p>Definition at line <a class="el" href="codec_8c_source.html#l00531">531</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="gad199f5b27c3a3d697c1f0d48b84576bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_codec_compress_file </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compress a standard I/O stream. </p>
+<p>A convienence function which will compress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to write compressed data to </td></tr>
+    <tr><td class="paramname">uncompressed</td><td>Stream to compress </td></tr>
+    <tr><td class="paramname">...</td><td>Variadic <em>NULL</em>-terminated list of key/value option pairs </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00911">911</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga3c27f07889c3cc525e0a14435df1b7da"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_codec_compress_file_with_options </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compress a standard I/O stream with options. </p>
+<p>A convienence function which will compress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to write compressed data to </td></tr>
+    <tr><td class="paramname">uncompressed</td><td>Stream to compress </td></tr>
+    <tr><td class="paramname">options</td><td>Options, or <em>NULL</em> to use the defaults </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00868">868</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -473,6 +610,112 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
 <p>Definition at line <a class="el" href="codec_8c_source.html#l00625">625</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga5dce49c06cd3fd31fde9ae42662994df"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_codec_decompress_file </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>decompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decompress a standard I/O stream. </p>
+<p>A convienence function which will decompress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">decompressed</td><td>Stream to write decompressed data to </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to decompress </td></tr>
+    <tr><td class="paramname">...</td><td>Variadic <em>NULL</em>-terminated list of key/value option pairs </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00940">940</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="gaeb7e7b0e313b1deb9807b5ea57dfb02d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_codec_decompress_file_with_options </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>decompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decompress a standard I/O stream. </p>
+<p>A convienence function which will decompress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">decompressed</td><td>Stream to write decompressed data to </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to decompress </td></tr>
+    <tr><td class="paramname">options</td><td>Options, or <em>NULL</em> to use the defaults </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00889">889</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -866,6 +1109,112 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="gaff17fd9e8444bf8941c6b06799a9e67b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_compress_file </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compress a standard I/O stream. </p>
+<p>A convienence function which will compress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to write compressed data to </td></tr>
+    <tr><td class="paramname">uncompressed</td><td>Stream to compress </td></tr>
+    <tr><td class="paramname">...</td><td>Variadic <em>NULL</em>-terminated list of key/value option pairs </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01021">1021</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga1836cea3255c9a48db3da13e6108d59d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_compress_file_with_options </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compress a standard I/O stream with options. </p>
+<p>A convienence function which will compress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to write compressed data to </td></tr>
+    <tr><td class="paramname">uncompressed</td><td>Stream to compress </td></tr>
+    <tr><td class="paramname">options</td><td>Options, or <em>NULL</em> to use the defaults </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00968">968</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="ga310cd7bf19034d5922ccc242dadadc1d"></a>
 <div class="memitem">
 <div class="memproto">
@@ -996,6 +1345,112 @@ Functions</h2></td></tr>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a4">simple.c</a>.</dd>
 </dl>
 <p>Definition at line <a class="el" href="codec_8c_source.html#l00725">725</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga8461d6467942971cca19eff7cae8e239"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_decompress_file </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>decompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decompress a standard I/O stream. </p>
+<p>A convienence function which will decompress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">decompressed</td><td>Stream to write decompressed data to </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to decompress </td></tr>
+    <tr><td class="paramname">...</td><td>Variadic <em>NULL</em>-terminated list of key/value option pairs </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01054">1054</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga2a44883c1147a39e9e14e4e401de6bcb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStatus squash_decompress_file_with_options </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>decompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FILE *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decompress a standard I/O stream. </p>
+<p>A convienence function which will decompress the contents of one standard I/O stream and write the result to another. Neither stream will be closed when this function is finished—you must call fclose yourself.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec to use </td></tr>
+    <tr><td class="paramname">decompressed</td><td>Stream to write decompressed data to </td></tr>
+    <tr><td class="paramname">compressed</td><td>Stream to decompress </td></tr>
+    <tr><td class="paramname">options</td><td>Options, or <em>NULL</em> to use the defaults </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00994">994</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
