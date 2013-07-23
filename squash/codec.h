@@ -31,6 +31,8 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
+#include <stdio.h>
+
 SQUASH_BEGIN_DECLS
 
 struct _SquashCodecFuncs {
@@ -87,6 +89,18 @@ SQUASH_API SquashStatus  squash_codec_decompress_with_options     (SquashCodec* 
                                                                    uint8_t* decompressed, size_t* decompressed_length,
                                                                    const uint8_t* compressed, size_t compressed_length,
                                                                    SquashOptions* options);
+SQUASH_API SquashStatus  squash_codec_compress_file_with_options  (SquashCodec* codec,
+                                                                   FILE* compressed, FILE* uncompressed,
+                                                                   SquashOptions* options);
+SQUASH_API SquashStatus  squash_codec_decompress_file_with_options (SquashCodec* codec,
+                                                                   FILE* decompressed, FILE* compressed,
+                                                                   SquashOptions* options);
+SQUASH_API SquashStatus  squash_codec_compress_file               (SquashCodec* codec,
+                                                                   FILE* compressed, FILE* uncompressed,
+                                                                   ...);
+SQUASH_API SquashStatus  squash_codec_decompress_file             (SquashCodec* codec,
+                                                                   FILE* decompressed, FILE* compressed,
+                                                                   ...);
 
 
 SQUASH_API size_t        squash_get_max_compressed_size           (const char* codec, size_t uncompressed_length);
@@ -104,6 +118,18 @@ SQUASH_API SquashStatus  squash_decompress_with_options           (const char* c
                                                                    uint8_t* decompressed, size_t* decompressed_length,
                                                                    const uint8_t* compressed, size_t compressed_length,
                                                                    SquashOptions* options);
+SQUASH_API SquashStatus  squash_compress_file_with_options        (const char* codec,
+                                                                   FILE* compressed, FILE* uncompressed,
+                                                                   SquashOptions* options);
+SQUASH_API SquashStatus  squash_decompress_file_with_options      (const char* codec,
+                                                                   FILE* decompressed, FILE* compressed,
+                                                                   SquashOptions* options);
+SQUASH_API SquashStatus  squash_compress_file                     (const char* codec,
+                                                                   FILE* compressed, FILE* uncompressed,
+                                                                   ...);
+SQUASH_API SquashStatus  squash_decompress_file                   (const char* codec,
+                                                                   FILE* decompressed, FILE* compressed,
+                                                                   ...);
 
 SQUASH_END_DECLS
 

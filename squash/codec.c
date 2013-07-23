@@ -795,6 +795,279 @@ squash_codec_new (char* name, unsigned int priority, SquashPlugin* plugin) {
   return codecp;
 }
 
+#ifndef SQUASH_CODEC_FILE_BUF_SIZE
+#  define SQUASH_CODEC_FILE_BUF_SIZE 4096
+#endif
+
+static SquashStatus
+squash_codec_process_file_with_options (SquashCodec* codec,
+                                        SquashStreamType stream_type,
+                                        FILE* output, FILE* input,
+                                        SquashOptions* options) {
+  SquashStatus res;
+  SquashStream* stream;
+  uint8_t inbuf[SQUASH_CODEC_FILE_BUF_SIZE] = { 0, };
+  uint8_t outbuf[SQUASH_CODEC_FILE_BUF_SIZE] = { 0, };
+
+  stream = squash_codec_create_stream_with_options (codec, stream_type, options);
+  if ( stream == NULL ) {
+    return SQUASH_FAILED;
+  }
+
+  while ( !feof (input) ) {
+    stream->next_in = inbuf;
+    stream->avail_in = fread (inbuf, 1, SQUASH_CODEC_FILE_BUF_SIZE, input);
+
+    do {
+      stream->next_out = outbuf;
+      stream->avail_out = SQUASH_CODEC_FILE_BUF_SIZE;
+
+      res = squash_stream_process (stream);
+
+      fwrite (outbuf, 1, stream->next_out - outbuf, output);
+    } while ( res == SQUASH_PROCESSING );
+
+    if ( res != SQUASH_OK ) {
+      if ( res == SQUASH_END_OF_STREAM && stream_type == SQUASH_STREAM_DECOMPRESS ) {
+        res = SQUASH_OK;
+      }
+      squash_object_unref (stream);
+      return res;
+    }
+  }
+
+  do {
+    stream->next_out = outbuf;
+    stream->avail_out = SQUASH_CODEC_FILE_BUF_SIZE;
+
+    res = squash_stream_finish (stream);
+
+    fwrite (outbuf, 1, stream->next_out - outbuf, output);
+  } while ( res == SQUASH_PROCESSING );
+
+  squash_object_unref (stream);
+
+  return res;
+}
+
+/**
+ * @brief Compress a standard I/O stream with options
+ *
+ * A convienence function which will compress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param compressed Stream to write compressed data to
+ * @param uncompressed Stream to compress
+ * @param options Options, or *NULL* to use the defaults
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_codec_compress_file_with_options (SquashCodec* codec,
+                                         FILE* compressed, FILE* uncompressed,
+                                         SquashOptions* options) {
+  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, options);
+}
+
+/**
+ * @brief Decompress a standard I/O stream
+ *
+ * A convienence function which will decompress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param decompressed Stream to write decompressed data to
+ * @param compressed Stream to decompress
+ * @param options Options, or *NULL* to use the defaults
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_codec_decompress_file_with_options (SquashCodec* codec,
+                                           FILE* decompressed, FILE* compressed,
+                                           SquashOptions* options) {
+  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, options);
+}
+
+/**
+ * @brief Compress a standard I/O stream
+ *
+ * A convienence function which will compress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param compressed Stream to write compressed data to
+ * @param uncompressed Stream to compress
+ * @param ... Variadic *NULL*-terminated list of key/value option
+ *   pairs
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_codec_compress_file (SquashCodec* codec,
+                            FILE* compressed, FILE* uncompressed,
+                            ...) {
+  SquashOptions* options;
+  va_list ap;
+
+  va_start (ap, uncompressed);
+  options = squash_options_newv (codec, ap);
+  va_end (ap);
+
+  return squash_codec_compress_file_with_options (codec, compressed, uncompressed, options);
+}
+
+/**
+ * @brief Decompress a standard I/O stream
+ *
+ * A convienence function which will decompress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param decompressed Stream to write decompressed data to
+ * @param compressed Stream to decompress
+ * @param ... Variadic *NULL*-terminated list of key/value option
+ *   pairs
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_codec_decompress_file (SquashCodec* codec,
+                              FILE* decompressed, FILE* compressed,
+                              ...) {
+  SquashOptions* options;
+  va_list ap;
+
+  va_start (ap, compressed);
+  options = squash_options_newv (codec, ap);
+  va_end (ap);
+
+  return squash_codec_decompress_file_with_options (codec, decompressed, compressed, options);
+}
+
+/**
+ * @brief Compress a standard I/O stream with options
+ *
+ * A convienence function which will compress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param compressed Stream to write compressed data to
+ * @param uncompressed Stream to compress
+ * @param options Options, or *NULL* to use the defaults
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_compress_file_with_options (const char* codec,
+                                   FILE* compressed, FILE* uncompressed,
+                                   SquashOptions* options) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real == NULL)
+    return SQUASH_NOT_FOUND;
+
+  return squash_codec_compress_file_with_options (codec_real, compressed, uncompressed, options);
+}
+
+/**
+ * @brief Decompress a standard I/O stream
+ *
+ * A convienence function which will decompress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param decompressed Stream to write decompressed data to
+ * @param compressed Stream to decompress
+ * @param options Options, or *NULL* to use the defaults
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_decompress_file_with_options (const char* codec,
+                                     FILE* decompressed, FILE* compressed,
+                                     SquashOptions* options) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real == NULL)
+    return SQUASH_NOT_FOUND;
+
+  return squash_codec_decompress_file_with_options (codec_real, decompressed, compressed, options);
+}
+
+/**
+ * @brief Compress a standard I/O stream
+ *
+ * A convienence function which will compress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param compressed Stream to write compressed data to
+ * @param uncompressed Stream to compress
+ * @param ... Variadic *NULL*-terminated list of key/value option
+ *   pairs
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_compress_file (const char* codec,
+                      FILE* compressed, FILE* uncompressed,
+                      ...) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+  SquashOptions* options;
+  va_list ap;
+
+  if (codec_real == NULL)
+    return SQUASH_NOT_FOUND;
+
+  va_start (ap, uncompressed);
+  options = squash_options_newv (codec_real, ap);
+  va_end (ap);
+
+  return squash_compress_file_with_options (codec, compressed, uncompressed, options);
+}
+
+/**
+ * @brief Decompress a standard I/O stream
+ *
+ * A convienence function which will decompress the contents of one
+ * standard I/O stream and write the result to another.  Neither
+ * stream will be closed when this function is finished—you must call
+ * fclose yourself.
+ *
+ * @param codec The codec to use
+ * @param decompressed Stream to write decompressed data to
+ * @param compressed Stream to decompress
+ * @param ... Variadic *NULL*-terminated list of key/value option
+ *   pairs
+ * @return ::SQUASH_OK on success, or a negative error code on failure
+ */
+SquashStatus
+squash_decompress_file (const char* codec,
+                        FILE* decompressed, FILE* compressed,
+                        ...) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+  SquashOptions* options;
+  va_list ap;
+
+  if (codec_real == NULL)
+    return SQUASH_NOT_FOUND;
+
+  va_start (ap, compressed);
+  options = squash_options_newv (codec_real, ap);
+  va_end (ap);
+
+  return squash_decompress_file_with_options (codec, decompressed, compressed, options);
+}
+
 /**
  * @}
  */
