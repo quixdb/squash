@@ -51,8 +51,8 @@ SQUASH_API SquashStatus   squash_options_parsea        (SquashOptions* options, 
 
 SQUASH_API SquashStatus   squash_options_parse_option  (SquashOptions* options, const char* key, const char* value);
 
-SQUASH_API void        squash_options_init          (void* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-SQUASH_API void        squash_options_destroy       (void* options);
+SQUASH_API void           squash_options_init          (void* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
+SQUASH_API void           squash_options_destroy       (void* options);
 
 SQUASH_END_DECLS
 

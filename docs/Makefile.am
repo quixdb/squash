@@ -1,13 +1,13 @@
 if ENABLE_DOCS
 
-DOXYGEN_SOURCES = \
+DOXYGEN_FILES = \
   $(wildcard $(top_srcdir)/squash/*.c) \
   $(wildcard $(top_srcdir)/squash/*.h) \
   index.md \
   user-guide.md \
   @SQUASH_DOXYGEN_PATHS@
 
-stamp: Doxyfile $(DOXYGEN_SOURCES)
+stamp: Doxyfile $(DOXYGEN_FILES)
 	$(DOXYGEN) Doxyfile && touch $@
 
 all: stamp

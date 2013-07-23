@@ -1,8 +1,7 @@
 COMMON_CFLAGS = \
    -I$(top_srcdir) \
    @WARN_CFLAGS@ \
-  -DSQUASH_IS_UNSTABLE \
-  -DSQUASH_COMPILATION
+  -DSQUASH_IS_UNSTABLE
 
 COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 
