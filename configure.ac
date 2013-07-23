@@ -241,7 +241,8 @@ AC_CONFIG_FILES([Makefile
                  squash/plugins/lzo/Makefile
                  squash/plugins/snappy/Makefile
                  squash/plugins/zlib/Makefile
-								 docs/Doxyfile
+                 utils/Makefile
+                 docs/Doxyfile
                  docs/Makefile
                  examples/Makefile
                  tests/Makefile])
