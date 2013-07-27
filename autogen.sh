@@ -1,3 +1,5 @@
+#!/bin/sh
+
 for submodule in squash/plugins/lz4/lz4; do
   if [ ! -d "${submodule}/.git" ]; then
     git submodule init
