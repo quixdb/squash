@@ -5,6 +5,7 @@ SUBDIRS = \
   lzma \
   lzf \
   lzo \
+  quicklz \
   snappy \
   zlib
 
