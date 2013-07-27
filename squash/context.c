@@ -86,7 +86,7 @@ squash_context_get_codec_ref (SquashContext* context, const char* codec) {
 
   key_codec.name = (char*) codec;
 
-  return SQUASH_TREE_FIND (&(context->codecs), SquashCodecRef_s, tree, &key);
+  return SQUASH_TREE_FIND (&(context->codecs), _SquashCodecRef, tree, &key);
 }
 
 /**
@@ -210,7 +210,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
     codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
     codec_ref->codec = codec;
     SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
-    SQUASH_TREE_INSERT (&(context->codecs), SquashCodecRef_s, tree, codec_ref);
+    SQUASH_TREE_INSERT (&(context->codecs), _SquashCodecRef, tree, codec_ref);
   } else if (codec->priority > codec_ref->codec->priority) {
     /* Switch the existing context codec's details to this one */
     codec_ref->codec = codec;
@@ -347,7 +347,7 @@ squash_context_foreach_plugin (SquashContext* context, SquashPluginForeachFunc f
 
 static void
 squash_context_foreach_codec_ref (SquashContext* context, void(*func)(SquashCodecRef*, void*), void* data) {
-  SQUASH_TREE_FORWARD_APPLY(&(context->codecs), SquashCodecRef_s, tree, func, data);
+  SQUASH_TREE_FORWARD_APPLY(&(context->codecs), _SquashCodecRef, tree, func, data);
 }
 
 /**

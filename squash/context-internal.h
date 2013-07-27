@@ -36,8 +36,8 @@ SQUASH_BEGIN_DECLS
 SquashCodecRef* squash_context_get_codec_ref (SquashContext* context, const char* codec);
 void            squash_context_add_codec     (SquashContext* context, SquashCodec* codec);
 
-SQUASH_TREE_PROTOTYPES(SquashCodecRef_s, tree)
-SQUASH_TREE_DEFINE(SquashCodecRef_s, tree)
+SQUASH_TREE_PROTOTYPES(_SquashCodecRef, tree)
+SQUASH_TREE_DEFINE(_SquashCodecRef, tree)
 
 SQUASH_END_DECLS
 
