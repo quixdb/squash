@@ -15,5 +15,5 @@ For more information about FastLZ, see http://fastlz.org/
 
 ## License ##
 
-The fastlz plugin and FastLZ itself are boh licensed under the [MIT
+The fastlz plugin and FastLZ itself are both licensed under the [MIT
 License](http://opensource.org/licenses/MIT).

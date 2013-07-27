@@ -42,7 +42,6 @@ From the [LZO documentation](http://www.oberhumer.com/opensource/lzo/lzodoc.php)
 
 ## License ##
 
-The snappy plugin is licensed under the [MIT
-License](http://opensource.org/licenses/MIT), and Snappy is licensed
-under a [3-clause BSD
-License](http://opensource.org/licenses/BSD-3-Clause).
+The lzo plugin is licensed under the [MIT
+License](http://opensource.org/licenses/MIT), and LZO is licensed
+under the [GNU GPLv2+](https://gnu.org/licenses/old-licenses/gpl-2.0.html).
