@@ -34,6 +34,10 @@
 #include "squash.h"
 #include "internal.h"
 
+#ifndef SQUASH_CODEC_FILE_BUF_SIZE
+#  define SQUASH_CODEC_FILE_BUF_SIZE 4096
+#endif
+
 /**
  * @struct _SquashCodecFuncs
  * @brief Function table for plugins
@@ -798,10 +802,6 @@ squash_codec_new (char* name, unsigned int priority, SquashPlugin* plugin) {
 
   return codecp;
 }
-
-#ifndef SQUASH_CODEC_FILE_BUF_SIZE
-#  define SQUASH_CODEC_FILE_BUF_SIZE 4096
-#endif
 
 static SquashStatus
 squash_codec_process_file_with_options (SquashCodec* codec,
