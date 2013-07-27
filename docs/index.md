@@ -34,6 +34,7 @@ Squash currently contains plugins for the following libraries:
 
 - [bzip2](@ref md_bzip2)
 - [lzma](@ref md_lzma)
+- [lzf](@ref md_lzf)
 - [lzo](@ref md_lzo)
 - [snappy](@ref md_snappy)
 - [zlib](@ref md_zlib)

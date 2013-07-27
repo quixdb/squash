@@ -176,7 +176,7 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 SQUASH_PLUGINS=""
 SQUASH_PLUGINS_ENABLED=""
 
-m4_foreach([plugin],[bzip2, lzma, lzo, snappy, zlib], [
+m4_foreach([plugin],[bzip2, lzma, lzf, lzo, snappy, zlib], [
     m4_include(squash/plugins/plugin/plugin[.m4])
     SQUASH_PLUGINS="${SQUASH_PLUGINS} plugin"
   ])
@@ -238,6 +238,7 @@ AC_CONFIG_FILES([Makefile
                  squash/plugins/Makefile
                  squash/plugins/bzip2/Makefile
                  squash/plugins/lzma/Makefile
+                 squash/plugins/lzf/Makefile
                  squash/plugins/lzo/Makefile
                  squash/plugins/snappy/Makefile
                  squash/plugins/zlib/Makefile

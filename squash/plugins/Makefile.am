@@ -1,4 +1,4 @@
-SUBDIRS = bzip2 lzma lzo snappy zlib
+SUBDIRS = bzip2 lzma lzf lzo snappy zlib
 
 EXTRA_DIST = \
 	plugins.md
