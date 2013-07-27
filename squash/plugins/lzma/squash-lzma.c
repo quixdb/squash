@@ -346,22 +346,23 @@ squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
   return lzma_stream_buffer_bound (uncompressed_length);
 }
 
-static SquashCodecFuncs squash_lzma_codec_funcs = {
-  squash_lzma_create_options,
-  squash_lzma_parse_option,
-  squash_lzma_create_stream,
-  squash_lzma_process_stream,
-  NULL, /* flush_stream */
-  squash_lzma_finish_stream,
-  NULL, /* get_uncompressed_size */
-  squash_lzma_get_max_compressed_size,
-  NULL, /* decompress_buffer */
-  NULL /* compress_buffer */
-};
-
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
-  *funcs = squash_lzma_codec_funcs;
+  const char* name = squash_codec_get_name (codec);
+
+  if (strcmp ("xz", name) == 0 ||
+      strcmp ("lzma", name) == 0 ||
+      strcmp ("lzma1", name) == 0 ||
+      strcmp ("lzma2", name) == 0) {
+    funcs->create_options = squash_lzma_create_options;
+    funcs->parse_option = squash_lzma_parse_option;
+    funcs->create_stream = squash_lzma_create_stream;
+    funcs->process_stream = squash_lzma_process_stream;
+    funcs->finish_stream = squash_lzma_finish_stream;
+    funcs->get_max_compressed_size = squash_lzma_get_max_compressed_size;
+  } else {
+    return SQUASH_UNABLE_TO_LOAD;
+  }
 
   return SQUASH_OK;
 }

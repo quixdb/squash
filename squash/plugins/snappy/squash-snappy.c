@@ -114,19 +114,6 @@ squash_snappy_compress_buffer (SquashCodec* codec,
   return squash_snappy_status (e);
 }
 
-static SquashCodecFuncs squash_snappy_codec_funcs = {
-  NULL, /* create_options */
-	NULL, /* parse_option */
-  NULL, /* create_stream */
-  NULL, /* process_stream */
-  NULL, /* flush_stream */
-  NULL, /* finish_stream */
-  squash_snappy_get_uncompressed_size, /* get_uncompressed_size */
-  squash_snappy_get_max_compressed_size, /*  */
-  squash_snappy_decompress_buffer, /* decompress_buffer */
-  squash_snappy_compress_buffer /* compress_buffer */
-};
-
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
@@ -134,7 +121,10 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("gzip", name) == 0 ||
       strcmp ("snappy", name) == 0 ||
       strcmp ("deflate", name) == 0) {
-    *funcs = squash_snappy_codec_funcs;
+    funcs->get_uncompressed_size = squash_snappy_get_uncompressed_size;
+    funcs->get_max_compressed_size = squash_snappy_get_max_compressed_size;
+    funcs->decompress_buffer = squash_snappy_decompress_buffer;
+    funcs->compress_buffer = squash_snappy_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

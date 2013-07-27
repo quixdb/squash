@@ -374,23 +374,18 @@ squash_bz2_compress_buffer (SquashCodec* codec,
   return squash_bz2_status_to_squash_status (bz2_res);
 }
 
-static SquashCodecFuncs squash_bz2_codec_funcs = {
-  squash_bz2_create_options,
-  squash_bz2_parse_option,
-  squash_bz2_create_stream,
-  squash_bz2_process_stream,
-  squash_bz2_flush_stream,
-  squash_bz2_finish_stream,
-  NULL,
-  squash_bz2_get_max_compressed_size,
-  squash_bz2_decompress_buffer,
-  squash_bz2_compress_buffer
-};
-
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("bzip2", squash_codec_get_name (codec)) == 0) {
-    *funcs = squash_bz2_codec_funcs;
+    funcs->create_options = squash_bz2_create_options;
+    funcs->parse_option = squash_bz2_parse_option;
+    funcs->create_stream = squash_bz2_create_stream;
+    funcs->process_stream = squash_bz2_process_stream;
+    funcs->flush_stream = squash_bz2_flush_stream;
+    funcs->finish_stream = squash_bz2_finish_stream;
+    funcs->get_max_compressed_size = squash_bz2_get_max_compressed_size;
+    funcs->decompress_buffer = squash_bz2_decompress_buffer;
+    funcs->compress_buffer = squash_bz2_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

@@ -274,19 +274,6 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   return squash_lzo_status_to_squash_status (lzo_e);
 }
 
-static SquashCodecFuncs squash_lzo_codec_funcs = {
-  NULL, /* create_options */
-	NULL, /* parse_option */
-  NULL, /* create_stream */
-  NULL, /* process_stream */
-  NULL, /* flush_stream */
-  NULL, /* finish_stream */
-  NULL, /* get_uncompressed_size */
-  squash_lzo_get_max_compressed_size, /* get_max_compressed_size */
-  squash_lzo_decompress_buffer, /* decompress_buffer */
-  squash_lzo_compress_buffer /* compress_buffer */
-};
-
 SquashStatus
 squash_plugin_init (SquashPlugin* plugin) {
   return squash_lzo_status_to_squash_status (lzo_init ());
@@ -295,8 +282,9 @@ squash_plugin_init (SquashPlugin* plugin) {
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (squash_lzo_codec_from_name (squash_codec_get_name (codec)) != NULL) {
-    lzo_init ();
-    *funcs = squash_lzo_codec_funcs;
+    funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
+    funcs->decompress_buffer = squash_lzo_decompress_buffer;
+    funcs->compress_buffer = squash_lzo_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

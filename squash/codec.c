@@ -39,6 +39,10 @@
  * @brief Function table for plugins
  *
  * This struct should only be used from within a plugin.
+ *
+ * This structure may grow over time to accomodate new features, so
+ * when setting up the callbacks in a plugin you must set each field
+ * individually instead of copying an entire instance of the struct.
  */
 
 /**
