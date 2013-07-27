@@ -31,10 +31,7 @@
 
 #include <squash/squash.h>
 
-#include "squash-lzo.h"
-
-#include <stdio.h>
-
+#include <lzo/lzoconf.h>
 #include <lzo/lzo1.h>
 #include <lzo/lzo1a.h>
 #include <lzo/lzo1b.h>
@@ -43,6 +40,36 @@
 #include <lzo/lzo1x.h>
 #include <lzo/lzo1y.h>
 #include <lzo/lzo1z.h>
+
+typedef struct _SquashLZOCompressor {
+  int level;
+  size_t work_mem;
+  int(* compress) (const lzo_bytep src, lzo_uint src_len,
+                   lzo_bytep dst, lzo_uintp dst_len,
+                   lzo_voidp wrkmem);
+} SquashLZOCompressor;
+
+typedef struct _SquashLZOCodec {
+  const char* name;
+  size_t work_mem;
+  int(* decompress) (const lzo_bytep src, lzo_uint src_len,
+                     lzo_bytep dst, lzo_uintp dst_len,
+                     lzo_voidp wrkmem);
+  const SquashLZOCompressor* compressors;
+} SquashLZOCodec;
+
+typedef struct _SquashLZOOptions {
+  SquashOptions base_object;
+
+  int level;
+} SquashLZOOptions;
+
+typedef struct _SquashLZOStream {
+  SquashStream base_object;
+
+  SquashLZOCodec* codec;
+  SquashLZOCompressor* compressor;
+} SquashLZOStream;
 
 static const SquashLZOCompressor squash_lzo1_compressors[] = {
   { 1, LZO1_MEM_COMPRESS, lzo1_compress },

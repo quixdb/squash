@@ -31,22 +31,9 @@
 
 #include <squash/squash.h>
 
-#include "squash-snappy.h"
-
-#include <stdio.h>
+#include <snappy-c.h>
 
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-/* static SquashSnappyType squash_snappy_codec_to_type (SquashCodec* codec) { */
-/*   const char* name = squash_codec_get_name (codec); */
-/*   if (strcmp ("snappy", name) == 0) { */
-/*     return SQUASH_SNAPPY_TYPE_SNAPPY; */
-/*   } else if (strcmp ("snappy-framed", name) == 0) { */
-/*     return SQUASH_SNAPPY_TYPE_SNAPPY_FRAMED; */
-/*   } else { */
-/*     assert (false); */
-/*   } */
-/* } */
 
 static size_t
 squash_snappy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -91,13 +78,6 @@ squash_snappy_decompress_buffer (SquashCodec* codec,
   e = snappy_uncompress ((char*) compressed, compressed_length,
                          (char*) decompressed, decompressed_length);
 
-  if (e == SNAPPY_INVALID_INPUT) {
-    fprintf (stderr, "snappy_uncompress (%p, %lu, %p, %p %lu)\n", compressed, compressed_length, decompressed, decompressed_length, *decompressed_length);
-    fprintf (stderr, "==============================\n");
-    fwrite (compressed, compressed_length, 1, stderr);
-    fprintf (stderr, "==============================\n");
-  }
-
   return squash_snappy_status (e);
 }
 
@@ -118,9 +98,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("gzip", name) == 0 ||
-      strcmp ("snappy", name) == 0 ||
-      strcmp ("deflate", name) == 0) {
+  if (strcmp ("snappy", name) == 0) {
     funcs->get_uncompressed_size = squash_snappy_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_snappy_get_max_compressed_size;
     funcs->decompress_buffer = squash_snappy_decompress_buffer;

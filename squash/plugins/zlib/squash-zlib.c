@@ -31,9 +31,29 @@
 
 #include <squash/squash.h>
 
-#include "squash-zlib.h"
+#include <zlib.h>
 
-#include <stdio.h>
+typedef enum SquashZlibType_e {
+  SQUASH_ZLIB_TYPE_ZLIB,
+  SQUASH_ZLIB_TYPE_GZIP,
+  SQUASH_ZLIB_TYPE_DEFLATE
+} SquashZlibType;
+
+typedef struct SquashZlibOptions_s {
+  SquashOptions base_object;
+
+  int level;
+  int window_bits;
+  int mem_level;
+  int strategy;
+} SquashZlibOptions;
+
+typedef struct SquashZlibStream_s {
+  SquashStream base_object;
+
+  SquashZlibType type;
+  z_stream stream;
+} SquashZlibStream;
 
 #define SQUASH_ZLIB_DEFAULT_LEVEL 6
 #define SQUASH_ZLIB_DEFAULT_WINDOW_BITS 15

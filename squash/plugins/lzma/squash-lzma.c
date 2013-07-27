@@ -31,7 +31,30 @@
 
 #include <squash/squash.h>
 
-#include "squash-lzma.h"
+#include <lzma.h>
+
+typedef enum SquashLZMAType_e {
+  SQUASH_LZMA_TYPE_LZMA,
+  SQUASH_LZMA_TYPE_XZ,
+  SQUASH_LZMA_TYPE_LZMA1,
+  SQUASH_LZMA_TYPE_LZMA2
+} SquashLZMAType;
+
+typedef struct SquashLZMAOptions_s {
+  SquashOptions base_object;
+
+  SquashLZMAType type;
+  lzma_options_lzma options;
+  uint64_t memlimit;
+  lzma_check check;
+} SquashLZMAOptions;
+
+typedef struct SquashLZMAStream_s {
+  SquashStream base_object;
+
+  SquashLZMAType type;
+  lzma_stream stream;
+} SquashLZMAStream;
 
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 

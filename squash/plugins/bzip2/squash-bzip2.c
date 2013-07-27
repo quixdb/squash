@@ -31,9 +31,21 @@
 
 #include <squash/squash.h>
 
-#include "squash-bzip2.h"
+#include <bzlib.h>
 
-#include <stdio.h>
+typedef struct SquashBZ2Options_s {
+  SquashOptions base_object;
+
+  int block_size_100k;
+  int work_factor;
+  bool small;
+} SquashBZ2Options;
+
+typedef struct SquashBZ2Stream_s {
+  SquashStream base_object;
+
+  bz_stream stream;
+} SquashBZ2Stream;
 
 #define SQUASH_BZ2_DEFAULT_WORK_FACTOR 0
 #define SQUASH_BZ2_DEFAULT_BLOCK_SIZE_100K 6
