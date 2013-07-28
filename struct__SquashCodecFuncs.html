@@ -130,7 +130,8 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Function table for plugins. </p>
-<p>This struct should only be used from within a plugin. </p>
+<p>This struct should only be used from within a plugin.</p>
+<p>This structure may grow over time to accomodate new features, so when setting up the callbacks in a plugin you must set each field individually instead of copying an entire instance of the struct. </p>
 
 <p>Definition at line <a class="el" href="codec_8h_source.html#l00038">38</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
