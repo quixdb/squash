@@ -14,6 +14,9 @@ all: stamp
 
 endif
 
+man_MANS = \
+	squash.1
+
 CLEANFILES = \
 	Doxyfile \
   stamp

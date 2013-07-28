@@ -1,0 +1,74 @@
+.TH squash 1 "27 July 2013" "squash" "Squash"
+.IX squash
+.SH NAME
+squash \- compress and decompress files
+.SH SYNOPSIS
+.B squash [\fIOPTION\fR]... \fIINPUT\fR [\fIOUTPUT\fR]
+.SH DESCRIPTION
+.B squash
+is a command line utility which to compress and decompress data using
+any codec which libsquash supports.  For a list of codecs supported by
+this copy of libsquash, see the \fI-L\fP flag.
+
+.SH FILES
+.TP
+.B squash
+An input file must be provided, although "-" can be used as an alias
+for stdin.
+
+If an output file not provided then squash will attempt to guess an
+appropriate file name based on the requested codec and the name of the
+input file.
+
+.SH EXAMPLES
+.TP
+
+.B squash foo.txt foo.txt.gz
+.TP
+Compress the contents of \fIfoo.txt\fP to \fIfoo.txt.gz\fP using the "gzip" codec.
+
+.B squash -de lz4 - -
+.TP
+Decompress from stdin to stdout using the lz4 codec.
+
+.SH OPTIONS
+.TP
+.B \-h
+Show help screen
+.TP
+.B \-k
+Keep the input file.  By default, squash will try to remove it.
+.TP
+.B \-o \fIkey\fP=\fIvalue\fP
+Pass the specified option to the codec.
+.TP
+.B \-1 .. -9
+Pass the compression level to the encoder.  This is equivalent to
+\fI-o level=N\fP.
+.TP
+.B \-e \fIcodec\fP
+Use \fIcodec\fP.
+.TP
+.B \-L
+List the available codecs and exit.
+.TP
+.B \-P
+List the available plugins and exit.
+.TP
+.B \-f
+Overwrite the output file if it exists.
+.TP
+.B \-d
+Decompress (the default is to compress).
+
+.SH HOMEPAGE
+.TP
+http://quixdb.github.io/squash/
+
+.SH BUG REPORTS
+.TP
+https://github.com/quixdb/squash/issues
+
+.SH AUTHOR
+squash, and this manual page, was was written by Evan Nemerson
+<evan@coeus-group.com>.

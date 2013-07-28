@@ -12,7 +12,7 @@
 
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
-  fprintf (stderr, "Usage: %s [OPTION]... INPUT OUTPUT\n", argv[0]);
+  fprintf (stderr, "Usage: %s [OPTION]... INPUT [OUTPUT]\n", argv[0]);
   fprintf (stderr, "Compress and decompress files.\n");
   fprintf (stderr, "\n");
   fprintf (stderr, "Options:\n");
@@ -235,13 +235,17 @@ int main (int argc, char** argv) {
     if ( codec != NULL ) {
       const char* extension = extension_from_codec (codec);
       if (extension != NULL) {
-        size_t extension_length = strlen (extension);
-        size_t input_name_length = strlen (input_name);
+        if (strcmp (input_name, "-") == 0) {
+          output_name = "-";
+        } else {
+          size_t extension_length = strlen (extension);
+          size_t input_name_length = strlen (input_name);
 
-        if ( (extension_length + 1) < input_name_length &&
-             input_name[input_name_length - (1 + extension_length)] == '.' &&
-             strcasecmp (extension, input_name + (input_name_length - (extension_length))) == 0 ) {
-          output_name = strndup (input_name, input_name_length - (1 + extension_length));
+          if ( (extension_length + 1) < input_name_length &&
+               input_name[input_name_length - (1 + extension_length)] == '.' &&
+               strcasecmp (extension, input_name + (input_name_length - (extension_length))) == 0 ) {
+            output_name = strndup (input_name, input_name_length - (1 + extension_length));
+          }
         }
       }
     }
