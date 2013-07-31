@@ -282,7 +282,7 @@ int main (int argc, char** argv) {
   }
 
   if ( !keep && input != stdin ) {
-    if ( unlink (input_name) == 0 ) {
+    if ( unlink (input_name) != 0 ) {
       perror ("Unable to remove input file");
     }
   }
