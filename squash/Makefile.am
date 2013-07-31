@@ -1,5 +1,3 @@
-SUBDIRS = . plugins
-
 lib_LTLIBRARIES = \
   libsquash@SQUASH_API_VERSION@.la
 

@@ -177,7 +177,7 @@ SQUASH_PLUGINS=""
 SQUASH_PLUGINS_ENABLED=""
 
 m4_foreach([plugin],[bzip2, fastlz, lz4, lzma, lzf, lzo, quicklz, snappy, zlib], [
-    m4_include(squash/plugins/plugin/plugin[.m4])
+    m4_include(plugins/plugin/plugin[.m4])
     SQUASH_PLUGINS="${SQUASH_PLUGINS} plugin"
   ])
 
@@ -185,7 +185,7 @@ for plugin in $SQUASH_PLUGINS; do
   enable_plugin=enable_$plugin
   if test "${!enable_plugin}" = "yes"; then
     SQUASH_PLUGINS_ENABLED="$SQUASH_PLUGINS_ENABLED $plugin"
-    SQUASH_DOXYGEN_PATHS="$SQUASH_DOXYGEN_PATHS ../squash/plugins/${plugin}/${plugin}.md"
+    SQUASH_DOXYGEN_PATHS="$SQUASH_DOXYGEN_PATHS ../plugins/${plugin}/${plugin}.md"
   fi
 done
 AC_SUBST(SQUASH_PLUGINS)
@@ -235,16 +235,16 @@ AC_CONFIG_FILES([Makefile
                  bindings/vala/Makefile
                  bindings/vala/examples/Makefile
                  squash/Makefile
-                 squash/plugins/Makefile
-                 squash/plugins/bzip2/Makefile
-                 squash/plugins/fastlz/Makefile
-                 squash/plugins/lz4/Makefile
-                 squash/plugins/lzma/Makefile
-                 squash/plugins/lzf/Makefile
-                 squash/plugins/lzo/Makefile
-                 squash/plugins/quicklz/Makefile
-                 squash/plugins/snappy/Makefile
-                 squash/plugins/zlib/Makefile
+                 plugins/Makefile
+                 plugins/bzip2/Makefile
+                 plugins/fastlz/Makefile
+                 plugins/lz4/Makefile
+                 plugins/lzma/Makefile
+                 plugins/lzf/Makefile
+                 plugins/lzo/Makefile
+                 plugins/quicklz/Makefile
+                 plugins/snappy/Makefile
+                 plugins/zlib/Makefile
                  utils/Makefile
                  docs/Doxyfile
                  docs/Makefile

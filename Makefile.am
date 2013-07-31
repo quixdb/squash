@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS=-I m4
 
-SUBDIRS = squash utils docs examples bindings . tests
+SUBDIRS = squash plugins utils docs examples bindings . tests
 
 squash-@SQUASH_API_VERSION@.pc: squash.pc
 	$(AM_V_GEN) cat < $^ > $@

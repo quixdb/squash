@@ -6,7 +6,7 @@ COMMON_CFLAGS = \
 COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 
 TESTS_ENVIRONMENT = \
-  SQUASH_PLUGINS="$(top_srcdir)/squash/plugins"
+  SQUASH_PLUGINS="$(top_srcdir)/plugins"
 
 TESTS_CFLAGS = \
   $(COMMON_CFLAGS) \
