@@ -49,6 +49,7 @@ SQUASH_BEGIN_DECLS
 #include "slist-internal.h"
 #include "buffer-internal.h"
 #include "buffer-stream-internal.h"
+#include "ini-internal.h"
 
 SQUASH_END_DECLS
 

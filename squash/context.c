@@ -217,6 +217,98 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
   }
 }
 
+/**
+ * @private
+ */
+typedef struct _SquashCodecsFileParser {
+  SquashIniParser parser;
+  SquashPlugin* plugin;
+  char* name;
+  int priority;
+} SquashCodecsFileParser;
+
+static int
+squash_codecs_file_parser_section_begin_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
+  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
+
+  parser->name = strdup (name);
+  parser->priority = 50;
+
+  return SQUASH_OK;
+}
+
+static int
+squash_codecs_file_parser_section_end_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
+  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
+
+  squash_codec_new (parser->name, parser->priority, parser->plugin);
+
+  return SQUASH_OK;
+}
+
+static int
+squash_codecs_file_parser_key_read_cb (SquashIniParser* ini_parser,
+                                       const char* section,
+                                       const char* key,
+                                       const char* detail,
+                                       const char* value,
+                                       void* user_data) {
+  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
+
+  if (strcasecmp (key, "priority") == 0 && detail == NULL) {
+    char* endptr = NULL;
+    long priority = strtol (value, &endptr, 0);
+    if (*endptr == '\0') {
+      parser->priority = (int) priority;
+    }
+  }
+
+  return SQUASH_OK;
+}
+
+static int
+squash_codecs_file_parser_error_cb (SquashIniParser* ini_parser,
+                                    SquashIniParserError e,
+                                    int line_number,
+                                    int position,
+                                    const char* line,
+                                    void* user_data) {
+	int p = 0;
+
+	fprintf (stderr, "[Squash] warning: %s (line %d)\n", squash_ini_parser_error_to_string (e), line_number);
+	fputs ("                  ", stderr);
+
+	fputs (line, stderr);
+  if (line[strlen (line) - 1] != '\n')
+    fputc ('\n', stderr);
+
+	fputs ("                  ", stderr);
+	while (p++ < position) {
+		fputc (' ', stderr);
+	}
+	fputs ("^\n", stderr);
+
+  return SQUASH_OK;
+}
+
+static void
+squash_codecs_file_parser_init (SquashCodecsFileParser* parser, SquashPlugin* plugin) {
+  SquashCodecsFileParser _parser = { { 0, }, plugin, NULL, 50 };
+
+  *parser = _parser;
+  squash_ini_parser_init ((SquashIniParser*) parser,
+                          squash_codecs_file_parser_section_begin_cb,
+                          squash_codecs_file_parser_section_end_cb,
+                          squash_codecs_file_parser_key_read_cb,
+                          squash_codecs_file_parser_error_cb,
+                          plugin, NULL);
+}
+
+static SquashStatus
+squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
+  return (SquashStatus) squash_ini_parser_parse ((SquashIniParser*) parser, input);
+}
+
 static void
 squash_context_find_plugins_in_directory (SquashContext* context, const char* directory_name) {
   DIR* directory = opendir (directory_name);
@@ -263,41 +355,45 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 
       SquashPlugin* plugin = squash_context_add_plugin (context, strdup (plugin_name), plugin_directory_name);
       if (plugin != NULL) {
-        char line[256] = { 0, };
+        SquashCodecsFileParser parser;
 
-        while (fgets (line, 255, codecs_file) != NULL) {
-          int line_len;
-          for ( line_len = (int) strlen (line) - 1 ; line_len >= 0 ; line_len-- ) {
-            if (isspace (line[line_len]))
-              line[line_len] = 0;
-            else
-              break;
-          }
+        squash_codecs_file_parser_init (&parser, plugin);
+        squash_codecs_file_parser_parse (&parser, codecs_file);
 
-          char* priority = strchr (line, ' ');
-          if (priority != NULL) {
-            *priority = 0;
-            priority++;
-          }
 
-          if (*line != 0) {
-            unsigned int priority_value = 0;
+        /* char line[256] = { 0, }; */
 
-            if (priority != NULL) {
-              char* priority_end = NULL;
-              priority_value = strtol (priority, &priority_end, 0);
-              if (*priority_end != 0)
-                priority_value = 0;
-            } else {
-              priority_value = 50;
-            }
+        /* while (fgets (line, 255, codecs_file) != NULL) { */
+        /*   int line_len; */
+        /*   for ( line_len = (int) strlen (line) - 1 ; line_len >= 0 ; line_len-- ) { */
+        /*     if (isspace (line[line_len])) */
+        /*       line[line_len] = 0; */
+        /*     else */
+        /*       break; */
+        /*   } */
 
-            squash_codec_new (strdup (line), priority_value, plugin);
-          }
-        }
+        /*   char* priority = strchr (line, ' '); */
+        /*   if (priority != NULL) { */
+        /*     *priority = 0; */
+        /*     priority++; */
+        /*   } */
+
+        /*   if (*line != 0) { */
+        /*     unsigned int priority_value = 0; */
+
+        /*     if (priority != NULL) { */
+        /*       char* priority_end = NULL; */
+        /*       priority_value = strtol (priority, &priority_end, 0); */
+        /*       if (*priority_end != 0) */
+        /*         priority_value = 0; */
+        /*     } else { */
+        /*       priority_value = 50; */
+        /*     } */
+
+        /*     squash_codec_new (strdup (line), priority_value, plugin); */
+        /*   } */
+        /* } */
       }
-
-      fclose (codecs_file);
     }
 
     free (codecs_file_name);

@@ -10,7 +10,6 @@ squash_headers = \
   object.h \
   options.h \
   plugin.h \
-  plugin-internal.h \
   status.h \
   stream.h \
   types.h \
@@ -25,6 +24,7 @@ libsquash@SQUASH_API_VERSION@_la_SOURCES = \
 	buffer-stream.c \
   codec.c \
   context.c \
+  ini.c \
   object.c \
   options.c \
   plugin.c \
