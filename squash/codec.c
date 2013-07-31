@@ -173,6 +173,14 @@ squash_codec_compare (SquashCodec* a, SquashCodec* b) {
   return strcmp (a->name, b->name);
 }
 
+int
+squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
+  assert (a != NULL);
+  assert (b != NULL);
+
+  return strcmp (a->extension, b->extension);
+}
+
 /**
  * @defgroup SquashCodec SquashCodec
  * @brief A compression/decompression codec
@@ -764,43 +772,80 @@ squash_decompress (const char* codec,
  * @return A status code
  */
 SquashStatus squash_decompress_with_options (const char* codec,
-                                       uint8_t* decompressed, size_t* decompressed_length,
-                                       const uint8_t* compressed, size_t compressed_length,
-                                       SquashOptions* options) {
+                                             uint8_t* decompressed, size_t* decompressed_length,
+                                             const uint8_t* compressed, size_t compressed_length,
+                                             SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
   if (codec_real == NULL)
     return SQUASH_NOT_FOUND;
 
   return squash_codec_decompress_with_options (codec_real,
-                                            decompressed, decompressed_length,
-                                            compressed, compressed_length,
-                                            options);
+                                               decompressed, decompressed_length,
+                                               compressed, compressed_length,
+                                               options);
 }
 
 /**
  * @brief Create a new codec
  * @private
  *
- * @param name Name of the codec
- * @param priority Codec priority
  * @param plugin Plugin to which this codec belongs
+ * @param name Name of the codec
  */
 SquashCodec*
-squash_codec_new (char* name, unsigned int priority, SquashPlugin* plugin) {
+squash_codec_new (SquashPlugin* plugin, const char* name) {
   SquashCodec* codecp = (SquashCodec*) malloc (sizeof (SquashCodec));
   SquashCodec codec = { 0, };
 
   codec.plugin = plugin;
-  codec.name = name;
-  codec.priority = priority;
+  codec.name = strdup (name);
+  codec.priority = 50;
   SQUASH_TREE_ENTRY_INIT(codec.tree);
 
   *codecp = codec;
 
-  squash_plugin_add_codec (plugin, codecp);
+  /* squash_plugin_add_codec (plugin, codecp); */
 
   return codecp;
+}
+
+/**
+ * @brief Set the codec's extension
+ * @private
+ *
+ * @param codec The codec
+ * @param name Extension of the codec
+ */
+void
+squash_codec_set_extension (SquashCodec* codec, const char* extension) {
+  if (codec->extension != NULL)
+    free (codec->extension);
+
+  codec->extension = (extension != NULL) ? strdup (extension) : NULL;
+}
+
+/**
+ * @brief Get the codec's extension
+ *
+ * @param codec The codec
+ * @return The extension, or *NULL* if none is known
+ */
+const char*
+squash_codec_get_extension (SquashCodec* codec) {
+  return codec->extension;
+}
+
+/**
+ * @brief Set the codec priority
+ * @private
+ *
+ * @param codec The codec
+ * @param priority Priority of the codec
+ */
+void
+squash_codec_set_priority (SquashCodec* codec, unsigned int priority) {
+  codec->priority = priority;
 }
 
 static SquashStatus

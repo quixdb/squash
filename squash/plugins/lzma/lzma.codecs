@@ -1,4 +1,8 @@
 [lzma]
+extension=lzma
+mime-type=application/x-lzma
 [xz]
+extension=xz
+mime-type=application/x-xz
 [lzma1]
 [lzma2]

@@ -1,3 +1,6 @@
 [gzip]
+extension=gz
+mime-type=application/gzip
 [zlib]
+mime-type=application/zlib
 [deflate]

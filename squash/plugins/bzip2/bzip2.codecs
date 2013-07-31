@@ -1,1 +1,3 @@
 [bzip2]
+extension=bz2
+mime-type=application/x-bzip2

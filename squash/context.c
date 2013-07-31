@@ -65,18 +65,7 @@
  * @brief Context for all Squash operations.
  */
 
-/**
- * @brief Retrieve a @ref SquashCodec from a @ref SquashContext.
- * @private
- *
- * Doesn't initialize the codec.
- *
- * @param context The context to use.
- * @param codec Name of the codec to retrieve.
- * @return The @ref SquashCodec, or *NULL* on failure.  This is owned by
- *   Squash and must never be freed or unreffed.
- */
-SquashCodecRef*
+static SquashCodecRef*
 squash_context_get_codec_ref (SquashContext* context, const char* codec) {
   SquashCodec key_codec = { 0, };
   SquashCodecRef key = { &key_codec, };
@@ -87,6 +76,19 @@ squash_context_get_codec_ref (SquashContext* context, const char* codec) {
   key_codec.name = (char*) codec;
 
   return SQUASH_TREE_FIND (&(context->codecs), _SquashCodecRef, tree, &key);
+}
+
+static SquashCodecRef*
+squash_context_get_codec_ref_from_extension (SquashContext* context, const char* extension) {
+  SquashCodec key_codec = { 0, };
+  SquashCodecRef key = { &key_codec, };
+
+  assert (context != NULL);
+  assert (extension != NULL);
+
+  key_codec.extension = (char*) extension;
+
+  return SQUASH_TREE_FIND (&(context->extensions), _SquashCodecRef, tree, &key);
 }
 
 /**
@@ -119,6 +121,34 @@ squash_context_get_codec (SquashContext* context, const char* codec) {
 SquashCodec*
 squash_get_codec (const char* codec) {
   return squash_context_get_codec (squash_context_get_default (), codec);
+}
+
+/**
+ * @brief Retrieve a codec from a context based on an extension
+ *
+ * @param context The context
+ * @param extension The extension
+ * @return A ref SquashCodec or *NULL* on failure
+ */
+SquashCodec*
+squash_context_get_codec_from_extension (SquashContext* context, const char* extension) {
+  SquashCodecRef* codec_ref = squash_context_get_codec_ref_from_extension (context, extension);
+  if (codec_ref != NULL) {
+    return (squash_codec_init (codec_ref->codec) == SQUASH_OK) ? codec_ref->codec : NULL;
+  } else {
+    return NULL;
+  }
+}
+
+/**
+ * @brief Retrieve a codec based on an extension
+ *
+ * @param extension The extension
+ * @return A ref SquashCodec or *NULL* on failure
+ */
+SquashCodec*
+squash_get_codec_from_extension (const char* extension) {
+  return squash_context_get_codec_from_extension (squash_context_get_default (), extension);
 }
 
 /**
@@ -156,6 +186,11 @@ squash_get_plugin (const char* plugin) {
 static int
 squash_codec_ref_compare (SquashCodecRef* a, SquashCodecRef* b) {
   return squash_codec_compare (a->codec, b->codec);
+}
+
+static int
+squash_codec_ref_extension_compare (SquashCodecRef* a, SquashCodecRef* b) {
+  return squash_codec_extension_compare (a->codec, b->codec);
 }
 
 static SquashPlugin*
@@ -215,6 +250,18 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
     /* Switch the existing context codec's details to this one */
     codec_ref->codec = codec;
   }
+
+  if (codec->extension != NULL) {
+    codec_ref = squash_context_get_codec_ref_from_extension (context, codec->extension);
+    if (codec_ref == NULL) {
+      codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
+      codec_ref->codec = codec;
+      SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
+      SQUASH_TREE_INSERT (&(context->extensions), _SquashCodecRef, tree, codec_ref);
+    } else if (codec->priority > codec_ref->codec->priority) {
+      codec_ref->codec = codec;
+    }
+  }
 }
 
 /**
@@ -223,16 +270,14 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
 typedef struct _SquashCodecsFileParser {
   SquashIniParser parser;
   SquashPlugin* plugin;
-  char* name;
-  int priority;
+  SquashCodec* codec;
 } SquashCodecsFileParser;
 
 static int
 squash_codecs_file_parser_section_begin_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
   SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
 
-  parser->name = strdup (name);
-  parser->priority = 50;
+  parser->codec = squash_codec_new (parser->plugin, name);
 
   return SQUASH_OK;
 }
@@ -241,7 +286,7 @@ static int
 squash_codecs_file_parser_section_end_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
   SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
 
-  squash_codec_new (parser->name, parser->priority, parser->plugin);
+  squash_plugin_add_codec (parser->plugin, parser->codec);
 
   return SQUASH_OK;
 }
@@ -259,8 +304,10 @@ squash_codecs_file_parser_key_read_cb (SquashIniParser* ini_parser,
     char* endptr = NULL;
     long priority = strtol (value, &endptr, 0);
     if (*endptr == '\0') {
-      parser->priority = (int) priority;
+      squash_codec_set_priority (parser->codec, (unsigned int) priority);
     }
+  } else if (strcasecmp (key, "extension") == 0 && detail == NULL) {
+    squash_codec_set_extension (parser->codec, value);
   }
 
   return SQUASH_OK;
@@ -273,27 +320,12 @@ squash_codecs_file_parser_error_cb (SquashIniParser* ini_parser,
                                     int position,
                                     const char* line,
                                     void* user_data) {
-	int p = 0;
-
-	fprintf (stderr, "[Squash] warning: %s (line %d)\n", squash_ini_parser_error_to_string (e), line_number);
-	fputs ("                  ", stderr);
-
-	fputs (line, stderr);
-  if (line[strlen (line) - 1] != '\n')
-    fputc ('\n', stderr);
-
-	fputs ("                  ", stderr);
-	while (p++ < position) {
-		fputc (' ', stderr);
-	}
-	fputs ("^\n", stderr);
-
   return SQUASH_OK;
 }
 
 static void
 squash_codecs_file_parser_init (SquashCodecsFileParser* parser, SquashPlugin* plugin) {
-  SquashCodecsFileParser _parser = { { 0, }, plugin, NULL, 50 };
+  SquashCodecsFileParser _parser = { { 0, }, plugin, NULL };
 
   *parser = _parser;
   squash_ini_parser_init ((SquashIniParser*) parser,
@@ -359,40 +391,6 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 
         squash_codecs_file_parser_init (&parser, plugin);
         squash_codecs_file_parser_parse (&parser, codecs_file);
-
-
-        /* char line[256] = { 0, }; */
-
-        /* while (fgets (line, 255, codecs_file) != NULL) { */
-        /*   int line_len; */
-        /*   for ( line_len = (int) strlen (line) - 1 ; line_len >= 0 ; line_len-- ) { */
-        /*     if (isspace (line[line_len])) */
-        /*       line[line_len] = 0; */
-        /*     else */
-        /*       break; */
-        /*   } */
-
-        /*   char* priority = strchr (line, ' '); */
-        /*   if (priority != NULL) { */
-        /*     *priority = 0; */
-        /*     priority++; */
-        /*   } */
-
-        /*   if (*line != 0) { */
-        /*     unsigned int priority_value = 0; */
-
-        /*     if (priority != NULL) { */
-        /*       char* priority_end = NULL; */
-        /*       priority_value = strtol (priority, &priority_end, 0); */
-        /*       if (*priority_end != 0) */
-        /*         priority_value = 0; */
-        /*     } else { */
-        /*       priority_value = 50; */
-        /*     } */
-
-        /*     squash_codec_new (strdup (line), priority_value, plugin); */
-        /*   } */
-        /* } */
       }
     }
 
@@ -523,6 +521,7 @@ squash_context_new (void) {
   *context = _context;
   SQUASH_TREE_INIT(&(context->codecs), squash_codec_ref_compare);
   SQUASH_TREE_INIT(&(context->plugins), squash_plugin_compare);
+  SQUASH_TREE_INIT(&(context->extensions), squash_codec_ref_extension_compare);
 
   squash_context_find_plugins (context);
 

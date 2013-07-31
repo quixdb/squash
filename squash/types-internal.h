@@ -42,6 +42,7 @@ typedef SQUASH_TREE_HEAD(_SquashCodecRefTree, _SquashCodecRef) SquashCodecRefTre
 struct _SquashContext {
   SquashPluginTree plugins;
   SquashCodecRefTree codecs;
+  SquashCodecRefTree extensions;
 };
 
 struct _SquashPlugin {
@@ -62,6 +63,7 @@ struct _SquashCodec {
 
   char* name;
   int priority;
+  char* extension;
 
   bool initialized;
   SquashCodecFuncs funcs;

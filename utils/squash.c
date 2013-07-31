@@ -20,7 +20,7 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "\t-o key=value  Pass the option to the encoder/decoder.\n");
   fprintf (stderr, "\t-1 .. -9      Pass the compression level to the encoder.\n");
   fprintf (stderr, "\t              Equivalent to -o level=N\n");
-  fprintf (stderr, "\t-e codec      Use the specified codec.  By default squash will\n");
+  fprintf (stderr, "\t-c codec      Use the specified codec.  By default squash will\n");
   fprintf (stderr, "\t              attempt to guess it based on the extension.\n");
   fprintf (stderr, "\t-L            List available codecs and exit\n");
   fprintf (stderr, "\t-P            List available plugins and exit\n");
@@ -86,34 +86,6 @@ list_plugins_and_codecs_foreach_cb (SquashPlugin* plugin, void* data) {
   char* indent = "\t";
   list_plugins_foreach_cb (plugin, data);
   squash_plugin_foreach_codec (plugin, list_codecs_foreach_cb, (void*) indent);
-}
-
-static SquashCodec*
-codec_from_extension (const char* extension) {
-  if (strcasecmp (extension, "bz2") == 0) {
-    return squash_get_codec ("bzip2");
-  } else if (strcasecmp (extension, "gz") == 0) {
-    return squash_get_codec ("gzip");
-  } else if (strcasecmp (extension, "xz") == 0) {
-    return squash_get_codec ("xz");
-  }
-
-  return NULL;
-}
-
-static const char*
-extension_from_codec (SquashCodec* codec) {
-  const char* name = squash_codec_get_name (codec);
-
-  if (strcmp (name, "bzip2") == 0) {
-    return "bz2";
-  } else if (strcmp (name, "gzip") == 0) {
-    return "gz";
-  } else if (strcmp (name, "xz") == 0) {
-    return "xz";
-  }
-
-  return NULL;
 }
 
 int main (int argc, char** argv) {
@@ -214,7 +186,8 @@ int main (int argc, char** argv) {
       if (extension != NULL)
         extension++;
 
-      codec = codec_from_extension (extension);
+      if (extension != NULL)
+        codec = squash_get_codec_from_extension (extension);
     }
   } else {
     fprintf (stderr, "You must provide an input file name.\n");
@@ -229,11 +202,12 @@ int main (int argc, char** argv) {
       if (extension != NULL)
         extension++;
 
-      codec = codec_from_extension (extension);
+      if (extension != NULL)
+        codec = squash_get_codec_from_extension (extension);
     }
   } else {
     if ( codec != NULL ) {
-      const char* extension = extension_from_codec (codec);
+      const char* extension = squash_codec_get_extension (codec);
       if (extension != NULL) {
         if (strcmp (input_name, "-") == 0) {
           output_name = "-";

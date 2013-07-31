@@ -33,16 +33,18 @@
 
 SQUASH_BEGIN_DECLS
 
-SQUASH_API SquashContext* squash_context_get_default    (void);
-SQUASH_API SquashPlugin*  squash_context_get_plugin     (SquashContext* context, const char* plugin);
-SQUASH_API SquashCodec*   squash_context_get_codec      (SquashContext* context, const char* codec);
-SQUASH_API void           squash_context_foreach_plugin (SquashContext* context, SquashPluginForeachFunc func, void* data);
-SQUASH_API void           squash_context_foreach_codec  (SquashContext* context, SquashCodecForeachFunc func, void* data);
+SQUASH_API SquashContext* squash_context_get_default              (void);
+SQUASH_API SquashPlugin*  squash_context_get_plugin               (SquashContext* context, const char* plugin);
+SQUASH_API SquashCodec*   squash_context_get_codec                (SquashContext* context, const char* codec);
+SQUASH_API void           squash_context_foreach_plugin           (SquashContext* context, SquashPluginForeachFunc func, void* data);
+SQUASH_API void           squash_context_foreach_codec            (SquashContext* context, SquashCodecForeachFunc func, void* data);
+SQUASH_API SquashCodec*   squash_context_get_codec_from_extension (SquashContext* context, const char* extension);
 
-SQUASH_API SquashPlugin*  squash_get_plugin             (const char* plugin);
-SQUASH_API SquashCodec*   squash_get_codec              (const char* codec);
-SQUASH_API void           squash_foreach_plugin         (SquashPluginForeachFunc func, void* data);
-SQUASH_API void           squash_foreach_codec          (SquashCodecForeachFunc func, void* data);
+SQUASH_API SquashPlugin*  squash_get_plugin                       (const char* plugin);
+SQUASH_API SquashCodec*   squash_get_codec                        (const char* codec);
+SQUASH_API void           squash_foreach_plugin                   (SquashPluginForeachFunc func, void* data);
+SQUASH_API void           squash_foreach_codec                    (SquashCodecForeachFunc func, void* data);
+SQUASH_API SquashCodec*   squash_get_codec_from_extension         (const char* extension);
 
 SQUASH_END_DECLS
 

@@ -67,6 +67,7 @@ SQUASH_API SquashStatus  squash_codec_init                        (SquashCodec* 
 SQUASH_API const char*   squash_codec_get_name                    (SquashCodec* codec);
 SQUASH_API unsigned int  squash_codec_get_priority                (SquashCodec* codec);
 SQUASH_API SquashPlugin* squash_codec_get_plugin                  (SquashCodec* codec);
+SQUASH_API const char*   squash_codec_get_extension               (SquashCodec* codec);
 
 SQUASH_API bool          squash_codec_get_knows_uncompressed_size (SquashCodec* codec);
 SQUASH_API size_t        squash_codec_get_uncompressed_size       (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
