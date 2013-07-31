@@ -330,7 +330,7 @@ squash_lzma_process_stream (SquashStream* stream) {
   SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, lzma_stream);
 
   if (lzma_e == LZMA_OK) {
-    return SQUASH_OK;
+    return (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
   } else if (lzma_e == LZMA_STREAM_END) {
     return SQUASH_END_OF_STREAM;
   } else {
