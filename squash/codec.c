@@ -27,8 +27,11 @@
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <stdio.h>
+#include <sys/mman.h>
 
 #include "config.h"
 #include "squash.h"
@@ -853,14 +856,98 @@ squash_codec_process_file_with_options (SquashCodec* codec,
                                         SquashStreamType stream_type,
                                         FILE* output, FILE* input,
                                         SquashOptions* options) {
-  SquashStatus res;
+  SquashStatus res = SQUASH_FAILED;
   SquashStream* stream;
-  uint8_t* inbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
-  uint8_t* outbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+  uint8_t* inbuf = NULL;
+  uint8_t* outbuf = NULL;
+
+  if (codec->funcs.create_stream == NULL) {
+    /* Attempt to mmap the input and output.  This short circuits the
+       whole SquashBufferStream hack when possible, which can be a
+       huge performance boost (50-100% for several codecs). */
+    struct stat instat = { 0, };
+    size_t outsize_max = 0;
+    int infd = fileno (input);
+    int outfd = fileno (output);
+
+    if (infd > 0) {
+      if (fstat (infd, &instat) != -1) {
+        if ((inbuf = mmap (NULL, instat.st_size, PROT_READ, MAP_SHARED, infd, 0)) != MAP_FAILED) {
+          if (stream_type == SQUASH_STREAM_COMPRESS) {
+            outsize_max = squash_codec_get_max_compressed_size (codec, instat.st_size);
+          } else if (codec->funcs.get_uncompressed_size != NULL) {
+            outsize_max = squash_codec_get_uncompressed_size (codec, inbuf, instat.st_size);
+          } else {
+            outsize_max = instat.st_size - 1;
+            outsize_max |= outsize_max >> 1;
+            outsize_max |= outsize_max >> 2;
+            outsize_max |= outsize_max >> 4;
+            outsize_max |= outsize_max >> 8;
+            outsize_max |= outsize_max >> 16;
+            outsize_max++;
+
+            outsize_max <<= 1;
+          }
+
+          if (ftruncate(outfd, (off_t) outsize_max) != -1) {
+            if ((outbuf = mmap (NULL, outsize_max, PROT_WRITE | PROT_READ, MAP_SHARED, outfd, 0)) != MAP_FAILED) {
+              size_t outsize = outsize_max;
+
+              if (stream_type == SQUASH_STREAM_COMPRESS) {
+                res = squash_codec_compress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
+
+                if (res == SQUASH_OK) {
+                  ftruncate (outfd, (off_t) outsize);
+                  fseek (output, outsize, SEEK_SET);
+                }
+              } else {
+                res = squash_codec_decompress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
+                while (res == SQUASH_BUFFER_FULL) {
+                  munmap (outbuf, outsize_max);
+                  outsize_max <<= 1;
+                  if ((ftruncate (outfd, (off_t) outsize_max) == -1) ||
+                      (outbuf = mmap (NULL, outsize_max, PROT_WRITE | PROT_READ, MAP_SHARED, outfd, 0)) == MAP_FAILED) {
+                    break;
+                  } else {
+                    outsize = outsize_max;
+                    res = squash_codec_decompress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
+                  }
+                }
+
+                if (res == SQUASH_OK) {
+                  ftruncate (outfd, (off_t) outsize);
+                }
+              }
+
+              if (outbuf != MAP_FAILED) {
+                munmap (outbuf, outsize_max);
+              }
+            }
+          }
+
+          munmap (inbuf, instat.st_size);
+        }
+      }
+    }
+  }
+
+  if (res == SQUASH_OK) {
+    return res;
+  }
 
   stream = squash_codec_create_stream_with_options (codec, stream_type, options);
   if ( stream == NULL ) {
     return SQUASH_FAILED;
+  }
+
+  inbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+  outbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+
+  if (inbuf == NULL || outbuf == NULL) {
+    squash_object_unref (stream);
+    free (inbuf);
+    free (outbuf);
+    return SQUASH_MEMORY;
   }
 
   while ( !feof (input) ) {
