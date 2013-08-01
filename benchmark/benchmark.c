@@ -23,7 +23,6 @@ struct BenchmarkContext {
   FILE* output;
   FILE* input;
   char* input_name;
-  long input_size;
   bool first;
 };
 
@@ -101,10 +100,10 @@ benchmark_codec (SquashCodec* codec, void* data) {
   benchmark_timer_start (&timer);
   squash_codec_compress_file_with_options (codec, compressed, context->input, NULL);
   benchmark_timer_stop (&timer);
-  fprintf (context->output, "{\"plugin\":\"%s\",\"codec\":\"%s\",\"ratio\":%g,\"compress_cpu\":%g,\"compress_wall\":%g,",
+  fprintf (context->output, "{\"plugin\":\"%s\",\"codec\":\"%s\",\"size\":%ld,\"compress_cpu\":%g,\"compress_wall\":%g,",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
            squash_codec_get_name (codec),
-           (double) context->input_size / (double) ftell (compressed),
+           ftell (compressed),
            benchmark_timer_elapsed_cpu (&timer),
            benchmark_timer_elapsed_wall (&timer));
   fputs ("done.\n", stderr);
@@ -133,8 +132,9 @@ benchmark_plugin (SquashPlugin* plugin, void* data) {
 }
 
 int main (int argc, char** argv) {
-  struct BenchmarkContext context = { stdout, NULL, NULL, 0, true };
+  struct BenchmarkContext context = { stdout, NULL, NULL, true };
   bool first_input = true;
+  long input_size = 0;
   int opt;
   int optc;
 
@@ -175,7 +175,7 @@ int main (int argc, char** argv) {
       perror ("Unable to seek to end of input file");
       exit (-1);
     }
-    context.input_size = ftell (context.input);
+    input_size = ftell (context.input);
 
     fprintf (stderr, "Using %s:\n", context.input_name);
     if (first_input) {
@@ -183,11 +183,11 @@ int main (int argc, char** argv) {
     } else {
       fputc (',', context.output);
     }
-    fprintf (context.output, "\"%s\":[", context.input_name);
+    fprintf (context.output, "\"%s\":{\"uncompressed-size\":%ld,\"data\":[", context.input_name, input_size);
 
     squash_foreach_plugin (benchmark_plugin, &context);
 
-    fputc (']', context.output);
+    fputs ("]}", context.output);
 
     optind++;
   }

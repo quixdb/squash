@@ -29,17 +29,22 @@ enwik9.bz2:
 enwik9: enwik9.bz2
 	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -dc bzip2 $< $@
 
-data.json: iliad enwik8 | benchmark
+data.json: iliad | benchmark
 	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(builddir)/benchmark -o $@ $^
+
+benchmark.html: benchmark-header.html data.json benchmark-footer.html
+	cat $^ > $@
 
 GITIGNOREFILES = \
   iliad \
   enwik8 \
   enwik9 \
-  data.json
+  data.json \
+  benchmark.html
 
 EXTRA_DIST = \
   data.json \
-  index.html
+  benchmark-header.html \
+  benchmark-footer.html
 
 -include $(top_srcdir)/git.mk
