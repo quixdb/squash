@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Squash Benchmarks</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="benchmark.js"></script>
+    <style type="text/css">
+      body {
+        padding: 0 10%;
+      }
+
+      h1, h2, h3 {
+        border-bottom: 1px black solid;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Squash Benchmark</h1>
+    <h2>Basics</h2>
+
+    <p>
+      This benchmark
+      uses <a href="https://github.com/quixdb/squash">Squash</a> to
+      compress and decompress a series of files.  Times are given in
+      seconds of <abbr>CPU</abbr> time.
+    </p>
+
+    <p>
+      Currently, only the default options for each codec are given.
+      When I have time I'll try to expand it to include more options.
+    </p>
+
+    <h2>Datasets</h2>
+
+    <dl>
+      <dt>
+        <a href="#iliad" onclick="benchmark.load('iliad')">iliad</a>
+      </dt>
+      <dd>
+        <p>
+          <abbr>HTML</abbr> from a Project Gutenberg eBook of Homer's
+          Iliad (1308638 bytes).
+          <a href="http://www.gutenberg.org/files/22382/22382-h/22382-h.htm">Source</a>
+        </p>
+      </dd>
+
+      <dt>
+        <a href="#enwik8" onclick="benchmark.load('enwik8')">enwik8</a>
+      </dt>
+      <dd>
+        <p>
+          First 10⁸ bytes of the English Wikipedia dump on March 3,
+          2006.
+          <a href="https://cs.fit.edu/~mmahoney/compression/textdata.html">Source</a>
+        </p>
+      </dd>
+    </dl>
+
+    <div id="results">
+      
+    </div>
+  </body>
+</html>

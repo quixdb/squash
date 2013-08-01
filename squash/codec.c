@@ -35,7 +35,7 @@
 #include "internal.h"
 
 #ifndef SQUASH_CODEC_FILE_BUF_SIZE
-#  define SQUASH_CODEC_FILE_BUF_SIZE 4096
+#  define SQUASH_CODEC_FILE_BUF_SIZE (1024 * 1024)
 #endif
 
 /**
@@ -855,8 +855,8 @@ squash_codec_process_file_with_options (SquashCodec* codec,
                                         SquashOptions* options) {
   SquashStatus res;
   SquashStream* stream;
-  uint8_t inbuf[SQUASH_CODEC_FILE_BUF_SIZE] = { 0, };
-  uint8_t outbuf[SQUASH_CODEC_FILE_BUF_SIZE] = { 0, };
+  uint8_t* inbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+  uint8_t* outbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
 
   stream = squash_codec_create_stream_with_options (codec, stream_type, options);
   if ( stream == NULL ) {
@@ -881,6 +881,8 @@ squash_codec_process_file_with_options (SquashCodec* codec,
         res = SQUASH_OK;
       }
       squash_object_unref (stream);
+      free (inbuf);
+      free (outbuf);
       return res;
     }
   }
@@ -895,6 +897,8 @@ squash_codec_process_file_with_options (SquashCodec* codec,
   } while ( res == SQUASH_PROCESSING );
 
   squash_object_unref (stream);
+  free (inbuf);
+  free (outbuf);
 
   return res;
 }

@@ -156,9 +156,6 @@ int main (int argc, char** argv) {
       case 'd':
         direction = SQUASH_STREAM_DECOMPRESS;
         break;
-      default:
-        fprintf (stderr, "%c: %s\n", (char) opt, optarg);
-        break;
     }
 
     optc++;

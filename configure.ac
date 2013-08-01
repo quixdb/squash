@@ -231,6 +231,7 @@ AC_FUNC_REALLOC
 
 AC_CONFIG_FILES([Makefile
                  squash.pc
+                 benchmark/Makefile
                  bindings/Makefile
                  bindings/vala/Makefile
                  bindings/vala/examples/Makefile

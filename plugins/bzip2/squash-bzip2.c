@@ -275,7 +275,7 @@ squash_bz2_process_stream (SquashStream* stream) {
     bz2_res = BZ2_bzDecompress (bz2_stream);
   }
 
-  if (bz2_res == BZ_RUN_OK) {
+  if (bz2_res == BZ_RUN_OK || bz2_res == BZ_OK) {
     if (bz2_stream->avail_in == 0) {
       res = SQUASH_OK;
     } else {
@@ -302,6 +302,10 @@ squash_bz2_finish_stream (SquashStream* stream) {
   bz_stream* bz2_stream;
   int bz2_res;
   SquashStatus res;
+
+  if (stream->stream_type != SQUASH_STREAM_COMPRESS) {
+    return squash_bz2_process_stream (stream);
+  }
 
   assert (stream != NULL);
 

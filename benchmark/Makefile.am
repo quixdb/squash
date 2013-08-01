@@ -1,0 +1,45 @@
+COMMON_CFLAGS = \
+   -I$(top_srcdir) \
+   @WARN_CFLAGS@ \
+  -DSQUASH_IS_UNSTABLE
+
+COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
+
+bin_PROGRAMS = \
+  benchmark
+
+benchmark_CFLAGS = $(COMMON_CFLAGS)
+benchmark_LDADD = $(COMMON_LIBS)
+
+benchmark_SOURCES = \
+  benchmark.c
+
+iliad:
+	wget -O $@ "http://www.gutenberg.org/files/22382/22382-h/22382-h.htm"
+
+enwik8.bz2:
+	wget -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik8.bz2"
+
+enwik8: enwik8.bz2
+	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -dc bzip2 $< $@
+
+enwik9.bz2:
+	wget -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik9.bz2"
+
+enwik9: enwik9.bz2
+	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -dc bzip2 $< $@
+
+data.json: iliad enwik8 | benchmark
+	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(builddir)/benchmark -o $@ $^
+
+GITIGNOREFILES = \
+  iliad \
+  enwik8 \
+  enwik9 \
+  data.json
+
+EXTRA_DIST = \
+  data.json \
+  index.html
+
+-include $(top_srcdir)/git.mk
