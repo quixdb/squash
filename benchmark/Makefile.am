@@ -21,15 +21,15 @@ enwik8.bz2:
 	wget -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik8.bz2"
 
 enwik8: enwik8.bz2
-	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -dc bzip2 $< $@
+	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -kdc bzip2 $< $@
 
 enwik9.bz2:
 	wget -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik9.bz2"
 
 enwik9: enwik9.bz2
-	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -dc bzip2 $< $@
+	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -kdc bzip2 $< $@
 
-data.json: iliad | benchmark
+data.json: iliad enwik8 | benchmark
 	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(builddir)/benchmark -o $@ $^
 
 benchmark.html: benchmark-header.html data.json benchmark-footer.html
@@ -39,6 +39,8 @@ GITIGNOREFILES = \
   iliad \
   enwik8 \
   enwik9 \
+  enwik8.bz2 \
+  enwik9.bz2 \
   data.json \
   benchmark.html
 

@@ -106,43 +106,79 @@ var benchmark = new function () {
     }
 
     {
-      var compression_ratio_vs_speed_view = new google.visualization.DataView (_this.data[name]);
-      compression_ratio_vs_speed_view.setColumns ([
-        2,
-        3,
-        4,
-        { sourceColumn: 1, role: 'tooltip' }
-      ]);
-      var compression_ratio_vs_speed_container = $("<div></div>");
-      result.append (compression_ratio_vs_speed_container);
-      var compression_ratio_vs_speed = new google.visualization.ScatterChart (compression_ratio_vs_speed_container.get (0));
-      compression_ratio_vs_speed.draw (compression_ratio_vs_speed_view, {
-        title: 'Compression Ratio vs. Speed',
-        hAxis: { title: 'Ratio', minValue: 0 },
-        vAxis: { title: 'Speed (KB/s, logarithmic)', minValue: 0, logScale: true },
+      var speed_view = new google.visualization.DataView (_this.data[name]);
+      speed_view.setColumns ([1, 3, 4]);
+
+      var speed_container = $("<div></div>");
+      result.append (speed_container);
+      var speed = new google.visualization.BarChart (speed_container.get (0));
+      speed.draw (speed_view, {
+        title: 'Speed',
+        vAxis: { title: 'Codecs' },
+        hAxis: { title: 'Speed (KB/s)' },
         height: ($("#results").innerWidth () * (9 / 16))
       });
-      visualizations.push (compression_ratio_vs_speed);
+      visualizations.push (speed);
     }
 
     {
-      var speed_view = new google.visualization.DataView (_this.data[name]);
-      speed_view.setColumns ([
+      var compression_ratio_vs_compression_speed_view = new google.visualization.DataView (_this.data[name]);
+      compression_ratio_vs_compression_speed_view.setColumns ([
+        3,
+        2,
+        { sourceColumn: 1, role: 'tooltip' }
+      ]);
+      var compression_ratio_vs_compression_speed_container = $("<div></div>");
+      result.append (compression_ratio_vs_compression_speed_container);
+      var compression_ratio_vs_compression_speed = new google.visualization.ScatterChart (compression_ratio_vs_compression_speed_container.get (0));
+      compression_ratio_vs_compression_speed.draw (compression_ratio_vs_compression_speed_view, {
+        legend: 'none',
+        title: 'Compression Ratio vs. Compression Speed',
+        vAxis: { title: 'Ratio', minValue: 0 },
+        hAxis: { title: 'Speed (KB/s)', minValue: 0 },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (compression_ratio_vs_compression_speed);
+    }
+
+    {
+      var compression_ratio_vs_decompression_speed_view = new google.visualization.DataView (_this.data[name]);
+      compression_ratio_vs_decompression_speed_view.setColumns ([
+        4,
+        2,
+        { sourceColumn: 1, role: 'tooltip' }
+      ]);
+      var compression_ratio_vs_decompression_speed_container = $("<div></div>");
+      result.append (compression_ratio_vs_decompression_speed_container);
+      var compression_ratio_vs_decompression_speed = new google.visualization.ScatterChart (compression_ratio_vs_decompression_speed_container.get (0));
+      compression_ratio_vs_decompression_speed.draw (compression_ratio_vs_decompression_speed_view, {
+        legend: 'none',
+        title: 'Compression Ratio vs. Decompression Speed',
+        vAxis: { title: 'Ratio', minValue: 0 },
+        hAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (compression_ratio_vs_decompression_speed);
+    }
+
+    {
+      var speed_compare_view = new google.visualization.DataView (_this.data[name]);
+      speed_compare_view.setColumns ([
         3,
         4,
         { sourceColumn: 1, role: 'tooltip' }
       ]);
-      var speed_container = $("<div></div>");
-      result.append (speed_container);
-      var speed = new google.visualization.ScatterChart (speed_container.get (0));
-      speed.draw (speed_view, {
+      var speed_compare_container = $("<div></div>");
+      result.append (speed_compare_container);
+      var speed_compare = new google.visualization.ScatterChart (speed_compare_container.get (0));
+      speed_compare.draw (speed_compare_view, {
         legend: 'none',
         title: 'Compression Speed vs. Decompression Speed',
         hAxis: { title: 'Compression Speed (KB/s)', minValue: 0 },
         vAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
         height: ($("#results").innerWidth () * (9 / 16))
       });
-      visualizations.push (speed);
+      visualizations.push (speed_compare);
     }
 
     visualizations.forEach (function (visualization) {
