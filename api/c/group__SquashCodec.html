@@ -160,6 +160,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gad9af84f04edf39e699764e0ef23f5bf9">squash_decompress_with_options</a> (const char *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length, SquashOptions *options)</td></tr>
 <tr class="memdesc:gad9af84f04edf39e699764e0ef23f5bf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#gad9af84f04edf39e699764e0ef23f5bf9">More...</a><br/></td></tr>
 <tr class="separator:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga9f341f35d36fb5d8d8489a1e3b2f0ba9">squash_codec_get_extension</a> (SquashCodec *codec)</td></tr>
+<tr class="memdesc:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the codec's extension.  <a href="#ga9f341f35d36fb5d8d8489a1e3b2f0ba9">More...</a><br/></td></tr>
+<tr class="separator:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3c27f07889c3cc525e0a14435df1b7da"><td class="memItemLeft" align="right" valign="top">SquashStatus&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga3c27f07889c3cc525e0a14435df1b7da">squash_codec_compress_file_with_options</a> (SquashCodec *codec, FILE *compressed, FILE *uncompressed, SquashOptions *options)</td></tr>
 <tr class="memdesc:ga3c27f07889c3cc525e0a14435df1b7da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a standard I/O stream with options.  <a href="#ga3c27f07889c3cc525e0a14435df1b7da">More...</a><br/></td></tr>
 <tr class="separator:ga3c27f07889c3cc525e0a14435df1b7da"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -274,7 +277,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00539">539</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00550">550</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -327,7 +330,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00915">915</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01051">1051</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -380,7 +383,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00872">872</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01008">1008</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -446,7 +449,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00471">471</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00482">482</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -491,7 +494,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00439">439</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00450">450</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -536,7 +539,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00407">407</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00418">418</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -602,7 +605,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00633">633</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00644">644</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -655,7 +658,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00944">944</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01080">1080</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -708,7 +711,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00893">893</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01029">1029</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -774,7 +777,34 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00571">571</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00582">582</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga9f341f35d36fb5d8d8489a1e3b2f0ba9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* squash_codec_get_extension </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the codec's extension. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The extension, or <em>NULL</em> if none is known </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00838">838</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -801,7 +831,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The function table. </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00263">263</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00274">274</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -829,7 +859,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>whether or not the codec knows the uncompressed size </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00288">288</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00299">299</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -869,7 +899,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The maximum size required to store a compressed buffer representing <em>uncompressed_length</em> of uncompressed data. </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00351">351</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00362">362</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -896,7 +926,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The codec's name </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00203">203</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00214">214</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -923,7 +953,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The plugin to which the codec belongs </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00229">229</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00240">240</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -950,7 +980,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The codec's priority </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00216">216</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00227">227</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -996,7 +1026,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The uncompressed size, or <em>0</em> if unknown </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00315">315</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00326">326</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1031,7 +1061,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00252">252</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00263">263</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1098,7 +1128,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a1">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00669">669</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00680">680</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1151,7 +1181,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01025">1025</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01161">1161</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1204,7 +1234,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00972">972</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01108">1108</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1270,7 +1300,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00703">703</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00714">714</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1337,7 +1367,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a4">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00733">733</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00744">744</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1390,7 +1420,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01058">1058</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01194">1194</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1443,7 +1473,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00998">998</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01134">1134</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1509,7 +1539,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00766">766</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00777">777</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1551,7 +1581,7 @@ Functions</h2></td></tr>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="group__SquashCodec.html#ga5737dad972a975199477eaf6a0a3ff47" title="Get the maximum buffer size necessary to store compressed data.">squash_codec_get_max_compressed_size</a> </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a0">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00387">387</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00398">398</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
