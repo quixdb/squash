@@ -1,0 +1,138 @@
+<HTML><HEAD><TITLE>Manpage of squash</TITLE>
+</HEAD><BODY>
+<H1>squash</H1>
+Section: Squash (1)<BR>Updated: 27 July 2013<BR><A HREF="#index">Index</A>
+<A HREF="/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="ixAAB"></A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+squash - compress and decompress files
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>squash [</B><I>OPTION</I>]... <I>INPUT</I> [<I>OUTPUT</I>]
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>squash</B>
+
+is a command line utility which to compress and decompress data using
+any codec which libsquash supports.  For a list of codecs supported by
+this copy of libsquash, see the <I>-L</I> flag.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>FILES</H2>
+
+<DL COMPACT>
+<DT><B>squash</B>
+
+<DD>
+An input file must be provided, although &quot;-&quot; can be used as an alias
+for stdin.
+<P>
+If an output file not provided then squash will attempt to guess an
+appropriate file name based on the requested codec and the name of the
+input file.
+<P>
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+<DL COMPACT>
+<DT><DD>
+<B>squash foo.txt foo.txt.gz</B>
+
+<DT>Compress the contents of <I>foo.txt</I> to <I>foo.txt.gz</I> using the &quot;gzip&quot; codec.<DD>
+<P>
+<B>squash -de lz4 - -</B>
+
+<DT>Decompress from stdin to stdout using the lz4 codec.<DD>
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-h</B>
+
+<DD>
+Show help screen
+<DT><B>-k</B>
+
+<DD>
+Keep the input file.  By default, squash will try to remove it.
+<DT><B>-o </B><I>key</I>=<I>value</I>
+
+<DD>
+Pass the specified option to the codec.
+<DT><B>-1 .. -9</B>
+
+<DD>
+Pass the compression level to the encoder.  This is equivalent to
+<I>-o level=N</I>.
+<DT><B>-e </B><I>codec</I>
+
+<DD>
+Use <I>codec</I>.
+<DT><B>-L</B>
+
+<DD>
+List the available codecs and exit.
+<DT><B>-P</B>
+
+<DD>
+List the available plugins and exit.
+<DT><B>-f</B>
+
+<DD>
+Overwrite the output file if it exists.
+<DT><B>-d</B>
+
+<DD>
+Decompress (the default is to compress).
+<P>
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>HOMEPAGE</H2>
+
+<DL COMPACT>
+<DT><A HREF="http://quixdb.github.io/squash/">http://quixdb.github.io/squash/</A><DD>
+<P>
+</DL>
+<A NAME="lbAI">&nbsp;</A>
+<H2>BUG REPORTS</H2>
+
+<DL COMPACT>
+<DT><A HREF="https://github.com/quixdb/squash/issues">https://github.com/quixdb/squash/issues</A><DD>
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+squash, and this manual page, was was written by Evan Nemerson
+&lt;<A HREF="mailto:evan@coeus-group.com">evan@coeus-group.com</A>&gt;.
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">FILES</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">OPTIONS</A><DD>
+<DT><A HREF="#lbAH">HOMEPAGE</A><DD>
+<DT><A HREF="#lbAI">BUG REPORTS</A><DD>
+<DT><A HREF="#lbAJ">AUTHOR</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 21:56:00 GMT, August 02, 2013
+</BODY>
+</HTML>
