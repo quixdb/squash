@@ -50,7 +50,8 @@ var benchmark = new function () {
   _this.data = [];
 
   google.setOnLoadCallback(function () {
-    Object.getOwnPropertyNames (benchmark_data).forEach (function (dataset, i, a) {
+    var benchmark_names = Object.getOwnPropertyNames (benchmark_data);
+    benchmark_names.forEach (function (dataset, i, a) {
       var data = new google.visualization.DataTable ();
 
       data.addColumn('string', 'Plugin');
@@ -72,6 +73,10 @@ var benchmark = new function () {
 
       $("#datasets-list").append ('<li><a href="#' + dataset + '" onclick="benchmark.load(\'' + dataset + '\')">' + dataset + '</a></li>');
     });
+
+    if (benchmark_names.length == 1) {
+      this.load (benchmark_names[0]);
+    }
   });
 
   this.load = function (name) {
