@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="benchmark.js"></script>
+    <script type="text/javascript" src="benchmark-log.js"></script>
     <style type="text/css">
       body {
         padding: 0 10%;
@@ -15,13 +15,13 @@
         border-bottom: 1px black solid;
       }
 
-			noscript {
-			  background-color: #fdd;
-			  border: 2px red solid;
-			  display: block;
-			  padding: 1em;
-			  margin: 1em;
-			}
+      noscript {
+        background-color: #fdd;
+        border: 2px red solid;
+        display: block;
+        padding: 1em;
+        margin: 1em;
+      }
     </style>
     <script type="text/javascript">
 var benchmark_data =
@@ -49,7 +49,17 @@ var benchmark_data =
       Currently, only the default options for each codec are given.
     </p>
 
+    <p>
+      The code used to generate this benchmark is in
+      the <a href="https://github.com/quixdb/squash/tree/master/benchmark"><var>benchmark/</var>
+      subdirectory of Squash</a>.
+    </p>
+
     <h2>Datasets</h2>
+
+    <p>
+      Please choose a dataset, and the data should appear.
+    </p>
 
     <ul id="datasets-list"></ul>
 

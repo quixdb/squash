@@ -40,6 +40,12 @@
 			  content: " #";
 			  color: #999;
 			}
+
+      .benchmark-result-link {
+        font-weight: bolder;
+        font-style: italic;
+        text-align: center;
+      }
     </style>
 	</head>
 	<body>
@@ -132,16 +138,45 @@
 
 		<p>
 			Squash ships with a tool for automatically building benchmarks,
-			so you can easily create your own.  If you don't want to do that
-			(it is a time-consuming process), you can take a look at some
-			benchmarks created by others:
+			so you can easily create your own using whatever dataset is
+			appropriate for your work load.
 		</p>
+
+		<p>
+			If you don't want to run them yourself results from a few
+			systems are posted here.  Currently, the these benchmarks are
+			run on two datasets:
+		</p>
+
+		<dl>
+			<dt>iliad (1308638 bytes)</dt>
+			<dd>
+				<p>
+					This is the <abbr>HTML</abbr> from a copy
+					of <a href="http://www.gutenberg.org/files/22382/22382-h/22382-h.htm">Homer's
+					Iliad</a> as downloaded
+					from <a href="http://www.gutenberg.org/">Project
+					Gutenberg</a>.
+				</p>
+			</dd>
+
+			<dt>enwik8 (100000000 bytes)</dt>
+			<dd>
+				<p>
+					The first 100,000,000 bytes of a dump of the English
+					language Wikipedia 2006-03-03.  This is one of
+					the <a href="https://cs.fit.edu/~mmahoney/compression/textdata.html">datasets
+					from Matt Mahoney Large Text Compression Benchmark</a>.
+				</p>
+			</p>
+		</dl>
 
 		<table>
 			<thead>
 				<tr>
 					<th>CPU</th>
 					<th>Architecture</th>
+					<th>Platform</th>
 					<th>OS</th>
 					<th>Result</th>
 				</tr>
@@ -151,15 +186,17 @@
 				<tr>
 					<td><a href="http://ark.intel.com/products/49490">Intel® Atom™ D525</a></td>
 					<td>x86_64</td>
+					<td><a href="http://www.asus.com/Motherboards/AT5NM10TI/">Asus AT5NM10T-I</a></td>
 					<td>Fedora 19</td>
-					<td><a href="benchmarks/atom-d525.html">Result</a></td>
+					<td class="benchmark-result-link"><a href="benchmarks/atom-d525.html">Result</a></td>
 				</tr>
 
 				<tr>
 					<td><a href="http://ark.intel.com/products/52207">Intel® Core™ i5-2400</a></td>
 					<td>x86_64</td>
+					<td><a href="http://www.asus.com/Motherboards/P8Z68V/">Asus P8Z68-V</a></td>
 					<td>Fedora 19</td>
-					<td><a href="benchmarks/core-i5-2400.html">Result</a></td>
+					<td class="benchmark-result-link"><a href="benchmarks/core-i5-2400.html">Result</a></td>
 				</tr>
 			</tbody>
 		</table>

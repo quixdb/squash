@@ -50,8 +50,7 @@ var benchmark = new function () {
   _this.data = [];
 
   google.setOnLoadCallback(function () {
-    var benchmark_names = Object.getOwnPropertyNames (benchmark_data);
-    benchmark_names.forEach (function (dataset, i, a) {
+    Object.getOwnPropertyNames (benchmark_data).forEach (function (dataset, i, a) {
       var data = new google.visualization.DataTable ();
 
       data.addColumn('string', 'Plugin');
@@ -73,10 +72,6 @@ var benchmark = new function () {
 
       $("#datasets-list").append ('<li><a href="#' + dataset + '" onclick="benchmark.load(\'' + dataset + '\')">' + dataset + '</a></li>');
     });
-
-    if (benchmark_names.length == 1) {
-      this.load (benchmark_names[0]);
-    }
   });
 
   this.load = function (name) {
@@ -119,8 +114,8 @@ var benchmark = new function () {
       var speed = new google.visualization.BarChart (speed_container.get (0));
       speed.draw (speed_view, {
         title: 'Speed',
-        vAxis: { title: 'Codecs' },
-        hAxis: { title: 'Speed (KB/s)' },
+        vAxis: { title: 'Codecs', logScale: true },
+        hAxis: { title: 'Speed (KB/s)', logScale: true },
         height: ($("#results").innerWidth () * (9 / 16))
       });
       visualizations.push (speed);
@@ -140,7 +135,7 @@ var benchmark = new function () {
         legend: 'none',
         title: 'Compression Ratio vs. Compression Speed',
         vAxis: { title: 'Ratio', minValue: 0 },
-        hAxis: { title: 'Speed (KB/s)', minValue: 0 },
+        hAxis: { title: 'Speed (KB/s)', minValue: 0, logScale: true },
         height: ($("#results").innerWidth () * (9 / 16))
       });
       visualizations.push (compression_ratio_vs_compression_speed);
@@ -160,7 +155,7 @@ var benchmark = new function () {
         legend: 'none',
         title: 'Compression Ratio vs. Decompression Speed',
         vAxis: { title: 'Ratio', minValue: 0 },
-        hAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
+        hAxis: { title: 'Decompression Speed (KB/s)', minValue: 0, logScale: true },
         height: ($("#results").innerWidth () * (9 / 16))
       });
       visualizations.push (compression_ratio_vs_decompression_speed);
@@ -179,8 +174,8 @@ var benchmark = new function () {
       speed_compare.draw (speed_compare_view, {
         legend: 'none',
         title: 'Compression Speed vs. Decompression Speed',
-        hAxis: { title: 'Compression Speed (KB/s)', minValue: 0 },
-        vAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
+        hAxis: { title: 'Compression Speed (KB/s)', minValue: 0, logScale: true },
+        vAxis: { title: 'Decompression Speed (KB/s)', minValue: 0, logScale: true },
         height: ($("#results").innerWidth () * (9 / 16))
       });
       visualizations.push (speed_compare);
