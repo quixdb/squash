@@ -33,7 +33,7 @@ with Squash, though it is preferred.
 Squash currently contains plugins for the following libraries:
 
 - [bzip2](@ref md_bzip2)
-- [FastLZ](@ref md_lz4)
+- [FastLZ](@ref md_fastlz)
 - [LZ4](@ref md_lz4)
 - [liblzma](@ref md_lzma)
 - [LZF](@ref md_lzf)
