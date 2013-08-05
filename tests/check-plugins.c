@@ -130,9 +130,7 @@ check_buffer_basic (gconstpointer user_data) {
 
   res = squash_codec_decompress_with_options (codec, uncompressed, &uncompressed_length, compressed, compressed_length, NULL);
   SQUASH_ASSERT_OK(res);
-  if (uncompressed_length != LOREM_IPSUM_LENGTH)
-    fprintf (stderr, "Uncompressed length: %lu (expected %lu)\n", uncompressed_length, LOREM_IPSUM_LENGTH);
-  // g_assert (uncompressed_length == LOREM_IPSUM_LENGTH);
+  g_assert (uncompressed_length == LOREM_IPSUM_LENGTH);
 
   g_assert (memcmp (LOREM_IPSUM, uncompressed, LOREM_IPSUM_LENGTH) == 0);
 
@@ -163,10 +161,6 @@ buffer_to_buffer_compress_with_stream (SquashCodec* codec,
       }
     } while (res == SQUASH_PROCESSING);
 
-    if (res != SQUASH_OK) {
-      fprintf (stderr, "!!!!!!!!!!! %d\n", res);
-      break;
-    }
     SQUASH_ASSERT_OK(res);
   }
 
@@ -305,7 +299,14 @@ int
 main (int argc, char** argv) {
   g_test_init (&argc, &argv, NULL);
 
-  squash_foreach_plugin (squash_check_codec_enumerator_plugin_cb, NULL);
+  if (argc > 1) {
+    int arg;
+    for ( arg = 1 ; arg < argc ; arg++) {
+      squash_check_codec_enumerator_codec_cb (squash_get_codec (argv[arg]), NULL);
+    }
+  } else {
+    squash_foreach_plugin (squash_check_codec_enumerator_plugin_cb, NULL);
+  }
 
   return g_test_run ();
 }

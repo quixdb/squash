@@ -367,7 +367,6 @@ squash_stream_process (SquashStream* stream) {
       stream->state = SQUASH_STREAM_STATE_RUNNING;
       break;
     case SQUASH_END_OF_STREAM:
-      assert (stream->avail_in == 0);
       stream->state = SQUASH_STREAM_STATE_FINISHED;
       break;
   }
@@ -473,15 +472,16 @@ squash_stream_finish (SquashStream* stream) {
   } else if (funcs->create_stream == NULL && funcs->process_stream == NULL && funcs->flush_stream == NULL) {
     res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
   } else {
-    return SQUASH_OK;
+    res = funcs->process_stream (stream);
   }
 
   stream->total_in += (avail_in - stream->avail_in);
   stream->total_out += (avail_out - stream->avail_out);
 
   switch (res) {
-    case SQUASH_OK:
     case SQUASH_END_OF_STREAM:
+      res = SQUASH_OK;
+    case SQUASH_OK:
       stream->state = SQUASH_STREAM_STATE_FINISHED;
       break;
     case SQUASH_PROCESSING:

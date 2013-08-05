@@ -610,7 +610,7 @@ squash_codec_decompress_with_options (SquashCodec* codec,
     stream->avail_out = *decompressed_length;
 
     do {
-      status = squash_stream_process (stream);
+      status = squash_stream_finish (stream);
     } while (status == SQUASH_PROCESSING);
 
     switch (status) {
