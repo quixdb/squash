@@ -5,7 +5,7 @@ COMMON_CFLAGS = \
 
 COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 
-bin_PROGRAMS = \
+noinst_PROGRAMS = \
   benchmark
 
 benchmark_CFLAGS = $(COMMON_CFLAGS)

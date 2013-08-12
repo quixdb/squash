@@ -8,7 +8,8 @@ SUBDIRS = \
   quicklz \
   sharc \
   snappy \
-  zlib
+  zlib \
+  zpaq
 
 EXTRA_DIST = \
 	plugins.md

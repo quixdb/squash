@@ -176,7 +176,7 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 SQUASH_PLUGINS=""
 SQUASH_PLUGINS_ENABLED=""
 
-m4_foreach([plugin],[bzip2, fastlz, lz4, lzma, lzf, lzo, quicklz, sharc, snappy, zlib], [
+m4_foreach([plugin],[bzip2, fastlz, lz4, lzma, lzf, lzo, quicklz, sharc, snappy, zlib, zpaq], [
     m4_include(plugins/plugin/plugin[.m4])
     SQUASH_PLUGINS="${SQUASH_PLUGINS} plugin"
   ])
@@ -223,6 +223,8 @@ AS_IF([test "x$have___sync_bool_compare_and_swap" = "xyes"], [
   ])
 ])
 
+AX_EXT
+
 # Checks for library functions.
 
 AC_CHECK_FUNCS([memset pathconf strchr strdup strtol])
@@ -247,6 +249,7 @@ AC_CONFIG_FILES([Makefile
                  plugins/sharc/Makefile
                  plugins/snappy/Makefile
                  plugins/zlib/Makefile
+                 plugins/zpaq/Makefile
                  utils/Makefile
                  docs/Doxyfile
                  docs/Makefile

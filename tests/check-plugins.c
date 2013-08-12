@@ -142,7 +142,7 @@ static SquashStatus
 buffer_to_buffer_compress_with_stream (SquashCodec* codec,
                                        uint8_t* compressed, size_t* compressed_length,
                                        uint8_t* uncompressed, size_t uncompressed_length) {
-  size_t step_size = g_test_rand_int_range (1, 255);
+  size_t step_size = g_test_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_COMPRESS, NULL);
   SquashStatus res;
 
@@ -205,7 +205,7 @@ static SquashStatus
 buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
                                          uint8_t* decompressed, size_t* decompressed_length,
                                          uint8_t* compressed, size_t compressed_length) {
-  size_t step_size = g_test_rand_int_range (1, 255);
+  size_t step_size = g_test_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_DECOMPRESS, NULL);
   SquashStatus res = SQUASH_OK;
 
