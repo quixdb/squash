@@ -39,6 +39,7 @@ Squash currently contains plugins for the following libraries:
 - [LZF](@ref md_lzf)
 - [LZO](@ref md_lzo)
 - [QuickLZ](@ref md_quicklz)
+- [SHARC](@ref md_sharc)
 - [Snappy](@ref md_snappy)
 - [zlib](@ref md_zlib)
 

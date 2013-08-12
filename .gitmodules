@@ -1,3 +1,6 @@
 [submodule "plugins/lz4/lz4"]
 	path = plugins/lz4/lz4
 	url = https://github.com/svn2github/lz4.git
+[submodule "plugins/sharc/sharc"]
+	path = plugins/sharc/sharc
+	url = https://github.com/centaurean/sharc.git
