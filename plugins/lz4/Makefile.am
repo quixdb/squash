@@ -1,6 +1,5 @@
 COMMON_CFLAGS = \
    -I$(top_srcdir) \
-   @WARN_CFLAGS@ \
   -DSQUASH_IS_UNSTABLE \
   -DSQUASH_COMPILATION
 
