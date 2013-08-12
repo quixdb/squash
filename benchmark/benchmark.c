@@ -15,6 +15,7 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "Options:\n");
   fprintf (stderr, "\t-o outfile    Write data to outfile (default is stdout)\n");
   fprintf (stderr, "\t-h            Print this help screen and exit.\n");
+  fprintf (stderr, "\t-c codec      Benchmark the specified codec and exit.\n");
 
   exit (exit_code);
 }
@@ -137,8 +138,9 @@ int main (int argc, char** argv) {
   long input_size = 0;
   int opt;
   int optc;
+  SquashCodec* codec = NULL;
 
-  while ( (opt = getopt(argc, argv, "ho:")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "ho:c:")) != -1 ) {
     switch ( opt ) {
       case 'h':
         print_help_and_exit (argc, argv, 0);
@@ -147,6 +149,13 @@ int main (int argc, char** argv) {
         context.output = fopen (optarg, "w+");
         if (context.output == NULL) {
           perror ("Unable to open output file");
+          return -1;
+        }
+        break;
+      case 'c':
+        codec = squash_get_codec ((const char*) optarg);
+        if (codec == NULL) {
+          fprintf (stderr, "Unable to find codec.\n");
           return -1;
         }
         break;
@@ -185,7 +194,11 @@ int main (int argc, char** argv) {
     }
     fprintf (context.output, "\"%s\":{\"uncompressed-size\":%ld,\"data\":[", context.input_name, input_size);
 
-    squash_foreach_plugin (benchmark_plugin, &context);
+    if (codec == NULL) {
+      squash_foreach_plugin (benchmark_plugin, &context);
+    } else {
+      benchmark_codec (codec, &context);
+    }
 
     fputs ("]}", context.output);
 
