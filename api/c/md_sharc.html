@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Squash: Main Page</title>
+<title>Squash: sharc Plugin</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -37,8 +37,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </script>
   <div id="navrow1" class="tabs">
     <ul class="tablist">
-      <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -61,7 +61,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
-</div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -76,45 +75,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">Squash Documentation</div>  </div>
+<div class="title">sharc Plugin </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="intro"></a>
-Introduction</h1>
-<p>Squash is an abstraction layer which provides a single API to access many compression libraries.</p>
-<p>For a high-level overview of how to use Squash, please see the <a class="el" href="md_user-guide.html">Squash User Guide</a>.</p>
-<h2><a class="anchor" id="bindings"></a>
-Bindings</h2>
-<p>Squash is written in C and has minimal hard dependencies, meaning it should be straightforward to create bindings for many languages. In order help with testing, bindings are generally distributed with Squash.</p>
-<p>Squash currently supports the following languages:</p>
+<div class="textblock"><p>SHARC is a fast compression codec.</p>
+<p>For more information about SHARC, see <a href="http://www.centaurean.com/sharc">http://www.centaurean.com/sharc</a></p>
+<h2>Codecs</h2>
 <ul>
-<li>C</li>
-<li>Vala</li>
+<li><b>sharc</b> — SHARC archive, as produced by the sharc command line tool.</li>
 </ul>
-<p>We hope to add more soon. If you're interested in helping, please contact us!</p>
-<h2><a class="anchor" id="plugins"></a>
-Plugins</h2>
-<p>The actual integration with individual compression libraries is done through plugins which can be installed separately from Squash itself and are not loaded until they are required. This allows Squash consumers to utilize a great many compression algorithms without rewriting code or unnecessary bloat. Plugins need not be distributed with Squash, though it is preferred.</p>
-<p>Squash currently contains plugins for the following libraries:</p>
+<h2>Options</h2>
 <ul>
-<li><a class="el" href="md_bzip2.html">bzip2</a></li>
-<li><a class="el" href="md_fastlz.html">FastLZ</a></li>
-<li><a class="el" href="md_lz4.html">LZ4</a></li>
-<li><a class="el" href="md_lzma.html">liblzma</a></li>
-<li><a class="el" href="md_lzf.html">LZF</a></li>
-<li><a class="el" href="md_lzo.html">LZO</a></li>
-<li><a class="el" href="md_quicklz.html">QuickLZ</a></li>
-<li><a class="el" href="md_sharc.html">SHARC</a></li>
-<li><a class="el" href="md_snappy.html">Snappy</a></li>
-<li><a class="el" href="md_zlib.html">zlib</a></li>
-<li><a class="el" href="md_zpaq.html">ZPAQ</a></li>
+<li><b>level</b> (integer, 1 or 2, default 1) — Compression level. 2 offers better compression at a lower speeed.</li>
 </ul>
-<p>We hope to add more soon. If you're interested in helping, please contact us!</p>
-<h2><a class="anchor" id="license"></a>
-License</h2>
-<p>Squash is licensed under the <a href="http://opensource.org/licenses/MIT">MIT license</a>. Although this license does not place many restrictions on using Squash itself, please keep in mind that some plugins use libraries which are subject to more restrictive terms (such as <a href="http://www.oberhumer.com/opensource/lzo/">LZO</a>). </p>
+<h2>License</h2>
+<p>The sharc plugin is licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>, and SHARC is licensed under the <a href="https://gnu.org/licenses/gpl.html">GPLv3</a> or available for a fee under a proprietary license. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

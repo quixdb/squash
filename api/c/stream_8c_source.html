@@ -275,105 +275,105 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_RUNNING;</div>
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;      <span class="keywordflow">break</span>;</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4abcbe18097c8c640819549688c68deeab" title="Reached the end of the stream while decoding.">SQUASH_END_OF_STREAM</a>:</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;      assert (stream-&gt;avail_in == 0);</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_FINISHED;</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;  }</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;</div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;  <span class="keywordflow">return</span> res;</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;}</div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;SquashStatus</div>
-<div class="line"><a name="l00389"></a><span class="lineno"><a class="code" href="group__SquashStream.html#gaf30071398681ab62c1e8903c21e3aa9f">  389</a></span>&#160;<a class="code" href="group__SquashStream.html#gaf30071398681ab62c1e8903c21e3aa9f" title="Flush a stream.">squash_stream_flush</a> (SquashStream* stream) {</div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;  SquashCodec* codec;</div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;  SquashCodecFuncs* funcs = NULL;</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;  SquashStatus res;</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;  assert (stream != NULL);</div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;  <span class="keywordflow">switch</span> (stream-&gt;state) {</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_RUNNING:</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FLUSHING:</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_IDLE:</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;  }</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;  <span class="keywordflow">if</span> (stream-&gt;stream_type != <a class="code" href="group__SquashStream.html#gga373850b31c58e06de1b81d0807633e80a9cce70ea396abe4f229ee5834111e01a" title="A compression stream.">SQUASH_STREAM_COMPRESS</a>) {</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;  }</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;  codec = stream-&gt;codec;</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;  assert (codec != NULL);</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;  funcs = <a class="code" href="group__SquashCodec.html#ga475990a04e9f357e3b843f2805447a53" title="Get the codec&#39;s function table.">squash_codec_get_funcs</a> (codec);</div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;</div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;  <span class="keywordflow">if</span> (funcs != NULL &amp;&amp; funcs-&gt;flush_stream != NULL) {</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_in = stream-&gt;avail_in;</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_out = stream-&gt;avail_out;</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;    res = funcs-&gt;flush_stream (stream);</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;    stream-&gt;total_in += (avail_in - stream-&gt;avail_in);</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;    stream-&gt;total_out += (avail_out - stream-&gt;avail_out);</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;    res = <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;  }</div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;  <span class="keywordflow">switch</span> (res) {</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>:</div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_RUNNING;</div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aa770e2e02f296a134e46ae18396731fb" title="Operation partially completed.">SQUASH_PROCESSING</a>:</div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_FLUSHING;</div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;  }</div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;</div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;  <span class="keywordflow">return</span> res;</div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;}</div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;</div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;SquashStatus</div>
-<div class="line"><a name="l00445"></a><span class="lineno"><a class="code" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e">  445</a></span>&#160;<a class="code" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e" title="Finish writing to a stream.">squash_stream_finish</a> (SquashStream* stream) {</div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;  SquashCodec* codec;</div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;  SquashCodecFuncs* funcs;</div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;  SquashStatus res;</div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;</div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;  assert (stream != NULL);</div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;</div>
-<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;  <span class="keywordflow">switch</span> (stream-&gt;state) {</div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_RUNNING:</div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FINISHING:</div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_IDLE:</div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;      <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FINISHED:</div>
-<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>;</div>
-<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
-<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;  }</div>
-<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;</div>
-<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;  codec = stream-&gt;codec;</div>
-<div class="line"><a name="l00464"></a><span class="lineno">  464</span>&#160;  assert (codec != NULL);</div>
-<div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160;</div>
-<div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;  funcs = <a class="code" href="group__SquashCodec.html#ga475990a04e9f357e3b843f2805447a53" title="Get the codec&#39;s function table.">squash_codec_get_funcs</a> (codec);</div>
-<div class="line"><a name="l00467"></a><span class="lineno">  467</span>&#160;</div>
-<div class="line"><a name="l00468"></a><span class="lineno">  468</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_in = stream-&gt;avail_in;</div>
-<div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_out = stream-&gt;avail_out;</div>
-<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;</div>
-<div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;  <span class="keywordflow">if</span> (funcs-&gt;finish_stream != NULL) {</div>
-<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;    res = funcs-&gt;finish_stream (stream);</div>
-<div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (funcs-&gt;create_stream == NULL &amp;&amp; funcs-&gt;process_stream == NULL &amp;&amp; funcs-&gt;flush_stream == NULL) {</div>
-<div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;    res = squash_buffer_stream_finish ((SquashBufferStream*) stream);</div>
-<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>;</div>
-<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;  }</div>
-<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;</div>
-<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;  stream-&gt;total_in += (avail_in - stream-&gt;avail_in);</div>
-<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;  stream-&gt;total_out += (avail_out - stream-&gt;avail_out);</div>
-<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;</div>
-<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;  <span class="keywordflow">switch</span> (res) {</div>
-<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>:</div>
-<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4abcbe18097c8c640819549688c68deeab" title="Reached the end of the stream while decoding.">SQUASH_END_OF_STREAM</a>:</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_FINISHED;</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;  }</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;  <span class="keywordflow">return</span> res;</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;}</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00388"></a><span class="lineno"><a class="code" href="group__SquashStream.html#gaf30071398681ab62c1e8903c21e3aa9f">  388</a></span>&#160;<a class="code" href="group__SquashStream.html#gaf30071398681ab62c1e8903c21e3aa9f" title="Flush a stream.">squash_stream_flush</a> (SquashStream* stream) {</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;  SquashCodec* codec;</div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;  SquashCodecFuncs* funcs = NULL;</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;  SquashStatus res;</div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;  assert (stream != NULL);</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;  <span class="keywordflow">switch</span> (stream-&gt;state) {</div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_RUNNING:</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FLUSHING:</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_IDLE:</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;  }</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;  <span class="keywordflow">if</span> (stream-&gt;stream_type != <a class="code" href="group__SquashStream.html#gga373850b31c58e06de1b81d0807633e80a9cce70ea396abe4f229ee5834111e01a" title="A compression stream.">SQUASH_STREAM_COMPRESS</a>) {</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;  }</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;</div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;  codec = stream-&gt;codec;</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;  assert (codec != NULL);</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;  funcs = <a class="code" href="group__SquashCodec.html#ga475990a04e9f357e3b843f2805447a53" title="Get the codec&#39;s function table.">squash_codec_get_funcs</a> (codec);</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;  <span class="keywordflow">if</span> (funcs != NULL &amp;&amp; funcs-&gt;flush_stream != NULL) {</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_in = stream-&gt;avail_in;</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_out = stream-&gt;avail_out;</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;    res = funcs-&gt;flush_stream (stream);</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;    stream-&gt;total_in += (avail_in - stream-&gt;avail_in);</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;    stream-&gt;total_out += (avail_out - stream-&gt;avail_out);</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;    res = <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;  }</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;  <span class="keywordflow">switch</span> (res) {</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>:</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_RUNNING;</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aa770e2e02f296a134e46ae18396731fb" title="Operation partially completed.">SQUASH_PROCESSING</a>:</div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_FLUSHING;</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;  }</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;</div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;  <span class="keywordflow">return</span> res;</div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;}</div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00444"></a><span class="lineno"><a class="code" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e">  444</a></span>&#160;<a class="code" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e" title="Finish writing to a stream.">squash_stream_finish</a> (SquashStream* stream) {</div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;  SquashCodec* codec;</div>
+<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;  SquashCodecFuncs* funcs;</div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;  SquashStatus res;</div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;</div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;  assert (stream != NULL);</div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;</div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;  <span class="keywordflow">switch</span> (stream-&gt;state) {</div>
+<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_RUNNING:</div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FINISHING:</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_IDLE:</div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;      <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;    <span class="keywordflow">case</span> SQUASH_STREAM_STATE_FINISHED:</div>
+<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>;</div>
+<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a7011627f2b016cbc4c74527249038759" title="The requested operation is not available.">SQUASH_INVALID_OPERATION</a>;</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;  }</div>
+<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;</div>
+<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;  codec = stream-&gt;codec;</div>
+<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;  assert (codec != NULL);</div>
+<div class="line"><a name="l00464"></a><span class="lineno">  464</span>&#160;</div>
+<div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160;  funcs = <a class="code" href="group__SquashCodec.html#ga475990a04e9f357e3b843f2805447a53" title="Get the codec&#39;s function table.">squash_codec_get_funcs</a> (codec);</div>
+<div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;</div>
+<div class="line"><a name="l00467"></a><span class="lineno">  467</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_in = stream-&gt;avail_in;</div>
+<div class="line"><a name="l00468"></a><span class="lineno">  468</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> avail_out = stream-&gt;avail_out;</div>
+<div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;</div>
+<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;  <span class="keywordflow">if</span> (funcs-&gt;finish_stream != NULL) {</div>
+<div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;    res = funcs-&gt;finish_stream (stream);</div>
+<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (funcs-&gt;create_stream == NULL &amp;&amp; funcs-&gt;process_stream == NULL &amp;&amp; funcs-&gt;flush_stream == NULL) {</div>
+<div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;    res = squash_buffer_stream_finish ((SquashBufferStream*) stream);</div>
+<div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;    res = funcs-&gt;process_stream (stream);</div>
+<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;  }</div>
+<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;</div>
+<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;  stream-&gt;total_in += (avail_in - stream-&gt;avail_in);</div>
+<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;  stream-&gt;total_out += (avail_out - stream-&gt;avail_out);</div>
+<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;</div>
+<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;  <span class="keywordflow">switch</span> (res) {</div>
+<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4abcbe18097c8c640819549688c68deeab" title="Reached the end of the stream while decoding.">SQUASH_END_OF_STREAM</a>:</div>
+<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;      res = <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>;</div>
+<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4ad2b378ce34d12d3b6e9cd7e85a83158a" title="Operation completed successfully.">SQUASH_OK</a>:</div>
 <div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;      stream-&gt;state = SQUASH_STREAM_STATE_FINISHED;</div>
 <div class="line"><a name="l00486"></a><span class="lineno">  486</span>&#160;      <span class="keywordflow">break</span>;</div>
 <div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aa770e2e02f296a134e46ae18396731fb" title="Operation partially completed.">SQUASH_PROCESSING</a>:</div>

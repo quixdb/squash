@@ -396,7 +396,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;    stream-&gt;avail_out = *decompressed_length;</div>
 <div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;</div>
 <div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;    <span class="keywordflow">do</span> {</div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;      status = <a class="code" href="group__SquashStream.html#ga05defb5fc38779fa23f6abf360e2e48b" title="Process a stream.">squash_stream_process</a> (stream);</div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;      status = <a class="code" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e" title="Finish writing to a stream.">squash_stream_finish</a> (stream);</div>
 <div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;    } <span class="keywordflow">while</span> (status == <a class="code" href="group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aa770e2e02f296a134e46ae18396731fb" title="Operation partially completed.">SQUASH_PROCESSING</a>);</div>
 <div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;</div>
 <div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;    <span class="keywordflow">switch</span> (status) {</div>

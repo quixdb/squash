@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['sharc_20plugin',['sharc Plugin',['../md_sharc.html',1,'']]],
   ['snappy_20plugin',['snappy Plugin',['../md_snappy.html',1,'']]],
   ['squash_5fbad_5fparam',['SQUASH_BAD_PARAM',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a73787d267ef35aed5e35df9f2ddd759b',1,'status.h']]],
   ['squash_5fbad_5fvalue',['SQUASH_BAD_VALUE',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aff3c3a747902c9bf3f16406f06138021',1,'status.h']]],
