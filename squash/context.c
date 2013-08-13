@@ -26,6 +26,7 @@
 
 #define _BSD_SOURCE
 #define _POSIX_SOURCE
+#define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
 #include <stdlib.h>
@@ -37,6 +38,7 @@
 #include <stddef.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <strings.h>
 
 #include <ltdl.h>
 
@@ -385,7 +387,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
       snprintf (plugin_directory_name, plugin_directory_name_length + 1, "%s/%s",
                 directory_name, plugin_name);
 
-      SquashPlugin* plugin = squash_context_add_plugin (context, strdup (plugin_name), plugin_directory_name);
+      SquashPlugin* plugin = squash_context_add_plugin (context, strndup (plugin_name, 32), plugin_directory_name);
       if (plugin != NULL) {
         SquashCodecsFileParser parser;
 
