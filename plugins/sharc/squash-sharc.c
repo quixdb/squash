@@ -212,7 +212,7 @@ squash_sharc_process_stream (SquashStream* stream) {
 
   SQUASH_SHARC_PLUGIN_STREAM_COPY_TO_SHARC_STREAM(stream, sharc_stream);
   sharc_e = squash_sharc_stream_process (sharc_stream);
-  SQUASH_SHARC_PLUGIN_STREAM_COPY_FROM_SHARC_STREAM(stream,sharc_stream);
+  SQUASH_SHARC_PLUGIN_STREAM_COPY_FROM_SHARC_STREAM(stream, sharc_stream);
 
   return squash_sharc_stream_status_to_squash_status (sharc_e);
 }
@@ -245,8 +245,8 @@ static size_t
 squash_sharc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
   return uncompressed_length +
     sizeof(SHARC_GENERIC_HEADER) +
-    (sizeof(SHARC_BLOCK_HEADER) * (uncompressed_length / SHARC_MAX_BUFFER_SIZE)) +
-    (((uncompressed_length % SHARC_MAX_BUFFER_SIZE) == 0) ? 0 : sizeof(SHARC_BLOCK_HEADER));
+    (sizeof(SHARC_BLOCK_HEADER) * (uncompressed_length / (SHARC_MAX_BUFFER_SIZE))) +
+    (((uncompressed_length % (SHARC_MAX_BUFFER_SIZE)) == 0) ? 0 : sizeof(SHARC_BLOCK_HEADER));
 }
 
 SquashStatus

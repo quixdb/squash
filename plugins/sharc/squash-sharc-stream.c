@@ -59,6 +59,9 @@ struct _SquashSharcStreamPriv {
   sharc_byte inter_data[SHARC_MAX_BUFFER_SIZE];
   sharc_byte* read_data;
   sharc_byte* write_data;
+
+  SHARC_ENTRY dictionary_a[1 << SHARC_HASH_BITS];
+  SHARC_ENTRY dictionary_b[1 << SHARC_HASH_BITS];
 };
 
 #ifndef MIN
@@ -95,6 +98,9 @@ squash_sharc_stream_init (SquashSharcStream* stream, SquashSharcStreamType type)
   priv->read_buffer = sharc_createByteBuffer(NULL, 0, 0);
   priv->inter_buffer = sharc_createByteBuffer(priv->inter_data, 0, SHARC_MAX_BUFFER_SIZE);
   priv->write_buffer = sharc_createByteBuffer(NULL, 0, 0);
+
+  sharc_resetDictionary(priv->dictionary_a);
+  sharc_resetDictionary(priv->dictionary_b);
 
   return SQUASH_SHARC_STREAM_OK;
 }
@@ -231,14 +237,13 @@ squash_sharc_stream_compress (SquashSharcStream* stream) {
         priv->read_buffer.size = priv->read_buffer.position;
         priv->read_buffer.position = 0;
 
-        encoding_result = sharc_sharcEncode(&(priv->read_buffer), &(priv->inter_buffer), &(priv->write_buffer), stream->mode);
+        encoding_result = sharc_sharcEncode(&(priv->read_buffer), &(priv->inter_buffer), &(priv->write_buffer), stream->mode, priv->dictionary_a, priv->dictionary_b);
         priv->header.block.mode = SHARC_LITTLE_ENDIAN_32((const uint32_t) encoding_result.reachableMode);
         priv->header.block.nextBlock = SHARC_LITTLE_ENDIAN_32(encoding_result.out->position);
 
         squash_sharc_stream_set_state_detailed (stream, SQUASH_SHARC_STREAM_STATE_BLOCK_HEADER);
       } else {
         if (stream->avail_in == 0) {
-          abort ();
           return SQUASH_SHARC_STREAM_OK;
         } else if (progress) {
           return SQUASH_SHARC_STREAM_PROCESSING;
@@ -285,7 +290,8 @@ squash_sharc_stream_compress (SquashSharcStream* stream) {
 
         squash_sharc_stream_set_state_detailed (stream, SQUASH_SHARC_STREAM_STATE_BUFFERING);
         priv->state &= ~SQUASH_SHARC_STREAM_STATE_FLUSHING;
-        return SQUASH_SHARC_STREAM_OK;
+
+        return (stream->avail_in == 0) ? SQUASH_SHARC_STREAM_OK : SQUASH_SHARC_STREAM_PROCESSING;
       } else {
         return SQUASH_SHARC_STREAM_PROCESSING;
       }
@@ -396,7 +402,7 @@ squash_sharc_stream_decompress (SquashSharcStream* stream) {
             priv->write_buffer.pointer = priv->write_data;
           }
 
-          if (!sharc_sharcDecode (&(priv->read_buffer), &(priv->inter_buffer), &(priv->write_buffer), priv->header.block.mode)) {
+          if (!sharc_sharcDecode (&(priv->read_buffer), &(priv->inter_buffer), &(priv->write_buffer), priv->header.block.mode, priv->dictionary_a, priv->dictionary_b)) {
             return SQUASH_SHARC_STREAM_FAILED;
           }
 
