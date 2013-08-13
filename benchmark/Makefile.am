@@ -8,8 +8,12 @@ COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 noinst_PROGRAMS = \
   benchmark
 
-benchmark_CFLAGS = $(COMMON_CFLAGS)
-benchmark_LDADD = $(COMMON_LIBS)
+benchmark_CFLAGS = \
+  $(COMMON_CFLAGS)
+
+benchmark_LDADD = \
+  $(COMMON_LIBS) \
+  -lrt
 
 benchmark_SOURCES = \
   benchmark.c
