@@ -105,7 +105,8 @@ AS_CASE([$enable_docs],
     ])
 AM_CONDITIONAL([ENABLE_DOCS], test -x "$DOXYGEN")
 
-AM_PROG_VALAC
+AM_PROG_VALAC(,[have_valac="yes"],[have_valac="no"])
+AM_CONDITIONAL([HAVE_VALAC], test x$have_valac = "xyes")
 
 GNOME_COMPILE_WARNINGS
 CHECK_HIDDEN_VISIBILITY([SQUASH_API])

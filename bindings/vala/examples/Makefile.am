@@ -23,7 +23,9 @@ compress_stream_LDADD = \
 noinst_PROGRAMS =
 
 if HAVE_GLIB
+if HAVE_VALAC
 noinst_PROGRAMS += compress-stream
+endif
 endif
 
 GITIGNOREFILES = \
