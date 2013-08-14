@@ -4,3 +4,6 @@
 [submodule "plugins/sharc/sharc"]
 	path = plugins/sharc/sharc
 	url = https://github.com/centaurean/sharc.git
+[submodule "plugins/lzf/liblzf"]
+	path = plugins/lzf/liblzf
+	url = https://github.com/nemequ/liblzf.git

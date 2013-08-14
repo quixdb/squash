@@ -1,6 +1,5 @@
 COMMON_CFLAGS = \
    -I$(top_srcdir) \
-   @WARN_CFLAGS@ \
   -DSQUASH_IS_UNSTABLE \
   -DSQUASH_COMPILATION
 
@@ -21,11 +20,20 @@ libsquash@SQUASH_API_VERSION@_plugin_lzf_la_CFLAGS = \
 
 libsquash@SQUASH_API_VERSION@_plugin_lzf_la_LDFLAGS = $(PLUGIN_LIBTOOL_FLAGS)
 
-libsquash@SQUASH_API_VERSION@_plugin_lzf_la_LIBADD = \
-	$(COMMON_LIBS) \
-  -llzf
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_LIBADD = $(COMMON_LIBS)
 
 libsquash@SQUASH_API_VERSION@_plugin_lzf_la_SOURCES = squash-lzf.c
+
+if USE_SYSTEM_LZF
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_LIBADD += -llzf
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_CFLAGS += @WARN_CFLAGS@
+else
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_SOURCES += \
+  liblzf/lzf_c.c \
+  liblzf/lzf_d.c
+
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_CFLAGS += -Iliblzf
+endif
 
 EXTRA_DIST = \
 	$(plugin_DATA) \
