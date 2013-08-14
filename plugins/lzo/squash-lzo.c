@@ -247,9 +247,6 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
     }
   }
 
-  /* int(* compress) (const lzo_bytep src, lzo_uint src_len, */
-  /*                  lzo_bytep dst, lzo_uintp dst_len, */
-  /*                  lzo_voidp wrkmem); */
   src_len = (lzo_uint) compressed_length;
   dst_len = (lzo_uint) *decompressed_length;
   lzo_e = lzo_codec->decompress (compressed, src_len,

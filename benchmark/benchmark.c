@@ -84,6 +84,13 @@ benchmark_codec (SquashCodec* codec, void* data) {
   FILE* decompressed = tmpfile ();
   struct BenchmarkTimer timer;
 
+  /* Since we're often running against the source dir, we will pick up
+     plugins which have not been compiled.  This should bail us out
+     before trying to actually use them. */
+  if (squash_codec_init (codec) != SQUASH_OK) {
+    return;
+  }
+
   fprintf (stderr, "\t%s:%s\n",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
            squash_codec_get_name (codec));
