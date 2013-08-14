@@ -14,7 +14,7 @@ AC_FUNC_ERROR_AT_LINE
 
 AC_CHECK_FUNCS([floor pow])
 
-if test x"$ax_cv_support_sse_ext" != x"yes"; then
+if test x"$ax_cv_have_sse2_ext" != x"yes"; then
   ZPAQ_SSE2_CPPFLAGS="-DNOJIT"
 fi
 AC_SUBST([ZPAQ_SSE2_CPPFLAGS])

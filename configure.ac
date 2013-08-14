@@ -171,6 +171,7 @@ AC_ARG_ENABLE([unit-testing], [AC_HELP_STRING([--enable-unit-testing=@<:@yes/no/
   ])
 
 # For plug-ins
+AX_EXT
 PLUGIN_LIBTOOL_FLAGS="-module -avoid-version"
 AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 
@@ -223,8 +224,6 @@ AS_IF([test "x$have___sync_bool_compare_and_swap" = "xyes"], [
     ])
   ])
 ])
-
-AX_EXT
 
 # Checks for library functions.
 
