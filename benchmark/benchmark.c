@@ -91,7 +91,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
     return;
   }
 
-  fprintf (stderr, "\t%s:%s\n",
+  fprintf (stderr, "  %s:%s\n",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
            squash_codec_get_name (codec));
 
@@ -103,14 +103,14 @@ benchmark_codec (SquashCodec* codec, void* data) {
   if (context->first) {
     context->first = false;
   } else {
-    fputc (',', context->output);
+    fputs (", ", context->output);
   }
 
-  fputs ("\t\tcompressing... ", stderr);
+  fputs ("    compressing... ", stderr);
   benchmark_timer_start (&timer);
   squash_codec_compress_file_with_options (codec, compressed, context->input, NULL);
   benchmark_timer_stop (&timer);
-  fprintf (context->output, "{\"plugin\":\"%s\",\"codec\":\"%s\",\"size\":%ld,\"compress_cpu\":%g,\"compress_wall\":%g,",
+  fprintf (context->output, "{\n        \"plugin\": \"%s\",\n        \"codec\": \"%s\",\n        \"size\": %ld,\n        \"compress_cpu\": %g,\n        \"compress_wall\": %g,\n",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
            squash_codec_get_name (codec),
            ftell (compressed),
@@ -123,11 +123,11 @@ benchmark_codec (SquashCodec* codec, void* data) {
     exit (-1);
   }
 
-  fputs ("\t\tdecompressing... ", stderr);
+  fputs ("    decompressing... ", stderr);
   benchmark_timer_start (&timer);
   squash_codec_decompress_file_with_options (codec, decompressed, compressed, NULL);
   benchmark_timer_stop (&timer);
-  fprintf (context->output, "\"decompress_cpu\":%g,\"decompress_wall\":%g}",
+  fprintf (context->output, "        \"decompress_cpu\": %g,\n        \"decompress_wall\": %g\n      }",
            benchmark_timer_elapsed_cpu (&timer),
            benchmark_timer_elapsed_wall (&timer));
   fputs ("done.\n", stderr);
@@ -198,10 +198,11 @@ int main (int argc, char** argv) {
     fprintf (stderr, "Using %s:\n", context.input_name);
     if (first_input) {
       first_input = false;
+      fputc ('\n', context.output);
     } else {
-      fputc (',', context.output);
+      fputs (",\n", context.output);
     }
-    fprintf (context.output, "\"%s\":{\"uncompressed-size\":%ld,\"data\":[", context.input_name, input_size);
+    fprintf (context.output, "  \"%s\": {\n    \"uncompressed-size\": %ld,\n    \"data\": [\n      ", context.input_name, input_size);
 
     if (codec == NULL) {
       squash_foreach_plugin (benchmark_plugin, &context);
@@ -209,12 +210,12 @@ int main (int argc, char** argv) {
       benchmark_codec (codec, &context);
     }
 
-    fputs ("]}", context.output);
+    fputs ("\n    ]\n  }", context.output);
 
     optind++;
   }
 
-  fputs ("}\n", context.output);
+  fputs ("\n};\n", context.output);
 
   return 0;
 }
