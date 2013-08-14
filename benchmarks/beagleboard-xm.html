@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Squash Benchmarks</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="benchmark.js"></script>
+    <style type="text/css">
+      body {
+        padding: 0 10%;
+      }
+
+      h1, h2, h3 {
+        border-bottom: 1px black solid;
+      }
+
+			noscript {
+			  background-color: #fdd;
+			  border: 2px red solid;
+			  display: block;
+			  padding: 1em;
+			  margin: 1em;
+			}
+    </style>
+    <script type="text/javascript">
+var benchmark_data =
+{"iliad":{"uncompressed-size":1308638,"data":[{"plugin":"bzip2","codec":"bzip2","size":323136,"compress_cpu":2.21439,"compress_wall":5.40356,"decompress_cpu":0.674194,"decompress_wall":1.63174},{"plugin":"fastlz","codec":"fastlz","size":721951,"compress_cpu":0.375092,"compress_wall":0.951416,"decompress_cpu":0.119324,"decompress_wall":0.284027},{"plugin":"lz4","codec":"lz4","size":733554,"compress_cpu":0.230896,"compress_wall":0.558563,"decompress_cpu":0.0953064,"decompress_wall":0.229187},{"plugin":"lzma","codec":"lzma","size":340671,"compress_cpu":10.5294,"compress_wall":20.6241,"decompress_cpu":0.231537,"decompress_wall":0.233124},{"plugin":"lzma","codec":"lzma1","size":340658,"compress_cpu":9.9791,"compress_wall":9.9859,"decompress_cpu":0.231659,"decompress_wall":0.231903},{"plugin":"lzma","codec":"lzma2","size":340707,"compress_cpu":9.96664,"compress_wall":9.97385,"decompress_cpu":0.234344,"decompress_wall":0.234497},{"plugin":"lzma","codec":"xz","size":340764,"compress_cpu":10.141,"compress_wall":10.1503,"decompress_cpu":0.249603,"decompress_wall":0.249878},{"plugin":"lzo","codec":"lzo1","size":754220,"compress_cpu":0.0617371,"compress_wall":0.0617676,"decompress_cpu":0.0463562,"decompress_wall":0.0470886},{"plugin":"lzo","codec":"lzo1a","size":745678,"compress_cpu":0.0622864,"compress_wall":0.0625305,"decompress_cpu":0.0455017,"decompress_wall":0.0462952},{"plugin":"lzo","codec":"lzo1b","size":678002,"compress_cpu":0.0828247,"compress_wall":0.0828857,"decompress_cpu":0.0510559,"decompress_wall":0.051239},{"plugin":"lzo","codec":"lzo1c","size":705465,"compress_cpu":0.0776672,"compress_wall":0.0777588,"decompress_cpu":0.0476685,"decompress_wall":0.0484924},{"plugin":"lzo","codec":"lzo1f","size":723601,"compress_cpu":0.0820313,"compress_wall":0.0820923,"decompress_cpu":0.0480347,"decompress_wall":0.0484924},{"plugin":"lzo","codec":"lzo1x","size":686701,"compress_cpu":0.0897217,"compress_wall":0.0899353,"decompress_cpu":0.0508423,"decompress_wall":0.0510559},{"plugin":"lzo","codec":"lzo1y","size":697924,"compress_cpu":0.0871887,"compress_wall":0.0873413,"decompress_cpu":0.0502014,"decompress_wall":0.0506287},{"plugin":"lzo","codec":"lzo1z","size":509253,"compress_cpu":3.87875,"compress_wall":3.88245,"decompress_cpu":0.0749207,"decompress_wall":0.0754395},{"plugin":"quicklz","codec":"quicklz","size":671006,"compress_cpu":0.160248,"compress_wall":0.160858,"decompress_cpu":0.266113,"decompress_wall":0.266266},{"plugin":"sharc","codec":"sharc","size":793124,"compress_cpu":0.229462,"compress_wall":0.229736,"decompress_cpu":0.12796,"decompress_wall":0.12796},{"plugin":"snappy","codec":"snappy","size":762274,"compress_cpu":0.0635376,"compress_wall":0.0646973,"decompress_cpu":0.0490112,"decompress_wall":0.0495605},{"plugin":"zlib","codec":"deflate","size":458721,"compress_cpu":0.95047,"compress_wall":0.951233,"decompress_cpu":0.0606384,"decompress_wall":0.0606384},{"plugin":"zlib","codec":"gzip","size":458739,"compress_cpu":0.957245,"compress_wall":0.973145,"decompress_cpu":0.0700378,"decompress_wall":0.0701294},{"plugin":"zlib","codec":"zlib","size":458727,"compress_cpu":0.953979,"compress_wall":0.95459,"decompress_cpu":0.0670471,"decompress_wall":0.0670471},{"plugin":"zpaq","codec":"zpaq","size":266179,"compress_cpu":38.3922,"compress_wall":38.5667,"decompress_cpu":37.9565,"decompress_wall":38.0212}]},"enwik8":{"uncompressed-size":100000000,"data":[{"plugin":"bzip2","codec":"bzip2","size":29679648,"compress_cpu":143.908,"compress_wall":144.911,"decompress_cpu":49.4189,"decompress_wall":51.7158},{"plugin":"fastlz","codec":"fastlz","size":55239233,"compress_cpu":26.328,"compress_wall":27.4029,"decompress_cpu":8.57233,"decompress_wall":13.7678},{"plugin":"lz4","codec":"lz4","size":56973116,"compress_cpu":16.6091,"compress_wall":17.4278,"decompress_cpu":6.38513,"decompress_wall":11.2881},{"plugin":"lzma","codec":"lzma","size":26371635,"compress_cpu":892.788,"compress_wall":893.616,"decompress_cpu":16.5254,"decompress_wall":20.9295},{"plugin":"lzma","codec":"lzma1","size":26371622,"compress_cpu":892.457,"compress_wall":893.335,"decompress_cpu":16.5876,"decompress_wall":17.0113},{"plugin":"lzma","codec":"lzma2","size":26375703,"compress_cpu":893.411,"compress_wall":895.931,"decompress_cpu":16.7049,"decompress_wall":19.443},{"plugin":"lzma","codec":"xz","size":26375764,"compress_cpu":905.321,"compress_wall":906.118,"decompress_cpu":17.9712,"decompress_wall":19.5466},{"plugin":"lzo","codec":"lzo1","size":57975532,"compress_cpu":4.77808,"compress_wall":4.92429,"decompress_cpu":3.58008,"decompress_wall":4.84811},{"plugin":"lzo","codec":"lzo1a","size":57297087,"compress_cpu":4.8186,"compress_wall":7.92404,"decompress_cpu":3.45956,"decompress_wall":4.32095},{"plugin":"lzo","codec":"lzo1b","size":54056906,"compress_cpu":6.82767,"compress_wall":6.98914,"decompress_cpu":3.84845,"decompress_wall":10.0486},{"plugin":"lzo","codec":"lzo1c","size":55192389,"compress_cpu":5.90024,"compress_wall":6.24078,"decompress_cpu":3.7164,"decompress_wall":8.19467},{"plugin":"lzo","codec":"lzo1f","size":55958931,"compress_cpu":6.39352,"compress_wall":6.67255,"decompress_cpu":3.6113,"decompress_wall":6.42432},{"plugin":"lzo","codec":"lzo1x","size":53968782,"compress_cpu":7.16605,"compress_wall":7.33188,"decompress_cpu":3.78015,"decompress_wall":10.0856},{"plugin":"lzo","codec":"lzo1y","size":54347296,"compress_cpu":7.03287,"compress_wall":7.45538,"decompress_cpu":3.87708,"decompress_wall":4.60986},{"plugin":"lzo","codec":"lzo1z","size":40721443,"compress_cpu":252.554,"compress_wall":257.357,"decompress_cpu":3.57266,"decompress_wall":9.45483},{"plugin":"quicklz","codec":"quicklz","size":52334371,"compress_cpu":12.3423,"compress_wall":12.7209,"decompress_cpu":20.8838,"decompress_wall":26.2567},{"plugin":"sharc","codec":"sharc","size":61841324,"compress_cpu":16.9118,"compress_wall":17.1246,"decompress_cpu":9.2767,"decompress_wall":9.7204},{"plugin":"snappy","codec":"snappy","size":58350605,"compress_cpu":4.81158,"compress_wall":4.97141,"decompress_cpu":3.76736,"decompress_wall":4.9603},{"plugin":"zlib","codec":"deflate","size":36548915,"compress_cpu":69.2798,"compress_wall":70.243,"decompress_cpu":4.37537,"decompress_wall":4.61172},{"plugin":"zlib","codec":"gzip","size":36548933,"compress_cpu":69.8072,"compress_wall":70.6348,"decompress_cpu":5.14426,"decompress_wall":5.39035},{"plugin":"zlib","codec":"zlib","size":36548921,"compress_cpu":69.6302,"compress_wall":69.8654,"decompress_cpu":4.93567,"decompress_wall":5.17447},{"plugin":"zpaq","codec":"zpaq","size":20941523,"compress_cpu":2908.75,"compress_wall":2910.39,"decompress_cpu":2861.88,"decompress_wall":2863.97}]}}
+;
+    </script>
+  </head>
+  <body>
+    <h1>Squash Benchmark</h1>
+    <h2>Basics</h2>
+
+    <noscript>
+      It looks like you have JavaScript disabled, but JavaScript is
+      required to view this benchmark.
+    </noscript>
+
+    <p>
+      This benchmark
+      uses <a href="http://quixdb.github.io/squash/">Squash</a> to
+      compress and decompress a series of files.  Times are given in
+      seconds of <abbr>CPU</abbr> time.
+    </p>
+
+    <p>
+      Currently, only the default options for each codec are given.
+    </p>
+
+    <p>
+      The code used to generate this benchmark is in
+      the <a href="https://github.com/quixdb/squash/tree/master/benchmark"><var>benchmark/</var>
+      subdirectory of Squash</a>.
+    </p>
+
+    <h2>Datasets</h2>
+
+    <ul id="datasets-list"></ul>
+
+    <div id="results"></div>
+  </body>
+</html>
