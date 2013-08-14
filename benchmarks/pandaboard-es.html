@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Squash Benchmarks</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="benchmark.js"></script>
+    <style type="text/css">
+      body {
+        padding: 0 10%;
+      }
+
+      h1, h2, h3 {
+        border-bottom: 1px black solid;
+      }
+
+			noscript {
+			  background-color: #fdd;
+			  border: 2px red solid;
+			  display: block;
+			  padding: 1em;
+			  margin: 1em;
+			}
+    </style>
+    <script type="text/javascript">
+var benchmark_data =
+{"iliad":{"uncompressed-size":1308638,"data":[{"plugin":"bzip2","codec":"bzip2","size":323136,"compress_cpu":1.24677,"compress_wall":1.24719,"decompress_cpu":0.400604,"decompress_wall":0.400696},{"plugin":"fastlz","codec":"fastlz","size":721951,"compress_cpu":0.0534363,"compress_wall":0.0534363,"decompress_cpu":0.0349731,"decompress_wall":0.0349731},{"plugin":"lz4","codec":"lz4","size":733554,"compress_cpu":0.0678406,"compress_wall":0.0935364,"decompress_cpu":0.0379333,"decompress_wall":0.038147},{"plugin":"lzf","codec":"lzf","size":701582,"compress_cpu":0.0697327,"compress_wall":0.0698242,"decompress_cpu":0.0321045,"decompress_wall":0.0322266},{"plugin":"lzma","codec":"lzma","size":340671,"compress_cpu":5.48181,"compress_wall":5.48907,"decompress_cpu":0.162842,"decompress_wall":0.162903},{"plugin":"lzma","codec":"lzma1","size":340658,"compress_cpu":5.47543,"compress_wall":5.48715,"decompress_cpu":0.16275,"decompress_wall":0.162811},{"plugin":"lzma","codec":"lzma2","size":340707,"compress_cpu":5.47968,"compress_wall":5.48154,"decompress_cpu":0.163177,"decompress_wall":0.163239},{"plugin":"lzma","codec":"xz","size":340764,"compress_cpu":5.54611,"compress_wall":5.56128,"decompress_cpu":0.174652,"decompress_wall":0.174805},{"plugin":"lzo","codec":"lzo1","size":754220,"compress_cpu":0.0595703,"compress_wall":0.0596008,"decompress_cpu":0.0317993,"decompress_wall":0.0318604},{"plugin":"lzo","codec":"lzo1a","size":745678,"compress_cpu":0.0566101,"compress_wall":0.0566711,"decompress_cpu":0.0320435,"decompress_wall":0.0322266},{"plugin":"lzo","codec":"lzo1b","size":678002,"compress_cpu":0.0695801,"compress_wall":0.0696716,"decompress_cpu":0.036377,"decompress_wall":0.0364075},{"plugin":"lzo","codec":"lzo1c","size":705465,"compress_cpu":0.0680542,"compress_wall":0.0681152,"decompress_cpu":0.0348511,"decompress_wall":0.0349426},{"plugin":"lzo","codec":"lzo1f","size":723601,"compress_cpu":0.0760803,"compress_wall":0.0761414,"decompress_cpu":0.0334473,"decompress_wall":0.0336609},{"plugin":"lzo","codec":"lzo1x","size":686701,"compress_cpu":0.0761414,"compress_wall":0.076355,"decompress_cpu":0.0366211,"decompress_wall":0.0366516},{"plugin":"lzo","codec":"lzo1y","size":697924,"compress_cpu":0.077301,"compress_wall":0.0773926,"decompress_cpu":0.0361633,"decompress_wall":0.0362244},{"plugin":"lzo","codec":"lzo1z","size":509253,"compress_cpu":2.85724,"compress_wall":2.85754,"decompress_cpu":0.0535583,"decompress_wall":0.0535583},{"plugin":"quicklz","codec":"quicklz","size":671006,"compress_cpu":0.0501099,"compress_wall":0.0501709,"decompress_cpu":0.0582275,"decompress_wall":0.0582275},{"plugin":"sharc","codec":"sharc","size":793124,"compress_cpu":0.0628967,"compress_wall":0.0629578,"decompress_cpu":0.0367126,"decompress_wall":0.0367126},{"plugin":"snappy","codec":"snappy","size":762274,"compress_cpu":0.056427,"compress_wall":0.056427,"decompress_cpu":0.03479,"decompress_wall":0.03479},{"plugin":"zlib","codec":"deflate","size":458721,"compress_cpu":0.84256,"compress_wall":0.849121,"decompress_cpu":0.0480347,"decompress_wall":0.0484619},{"plugin":"zlib","codec":"gzip","size":458739,"compress_cpu":0.850983,"compress_wall":0.851288,"decompress_cpu":0.0540771,"decompress_wall":0.0540771},{"plugin":"zlib","codec":"zlib","size":458727,"compress_cpu":0.848419,"compress_wall":0.851349,"decompress_cpu":0.0524292,"decompress_wall":0.0524292},{"plugin":"zpaq","codec":"zpaq","size":266179,"compress_cpu":26.4419,"compress_wall":26.4497,"decompress_cpu":26.4951,"decompress_wall":26.5021}]},"enwik8":{"uncompressed-size":100000000,"data":[{"plugin":"bzip2","codec":"bzip2","size":29679648,"compress_cpu":91.9177,"compress_wall":92.08,"decompress_cpu":32.0469,"decompress_wall":32.0738},{"plugin":"fastlz","codec":"fastlz","size":55239233,"compress_cpu":4.06369,"compress_wall":4.07343,"decompress_cpu":2.69083,"decompress_wall":2.9938},{"plugin":"lz4","codec":"lz4","size":56973116,"compress_cpu":5.18192,"compress_wall":5.26465,"decompress_cpu":2.82761,"decompress_wall":2.94684},{"plugin":"lzf","codec":"lzf","size":53915992,"compress_cpu":5.2226,"compress_wall":5.23141,"decompress_cpu":2.54831,"decompress_wall":6.15555},{"plugin":"lzma","codec":"lzma","size":26371635,"compress_cpu":514.078,"compress_wall":514.409,"decompress_cpu":11.8069,"decompress_wall":11.8468},{"plugin":"lzma","codec":"lzma1","size":26371622,"compress_cpu":513.857,"compress_wall":514.866,"decompress_cpu":11.7893,"decompress_wall":11.8644},{"plugin":"lzma","codec":"lzma2","size":26375703,"compress_cpu":513.282,"compress_wall":514.572,"decompress_cpu":11.8121,"decompress_wall":14.9025},{"plugin":"lzma","codec":"xz","size":26375764,"compress_cpu":513.625,"compress_wall":514.45,"decompress_cpu":12.722,"decompress_wall":12.8907},{"plugin":"lzo","codec":"lzo1","size":57975532,"compress_cpu":4.45862,"compress_wall":4.46298,"decompress_cpu":2.38287,"decompress_wall":3.26324},{"plugin":"lzo","codec":"lzo1a","size":57297087,"compress_cpu":4.26678,"compress_wall":4.28326,"decompress_cpu":2.43613,"decompress_wall":10.801},{"plugin":"lzo","codec":"lzo1b","size":54056906,"compress_cpu":5.67389,"compress_wall":5.68484,"decompress_cpu":2.69931,"decompress_wall":3.00626},{"plugin":"lzo","codec":"lzo1c","size":55192389,"compress_cpu":5.29233,"compress_wall":5.30777,"decompress_cpu":2.56909,"decompress_wall":6.15668},{"plugin":"lzo","codec":"lzo1f","size":55958931,"compress_cpu":5.74878,"compress_wall":5.75546,"decompress_cpu":2.48996,"decompress_wall":3.33624},{"plugin":"lzo","codec":"lzo1x","size":53968782,"compress_cpu":6.15051,"compress_wall":6.18747,"decompress_cpu":2.69156,"decompress_wall":5.25186},{"plugin":"lzo","codec":"lzo1y","size":54347296,"compress_cpu":6.23203,"compress_wall":6.23529,"decompress_cpu":2.68622,"decompress_wall":3.51843},{"plugin":"lzo","codec":"lzo1z","size":40721443,"compress_cpu":183.24,"compress_wall":187.495,"decompress_cpu":2.59442,"decompress_wall":2.603},{"plugin":"quicklz","codec":"quicklz","size":52334371,"compress_cpu":3.74341,"compress_wall":3.74481,"decompress_cpu":4.44202,"decompress_wall":12.6764},{"plugin":"sharc","codec":"sharc","size":61841324,"compress_cpu":4.34912,"compress_wall":4.35123,"decompress_cpu":2.57001,"decompress_wall":3.76547},{"plugin":"snappy","codec":"snappy","size":58350605,"compress_cpu":4.19226,"compress_wall":4.20316,"decompress_cpu":2.62152,"decompress_wall":4.2395},{"plugin":"zlib","codec":"deflate","size":36548915,"compress_cpu":63.715,"compress_wall":63.7862,"decompress_cpu":3.43619,"decompress_wall":3.50375},{"plugin":"zlib","codec":"gzip","size":36548933,"compress_cpu":64.303,"compress_wall":64.33,"decompress_cpu":3.89661,"decompress_wall":3.90335},{"plugin":"zlib","codec":"zlib","size":36548921,"compress_cpu":64.0859,"compress_wall":64.1318,"decompress_cpu":3.80746,"decompress_wall":3.81021},{"plugin":"zpaq","codec":"zpaq","size":20941523,"compress_cpu":2009.18,"compress_wall":2009.28,"decompress_cpu":2007.93,"decompress_wall":2008.11}]}}
+;
+    </script>
+  </head>
+  <body>
+    <h1>Squash Benchmark</h1>
+    <h2>Basics</h2>
+
+    <noscript>
+      It looks like you have JavaScript disabled, but JavaScript is
+      required to view this benchmark.
+    </noscript>
+
+    <p>
+      This benchmark
+      uses <a href="http://quixdb.github.io/squash/">Squash</a> to
+      compress and decompress a series of files.  Times are given in
+      seconds of <abbr>CPU</abbr> time.
+    </p>
+
+    <p>
+      Currently, only the default options for each codec are given.
+    </p>
+
+    <p>
+      The code used to generate this benchmark is in
+      the <a href="https://github.com/quixdb/squash/tree/master/benchmark"><var>benchmark/</var>
+      subdirectory of Squash</a>.
+    </p>
+
+    <h2>Datasets</h2>
+
+    <ul id="datasets-list"></ul>
+
+    <div id="results"></div>
+  </body>
+</html>
