@@ -37,7 +37,7 @@ int main (int argc, char** argv) {
     exit (res);
   }
 
-  fprintf (stdout, "Compressed a %lu byte buffer to %lu bytes.\n",
+  fprintf (stdout, "Compressed a %zu byte buffer to %zu bytes.\n",
            uncompressed_length, compressed_length);
 
   res = squash_decompress (codec_name,

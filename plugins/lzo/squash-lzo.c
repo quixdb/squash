@@ -233,7 +233,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   const char* codec_name;
   int lzo_e;
   lzo_voidp work_mem = NULL;
-  lzo_uint src_len, dst_len;
+  lzo_uint decompressed_len, compressed_len;
 
   assert (codec != NULL);
   codec_name = squash_codec_get_name (codec);
@@ -247,13 +247,12 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
     }
   }
 
-  src_len = (lzo_uint) compressed_length;
-  dst_len = (lzo_uint) *decompressed_length;
-  lzo_e = lzo_codec->decompress (compressed, src_len,
-                                 decompressed, &dst_len,
+  compressed_len = (lzo_uint) compressed_length;
+  decompressed_len = (lzo_uint) *decompressed_length;
+  lzo_e = lzo_codec->decompress (compressed, compressed_len,
+                                 decompressed, &decompressed_len,
                                  work_mem);
-  compressed_length = (size_t) src_len;
-  *decompressed_length = (size_t) dst_len;
+  *decompressed_length = (size_t) decompressed_len;
 
   if (work_mem != NULL) {
     free (work_mem);
@@ -274,6 +273,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   const char* codec_name;
   lzo_voidp work_mem = NULL;
   int lzo_e;
+  lzo_uint uncompressed_len, compressed_len;
 
   assert (codec != NULL);
   codec_name = squash_codec_get_name (codec);
@@ -295,9 +295,12 @@ squash_lzo_compress_buffer (SquashCodec* codec,
     }
   }
 
-  lzo_e = compressor->compress (uncompressed, uncompressed_length,
-                                compressed, compressed_length,
+  uncompressed_len = (lzo_uint) uncompressed_length;
+  compressed_len = (lzo_uint) (*compressed_length);
+  lzo_e = compressor->compress (uncompressed, uncompressed_len,
+                                compressed, &compressed_len,
                                 work_mem);
+  *compressed_length = (size_t) compressed_len;
 
   if (work_mem != NULL) {
     free (work_mem);
