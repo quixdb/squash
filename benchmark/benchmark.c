@@ -134,7 +134,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
   if (context->first) {
     context->first = false;
   } else {
-    fputs (", ", context->output);
+    benchmark_context_write_json (context, ", ", context->output);
   }
 
   fputs ("    compressing... ", stderr);
@@ -147,7 +147,6 @@ benchmark_codec (SquashCodec* codec, void* data) {
                                 ftell (compressed),
                                 benchmark_timer_elapsed_cpu (&timer),
                                 benchmark_timer_elapsed_wall (&timer));
-  benchmark_context_write_csv (context, "Dataset,Plugin,Codec,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
   benchmark_context_write_csv (context, "%s,%s,%s,%ld,%ld,%g,%g,",
                                context->input_name,
                                squash_plugin_get_name (squash_codec_get_plugin (codec)),
@@ -231,6 +230,7 @@ int main (int argc, char** argv) {
   }
 
   benchmark_context_write_json (&context, "{");
+  benchmark_context_write_csv (&context, "Dataset,Plugin,Codec,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
 
   while ( optind < argc ) {
     context.input_name = argv[optind];
