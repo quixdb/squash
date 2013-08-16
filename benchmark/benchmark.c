@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <errno.h>
+#include <strings.h>
 
 #include <squash/squash.h>
 
@@ -18,15 +19,25 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "\t-o outfile    Write data to outfile (default is stdout)\n");
   fprintf (stderr, "\t-h            Print this help screen and exit.\n");
   fprintf (stderr, "\t-c codec      Benchmark the specified codec and exit.\n");
+  fprintf (stderr, "\t-f format     Output format.  One of:\n");
+  fprintf (stderr, "\t                \"json\" (default)\n");
+  fprintf (stderr, "\t                \"csv\"\n");
 
   exit (exit_code);
 }
+
+typedef enum _BenchmarkOutputFormat {
+  BENCHMARK_OUTPUT_FORMAT_JSON,
+  BENCHMARK_OUTPUT_FORMAT_CSV
+} BenchmarkOutputFormat;
 
 struct BenchmarkContext {
   FILE* output;
   FILE* input;
   char* input_name;
   bool first;
+  long input_size;
+  BenchmarkOutputFormat format;
 };
 
 struct BenchmarkTimer {
@@ -35,6 +46,26 @@ struct BenchmarkTimer {
   struct timespec start_cpu;
   struct timespec end_cpu;
 };
+
+static void
+benchmark_context_write_json (struct BenchmarkContext* context, const char* fmt, ...) {
+  if (context->format == BENCHMARK_OUTPUT_FORMAT_JSON) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(context->output, fmt, ap);
+    va_end(ap);
+  }
+}
+
+static void
+benchmark_context_write_csv (struct BenchmarkContext* context, const char* fmt, ...) {
+  if (context->format == BENCHMARK_OUTPUT_FORMAT_CSV) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(context->output, fmt, ap);
+    va_end(ap);
+  }
+}
 
 static void
 benchmark_timer_start (struct BenchmarkTimer* timer) {
@@ -110,12 +141,21 @@ benchmark_codec (SquashCodec* codec, void* data) {
   benchmark_timer_start (&timer);
   squash_codec_compress_file_with_options (codec, compressed, context->input, NULL);
   benchmark_timer_stop (&timer);
-  fprintf (context->output, "{\n        \"plugin\": \"%s\",\n        \"codec\": \"%s\",\n        \"size\": %ld,\n        \"compress_cpu\": %g,\n        \"compress_wall\": %g,\n",
-           squash_plugin_get_name (squash_codec_get_plugin (codec)),
-           squash_codec_get_name (codec),
-           ftell (compressed),
-           benchmark_timer_elapsed_cpu (&timer),
-           benchmark_timer_elapsed_wall (&timer));
+  benchmark_context_write_json (context, "{\n        \"plugin\": \"%s\",\n        \"codec\": \"%s\",\n        \"size\": %ld,\n        \"compress_cpu\": %g,\n        \"compress_wall\": %g,\n",
+                                squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                                squash_codec_get_name (codec),
+                                ftell (compressed),
+                                benchmark_timer_elapsed_cpu (&timer),
+                                benchmark_timer_elapsed_wall (&timer));
+  benchmark_context_write_csv (context, "Dataset,Plugin,Codec,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
+  benchmark_context_write_csv (context, "%s,%s,%s,%ld,%ld,%g,%g,",
+                               context->input_name,
+                               squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                               squash_codec_get_name (codec),
+                               context->input_size,
+                               ftell (compressed),
+                               benchmark_timer_elapsed_cpu (&timer),
+                               benchmark_timer_elapsed_wall (&timer));
   fputs ("done.\n", stderr);
 
   if (fseek (compressed, 0, SEEK_SET) != 0) {
@@ -127,9 +167,12 @@ benchmark_codec (SquashCodec* codec, void* data) {
   benchmark_timer_start (&timer);
   squash_codec_decompress_file_with_options (codec, decompressed, compressed, NULL);
   benchmark_timer_stop (&timer);
-  fprintf (context->output, "        \"decompress_cpu\": %g,\n        \"decompress_wall\": %g\n      }",
-           benchmark_timer_elapsed_cpu (&timer),
-           benchmark_timer_elapsed_wall (&timer));
+  benchmark_context_write_json (context, "        \"decompress_cpu\": %g,\n        \"decompress_wall\": %g\n      }",
+                                benchmark_timer_elapsed_cpu (&timer),
+                                benchmark_timer_elapsed_wall (&timer));
+  benchmark_context_write_csv (context, "%g,%g\n",
+                               benchmark_timer_elapsed_cpu (&timer),
+                               benchmark_timer_elapsed_wall (&timer));
   fputs ("done.\n", stderr);
 
   fclose (compressed);
@@ -142,14 +185,13 @@ benchmark_plugin (SquashPlugin* plugin, void* data) {
 }
 
 int main (int argc, char** argv) {
-  struct BenchmarkContext context = { stdout, NULL, NULL, true };
+  struct BenchmarkContext context = { stdout, NULL, NULL, true, 0, BENCHMARK_OUTPUT_FORMAT_JSON };
   bool first_input = true;
-  long input_size = 0;
   int opt;
   int optc;
   SquashCodec* codec = NULL;
 
-  while ( (opt = getopt(argc, argv, "ho:c:")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "ho:c:f:")) != -1 ) {
     switch ( opt ) {
       case 'h':
         print_help_and_exit (argc, argv, 0);
@@ -168,6 +210,16 @@ int main (int argc, char** argv) {
           return -1;
         }
         break;
+      case 'f':
+        if (strcasecmp ((const char*) optarg, "json") == 0) {
+          context.format = BENCHMARK_OUTPUT_FORMAT_JSON;
+        } else if (strcasecmp ((const char*) optarg, "csv") == 0) {
+          context.format = BENCHMARK_OUTPUT_FORMAT_CSV;
+        } else {
+          fprintf (stderr, "Invalid output format.\n");
+          return -1;
+        }
+        break;
     }
 
     optc++;
@@ -178,7 +230,7 @@ int main (int argc, char** argv) {
     return -1;
   }
 
-  fputc ('{', context.output);
+  benchmark_context_write_json (&context, "{");
 
   while ( optind < argc ) {
     context.input_name = argv[optind];
@@ -193,16 +245,17 @@ int main (int argc, char** argv) {
       perror ("Unable to seek to end of input file");
       exit (-1);
     }
-    input_size = ftell (context.input);
+    context.input_size = ftell (context.input);
 
     fprintf (stderr, "Using %s:\n", context.input_name);
     if (first_input) {
       first_input = false;
-      fputc ('\n', context.output);
+      benchmark_context_write_json (&context, "\n");
     } else {
-      fputs (",\n", context.output);
+      benchmark_context_write_json (&context, ",\n");
     }
-    fprintf (context.output, "  \"%s\": {\n    \"uncompressed-size\": %ld,\n    \"data\": [\n      ", context.input_name, input_size);
+
+    benchmark_context_write_json (&context, "  \"%s\": {\n    \"uncompressed-size\": %ld,\n    \"data\": [\n      ", context.input_name, context.input_size);
 
     if (codec == NULL) {
       squash_foreach_plugin (benchmark_plugin, &context);
@@ -210,12 +263,13 @@ int main (int argc, char** argv) {
       benchmark_codec (codec, &context);
     }
 
-    fputs ("\n    ]\n  }", context.output);
+    
+    benchmark_context_write_json (&context, "\n    ]\n  }", context.output);
 
     optind++;
   }
 
-  fputs ("\n};\n", context.output);
+  benchmark_context_write_json (&context, "\n};\n", context.output);
 
   return 0;
 }
