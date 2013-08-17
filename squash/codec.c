@@ -861,7 +861,8 @@ squash_codec_process_file_with_options (SquashCodec* codec,
   uint8_t* inbuf = NULL;
   uint8_t* outbuf = NULL;
 
-  if (codec->funcs.create_stream == NULL) {
+  if (((stream_type == SQUASH_STREAM_COMPRESS) && codec->funcs.compress_buffer != NULL) ||
+      ((stream_type == SQUASH_STREAM_DECOMPRESS) && codec->funcs.decompress_buffer != NULL)) {
     /* Attempt to mmap the input and output.  This short circuits the
        whole SquashBufferStream hack when possible, which can be a
        huge performance boost (50-100% for several codecs). */
