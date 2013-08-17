@@ -2,6 +2,7 @@ COMMON_CFLAGS = \
    -I$(top_srcdir) \
    @WARN_CFLAGS@ \
   -Wno-attributes \
+   -O3 \
   -std=c99 \
   -DSQUASH_IS_UNSTABLE \
   -DSQUASH_COMPILATION

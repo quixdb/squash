@@ -7,6 +7,7 @@ plugin_LTLIBRARIES = \
 endif
 
 libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_CPPFLAGS = \
+   -O3 \
    -I$(top_srcdir) \
   -DSQUASH_IS_UNSTABLE \
   @ZPAQ_SSE2_CPPFLAGS@

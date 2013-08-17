@@ -1,4 +1,5 @@
 COMMON_CFLAGS = \
+   -O3 \
    -I$(top_srcdir) \
    @WARN_CFLAGS@ \
   -DSQUASH_IS_UNSTABLE \

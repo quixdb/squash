@@ -32,7 +32,7 @@ libsquash@SQUASH_API_VERSION@_plugin_lzf_la_SOURCES += \
   liblzf/lzf_c.c \
   liblzf/lzf_d.c
 
-libsquash@SQUASH_API_VERSION@_plugin_lzf_la_CFLAGS += -Iliblzf
+libsquash@SQUASH_API_VERSION@_plugin_lzf_la_CFLAGS += -O3 -Iliblzf
 endif
 
 EXTRA_DIST = \
