@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Squash Benchmarks</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <style type="text/css">
+      body {
+        padding: 0 10%;
+      }
+
+      h1, h2, h3 {
+        border-bottom: 1px black solid;
+      }
+
+			noscript {
+			  background-color: #fdd;
+			  border: 2px red solid;
+			  display: block;
+			  padding: 1em;
+			  margin: 1em;
+			}
+    </style>
+    <script type="text/javascript">
+var benchmark_data =
+{
+  "iliad": {
+    "uncompressed-size": 1308638,
+    "data": [
+      {
+        "plugin": "bzip2",
+        "codec": "bzip2",
+        "size": 323136,
+        "compress_cpu": 0.142803,
+        "compress_wall": 0.142806,
+        "decompress_cpu": 0.0984688,
+        "decompress_wall": 0.0984697
+      }, {
+        "plugin": "fastlz",
+        "codec": "fastlz",
+        "size": 721951,
+        "compress_cpu": 0.00841687,
+        "compress_wall": 0.00841778,
+        "decompress_cpu": 0.00442358,
+        "decompress_wall": 0.00442494
+      }, {
+        "plugin": "lz4",
+        "codec": "lz4",
+        "size": 733554,
+        "compress_cpu": 0.00651952,
+        "compress_wall": 0.00652941,
+        "decompress_cpu": 0.00207719,
+        "decompress_wall": 0.00207869
+      }, {
+        "plugin": "lzf",
+        "codec": "lzf",
+        "size": 701582,
+        "compress_cpu": 0.00891565,
+        "compress_wall": 0.00891686,
+        "decompress_cpu": 0.0048154,
+        "decompress_wall": 0.0048178
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma",
+        "size": 340671,
+        "compress_cpu": 0.782271,
+        "compress_wall": 0.8069,
+        "decompress_cpu": 0.0275716,
+        "decompress_wall": 0.0275855
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma1",
+        "size": 340658,
+        "compress_cpu": 0.791061,
+        "compress_wall": 0.791068,
+        "decompress_cpu": 0.0273309,
+        "decompress_wall": 0.0273327
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma2",
+        "size": 340707,
+        "compress_cpu": 0.775533,
+        "compress_wall": 0.775534,
+        "decompress_cpu": 0.0267048,
+        "decompress_wall": 0.026711
+      }, {
+        "plugin": "lzma",
+        "codec": "xz",
+        "size": 340764,
+        "compress_cpu": 0.775985,
+        "compress_wall": 0.775987,
+        "decompress_cpu": 0.0288753,
+        "decompress_wall": 0.0288767
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1",
+        "size": 754220,
+        "compress_cpu": 0.00877553,
+        "compress_wall": 0.00877697,
+        "decompress_cpu": 0.00466951,
+        "decompress_wall": 0.00467079
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1a",
+        "size": 745678,
+        "compress_cpu": 0.00887625,
+        "compress_wall": 0.0352657,
+        "decompress_cpu": 0.00470919,
+        "decompress_wall": 0.00471053
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1b",
+        "size": 678002,
+        "compress_cpu": 0.0104826,
+        "compress_wall": 0.0104846,
+        "decompress_cpu": 0.00519988,
+        "decompress_wall": 0.00520095
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1c",
+        "size": 705463,
+        "compress_cpu": 0.0109237,
+        "compress_wall": 0.0109256,
+        "decompress_cpu": 0.00497566,
+        "decompress_wall": 0.0049769
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1f",
+        "size": 723601,
+        "compress_cpu": 0.011114,
+        "compress_wall": 0.0111158,
+        "decompress_cpu": 0.00575212,
+        "decompress_wall": 0.0057541
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1x",
+        "size": 720510,
+        "compress_cpu": 0.00649818,
+        "compress_wall": 0.00649958,
+        "decompress_cpu": 0.00519056,
+        "decompress_wall": 0.00519222
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1y",
+        "size": 735692,
+        "compress_cpu": 0.00607858,
+        "compress_wall": 0.00608025,
+        "decompress_cpu": 0.0052197,
+        "decompress_wall": 0.00522142
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1z",
+        "size": 509253,
+        "compress_cpu": 0.254563,
+        "compress_wall": 0.254579,
+        "decompress_cpu": 0.00940902,
+        "decompress_wall": 0.00941009
+      }, {
+        "plugin": "quicklz",
+        "codec": "quicklz",
+        "size": 671006,
+        "compress_cpu": 0.00657352,
+        "compress_wall": 0.0065755,
+        "decompress_cpu": 0.00515348,
+        "decompress_wall": 0.00515416
+      }, {
+        "plugin": "sharc",
+        "codec": "sharc",
+        "size": 793124,
+        "compress_cpu": 0.00478859,
+        "compress_wall": 0.00479063,
+        "decompress_cpu": 0.00283072,
+        "decompress_wall": 0.00283207
+      }, {
+        "plugin": "snappy",
+        "codec": "snappy",
+        "size": 730492,
+        "compress_cpu": 0.00631513,
+        "compress_wall": 0.0063291,
+        "decompress_cpu": 0.00277426,
+        "decompress_wall": 0.00277571
+      }, {
+        "plugin": "zlib",
+        "codec": "deflate",
+        "size": 458721,
+        "compress_cpu": 0.0810973,
+        "compress_wall": 0.0811002,
+        "decompress_cpu": 0.00676981,
+        "decompress_wall": 0.00677141
+      }, {
+        "plugin": "zlib",
+        "codec": "gzip",
+        "size": 458739,
+        "compress_cpu": 0.0815054,
+        "compress_wall": 0.0815063,
+        "decompress_cpu": 0.00805666,
+        "decompress_wall": 0.00805789
+      }, {
+        "plugin": "zlib",
+        "codec": "zlib",
+        "size": 458727,
+        "compress_cpu": 0.080714,
+        "compress_wall": 0.080716,
+        "decompress_cpu": 0.00759083,
+        "decompress_wall": 0.00759218
+      }, {
+        "plugin": "zpaq",
+        "codec": "zpaq",
+        "size": 266179,
+        "compress_cpu": 1.56028,
+        "compress_wall": 1.56031,
+        "decompress_cpu": 1.65241,
+        "decompress_wall": 1.65242
+      }
+    ]
+  },
+  "enwik8": {
+    "uncompressed-size": 100000000,
+    "data": [
+      {
+        "plugin": "bzip2",
+        "codec": "bzip2",
+        "size": 29679648,
+        "compress_cpu": 9.90617,
+        "compress_wall": 9.90627,
+        "decompress_cpu": 6.80725,
+        "decompress_wall": 6.80732
+      }, {
+        "plugin": "fastlz",
+        "codec": "fastlz",
+        "size": 55239233,
+        "compress_cpu": 0.653217,
+        "compress_wall": 0.653225,
+        "decompress_cpu": 0.354359,
+        "decompress_wall": 0.354371
+      }, {
+        "plugin": "lz4",
+        "codec": "lz4",
+        "size": 56973116,
+        "compress_cpu": 0.460581,
+        "compress_wall": 0.460584,
+        "decompress_cpu": 0.132241,
+        "decompress_wall": 0.13225
+      }, {
+        "plugin": "lzf",
+        "codec": "lzf",
+        "size": 53915992,
+        "compress_cpu": 0.638122,
+        "compress_wall": 0.638125,
+        "decompress_cpu": 0.347662,
+        "decompress_wall": 0.347679
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma",
+        "size": 26371635,
+        "compress_cpu": 83.0115,
+        "compress_wall": 83.0125,
+        "decompress_cpu": 2.03166,
+        "decompress_wall": 2.03168
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma1",
+        "size": 26371622,
+        "compress_cpu": 84.3005,
+        "compress_wall": 84.3018,
+        "decompress_cpu": 2.14627,
+        "decompress_wall": 2.14629
+      }, {
+        "plugin": "lzma",
+        "codec": "lzma2",
+        "size": 26375703,
+        "compress_cpu": 84.2307,
+        "compress_wall": 84.2323,
+        "decompress_cpu": 1.95244,
+        "decompress_wall": 1.95247
+      }, {
+        "plugin": "lzma",
+        "codec": "xz",
+        "size": 26375764,
+        "compress_cpu": 84.9482,
+        "compress_wall": 84.9497,
+        "decompress_cpu": 2.07409,
+        "decompress_wall": 2.07413
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1",
+        "size": 57975532,
+        "compress_cpu": 0.698294,
+        "compress_wall": 0.698315,
+        "decompress_cpu": 0.396668,
+        "decompress_wall": 0.39667
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1a",
+        "size": 57297087,
+        "compress_cpu": 0.663458,
+        "compress_wall": 0.66348,
+        "decompress_cpu": 0.352657,
+        "decompress_wall": 0.352658
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1b",
+        "size": 54056906,
+        "compress_cpu": 0.83222,
+        "compress_wall": 0.83223,
+        "decompress_cpu": 0.380087,
+        "decompress_wall": 0.380095
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1c",
+        "size": 55192389,
+        "compress_cpu": 0.809417,
+        "compress_wall": 0.809423,
+        "decompress_cpu": 0.367125,
+        "decompress_wall": 0.367132
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1f",
+        "size": 55958931,
+        "compress_cpu": 0.856974,
+        "compress_wall": 0.856982,
+        "decompress_cpu": 0.419236,
+        "decompress_wall": 0.419254
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1x",
+        "size": 55792795,
+        "compress_cpu": 0.468515,
+        "compress_wall": 0.468524,
+        "decompress_cpu": 0.455064,
+        "decompress_wall": 0.455084
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1y",
+        "size": 56368540,
+        "compress_cpu": 0.450093,
+        "compress_wall": 0.450102,
+        "decompress_cpu": 0.393257,
+        "decompress_wall": 0.393259
+      }, {
+        "plugin": "lzo",
+        "codec": "lzo1z",
+        "size": 40721443,
+        "compress_cpu": 16.1976,
+        "compress_wall": 16.1978,
+        "decompress_cpu": 0.414013,
+        "decompress_wall": 0.41402
+      }, {
+        "plugin": "quicklz",
+        "codec": "quicklz",
+        "size": 52334371,
+        "compress_cpu": 0.524503,
+        "compress_wall": 0.524521,
+        "decompress_cpu": 0.431764,
+        "decompress_wall": 0.43177
+      }, {
+        "plugin": "sharc",
+        "codec": "sharc",
+        "size": 61841324,
+        "compress_cpu": 0.237926,
+        "compress_wall": 0.237929,
+        "decompress_cpu": 0.157891,
+        "decompress_wall": 0.15791
+      }, {
+        "plugin": "snappy",
+        "codec": "snappy",
+        "size": 56539845,
+        "compress_cpu": 0.469603,
+        "compress_wall": 0.46962,
+        "decompress_cpu": 0.193396,
+        "decompress_wall": 0.193397
+      }, {
+        "plugin": "zlib",
+        "codec": "deflate",
+        "size": 36548915,
+        "compress_cpu": 6.16228,
+        "compress_wall": 6.16233,
+        "decompress_cpu": 0.510604,
+        "decompress_wall": 0.510605
+      }, {
+        "plugin": "zlib",
+        "codec": "gzip",
+        "size": 36548933,
+        "compress_cpu": 6.08959,
+        "compress_wall": 6.08969,
+        "decompress_cpu": 0.61375,
+        "decompress_wall": 0.613756
+      }, {
+        "plugin": "zlib",
+        "codec": "zlib",
+        "size": 36548921,
+        "compress_cpu": 5.9739,
+        "compress_wall": 5.97397,
+        "decompress_cpu": 0.544973,
+        "decompress_wall": 0.544989
+      }, {
+        "plugin": "zpaq",
+        "codec": "zpaq",
+        "size": 20941523,
+        "compress_cpu": 117.86,
+        "compress_wall": 117.861,
+        "decompress_cpu": 121.274,
+        "decompress_wall": 121.275
+      }
+    ]
+  }
+};
+(function(){
+	function decimalAdjust(type, value, exp) {
+		if (typeof exp === 'undefined' || +exp === 0) {
+			return Math[type](value);
+		}
+		value = +value;
+		exp = +exp;
+		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+			return NaN;
+		}
+		value = value.toString().split('e');
+		value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		value = value.toString().split('e');
+		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+	}
+
+	if (!Math.round10) {
+		Math.round10 = function(value, exp) {
+			return decimalAdjust('round', value, exp);
+		};
+	}
+	if (!Math.floor10) {
+		Math.floor10 = function(value, exp) {
+			return decimalAdjust('floor', value, exp);
+		};
+	}
+	if (!Math.ceil10) {
+		Math.ceil10 = function(value, exp) {
+			return decimalAdjust('ceil', value, exp);
+		};
+	}
+  if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fn, scope) {
+      'use strict';
+      var i, len;
+      for (i = 0, len = this.length; i < len; ++i) {
+        if (i in this) {
+          fn.call(scope, this[i], i, this);
+        }
+      }
+    };
+  }
+})();
+
+google.load('visualization', '1', {packages:['table', 'corechart']});
+
+var benchmark = new function () {
+  var _this = this;
+
+  _this.data = [];
+
+  google.setOnLoadCallback(function () {
+    var benchmark_names = Object.getOwnPropertyNames (benchmark_data);
+    benchmark_names.forEach (function (dataset, i, a) {
+      var data = new google.visualization.DataTable ();
+
+      data.addColumn('string', 'Plugin');
+      data.addColumn('string', 'Codec');
+      data.addColumn('number', 'Compression Ratio');
+      data.addColumn('number', 'Compression Speed (KB/s)');
+      data.addColumn('number', 'Decompress Speed (KB/s)');
+
+      var uncompressed_size = benchmark_data[dataset]["uncompressed-size"];
+
+      data.addRows (benchmark_data[dataset].data.map (function (e) {
+        return [e.plugin, e.codec,
+                Math.round10 (uncompressed_size / e.size, -2),
+                Math.round10 ((uncompressed_size / e.compress_cpu) / (1024), -2),
+                Math.round10 ((uncompressed_size / e.decompress_cpu) / (1024), -2)];
+      }));
+
+      _this.data[dataset] = data;
+
+      $("#datasets-list").append ('<li><a href="#' + dataset + '" onclick="benchmark.load(\'' + dataset + '\')">' + dataset + '</a></li>');
+    });
+
+    if (benchmark_names.length == 1) {
+      this.load (benchmark_names[0]);
+    }
+  });
+
+  this.load = function (name) {
+    var visualizations = [];
+    var result = $('<div id="' + name + '"></div>');
+
+    $("#results").empty ().append (result);
+    result.append ("<h2>" + name + " Results</h2>");
+
+    {
+      var result_table = $("<div></div>");
+      result.append (result_table);
+      var table = new google.visualization.Table (result_table.get (0));
+      table.draw (_this.data[name]);
+      visualizations.push (table);
+    }
+
+    {
+      var compression_ratio_view = new google.visualization.DataView (_this.data[name]);
+      compression_ratio_view.setColumns ([1, 2]);
+
+      var compression_ratio_container = $("<div></div>");
+      result.append (compression_ratio_container);
+      var compression_ratio = new google.visualization.BarChart (compression_ratio_container.get (0));
+      compression_ratio.draw (compression_ratio_view, {
+        legend: 'none',
+        title: 'Compression Ratio',
+        vAxis: { title: 'Codecs' },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (compression_ratio);
+    }
+
+    {
+      var speed_view = new google.visualization.DataView (_this.data[name]);
+      speed_view.setColumns ([1, 3, 4]);
+
+      var speed_container = $("<div></div>");
+      result.append (speed_container);
+      var speed = new google.visualization.BarChart (speed_container.get (0));
+      speed.draw (speed_view, {
+        title: 'Speed',
+        vAxis: { title: 'Codecs' },
+        hAxis: { title: 'Speed (KB/s)' },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (speed);
+    }
+
+    {
+      var compression_ratio_vs_compression_speed_view = new google.visualization.DataView (_this.data[name]);
+      compression_ratio_vs_compression_speed_view.setColumns ([
+        3,
+        2,
+        { sourceColumn: 1, role: 'tooltip' }
+      ]);
+      var compression_ratio_vs_compression_speed_container = $("<div></div>");
+      result.append (compression_ratio_vs_compression_speed_container);
+      var compression_ratio_vs_compression_speed = new google.visualization.ScatterChart (compression_ratio_vs_compression_speed_container.get (0));
+      compression_ratio_vs_compression_speed.draw (compression_ratio_vs_compression_speed_view, {
+        legend: 'none',
+        title: 'Compression Ratio vs. Compression Speed',
+        vAxis: { title: 'Ratio', minValue: 0 },
+        hAxis: { title: 'Speed (KB/s)', minValue: 0 },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (compression_ratio_vs_compression_speed);
+    }
+
+    {
+      var compression_ratio_vs_decompression_speed_view = new google.visualization.DataView (_this.data[name]);
+      compression_ratio_vs_decompression_speed_view.setColumns ([
+        4,
+        2,
+        { sourceColumn: 1, role: 'tooltip' }
+      ]);
+      var compression_ratio_vs_decompression_speed_container = $("<div></div>");
+      result.append (compression_ratio_vs_decompression_speed_container);
+      var compression_ratio_vs_decompression_speed = new google.visualization.ScatterChart (compression_ratio_vs_decompression_speed_container.get (0));
+      compression_ratio_vs_decompression_speed.draw (compression_ratio_vs_decompression_speed_view, {
+        legend: 'none',
+        title: 'Compression Ratio vs. Decompression Speed',
+        vAxis: { title: 'Ratio', minValue: 0 },
+        hAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (compression_ratio_vs_decompression_speed);
+    }
+
+    {
+      var speed_compare_view = new google.visualization.DataView (_this.data[name]);
+      speed_compare_view.setColumns ([
+        3,
+        4,
+        { sourceColumn: 1, role: 'tooltip' }
+      ]);
+      var speed_compare_container = $("<div></div>");
+      result.append (speed_compare_container);
+      var speed_compare = new google.visualization.ScatterChart (speed_compare_container.get (0));
+      speed_compare.draw (speed_compare_view, {
+        legend: 'none',
+        title: 'Compression Speed vs. Decompression Speed',
+        hAxis: { title: 'Compression Speed (KB/s)', minValue: 0 },
+        vAxis: { title: 'Decompression Speed (KB/s)', minValue: 0 },
+        height: ($("#results").innerWidth () * (9 / 16))
+      });
+      visualizations.push (speed_compare);
+    }
+
+    visualizations.forEach (function (visualization) {
+      google.visualization.events.addListener(visualization, 'select', function() {
+        var selection = visualization.getSelection ();
+        visualizations.forEach (function (v) {
+          if (v !== visualization) {
+            v.setSelection (selection);
+          }
+        });
+      });
+    });
+  };
+} ();
+;
+    </script>
+  </head>
+  <body>
+    <h1>Squash Benchmark</h1>
+    <h2>Basics</h2>
+
+    <noscript>
+      It looks like you have JavaScript disabled, but JavaScript is
+      required to view this benchmark.
+    </noscript>
+
+    <p>
+      This benchmark
+      uses <a href="http://quixdb.github.io/squash/">Squash</a> to
+      compress and decompress a series of files.  Times are given in
+      seconds of <abbr>CPU</abbr> time.
+    </p>
+
+    <p>
+      Currently, only the default options for each codec are given.
+    </p>
+
+    <p>
+      The code used to generate this benchmark is in
+      the <a href="https://github.com/quixdb/squash/tree/master/benchmark"><var>benchmark/</var>
+      subdirectory of Squash</a>.
+    </p>
+
+    <h2>Datasets</h2>
+
+    <ul id="datasets-list"></ul>
+
+    <div id="results"></div>
+  </body>
+</html>
