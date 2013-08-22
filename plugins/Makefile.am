@@ -4,6 +4,7 @@ SUBDIRS = \
   fastlz \
   lz4 \
   lzma \
+  lzmat \
   lzf \
   lzo \
   quicklz \
