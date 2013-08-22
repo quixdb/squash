@@ -7,3 +7,6 @@
 [submodule "plugins/lzf/liblzf"]
 	path = plugins/lzf/liblzf
 	url = https://github.com/nemequ/liblzf.git
+[submodule "plugins/doboz/doboz"]
+	path = plugins/doboz/doboz
+	url = https://github.com/nemequ/doboz.git

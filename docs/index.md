@@ -30,9 +30,11 @@ consumers to utilize a great many compression algorithms without
 rewriting code or unnecessary bloat.  Plugins need not be distributed
 with Squash, though it is preferred.
 
-Squash currently contains plugins for the following libraries:
+Squash currently contains plugins for the following libraries (in
+alphabetical order):
 
 - [bzip2](@ref md_bzip2)
+- [Doboz](@ref md_doboz)
 - [FastLZ](@ref md_fastlz)
 - [LZ4](@ref md_lz4)
 - [liblzma](@ref md_lzma)

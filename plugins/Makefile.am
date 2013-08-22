@@ -1,5 +1,6 @@
 SUBDIRS = \
   bzip2 \
+  doboz \
   fastlz \
   lz4 \
   lzma \
