@@ -56,7 +56,7 @@ struct _SquashSharcStreamPriv {
   SHARC_BYTE_BUFFER inter_buffer;
   SHARC_BYTE_BUFFER write_buffer;
 
-  sharc_byte inter_data[SHARC_MAX_BUFFER_SIZE];
+  sharc_byte inter_data[SHARC_PREFERRED_BUFFER_SIZE];
   sharc_byte* read_data;
   sharc_byte* write_data;
 
@@ -96,7 +96,7 @@ squash_sharc_stream_init (SquashSharcStream* stream, SquashSharcStreamType type)
   priv->read_data = NULL;
 
   priv->read_buffer = sharc_createByteBuffer(NULL, 0, 0);
-  priv->inter_buffer = sharc_createByteBuffer(priv->inter_data, 0, SHARC_MAX_BUFFER_SIZE);
+  priv->inter_buffer = sharc_createByteBuffer(priv->inter_data, 0, SHARC_PREFERRED_BUFFER_SIZE);
   priv->write_buffer = sharc_createByteBuffer(NULL, 0, 0);
 
   sharc_resetDictionary(priv->dictionary_a);
@@ -389,12 +389,12 @@ squash_sharc_stream_decompress (SquashSharcStream* stream) {
           priv->read_buffer.position = 0;
 
           priv->write_buffer.position = 0;
-          priv->write_buffer.size = SHARC_MAX_BUFFER_SIZE;
-          if (stream->avail_out >= SHARC_MAX_BUFFER_SIZE) {
+          priv->write_buffer.size = SHARC_PREFERRED_BUFFER_SIZE;
+          if (stream->avail_out >= SHARC_PREFERRED_BUFFER_SIZE) {
             priv->write_buffer.pointer = stream->next_out;
           } else {
             if (priv->write_data == NULL) {
-              priv->write_data = (uint8_t*) malloc (SHARC_MAX_BUFFER_SIZE);
+              priv->write_data = (uint8_t*) malloc (SHARC_PREFERRED_BUFFER_SIZE);
               if (priv->write_data == NULL)
                 return SQUASH_SHARC_STREAM_MEMORY;
             }
@@ -411,7 +411,7 @@ squash_sharc_stream_decompress (SquashSharcStream* stream) {
           /* Buffer */
           if (priv->read_buffer.size == 0) {
             if (priv->read_data == NULL) {
-              priv->read_data = (uint8_t*) malloc (SHARC_MAX_BUFFER_SIZE);
+              priv->read_data = (uint8_t*) malloc (SHARC_PREFERRED_BUFFER_SIZE);
               if (priv->read_data == NULL)
                 return SQUASH_SHARC_STREAM_MEMORY;
             }

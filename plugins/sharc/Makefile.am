@@ -20,16 +20,15 @@ plugin_LTLIBRARIES = \
 endif
 
 SHARC_FILES = \
-  sharc/src/block_header.c \
-  sharc/src/hash_cipher.c \
-  sharc/src/sharc_cipher.c \
   sharc/src/byte_buffer.c \
-  sharc/src/direct_hash_cipher.c \
-  sharc/src/header.c \
-  sharc/src/xor_hash_cipher.c \
-  sharc/src/chrono.c \
+  sharc/src/dictionary.c \
+  sharc/src/direct_hash_transform.c \
   sharc/src/globals.c \
-  sharc/src/sharc.c
+  sharc/src/hash_transform.c \
+  sharc/src/header.c \
+  sharc/src/sharc.c \
+  sharc/src/sharc_transform.c \
+  sharc/src/xor_hash_transform.c
 
 libsquash@SQUASH_API_VERSION@_plugin_sharc_la_CFLAGS = \
 	$(COMMON_CFLAGS)

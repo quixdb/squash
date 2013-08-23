@@ -245,8 +245,8 @@ static size_t
 squash_sharc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
   return uncompressed_length +
     sizeof(SHARC_GENERIC_HEADER) +
-    (sizeof(SHARC_BLOCK_HEADER) * (uncompressed_length / (SHARC_MAX_BUFFER_SIZE))) +
-    (((uncompressed_length % (SHARC_MAX_BUFFER_SIZE)) == 0) ? 0 : sizeof(SHARC_BLOCK_HEADER));
+    (sizeof(SHARC_BLOCK_HEADER) * (uncompressed_length / (SHARC_PREFERRED_BUFFER_SIZE))) +
+    (((uncompressed_length % (SHARC_PREFERRED_BUFFER_SIZE)) == 0) ? 0 : sizeof(SHARC_BLOCK_HEADER));
 }
 
 SquashStatus
