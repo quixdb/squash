@@ -1,4 +1,5 @@
 SUBDIRS = \
+  blosc \
   bzip2 \
   doboz \
   fastlz \

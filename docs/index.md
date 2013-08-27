@@ -32,6 +32,7 @@ with Squash, though it is preferred.
 
 Squash currently contains plugins for the following libraries:
 
+- [Blosc](@ref md_blosc)
 - [bzip2](@ref md_bzip2)
 - [Doboz](@ref md_doboz)
 - [FastLZ](@ref md_fastlz)

@@ -178,7 +178,7 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 SQUASH_PLUGINS=""
 SQUASH_PLUGINS_ENABLED=""
 
-m4_foreach([plugin],[bzip2, doboz, fastlz, lz4, lzma, lzmat, lzf, lzo, quicklz, sharc, snappy, zlib, zpaq], [
+m4_foreach([plugin],[blosc, bzip2, doboz, fastlz, lz4, lzma, lzmat, lzf, lzo, quicklz, sharc, snappy, zlib, zpaq], [
     m4_include(plugins/plugin/plugin[.m4])
     SQUASH_PLUGINS="${SQUASH_PLUGINS} plugin"
   ])
@@ -239,6 +239,7 @@ AC_CONFIG_FILES([Makefile
                  bindings/vala/examples/Makefile
                  squash/Makefile
                  plugins/Makefile
+                 plugins/blosc/Makefile
                  plugins/bzip2/Makefile
                  plugins/doboz/Makefile
                  plugins/fastlz/Makefile

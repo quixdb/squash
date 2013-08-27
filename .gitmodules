@@ -13,3 +13,6 @@
 [submodule "plugins/lzmat/lzmat"]
 	path = plugins/lzmat/lzmat
 	url = https://github.com/nemequ/lzmat.git
+[submodule "plugins/blosc/blosc"]
+	path = plugins/blosc/blosc
+	url = https://github.com/FrancescAlted/blosc.git
