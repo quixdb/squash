@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for submodule in `grep -oP 'path = (.+)' .gitmodules | sed -E -e 's/^path = (.+)$/\1/'`; do
+for submodule in `grep -oE 'path = (.+)' .gitmodules | sed -E -e 's/^path = (.+)$/\1/'`; do
   echo "Checking $submodule"
   if [ ! -d "${submodule}/.git" ]; then
     git submodule init
