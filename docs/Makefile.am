@@ -1,5 +1,3 @@
-if ENABLE_DOCS
-
 DOXYGEN_FILES = \
   $(wildcard $(top_srcdir)/squash/*.c) \
   $(wildcard $(top_srcdir)/squash/*.h) \
@@ -10,9 +8,13 @@ DOXYGEN_FILES = \
 stamp: Doxyfile $(DOXYGEN_FILES)
 	$(DOXYGEN) Doxyfile && touch $@
 
-all: stamp
-
+if ENABLE_DOCS
+STAMP=stamp
+else
+STAMP=
 endif
+
+all: $(STAMP)
 
 man_MANS = \
 	squash.1

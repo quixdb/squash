@@ -16,10 +16,10 @@ TESTS_LIBS = \
   $(COMMON_LIBS) \
   @GLIB_LIBS@
 
+if ENABLE_UNIT_TESTING
 TESTS = \
   check-plugins
 
-if HAVE_GLIB
 noinst_PROGRAMS = $(TESTS)
 endif
 
