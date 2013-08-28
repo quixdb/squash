@@ -47,4 +47,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	sharc.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

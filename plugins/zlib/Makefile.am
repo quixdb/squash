@@ -30,4 +30,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	zlib.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

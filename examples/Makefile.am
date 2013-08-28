@@ -12,4 +12,4 @@ simple_CFLAGS = $(COMMON_CFLAGS)
 simple_LDADD = $(COMMON_LIBS)
 simple_SOURCES = simple.c
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

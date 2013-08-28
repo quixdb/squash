@@ -31,4 +31,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	snappy.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

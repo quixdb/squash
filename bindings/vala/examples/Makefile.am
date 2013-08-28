@@ -32,4 +32,4 @@ GITIGNOREFILES = \
   $(compress_stream_SOURCES:.vala=.c) \
   compress_stream_vala.stamp
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

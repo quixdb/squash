@@ -184,8 +184,7 @@ m4_foreach([plugin],[blosc, bzip2, doboz, fastlz, lz4, lzma, lzmat, lzf, lzo, qu
   ])
 
 for plugin in $SQUASH_PLUGINS; do
-  enable_plugin=enable_$plugin
-  if test "${!enable_plugin}" = "yes"; then
+  if test "$(eval echo \$enable_$plugin)" = "yes"; then
     SQUASH_PLUGINS_ENABLED="$SQUASH_PLUGINS_ENABLED $plugin"
     SQUASH_DOXYGEN_PATHS="$SQUASH_DOXYGEN_PATHS ../plugins/${plugin}/${plugin}.md"
   fi
@@ -279,7 +278,6 @@ echo "
 "
 
 for plugin in $SQUASH_PLUGINS; do
-  enable_plugin=enable_$plugin
-  printf "      %-16s%s\n" "${plugin}:" "${!enable_plugin}"
+  printf "      %-16s%s\n" "${plugin}:" "$(eval echo \$enable_$plugin)"
 done
 echo ""

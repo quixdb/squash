@@ -53,4 +53,4 @@ EXTRA_DIST = \
   benchmark-header.html \
   benchmark-footer.html
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

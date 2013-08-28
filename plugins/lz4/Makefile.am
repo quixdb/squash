@@ -42,4 +42,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	lz4.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

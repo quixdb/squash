@@ -45,4 +45,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	blosc.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

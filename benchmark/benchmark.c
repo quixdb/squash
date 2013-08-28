@@ -4,11 +4,21 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <time.h>
 #include <errno.h>
 #include <strings.h>
 
 #include <squash/squash.h>
+
+#ifdef CLOCK_PROCESS_CPUTIME_ID
+#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_PROCESS_CPUTIME_ID
+#elif defined (CLOCK_VIRTUAL)
+#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_VIRTUAL
+#else
+#  warning Unable to find a way to measure CPU time
+#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_REALTIME
+#endif
 
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
@@ -73,7 +83,7 @@ benchmark_timer_start (struct BenchmarkTimer* timer) {
     perror ("Unable to get wall clock time");
     exit (errno);
   }
-  if (clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &(timer->start_cpu)) != 0) {
+  if (clock_gettime (SQUASH_BENCHMARK_CLOCK_CPUTIME, &(timer->start_cpu)) != 0) {
     perror ("Unable to get CPU clock time");
     exit (errno);
   }
@@ -81,7 +91,7 @@ benchmark_timer_start (struct BenchmarkTimer* timer) {
 
 static void
 benchmark_timer_stop (struct BenchmarkTimer* timer) {
-  if (clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &(timer->end_cpu)) != 0) {
+  if (clock_gettime (SQUASH_BENCHMARK_CLOCK_CPUTIME, &(timer->end_cpu)) != 0) {
     perror ("Unable to get CPU clock time");
     exit (errno);
   }

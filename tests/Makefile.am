@@ -32,4 +32,4 @@ CLEANFILES = \
   $(TESTS:=.trs) \
   test-suite.log
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

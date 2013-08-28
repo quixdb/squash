@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS=-I m4
 SUBDIRS = squash plugins utils docs examples bindings . tests benchmark
 
 squash-@SQUASH_API_VERSION@.pc: squash.pc
-	$(AM_V_GEN) cat < $^ > $@
+	$(AM_V_GEN) cat squash.pc > $@
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
@@ -21,4 +21,4 @@ GITIGNOREFILES = \
   ChangeLog \
   INSTALL
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

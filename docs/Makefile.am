@@ -26,4 +26,4 @@ GITIGNOREFILES = \
 
 EXTRA_DIST = Doxyfile
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

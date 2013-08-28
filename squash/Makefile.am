@@ -46,11 +46,11 @@ libsquash@SQUASH_API_VERSION@_la_LIBADD += @PTHREAD_LIBS@
 endif
 
 version.h: version.h.in
-	$(AM_V_GEN) sed \
+	$(AM_V_GEN) cat version.h.in | sed \
 		  -e "s/@SQUASH_VERSION_MAJOR@/$(SQUASH_MAJOR_VERSION)/" \
 		  -e "s/@SQUASH_VERSION_MINOR@/$(SQUASH_MINOR_VERSION)/" \
 		  -e "s/@SQUASH_VERSION_MICRO@/$(SQUASH_MICRO_VERSION)/" \
-		< $^ > $@
+		> $@
 
 MAINTAINERCLEANFILES = \
   config.h.in
@@ -62,4 +62,4 @@ BUILT_SOURCES = \
 CLEANFILES = \
   stamp-h1
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

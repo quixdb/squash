@@ -28,4 +28,4 @@ EXTRA_DIST = \
 	$(plugin_DATA) \
 	zpaq.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

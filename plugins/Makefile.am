@@ -17,4 +17,4 @@ SUBDIRS = \
 EXTRA_DIST = \
 	plugins.md
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk

@@ -14,4 +14,4 @@ squash_LDADD = $(COMMON_LIBS)
 squash_SOURCES = \
   squash.c
 
--include $(top_srcdir)/git.mk
+include $(top_srcdir)/git.mk
