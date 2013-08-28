@@ -18,11 +18,14 @@ benchmark_LDADD = \
 benchmark_SOURCES = \
   benchmark.c
 
+if HAVE_WGET
 iliad:
-	wget -O $@ "http://www.gutenberg.org/files/22382/22382-h/22382-h.htm"
+	$(WGET) -O $@ "http://www.gutenberg.org/files/22382/22382-h/22382-h.htm"
 
 enwik8.bz2:
-	wget -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik8.bz2"
+	$(WGET) -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik8.bz2" || \
+    (sleep 5 && $(WGET) -O $@ "http://cs.fit.edu.nyud.net/~mmahoney/compression/enwik8.bz2")
+endif
 
 enwik8: enwik8.bz2
 	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(top_builddir)/utils/squash -kdc bzip2 $< $@

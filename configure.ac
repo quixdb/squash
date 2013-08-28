@@ -108,6 +108,9 @@ AM_CONDITIONAL([ENABLE_DOCS], test -x "$DOXYGEN")
 AM_PROG_VALAC(,[have_valac="yes"],[have_valac="no"])
 AM_CONDITIONAL([HAVE_VALAC], test x$have_valac = "xyes")
 
+AC_PATH_PROG([WGET], [wget])
+AM_CONDITIONAL([HAVE_WGET], test -x "$WGET")
+
 GNOME_COMPILE_WARNINGS
 CHECK_HIDDEN_VISIBILITY([SQUASH_API])
 
@@ -169,6 +172,8 @@ AC_ARG_ENABLE([unit-testing], [AC_HELP_STRING([--enable-unit-testing=@<:@yes/no/
   ], [
     enable_unit_testing=$have_glib
   ])
+
+AM_CONDITIONAL([ENABLE_UNIT_TESTING], test x$enable_unit_testing = "xyes")
 
 # For plug-ins
 AX_EXT
