@@ -142,8 +142,14 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
   }
 
   if (stream->input == NULL) {
-    squash_buffer_stream_process (stream);
+    if (stream->base_object.avail_in > 0) {
+      squash_buffer_stream_process (stream);
+    }
     squash_buffer_stream_consolidate (stream);
+  } else {
+    if (stream->base_object.avail_in > 0) {
+      return SQUASH_STATE;
+    }
   }
 
   if (stream->output == NULL) {
