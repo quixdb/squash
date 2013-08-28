@@ -42,7 +42,7 @@ data.json: iliad enwik8 benchmark
 	SQUASH_PLUGINS="$(top_srcdir)/plugins" $(builddir)/benchmark -o $@ iliad enwik8
 
 benchmark.html: benchmark-header.html data.json benchmark.js benchmark-footer.html
-	cat $^ > $@
+	cat benchmark-header.html data.json benchmark.js benchmark-footer.html > $@
 
 GITIGNOREFILES = \
   iliad \
