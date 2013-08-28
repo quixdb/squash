@@ -1,6 +1,7 @@
 COMMON_CFLAGS = \
    -I$(top_srcdir) \
    @WARN_CFLAGS@ \
+  -Wno-pointer-to-int-cast \
   -DSQUASH_IS_UNSTABLE \
   -DSQUASH_COMPILATION
 

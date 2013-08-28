@@ -2,6 +2,7 @@ COMMON_CFLAGS = \
    -O3 \
    -I$(top_srcdir) \
    @WARN_CFLAGS@ \
+  -Wno-missing-prototypes \
   -DSQUASH_IS_UNSTABLE \
   -DSQUASH_COMPILATION
 
