@@ -19,3 +19,6 @@
 [submodule "plugins/zpaq/zpaq"]
 	path = plugins/zpaq/zpaq
 	url = https://github.com/nemequ/zpaq
+[submodule "plugins/lzg/liblzg"]
+	path = plugins/lzg/liblzg
+	url = https://github.com/svn2github/liblzg.git
