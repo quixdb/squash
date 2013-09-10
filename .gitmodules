@@ -16,3 +16,6 @@
 [submodule "plugins/blosc/blosc"]
 	path = plugins/blosc/blosc
 	url = https://github.com/FrancescAlted/blosc.git
+[submodule "plugins/zpaq/zpaq"]
+	path = plugins/zpaq/zpaq
+	url = https://github.com/nemequ/zpaq

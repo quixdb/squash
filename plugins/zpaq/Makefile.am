@@ -6,9 +6,14 @@ plugin_LTLIBRARIES = \
 	libsquash@SQUASH_API_VERSION@-plugin-zpaq.la
 endif
 
+LIBZPAQ_FILES = \
+  zpaq/libzpaq.cpp \
+  zpaq/divsufsort.c
+
 libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_CPPFLAGS = \
    -O3 \
    -I$(top_srcdir) \
+   -I$(srcdir)/zpaq \
   -DSQUASH_IS_UNSTABLE \
   @ZPAQ_SSE2_CPPFLAGS@
 
@@ -19,9 +24,7 @@ libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_LIBADD = \
   $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 
 libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_SOURCES = \
-  libzpaq.cpp \
-  divsufsort.c \
-  divsufsort.h \
+  $(LIBZPAQ_FILES) \
   squash-zpaq.cpp
 
 EXTRA_DIST = \
