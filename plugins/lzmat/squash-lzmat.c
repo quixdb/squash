@@ -37,7 +37,7 @@ SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* fun
 
 static size_t
 squash_lzmat_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return MAX_LZMAT_ENCODED_SIZE (uncompressed_length);
+  return MAX_LZMAT_ENCODED_SIZE (uncompressed_length) + 1;
 }
 
 static SquashStatus
