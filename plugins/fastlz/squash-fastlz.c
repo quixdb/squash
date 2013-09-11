@@ -32,7 +32,7 @@
 
 #include <squash/squash.h>
 
-#include "fastlz.h"
+#include "fastlz/fastlz.h"
 
 typedef struct SquashFastLZOptions_s {
   SquashOptions base_object;

@@ -28,7 +28,7 @@ libsquash@SQUASH_API_VERSION@_plugin_fastlz_la_LIBADD = \
 
 libsquash@SQUASH_API_VERSION@_plugin_fastlz_la_SOURCES = \
   squash-fastlz.c \
-  fastlz.c \
+  fastlz/fastlz.c \
   $(FASTLZ_FILES)
 
 EXTRA_DIST = \
