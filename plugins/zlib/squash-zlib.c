@@ -331,7 +331,38 @@ squash_zlib_finish_stream (SquashStream* stream) {
 
 static size_t
 squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return (size_t) compressBound ((uLong) uncompressed_length);
+  SquashZlibType type = squash_zlib_codec_to_type (codec);
+
+  if (type == SQUASH_ZLIB_TYPE_ZLIB) {
+    return (size_t) compressBound ((uLong) uncompressed_length);
+  } else {
+    z_stream stream = { 0, };
+    size_t max_compressed_size;
+    int zlib_e;
+
+    int window_bits = 14;
+    if (type == SQUASH_ZLIB_TYPE_DEFLATE) {
+      window_bits = -window_bits;
+    } else if (type == SQUASH_ZLIB_TYPE_GZIP) {
+      window_bits += 16;
+    }
+
+    zlib_e = deflateInit2 (&stream,
+                           SQUASH_ZLIB_DEFAULT_LEVEL,
+                           Z_DEFLATED,
+                           window_bits,
+                           9,
+                           SQUASH_ZLIB_DEFAULT_STRATEGY);
+    if (zlib_e != Z_OK) {
+      return 0;
+    }
+
+    max_compressed_size = (size_t) deflateBound (&stream, (uLong) uncompressed_length);
+
+    deflateEnd (&stream);
+
+    return max_compressed_size;
+  }
 }
 
 SquashStatus
