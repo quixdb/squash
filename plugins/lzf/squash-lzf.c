@@ -39,14 +39,18 @@ SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* fun
 
 static size_t
 squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return ((((uncompressed_length) * 33) >> 5 ) + 1);
+#if LZF_VERSION >= 0x0106
+  return LZF_MAX_COMPRESSED_SIZE(uncompressed_length) + 1;
+#else
+  return ((((uncompressed_length) * 33) >> 5 ) + 1) + 1;
+#endif
 }
 
 static SquashStatus
 squash_lzf_decompress_buffer (SquashCodec* codec,
-                                 uint8_t* decompressed, size_t* decompressed_length,
-                                 const uint8_t* compressed, size_t compressed_length,
-                                 SquashOptions* options) {
+                              uint8_t* decompressed, size_t* decompressed_length,
+                              const uint8_t* compressed, size_t compressed_length,
+                              SquashOptions* options) {
   SquashStatus res = SQUASH_OK;
   unsigned int lzf_e;
 
@@ -74,9 +78,9 @@ squash_lzf_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_lzf_compress_buffer (SquashCodec* codec,
-                               uint8_t* compressed, size_t* compressed_length,
-                               const uint8_t* uncompressed, size_t uncompressed_length,
-                               SquashOptions* options) {
+                            uint8_t* compressed, size_t* compressed_length,
+                            const uint8_t* uncompressed, size_t uncompressed_length,
+                            SquashOptions* options) {
   unsigned int lzf_e;
 
   lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
