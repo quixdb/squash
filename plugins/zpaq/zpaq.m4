@@ -1,3 +1,5 @@
+AC_LANG_PUSH([C++])
+
 AC_ARG_ENABLE([zpaq],
               [AC_HELP_STRING([--enable-zpaq=@<:@yes/no@:>@], [Enable zpaq plugin @<:@default=yes@:>@])],,
               [enable_zpaq=yes])
@@ -18,3 +20,7 @@ if test x"$ax_cv_have_sse2_ext" != x"yes"; then
   ZPAQ_SSE2_CPPFLAGS="-DNOJIT"
 fi
 AC_SUBST([ZPAQ_SSE2_CPPFLAGS])
+
+AC_OPENMP
+
+AC_LANG_POP([C++])
