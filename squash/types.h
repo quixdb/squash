@@ -35,7 +35,7 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef        unsigned int      SquashStatus;
+typedef        int               SquashStatus;
 typedef struct _SquashObject     SquashObject;
 typedef struct _SquashOptions    SquashOptions;
 typedef struct _SquashStream     SquashStream;
