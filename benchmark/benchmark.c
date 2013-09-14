@@ -1,24 +1,37 @@
-#define _POSIX_C_SOURCE 199309L
+/* Copyright (c) 2013 The Squash Authors
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Authors:
+ *   Evan Nemerson <evan@coeus-group.com>
+ */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdlib.h>
-#include <sys/time.h>
-#include <time.h>
-#include <errno.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 #include <strings.h>
 
 #include <squash/squash.h>
-
-#ifdef CLOCK_PROCESS_CPUTIME_ID
-#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_PROCESS_CPUTIME_ID
-#elif defined (CLOCK_VIRTUAL)
-#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_VIRTUAL
-#else
-#  warning Unable to find a way to measure CPU time
-#  define SQUASH_BENCHMARK_CLOCK_CPUTIME CLOCK_REALTIME
-#endif
+#include "timer.h"
 
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
@@ -48,13 +61,7 @@ struct BenchmarkContext {
   bool first;
   long input_size;
   BenchmarkOutputFormat format;
-};
-
-struct BenchmarkTimer {
-  struct timespec start_wall;
-  struct timespec end_wall;
-  struct timespec start_cpu;
-  struct timespec end_cpu;
+  SquashTimer* timer;
 };
 
 static void
@@ -78,52 +85,10 @@ benchmark_context_write_csv (struct BenchmarkContext* context, const char* fmt, 
 }
 
 static void
-benchmark_timer_start (struct BenchmarkTimer* timer) {
-  if (clock_gettime (CLOCK_REALTIME, &(timer->start_wall)) != 0) {
-    perror ("Unable to get wall clock time");
-    exit (errno);
-  }
-  if (clock_gettime (SQUASH_BENCHMARK_CLOCK_CPUTIME, &(timer->start_cpu)) != 0) {
-    perror ("Unable to get CPU clock time");
-    exit (errno);
-  }
-}
-
-static void
-benchmark_timer_stop (struct BenchmarkTimer* timer) {
-  if (clock_gettime (SQUASH_BENCHMARK_CLOCK_CPUTIME, &(timer->end_cpu)) != 0) {
-    perror ("Unable to get CPU clock time");
-    exit (errno);
-  }
-  if (clock_gettime (CLOCK_REALTIME, &(timer->end_wall)) != 0) {
-    perror ("Unable to get wall clock time");
-    exit (errno);
-  }
-}
-
-static double
-benchmark_timer_elapsed (struct timespec* start, struct timespec* end) {
-  return
-    (double) (end->tv_sec - start->tv_sec) +
-    (((double) (end->tv_nsec - start->tv_nsec)) / 1000000000);
-}
-
-static double
-benchmark_timer_elapsed_cpu (struct BenchmarkTimer* timer) {
-  return benchmark_timer_elapsed (&(timer->start_cpu), &(timer->end_cpu));
-}
-
-static double
-benchmark_timer_elapsed_wall (struct BenchmarkTimer* timer) {
-  return benchmark_timer_elapsed (&(timer->start_wall), &(timer->end_wall));
-}
-
-static void
 benchmark_codec (SquashCodec* codec, void* data) {
   struct BenchmarkContext* context = (struct BenchmarkContext*) data;
   FILE* compressed = tmpfile ();
   FILE* decompressed = tmpfile ();
-  struct BenchmarkTimer timer;
 
   /* Since we're often running against the source dir, we will pick up
      plugins which have not been compiled.  This should bail us out
@@ -148,24 +113,27 @@ benchmark_codec (SquashCodec* codec, void* data) {
   }
 
   fputs ("    compressing... ", stderr);
-  benchmark_timer_start (&timer);
+  squash_timer_start (context->timer);
   squash_codec_compress_file_with_options (codec, compressed, context->input, NULL);
-  benchmark_timer_stop (&timer);
+  squash_timer_stop (context->timer);
   benchmark_context_write_json (context, "{\n        \"plugin\": \"%s\",\n        \"codec\": \"%s\",\n        \"size\": %ld,\n        \"compress_cpu\": %g,\n        \"compress_wall\": %g,\n",
                                 squash_plugin_get_name (squash_codec_get_plugin (codec)),
                                 squash_codec_get_name (codec),
                                 ftell (compressed),
-                                benchmark_timer_elapsed_cpu (&timer),
-                                benchmark_timer_elapsed_wall (&timer));
+                                squash_timer_get_elapsed_cpu (context->timer),
+                                squash_timer_get_elapsed_wall (context->timer));
   benchmark_context_write_csv (context, "%s,%s,%s,%ld,%ld,%g,%g,",
                                context->input_name,
                                squash_plugin_get_name (squash_codec_get_plugin (codec)),
                                squash_codec_get_name (codec),
                                context->input_size,
                                ftell (compressed),
-                               benchmark_timer_elapsed_cpu (&timer),
-                               benchmark_timer_elapsed_wall (&timer));
-  fputs ("done.\n", stderr);
+                               squash_timer_get_elapsed_cpu (context->timer),
+                               squash_timer_get_elapsed_wall (context->timer));
+  fprintf (stderr, "done (%g CPU, %g wall).\n",
+           squash_timer_get_elapsed_cpu (context->timer),
+           squash_timer_get_elapsed_wall (context->timer));
+  squash_timer_reset (context->timer);
 
   if (fseek (compressed, 0, SEEK_SET) != 0) {
     perror ("Unable to seek to beginning of compressed file");
@@ -173,16 +141,19 @@ benchmark_codec (SquashCodec* codec, void* data) {
   }
 
   fputs ("    decompressing... ", stderr);
-  benchmark_timer_start (&timer);
+  squash_timer_start (context->timer);
   squash_codec_decompress_file_with_options (codec, decompressed, compressed, NULL);
-  benchmark_timer_stop (&timer);
+  squash_timer_stop (context->timer);
   benchmark_context_write_json (context, "        \"decompress_cpu\": %g,\n        \"decompress_wall\": %g\n      }",
-                                benchmark_timer_elapsed_cpu (&timer),
-                                benchmark_timer_elapsed_wall (&timer));
+                                squash_timer_get_elapsed_cpu (context->timer),
+                                squash_timer_get_elapsed_wall (context->timer));
   benchmark_context_write_csv (context, "%g,%g\n",
-                               benchmark_timer_elapsed_cpu (&timer),
-                               benchmark_timer_elapsed_wall (&timer));
-  fputs ("done.\n", stderr);
+                               squash_timer_get_elapsed_cpu (context->timer),
+                               squash_timer_get_elapsed_wall (context->timer));
+  fprintf (stderr, "done (%g CPU, %g wall).\n",
+           squash_timer_get_elapsed_cpu (context->timer),
+           squash_timer_get_elapsed_wall (context->timer));
+  squash_timer_reset (context->timer);
 
   fclose (compressed);
   fclose (decompressed);
@@ -194,11 +165,13 @@ benchmark_plugin (SquashPlugin* plugin, void* data) {
 }
 
 int main (int argc, char** argv) {
-  struct BenchmarkContext context = { stdout, NULL, NULL, true, 0, BENCHMARK_OUTPUT_FORMAT_JSON };
+  struct BenchmarkContext context = { stdout, NULL, NULL, true, 0, BENCHMARK_OUTPUT_FORMAT_JSON, NULL };
   bool first_input = true;
   int opt;
   int optc;
   SquashCodec* codec = NULL;
+
+  context.timer = squash_timer_new ();
 
   while ( (opt = getopt(argc, argv, "ho:c:f:")) != -1 ) {
     switch ( opt ) {
@@ -280,6 +253,8 @@ int main (int argc, char** argv) {
   }
 
   benchmark_context_write_json (&context, "\n};\n", context.output);
+
+  squash_timer_free (context.timer);
 
   return 0;
 }

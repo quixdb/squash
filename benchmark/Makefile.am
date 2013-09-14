@@ -16,6 +16,7 @@ benchmark_LDADD = \
   -lrt
 
 benchmark_SOURCES = \
+  timer.c \
   benchmark.c
 
 if HAVE_WGET
