@@ -15,8 +15,8 @@ libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_CPPFLAGS = \
    -I$(top_srcdir) \
    -I$(srcdir)/zpaq \
   -DSQUASH_IS_UNSTABLE \
-  @ZPAQ_SSE2_CPPFLAGS@ \
-  $(OPENMP_CXXFLAGS)
+  $(OPENMP_CXXFLAGS) \
+  -include $(srcdir)/zpaq-config.h
 
 libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_LDFLAGS = \
   $(PLUGIN_LIBTOOL_FLAGS) \
@@ -31,6 +31,7 @@ libsquash@SQUASH_API_VERSION@_plugin_zpaq_la_SOURCES = \
 
 EXTRA_DIST = \
 	$(plugin_DATA) \
-	zpaq.md
+	zpaq.md \
+  zpaq-config.h
 
 include $(top_srcdir)/git.mk
