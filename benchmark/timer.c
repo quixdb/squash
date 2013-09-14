@@ -77,6 +77,29 @@ struct SquashTimer_s {
 #endif
 };
 
+/**
+ * @defgroup SquashTimer SquashTimer
+ * @brief A cross-platform timer
+ *
+ * @{
+ */
+
+/**
+ * @struct _SquashTimer
+ * @brief Simple cross-platform timer
+ *
+ * Provides a timer for measuring the elapsed time between events, in
+ * both wall-clock and CPU time.
+ */
+
+/**
+ * @brief Create a new timer.
+ *
+ * Note that this function does not actually start timing.
+ *
+ * @return A new timer instance, or *NULL* on failure.
+ * @see squash_timer_free
+ */
 SquashTimer*
 squash_timer_new () {
   SquashTimer* timer = (SquashTimer*) malloc (sizeof (SquashTimer));
@@ -84,11 +107,21 @@ squash_timer_new () {
   return timer;
 }
 
+/**
+ * @brief Free a timer.
+ *
+ * @param timer The timer.
+ */
 void
 squash_timer_free (SquashTimer* timer) {
   free (timer);
 }
 
+/**
+ * @brief Begin or continue timing.
+ *
+ * @param timer The timer.
+ */
 void
 squash_timer_start (SquashTimer* timer) {
 #if SQUASH_TIMER_METHOD == SQUASH_TIMER_METHOD_CLOCK_GETTIME
@@ -134,6 +167,11 @@ squash_timer_rusage_elapsed (struct rusage* start, struct rusage* end) {
 }
 #endif
 
+/**
+ * @brief Stop timing.
+ *
+ * @param timer The timer.
+ */
 void
 squash_timer_stop (SquashTimer* timer) {
 #if SQUASH_TIMER_METHOD == SQUASH_TIMER_METHOD_CLOCK_GETTIME
@@ -163,18 +201,55 @@ squash_timer_stop (SquashTimer* timer) {
 #endif
 }
 
+/**
+ * @brief Reset the timer.
+ *
+ * Resets the elapsed time to 0.
+ *
+ * @param timer The timer.
+ */
 void
 squash_timer_reset (SquashTimer* timer) {
   timer->elapsed_cpu = 0.0;
   timer->elapsed_wall = 0.0;
 }
 
+/**
+ * @brief Restart the timer.
+ *
+ * This is a convenience wrapper for resetting the timer then starting
+ * it.
+ *
+ * @param timer The timer.
+ */
+void
+squash_timer_restart (SquashTimer* timer) {
+  squash_timer_reset (timer);
+  squash_timer_start (timer);
+}
+
+/**
+ * @brief Get the elapsed CPU time.
+ *
+ * @param timer The timer.
+ * @return Number of seconds (CPU time) elapsed.
+ */
 double
 squash_timer_get_elapsed_cpu (SquashTimer* timer) {
   return timer->elapsed_cpu;
 }
 
+/**
+ * @brief Get the elapsed wall-clock time.
+ *
+ * @param timer The timer.
+ * @return Number of seconds (wall-clock time) elapsed.
+ */
 double
 squash_timer_get_elapsed_wall (SquashTimer* timer) {
   return timer->elapsed_wall;
 }
+
+/**
+ * @}
+ */

@@ -35,6 +35,7 @@ void         squash_timer_free             (SquashTimer* timer);
 void         squash_timer_start            (SquashTimer* timer);
 void         squash_timer_stop             (SquashTimer* timer);
 void         squash_timer_reset            (SquashTimer* timer);
+void         squash_timer_restart          (SquashTimer* timer);
 
 double       squash_timer_get_elapsed_cpu  (SquashTimer* timer);
 double       squash_timer_get_elapsed_wall (SquashTimer* timer);
