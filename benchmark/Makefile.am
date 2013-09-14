@@ -13,7 +13,7 @@ benchmark_CFLAGS = \
 
 benchmark_LDADD = \
   $(COMMON_LIBS) \
-  -lrt
+  @CLOCK_GETTIME_LIBS@
 
 benchmark_SOURCES = \
   timer.c \

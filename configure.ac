@@ -116,7 +116,13 @@ CHECK_HIDDEN_VISIBILITY([SQUASH_API])
 
 # Checks for libraries.
 
-AC_CHECK_LIB([ltdl],[lt_dlopenext],,[AC_MSG_ERROR([libltdl is required.])])
+AC_CHECK_LIB([ltdl],[lt_dlopenext],[ ],[AC_MSG_ERROR([libltdl is required.])])
+AC_CHECK_LIB([rt],[clock_gettime],[
+    CLOCK_GETTIME_LIBS=-lrt
+  ],[
+    CLOCK_GETTIME_LIBS=
+  ],)
+AC_SUBST([CLOCK_GETTIME_LIBS])
 
 GLIB_TARGET_VERSION=2.26
 AC_SUBST([GLIB_TARGET_VERSION])
@@ -176,7 +182,6 @@ AC_ARG_ENABLE([unit-testing], [AC_HELP_STRING([--enable-unit-testing=@<:@yes/no/
 AM_CONDITIONAL([ENABLE_UNIT_TESTING], test x$enable_unit_testing = "xyes")
 
 # For plug-ins
-AX_EXT
 PLUGIN_LIBTOOL_FLAGS="-module -avoid-version"
 AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 
