@@ -25,3 +25,6 @@
 [submodule "plugins/fastlz/fastlz"]
 	path = plugins/fastlz/fastlz
 	url = https://github.com/svn2github/fastlz.git
+[submodule "plugins/wflz/wflz"]
+	path = plugins/wflz/wflz
+	url = https://github.com/svn2github/wflz.git

@@ -188,7 +188,7 @@ AC_SUBST(PLUGIN_LIBTOOL_FLAGS)
 SQUASH_PLUGINS=""
 SQUASH_PLUGINS_ENABLED=""
 
-m4_foreach([plugin],[blosc, bzip2, doboz, fastlz, lz4, lzg, lzma, lzmat, lzf, lzo, quicklz, sharc, snappy, zlib, zpaq], [
+m4_foreach([plugin],[blosc, bzip2, doboz, fastlz, lz4, lzg, lzma, lzmat, lzf, lzo, quicklz, sharc, snappy, wflz, zlib, zpaq], [
     m4_include(plugins/plugin/plugin[.m4])
     SQUASH_PLUGINS="${SQUASH_PLUGINS} plugin"
   ])
@@ -261,6 +261,7 @@ AC_CONFIG_FILES([Makefile
                  plugins/quicklz/Makefile
                  plugins/sharc/Makefile
                  plugins/snappy/Makefile
+                 plugins/wflz/Makefile
                  plugins/zlib/Makefile
                  plugins/zpaq/Makefile
                  utils/Makefile

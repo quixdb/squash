@@ -12,6 +12,7 @@ SUBDIRS = \
   quicklz \
   sharc \
   snappy \
+  wflz \
   zlib \
   zpaq
 
