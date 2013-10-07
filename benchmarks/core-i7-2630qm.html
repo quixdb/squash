@@ -29,205 +29,229 @@ var benchmark_data =
     "uncompressed-size": 1308638,
     "data": [
       {
+        "plugin": "blosc",
+        "codec": "blosc",
+        "size": 772768,
+        "compress_cpu": 0.0104373,
+        "compress_wall": 0.0104398,
+        "decompress_cpu": 0.00565415,
+        "decompress_wall": 0.0056566
+      }, {
         "plugin": "bzip2",
         "codec": "bzip2",
         "size": 323136,
-        "compress_cpu": 0.142803,
-        "compress_wall": 0.142806,
-        "decompress_cpu": 0.0984688,
-        "decompress_wall": 0.0984697
+        "compress_cpu": 0.137021,
+        "compress_wall": 0.137023,
+        "decompress_cpu": 0.0945835,
+        "decompress_wall": 0.0945924
       }, {
         "plugin": "doboz",
         "codec": "doboz",
         "size": 472740,
-        "compress_cpu": 0.505906,
-        "compress_wall": 0.505915,
-        "decompress_cpu": 0.00315868,
-        "decompress_wall": 0.00316074
+        "compress_cpu": 0.46654,
+        "compress_wall": 0.466541,
+        "decompress_cpu": 0.00314562,
+        "decompress_wall": 0.00314831
       }, {
         "plugin": "fastlz",
         "codec": "fastlz",
         "size": 721951,
-        "compress_cpu": 0.00841687,
-        "compress_wall": 0.00841778,
-        "decompress_cpu": 0.00442358,
-        "decompress_wall": 0.00442494
+        "compress_cpu": 0.00801257,
+        "compress_wall": 0.00802038,
+        "decompress_cpu": 0.00505275,
+        "decompress_wall": 0.00505443
       }, {
         "plugin": "lz4",
         "codec": "lz4",
         "size": 733554,
-        "compress_cpu": 0.00651952,
-        "compress_wall": 0.00652941,
-        "decompress_cpu": 0.00207719,
-        "decompress_wall": 0.00207869
+        "compress_cpu": 0.00633561,
+        "compress_wall": 0.0063379,
+        "decompress_cpu": 0.0016841,
+        "decompress_wall": 0.00168548
       }, {
         "plugin": "lzf",
         "codec": "lzf",
-        "size": 701582,
-        "compress_cpu": 0.00891565,
-        "compress_wall": 0.00891686,
-        "decompress_cpu": 0.0048154,
-        "decompress_wall": 0.0048178
+        "size": 700643,
+        "compress_cpu": 0.00843983,
+        "compress_wall": 0.00844935,
+        "decompress_cpu": 0.00437423,
+        "decompress_wall": 0.0043762
+      }, {
+        "plugin": "lzg",
+        "codec": "lzg",
+        "size": 672367,
+        "compress_cpu": 0.1249,
+        "compress_wall": 0.125058,
+        "decompress_cpu": 0.00497485,
+        "decompress_wall": 0.004976
       }, {
         "plugin": "lzma",
         "codec": "lzma",
         "size": 340671,
-        "compress_cpu": 0.782271,
-        "compress_wall": 0.8069,
-        "decompress_cpu": 0.0275716,
-        "decompress_wall": 0.0275855
+        "compress_cpu": 0.69107,
+        "compress_wall": 0.691093,
+        "decompress_cpu": 0.0264275,
+        "decompress_wall": 0.0264288
       }, {
         "plugin": "lzma",
         "codec": "lzma1",
         "size": 340658,
-        "compress_cpu": 0.791061,
-        "compress_wall": 0.791068,
-        "decompress_cpu": 0.0273309,
-        "decompress_wall": 0.0273327
+        "compress_cpu": 0.694427,
+        "compress_wall": 0.694441,
+        "decompress_cpu": 0.0257319,
+        "decompress_wall": 0.025734
       }, {
         "plugin": "lzma",
         "codec": "lzma2",
         "size": 340707,
-        "compress_cpu": 0.775533,
-        "compress_wall": 0.775534,
-        "decompress_cpu": 0.0267048,
-        "decompress_wall": 0.026711
+        "compress_cpu": 0.696376,
+        "compress_wall": 0.69639,
+        "decompress_cpu": 0.0260299,
+        "decompress_wall": 0.0260328
       }, {
         "plugin": "lzma",
         "codec": "xz",
         "size": 340764,
-        "compress_cpu": 0.775985,
-        "compress_wall": 0.775987,
-        "decompress_cpu": 0.0288753,
-        "decompress_wall": 0.0288767
+        "compress_cpu": 0.698104,
+        "compress_wall": 0.698105,
+        "decompress_cpu": 0.0278226,
+        "decompress_wall": 0.0278245
       }, {
         "plugin": "lzmat",
         "codec": "lzmat",
         "size": 521313,
-        "compress_cpu": 0.0733745,
-        "compress_wall": 0.0734062,
-        "decompress_cpu": 0.0110055,
-        "decompress_wall": 0.0110146
+        "compress_cpu": 0.0739407,
+        "compress_wall": 0.0739426,
+        "decompress_cpu": 0.0107993,
+        "decompress_wall": 0.0108008
       }, {
         "plugin": "lzo",
         "codec": "lzo1",
         "size": 754220,
-        "compress_cpu": 0.00877553,
-        "compress_wall": 0.00877697,
-        "decompress_cpu": 0.00466951,
-        "decompress_wall": 0.00467079
+        "compress_cpu": 0.00866619,
+        "compress_wall": 0.008669,
+        "decompress_cpu": 0.00503174,
+        "decompress_wall": 0.00503292
       }, {
         "plugin": "lzo",
         "codec": "lzo1a",
         "size": 745678,
-        "compress_cpu": 0.00887625,
-        "compress_wall": 0.0352657,
-        "decompress_cpu": 0.00470919,
-        "decompress_wall": 0.00471053
+        "compress_cpu": 0.00848348,
+        "compress_wall": 0.00848539,
+        "decompress_cpu": 0.00461263,
+        "decompress_wall": 0.00461408
       }, {
         "plugin": "lzo",
         "codec": "lzo1b",
         "size": 678002,
-        "compress_cpu": 0.0104826,
-        "compress_wall": 0.0104846,
-        "decompress_cpu": 0.00519988,
-        "decompress_wall": 0.00520095
+        "compress_cpu": 0.01038,
+        "compress_wall": 0.0103819,
+        "decompress_cpu": 0.00473046,
+        "decompress_wall": 0.00473232
       }, {
         "plugin": "lzo",
         "codec": "lzo1c",
         "size": 705463,
-        "compress_cpu": 0.0109237,
-        "compress_wall": 0.0109256,
-        "decompress_cpu": 0.00497566,
-        "decompress_wall": 0.0049769
+        "compress_cpu": 0.0105274,
+        "compress_wall": 0.0105296,
+        "decompress_cpu": 0.0049288,
+        "decompress_wall": 0.00493123
       }, {
         "plugin": "lzo",
         "codec": "lzo1f",
         "size": 723601,
-        "compress_cpu": 0.011114,
-        "compress_wall": 0.0111158,
-        "decompress_cpu": 0.00575212,
-        "decompress_wall": 0.0057541
+        "compress_cpu": 0.0115161,
+        "compress_wall": 0.0115176,
+        "decompress_cpu": 0.00489351,
+        "decompress_wall": 0.0048954
       }, {
         "plugin": "lzo",
         "codec": "lzo1x",
         "size": 720510,
-        "compress_cpu": 0.00649818,
-        "compress_wall": 0.00649958,
-        "decompress_cpu": 0.00519056,
-        "decompress_wall": 0.00519222
+        "compress_cpu": 0.00607429,
+        "compress_wall": 0.00607635,
+        "decompress_cpu": 0.00489375,
+        "decompress_wall": 0.00489547
       }, {
         "plugin": "lzo",
         "codec": "lzo1y",
         "size": 735692,
-        "compress_cpu": 0.00607858,
-        "compress_wall": 0.00608025,
-        "decompress_cpu": 0.0052197,
-        "decompress_wall": 0.00522142
+        "compress_cpu": 0.00594361,
+        "compress_wall": 0.0059456,
+        "decompress_cpu": 0.00486704,
+        "decompress_wall": 0.00486865
       }, {
         "plugin": "lzo",
         "codec": "lzo1z",
         "size": 509253,
-        "compress_cpu": 0.254563,
-        "compress_wall": 0.254579,
-        "decompress_cpu": 0.00940902,
-        "decompress_wall": 0.00941009
+        "compress_cpu": 0.242925,
+        "compress_wall": 0.242933,
+        "decompress_cpu": 0.00785999,
+        "decompress_wall": 0.00786073
       }, {
         "plugin": "quicklz",
         "codec": "quicklz",
         "size": 671006,
-        "compress_cpu": 0.00657352,
-        "compress_wall": 0.0065755,
-        "decompress_cpu": 0.00515348,
-        "decompress_wall": 0.00515416
+        "compress_cpu": 0.00666933,
+        "compress_wall": 0.00667845,
+        "decompress_cpu": 0.00502692,
+        "decompress_wall": 0.00502949
       }, {
         "plugin": "sharc",
         "codec": "sharc",
         "size": 794278,
-        "compress_cpu": 0.00404694,
-        "compress_wall": 0.00404745,
-        "decompress_cpu": 0.00246498,
-        "decompress_wall": 0.00246736
+        "compress_cpu": 0.0033733,
+        "compress_wall": 0.00337572,
+        "decompress_cpu": 0.0022522,
+        "decompress_wall": 0.0022533
       }, {
         "plugin": "snappy",
         "codec": "snappy",
         "size": 730492,
-        "compress_cpu": 0.00631513,
-        "compress_wall": 0.0063291,
-        "decompress_cpu": 0.00277426,
-        "decompress_wall": 0.00277571
+        "compress_cpu": 0.00620431,
+        "compress_wall": 0.00620625,
+        "decompress_cpu": 0.00270229,
+        "decompress_wall": 0.00270356
+      }, {
+        "plugin": "wflz",
+        "codec": "wflz",
+        "size": 811756,
+        "compress_cpu": 0.0107563,
+        "compress_wall": 0.010758,
+        "decompress_cpu": 0.00387157,
+        "decompress_wall": 0.00387411
       }, {
         "plugin": "zlib",
         "codec": "deflate",
         "size": 458721,
-        "compress_cpu": 0.0810973,
-        "compress_wall": 0.0811002,
-        "decompress_cpu": 0.00676981,
-        "decompress_wall": 0.00677141
+        "compress_cpu": 0.0794987,
+        "compress_wall": 0.0795007,
+        "decompress_cpu": 0.00651221,
+        "decompress_wall": 0.00651355
       }, {
         "plugin": "zlib",
         "codec": "gzip",
         "size": 458739,
-        "compress_cpu": 0.0815054,
-        "compress_wall": 0.0815063,
-        "decompress_cpu": 0.00805666,
-        "decompress_wall": 0.00805789
+        "compress_cpu": 0.0816321,
+        "compress_wall": 0.0816342,
+        "decompress_cpu": 0.00790882,
+        "decompress_wall": 0.0079108
       }, {
         "plugin": "zlib",
         "codec": "zlib",
         "size": 458727,
-        "compress_cpu": 0.080714,
-        "compress_wall": 0.080716,
-        "decompress_cpu": 0.00759083,
-        "decompress_wall": 0.00759218
+        "compress_cpu": 0.0800608,
+        "compress_wall": 0.0800626,
+        "decompress_cpu": 0.00709519,
+        "decompress_wall": 0.00709673
       }, {
         "plugin": "zpaq",
         "codec": "zpaq",
         "size": 266179,
-        "compress_cpu": 1.56028,
-        "compress_wall": 1.56031,
-        "decompress_cpu": 1.65241,
-        "decompress_wall": 1.65242
+        "compress_cpu": 1.462,
+        "compress_wall": 1.46307,
+        "decompress_cpu": 1.55339,
+        "decompress_wall": 1.5534
       }
     ]
   },
@@ -235,205 +259,229 @@ var benchmark_data =
     "uncompressed-size": 100000000,
     "data": [
       {
+        "plugin": "blosc",
+        "codec": "blosc",
+        "size": 58503216,
+        "compress_cpu": 0.777772,
+        "compress_wall": 0.777779,
+        "decompress_cpu": 0.418062,
+        "decompress_wall": 0.418065
+      }, {
         "plugin": "bzip2",
         "codec": "bzip2",
         "size": 29679648,
-        "compress_cpu": 9.90617,
-        "compress_wall": 9.90627,
-        "decompress_cpu": 6.80725,
-        "decompress_wall": 6.80732
+        "compress_cpu": 9.79884,
+        "compress_wall": 9.79902,
+        "decompress_cpu": 6.72234,
+        "decompress_wall": 6.72242
       }, {
         "plugin": "doboz",
         "codec": "doboz",
         "size": 36867430,
-        "compress_cpu": 44.9723,
-        "compress_wall": 44.9734,
-        "decompress_cpu": 0.253266,
-        "decompress_wall": 0.253269
+        "compress_cpu": 43.0338,
+        "compress_wall": 43.0345,
+        "decompress_cpu": 0.254963,
+        "decompress_wall": 0.254965
       }, {
         "plugin": "fastlz",
         "codec": "fastlz",
         "size": 55239233,
-        "compress_cpu": 0.653217,
-        "compress_wall": 0.653225,
-        "decompress_cpu": 0.354359,
-        "decompress_wall": 0.354371
+        "compress_cpu": 0.637409,
+        "compress_wall": 0.637466,
+        "decompress_cpu": 0.350743,
+        "decompress_wall": 0.350746
       }, {
         "plugin": "lz4",
         "codec": "lz4",
         "size": 56973116,
-        "compress_cpu": 0.460581,
-        "compress_wall": 0.460584,
-        "decompress_cpu": 0.132241,
-        "decompress_wall": 0.13225
+        "compress_cpu": 0.448439,
+        "compress_wall": 0.448523,
+        "decompress_cpu": 0.13046,
+        "decompress_wall": 0.130469
       }, {
         "plugin": "lzf",
         "codec": "lzf",
-        "size": 53915992,
-        "compress_cpu": 0.638122,
-        "compress_wall": 0.638125,
-        "decompress_cpu": 0.347662,
-        "decompress_wall": 0.347679
+        "size": 53945381,
+        "compress_cpu": 0.63082,
+        "compress_wall": 0.630882,
+        "decompress_cpu": 0.336497,
+        "decompress_wall": 0.336512
+      }, {
+        "plugin": "lzg",
+        "codec": "lzg",
+        "size": 52213097,
+        "compress_cpu": 5.12955,
+        "compress_wall": 5.12964,
+        "decompress_cpu": 0.401034,
+        "decompress_wall": 0.401036
       }, {
         "plugin": "lzma",
         "codec": "lzma",
         "size": 26371635,
-        "compress_cpu": 83.0115,
-        "compress_wall": 83.0125,
-        "decompress_cpu": 2.03166,
-        "decompress_wall": 2.03168
+        "compress_cpu": 82.9095,
+        "compress_wall": 82.9108,
+        "decompress_cpu": 2.0613,
+        "decompress_wall": 2.06132
       }, {
         "plugin": "lzma",
         "codec": "lzma1",
         "size": 26371622,
-        "compress_cpu": 84.3005,
-        "compress_wall": 84.3018,
-        "decompress_cpu": 2.14627,
-        "decompress_wall": 2.14629
+        "compress_cpu": 81.6134,
+        "compress_wall": 81.6146,
+        "decompress_cpu": 1.91101,
+        "decompress_wall": 1.91103
       }, {
         "plugin": "lzma",
         "codec": "lzma2",
         "size": 26375703,
-        "compress_cpu": 84.2307,
-        "compress_wall": 84.2323,
-        "decompress_cpu": 1.95244,
-        "decompress_wall": 1.95247
+        "compress_cpu": 82.6902,
+        "compress_wall": 82.6915,
+        "decompress_cpu": 1.92503,
+        "decompress_wall": 1.92505
       }, {
         "plugin": "lzma",
         "codec": "xz",
         "size": 26375764,
-        "compress_cpu": 84.9482,
-        "compress_wall": 84.9497,
-        "decompress_cpu": 2.07409,
-        "decompress_wall": 2.07413
+        "compress_cpu": 81.7258,
+        "compress_wall": 81.7272,
+        "decompress_cpu": 2.13072,
+        "decompress_wall": 2.13074
       }, {
         "plugin": "lzmat",
         "codec": "lzmat",
         "size": 41270839,
-        "compress_cpu": 4.84441,
-        "compress_wall": 4.84446,
-        "decompress_cpu": 0.493858,
-        "decompress_wall": 0.49386
+        "compress_cpu": 4.91134,
+        "compress_wall": 4.91144,
+        "decompress_cpu": 0.496815,
+        "decompress_wall": 0.496823
       }, {
         "plugin": "lzo",
         "codec": "lzo1",
         "size": 57975532,
-        "compress_cpu": 0.698294,
-        "compress_wall": 0.698315,
-        "decompress_cpu": 0.396668,
-        "decompress_wall": 0.39667
+        "compress_cpu": 0.670921,
+        "compress_wall": 0.670974,
+        "decompress_cpu": 0.373855,
+        "decompress_wall": 0.373865
       }, {
         "plugin": "lzo",
         "codec": "lzo1a",
         "size": 57297087,
-        "compress_cpu": 0.663458,
-        "compress_wall": 0.66348,
-        "decompress_cpu": 0.352657,
-        "decompress_wall": 0.352658
+        "compress_cpu": 0.663282,
+        "compress_wall": 0.663341,
+        "decompress_cpu": 0.353361,
+        "decompress_wall": 0.353368
       }, {
         "plugin": "lzo",
         "codec": "lzo1b",
         "size": 54056906,
-        "compress_cpu": 0.83222,
-        "compress_wall": 0.83223,
-        "decompress_cpu": 0.380087,
-        "decompress_wall": 0.380095
+        "compress_cpu": 0.834117,
+        "compress_wall": 0.834188,
+        "decompress_cpu": 0.370006,
+        "decompress_wall": 0.370008
       }, {
         "plugin": "lzo",
         "codec": "lzo1c",
         "size": 55192389,
-        "compress_cpu": 0.809417,
-        "compress_wall": 0.809423,
-        "decompress_cpu": 0.367125,
-        "decompress_wall": 0.367132
+        "compress_cpu": 0.825531,
+        "compress_wall": 0.825596,
+        "decompress_cpu": 0.36649,
+        "decompress_wall": 0.366506
       }, {
         "plugin": "lzo",
         "codec": "lzo1f",
         "size": 55958931,
-        "compress_cpu": 0.856974,
-        "compress_wall": 0.856982,
-        "decompress_cpu": 0.419236,
-        "decompress_wall": 0.419254
+        "compress_cpu": 0.871792,
+        "compress_wall": 0.87186,
+        "decompress_cpu": 0.385933,
+        "decompress_wall": 0.385942
       }, {
         "plugin": "lzo",
         "codec": "lzo1x",
         "size": 55792795,
-        "compress_cpu": 0.468515,
-        "compress_wall": 0.468524,
-        "decompress_cpu": 0.455064,
-        "decompress_wall": 0.455084
+        "compress_cpu": 0.462721,
+        "compress_wall": 0.46279,
+        "decompress_cpu": 0.364649,
+        "decompress_wall": 0.364659
       }, {
         "plugin": "lzo",
         "codec": "lzo1y",
         "size": 56368540,
-        "compress_cpu": 0.450093,
-        "compress_wall": 0.450102,
-        "decompress_cpu": 0.393257,
-        "decompress_wall": 0.393259
+        "compress_cpu": 0.456235,
+        "compress_wall": 0.456299,
+        "decompress_cpu": 0.366036,
+        "decompress_wall": 0.366037
       }, {
         "plugin": "lzo",
         "codec": "lzo1z",
         "size": 40721443,
-        "compress_cpu": 16.1976,
-        "compress_wall": 16.1978,
-        "decompress_cpu": 0.414013,
-        "decompress_wall": 0.41402
+        "compress_cpu": 16.0345,
+        "compress_wall": 16.0347,
+        "decompress_cpu": 0.37765,
+        "decompress_wall": 0.377659
       }, {
         "plugin": "quicklz",
         "codec": "quicklz",
         "size": 52334371,
-        "compress_cpu": 0.524503,
-        "compress_wall": 0.524521,
-        "decompress_cpu": 0.431764,
-        "decompress_wall": 0.43177
+        "compress_cpu": 0.501156,
+        "compress_wall": 0.501208,
+        "decompress_cpu": 0.394869,
+        "decompress_wall": 0.394876
       }, {
         "plugin": "sharc",
         "codec": "sharc",
         "size": 61792966,
-        "compress_cpu": 0.204175,
-        "compress_wall": 0.204177,
-        "decompress_cpu": 0.1369,
-        "decompress_wall": 0.136913
+        "compress_cpu": 0.210009,
+        "compress_wall": 0.210076,
+        "decompress_cpu": 0.147718,
+        "decompress_wall": 0.14772
       }, {
         "plugin": "snappy",
         "codec": "snappy",
         "size": 56539845,
-        "compress_cpu": 0.469603,
-        "compress_wall": 0.46962,
-        "decompress_cpu": 0.193396,
-        "decompress_wall": 0.193397
+        "compress_cpu": 0.440878,
+        "compress_wall": 0.44096,
+        "decompress_cpu": 0.190338,
+        "decompress_wall": 0.190388
+      }, {
+        "plugin": "wflz",
+        "codec": "wflz",
+        "size": 63521804,
+        "compress_cpu": 0.802243,
+        "compress_wall": 0.802313,
+        "decompress_cpu": 0.288472,
+        "decompress_wall": 0.288485
       }, {
         "plugin": "zlib",
         "codec": "deflate",
         "size": 36548915,
-        "compress_cpu": 6.16228,
-        "compress_wall": 6.16233,
-        "decompress_cpu": 0.510604,
-        "decompress_wall": 0.510605
+        "compress_cpu": 5.98565,
+        "compress_wall": 5.98578,
+        "decompress_cpu": 0.508292,
+        "decompress_wall": 0.508295
       }, {
         "plugin": "zlib",
         "codec": "gzip",
         "size": 36548933,
-        "compress_cpu": 6.08959,
-        "compress_wall": 6.08969,
-        "decompress_cpu": 0.61375,
-        "decompress_wall": 0.613756
+        "compress_cpu": 6.21375,
+        "compress_wall": 6.21386,
+        "decompress_cpu": 0.61776,
+        "decompress_wall": 0.617781
       }, {
         "plugin": "zlib",
         "codec": "zlib",
         "size": 36548921,
-        "compress_cpu": 5.9739,
-        "compress_wall": 5.97397,
-        "decompress_cpu": 0.544973,
-        "decompress_wall": 0.544989
+        "compress_cpu": 5.98603,
+        "compress_wall": 5.98613,
+        "decompress_cpu": 0.542843,
+        "decompress_wall": 0.542862
       }, {
         "plugin": "zpaq",
         "codec": "zpaq",
         "size": 20941523,
-        "compress_cpu": 117.86,
-        "compress_wall": 117.861,
-        "decompress_cpu": 121.274,
-        "decompress_wall": 121.275
+        "compress_cpu": 115.782,
+        "compress_wall": 115.783,
+        "decompress_cpu": 119.601,
+        "decompress_wall": 119.602
       }
     ]
   }
