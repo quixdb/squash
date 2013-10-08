@@ -68,6 +68,7 @@ squash_blosc_options_init (SquashBloscOptions* options, SquashCodec* codec, Squa
   options->level = SQUASH_BLOSC_DEFAULT_LEVEL;
   options->shuffle = SQUASH_BLOSC_DEFAULT_SHUFFLE;
   options->type_size = SQUASH_BLOSC_DEFAULT_TYPE_SIZE;
+  options->threads = SQUASH_BLOSC_DEFAULT_THREADS;
 }
 
 static SquashBloscOptions*
