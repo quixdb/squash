@@ -298,7 +298,7 @@ squash_zlib_process_stream_internal (SquashStream* stream, int flush) {
 		} else {
 			res = SQUASH_FAILED;
 		}
-	} else if (zlib_e == Z_OK) {
+	} else if (zlib_e == Z_OK || zlib_e == Z_BUF_ERROR) {
 		if (zlib_stream->avail_in > 0) {
 			res = SQUASH_PROCESSING;
 		} else {
@@ -307,7 +307,6 @@ squash_zlib_process_stream_internal (SquashStream* stream, int flush) {
   } else if (zlib_e == Z_STREAM_END) {
     res = SQUASH_END_OF_STREAM;
   } else {
-    assert (false);
     res = SQUASH_FAILED;
   }
 
