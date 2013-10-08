@@ -26,8 +26,8 @@ throughput but not latency it could be a good way to go.
 
 ### Compression Only ###
 
-- **level** (integer, 0-9, default 6) — compression level.  0 means no
-  compression, 9 is the maximum.
+- **level** (integer, 1-9, default 6) — compression level.  1 is
+  fastest, 9 is highest compression ratio.
 - **type-size** (integer, default 1) — number of bytes for the atomic
   type in the uncompressed data.  For example, if you are trying to
   compress 64-bit integers, use 8.

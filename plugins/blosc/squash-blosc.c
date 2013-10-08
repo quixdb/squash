@@ -95,7 +95,7 @@ squash_blosc_parse_option (SquashOptions* options, const char* key, const char* 
 
   if (strcasecmp (key, "level") == 0) {
     const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 0 && level <= 9 ) {
+    if ( *endptr == '\0' && level >= 1 && level <= 9 ) {
       opts->level = level;
     } else {
       return SQUASH_BAD_VALUE;
