@@ -74,7 +74,7 @@ squash_sharc_options_init (SquashSharcOptions* options, SquashCodec* codec, Squa
 
   squash_options_init ((SquashOptions*) options, codec, destroy_notify);
 
-	options->level = SQUASH_SHARC_DEFAULT_LEVEL;
+  options->level = SQUASH_SHARC_DEFAULT_LEVEL;
 }
 
 static SquashSharcOptions*

@@ -66,7 +66,7 @@ static void               squash_lzma_options_destroy (void* options);
 static void               squash_lzma_options_free    (void* options);
 
 static void               squash_lzma_stream_init     (SquashLZMAStream* stream,
-																											 SquashCodec* codec,
+                                                       SquashCodec* codec,
                                                        SquashLZMAType type,
                                                        SquashStreamType stream_type,
                                                        SquashLZMAOptions* options,
@@ -205,11 +205,11 @@ squash_lzma_parse_option (SquashOptions* options, const char* key, const char* v
 
 static void
 squash_lzma_stream_init (SquashLZMAStream* stream,
-                      SquashCodec* codec,
-                      SquashLZMAType type,
-                      SquashStreamType stream_type,
-                      SquashLZMAOptions* options,
-                      SquashDestroyNotify destroy_notify) {
+                         SquashCodec* codec,
+                         SquashLZMAType type,
+                         SquashStreamType stream_type,
+                         SquashLZMAOptions* options,
+                         SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   lzma_stream s = LZMA_STREAM_INIT;
@@ -273,7 +273,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
       lzma_e = lzma_alone_encoder (&(stream->stream), filters[0].options);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
-			lzma_e = lzma_raw_encoder(&(stream->stream), filters);
+      lzma_e = lzma_raw_encoder(&(stream->stream), filters);
     } else {
       assert (false);
     }
@@ -281,12 +281,13 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
     const uint64_t memlimit = (options != NULL) ? options->memlimit : UINT64_MAX;
 
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
-			lzma_e = lzma_stream_decoder(&(stream->stream), memlimit, 0);
+      lzma_e = lzma_stream_decoder(&(stream->stream), memlimit, 0);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA) {
-			lzma_e = lzma_alone_decoder(&(stream->stream), memlimit);
+      lzma_e = lzma_alone_decoder(&(stream->stream), memlimit);
+      assert (lzma_e == LZMA_OK);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
-			lzma_e = lzma_raw_decoder(&(stream->stream), filters);
+      lzma_e = lzma_raw_decoder(&(stream->stream), filters);
     } else {
       assert (false);
     }
@@ -306,16 +307,16 @@ squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
   return (SquashStream*) squash_lzma_stream_new (codec, stream_type, (SquashLZMAOptions*) options);
 }
 
-#define SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream,lzma_stream) \
-  lzma_stream->next_in =  stream->next_in;                      \
-  lzma_stream->avail_in = stream->avail_in;                     \
-  lzma_stream->next_out = stream->next_out;                     \
+#define SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream,lzma_stream)  \
+  lzma_stream->next_in =  stream->next_in;                          \
+  lzma_stream->avail_in = stream->avail_in;                         \
+  lzma_stream->next_out = stream->next_out;                         \
   lzma_stream->avail_out = stream->avail_out
 
-#define SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream,lzma_stream) \
-  stream->next_in = lzma_stream->next_in;                       \
-  stream->avail_in = lzma_stream->avail_in;                       \
-  stream->next_out = lzma_stream->next_out;                       \
+#define SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream,lzma_stream)  \
+  stream->next_in = lzma_stream->next_in;                             \
+  stream->avail_in = lzma_stream->avail_in;                           \
+  stream->next_out = lzma_stream->next_out;                           \
   stream->avail_out = lzma_stream->avail_out
 
 static SquashStatus

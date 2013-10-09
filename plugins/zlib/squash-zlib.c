@@ -97,10 +97,10 @@ squash_zlib_options_init (SquashZlibOptions* options, SquashCodec* codec, Squash
 
   squash_options_init ((SquashOptions*) options, codec, destroy_notify);
 
-	options->level = SQUASH_ZLIB_DEFAULT_LEVEL;
-	options->window_bits = SQUASH_ZLIB_DEFAULT_WINDOW_BITS;
-	options->mem_level = SQUASH_ZLIB_DEFAULT_MEM_LEVEL;
-	options->strategy = SQUASH_ZLIB_DEFAULT_STRATEGY;
+  options->level = SQUASH_ZLIB_DEFAULT_LEVEL;
+  options->window_bits = SQUASH_ZLIB_DEFAULT_WINDOW_BITS;
+  options->mem_level = SQUASH_ZLIB_DEFAULT_MEM_LEVEL;
+  options->strategy = SQUASH_ZLIB_DEFAULT_STRATEGY;
 }
 
 static SquashZlibOptions*
@@ -162,8 +162,8 @@ squash_zlib_parse_option (SquashOptions* options, const char* key, const char* v
       opts->strategy = Z_DEFAULT_STRATEGY;
     } else if (strcasecmp (value, "filtered") == 0) {
       opts->strategy = Z_FILTERED;
-		} else if (strcasecmp (value, "huffman") == 0 ||
-							 strcasecmp (value, "huffman-only") == 0) {
+    } else if (strcasecmp (value, "huffman") == 0 ||
+               strcasecmp (value, "huffman-only") == 0) {
       opts->strategy = Z_HUFFMAN_ONLY;
     } else if (strcasecmp (value, "rle") == 0) {
       opts->strategy = Z_RLE;
@@ -290,20 +290,20 @@ squash_zlib_process_stream_internal (SquashStream* stream, int flush) {
 
   SQUASH_ZLIB_STREAM_COPY_FROM_ZLIB_STREAM(stream, zlib_stream);
 
-	if (flush == Z_FINISH) {
-		if (zlib_e == Z_OK) {
-			res = SQUASH_PROCESSING;
-		} else if (zlib_e == Z_STREAM_END) {
-			res = SQUASH_OK;
-		} else {
-			res = SQUASH_FAILED;
-		}
-	} else if (zlib_e == Z_OK || zlib_e == Z_BUF_ERROR) {
-		if (zlib_stream->avail_in > 0) {
-			res = SQUASH_PROCESSING;
-		} else {
-			res = SQUASH_OK;
-		}
+  if (flush == Z_FINISH) {
+    if (zlib_e == Z_OK) {
+      res = SQUASH_PROCESSING;
+    } else if (zlib_e == Z_STREAM_END) {
+      res = SQUASH_OK;
+    } else {
+      res = SQUASH_FAILED;
+    }
+  } else if (zlib_e == Z_OK || zlib_e == Z_BUF_ERROR) {
+    if (zlib_stream->avail_in > 0) {
+      res = SQUASH_PROCESSING;
+    } else {
+      res = SQUASH_OK;
+    }
   } else if (zlib_e == Z_STREAM_END) {
     res = SQUASH_END_OF_STREAM;
   } else {
