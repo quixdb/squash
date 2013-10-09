@@ -11,11 +11,13 @@ WFLZ_FILES = \
 
 COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
 
+if ENABLE_WFLZ
 plugindir = $(libdir)/squash/@SQUASH_API_VERSION@/plugins/wflz
 plugin_DATA = wflz.codecs
 
 plugin_LTLIBRARIES = \
 	libsquash@SQUASH_API_VERSION@-plugin-wflz.la
+endif
 
 libsquash@SQUASH_API_VERSION@_plugin_wflz_la_CFLAGS = \
 	$(COMMON_CFLAGS)
