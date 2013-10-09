@@ -5,11 +5,15 @@ For information about wfLZ, see https://code.google.com/p/wflz/
 ## Codecs ##
 
 - **wflz** — Raw wfLZ data.
+- **wflz-chunked** — Chunked wfLZ.
 
 ## Options ##
 
 - **level** (integer, 1-2, default 2) — compression level.  Lower is
-  faster, higher has a better compression ratio.
+  faster, higher has a better compression ratio.  2 is currently
+  *very* slow.
+- **chunk-size** (*wflz-chunked*-only, integer, 4096 - UINT32_MAX,
+  multiple of 16, default 16384) — chunk size.
 
 ### Compression Only ###
 
