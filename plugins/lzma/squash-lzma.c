@@ -239,14 +239,15 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   assert (codec != NULL);
 
+  lzma_type = squash_lzma_codec_to_type (codec);
+
   if (options != NULL) {
-    lzma_type = options->type;
-    filters[0].options = &(options->options);
+    lzma_options = options->options;
   } else {
-    lzma_type = squash_lzma_codec_to_type (codec);
     lzma_lzma_preset (&lzma_options, LZMA_PRESET_DEFAULT);
-    filters[0].options = &(lzma_options);
   }
+
+  filters[0].options = &(lzma_options);
 
   switch (lzma_type) {
     case SQUASH_LZMA_TYPE_XZ:
