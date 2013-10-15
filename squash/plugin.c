@@ -81,7 +81,13 @@ squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
 
 /**
  * @brief load a %SquashPlugin
- * @private
+ *
+ * @note This function is generally only useful inside of a callback
+ * passed to ::squash_foreach_plugin.  Every other way to get a plugin
+ * (such as ::squash_get_plugin) will initialize the plugin as well
+ * (and return *NULL* instead of the plugin if initialization fails).
+ * The foreach functions, however, do not initialize the plugin since
+ * doing so requires actually loading the plugin.
  *
  * @param plugin The plugin to load.
  * @return A status code.
@@ -89,7 +95,7 @@ squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
  * @retval SQUASH_UNABLE_TO_LOAD Unable to load plugin.
  */
 SquashStatus
-squash_plugin_load (SquashPlugin* plugin) {
+squash_plugin_init (SquashPlugin* plugin) {
   if (plugin->plugin == NULL) {
     lt_dlhandle handle;
     char* plugin_file_name;
@@ -203,7 +209,7 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
   assert (plugin != NULL);
 
   if (plugin->plugin == NULL) {
-    res = squash_plugin_load (plugin);
+    res = squash_plugin_init (plugin);
     if (res != SQUASH_OK) {
       return res;
     }

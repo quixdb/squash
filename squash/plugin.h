@@ -33,6 +33,8 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_API SquashStatus squash_plugin_init          (SquashPlugin* plugin);
+
 SQUASH_API const char*  squash_plugin_get_name      (SquashPlugin* plugin);
 SQUASH_API SquashCodec* squash_plugin_get_codec     (SquashPlugin* plugin, const char* codec);
 
