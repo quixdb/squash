@@ -8,6 +8,7 @@ SUBDIRS = \
   lzmat \
   lzf \
   lzg \
+  lzjb \
   lzo \
   quicklz \
   sharc \
