@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['bzip2_20plugin',['bzip2 Plugin',['../md_bzip2.html',1,'']]]
+  ['blosc_20plugin',['blosc Plugin',['../md_plugins_blosc_blosc.html',1,'']]],
+  ['bzip2_20plugin',['bzip2 Plugin',['../md_plugins_bzip2_bzip2.html',1,'']]]
 ];

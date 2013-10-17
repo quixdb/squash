@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['sharc_20plugin',['sharc Plugin',['../md_sharc.html',1,'']]],
-  ['snappy_20plugin',['snappy Plugin',['../md_snappy.html',1,'']]],
+  ['sharc_20plugin',['sharc Plugin',['../md_plugins_sharc_sharc.html',1,'']]],
+  ['snappy_20plugin',['snappy Plugin',['../md_plugins_snappy_snappy.html',1,'']]],
   ['squash_5fbad_5fparam',['SQUASH_BAD_PARAM',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a73787d267ef35aed5e35df9f2ddd759b',1,'status.h']]],
   ['squash_5fbad_5fvalue',['SQUASH_BAD_VALUE',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aff3c3a747902c9bf3f16406f06138021',1,'status.h']]],
   ['squash_5fbuffer_5ffull',['SQUASH_BUFFER_FULL',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a297d041f165ab3fce0acd24a4630b253',1,'status.h']]],
@@ -68,6 +68,7 @@ var searchData=
   ['squash_5fplugin_5fforeach_5fcodec',['squash_plugin_foreach_codec',['../group__SquashPlugin.html#gaa2b320e078e9adc48c8a115f6ad21b0a',1,'squash_plugin_foreach_codec(SquashPlugin *plugin, SquashCodecForeachFunc func, void *data):&#160;plugin.c'],['../group__SquashPlugin.html#gaa2b320e078e9adc48c8a115f6ad21b0a',1,'squash_plugin_foreach_codec(SquashPlugin *plugin, SquashCodecForeachFunc func, void *data):&#160;plugin.c']]],
   ['squash_5fplugin_5fget_5fcodec',['squash_plugin_get_codec',['../group__SquashPlugin.html#gad2a2a57928fa76a1749d6f6f99c32dd1',1,'squash_plugin_get_codec(SquashPlugin *plugin, const char *codec):&#160;plugin.c'],['../group__SquashPlugin.html#gad2a2a57928fa76a1749d6f6f99c32dd1',1,'squash_plugin_get_codec(SquashPlugin *plugin, const char *codec):&#160;plugin.c']]],
   ['squash_5fplugin_5fget_5fname',['squash_plugin_get_name',['../group__SquashPlugin.html#ga98b10b2a3c146787024340ef7e3dcd20',1,'squash_plugin_get_name(SquashPlugin *plugin):&#160;plugin.c'],['../group__SquashPlugin.html#ga98b10b2a3c146787024340ef7e3dcd20',1,'squash_plugin_get_name(SquashPlugin *plugin):&#160;plugin.c']]],
+  ['squash_5fplugin_5finit',['squash_plugin_init',['../group__SquashPlugin.html#ga6db3af4f6cf45ec4e3ca500a9af79345',1,'squash_plugin_init(SquashPlugin *plugin):&#160;plugin.c'],['../group__SquashPlugin.html#ga6db3af4f6cf45ec4e3ca500a9af79345',1,'squash_plugin_init(SquashPlugin *plugin):&#160;plugin.c']]],
   ['squash_5fprocessing',['SQUASH_PROCESSING',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4aa770e2e02f296a134e46ae18396731fb',1,'status.h']]],
   ['squash_5fstate',['SQUASH_STATE',['../group__SquashStatus.html#gga67a659c25084b46746832f31fd7e0db4a93f127366ef11973eaeaded22cc79eaa',1,'status.h']]],
   ['squash_5fstatus_5fto_5fstring',['squash_status_to_string',['../group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22',1,'squash_status_to_string(SquashStatus status):&#160;status.c'],['../group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22',1,'squash_status_to_string(SquashStatus status):&#160;status.c']]],
