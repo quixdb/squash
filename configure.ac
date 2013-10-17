@@ -87,6 +87,10 @@ AC_DEFUN([SQUASH_ENABLE_PLUGIN_HEADER_AND_LIB], [
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_C99
+AS_IF([test "x$ac_cv_prog_cc_c99" = "xno"], [
+    AC_MSG_WARN([C99 support not found, compilation will probably fail.])
+  ])
 
 SQUASH_DOXYGEN_PATHS=""
 AC_ARG_ENABLE([docs],
@@ -234,11 +238,19 @@ AS_IF([test "x$have___sync_bool_compare_and_swap" = "xyes"], [
   ])
 ])
 
+AC_C_CONST
+AC_C_RESTRICT
+AC_C_VOLATILE
+AC_C_INLINE
+
 # Checks for library functions.
 
-AC_CHECK_FUNCS([memset pathconf strchr strdup strtol])
+AC_CHECK_FUNCS([memset pathconf strchr strdup strtol clock_gettime ftruncate gettimeofday memmove munmap strcasecmp strndup])
+AC_CHECK_HEADERS([fcntl.h sys/time.h])
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
+AC_FUNC_MMAP
+AC_TYPE_OFF_T
 
 AC_CONFIG_FILES([Makefile
                  squash.pc
