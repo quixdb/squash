@@ -4,7 +4,7 @@ Squash is an abstraction layer which provides a single API to access
 many compression libraries.
 
 For a high-level overview of how to use Squash, please see the
-[Squash User Guide](@ref md_user-guide).
+[Squash User Guide](@ref md_docs_user-guide).
 
 @subsection bindings Bindings
 
@@ -32,24 +32,24 @@ with Squash, though it is preferred.
 
 Squash currently contains plugins for the following libraries:
 
-- [Blosc](@ref md_blosc)
-- [bzip2](@ref md_bzip2)
-- [Doboz](@ref md_doboz)
-- [FastLZ](@ref md_fastlz)
-- [Intel® Performance Primitives](@ref md_ipp)
-- [LZ4](@ref md_lz4)
-- [liblzma](@ref md_lzma)
-- [LZMAT](@ref md_lzmat)
-- [LZF](@ref md_lzf)
-- [liblzg](@ref md_lzg)
-- [LZJB](@ref md_lzjb)
-- [LZO](@ref md_lzo)
-- [QuickLZ](@ref md_quicklz)
-- [SHARC](@ref md_sharc)
-- [Snappy](@ref md_snappy)
-- [wfLZ](@ref md_wflz)
-- [zlib](@ref md_zlib)
-- [ZPAQ](@ref md_zpaq)
+- [Blosc](@ref md_plugins_blosc_blosc)
+- [bzip2](@ref md_plugins_bzip2_bzip2)
+- [Doboz](@ref md_plugins_doboz_doboz)
+- [FastLZ](@ref md_plugins_fastlz_fastlz)
+- [Intel® Performance Primitives](@ref md_plugins_ipp_ipp)
+- [LZ4](@ref md_plugins_lz4_lz4)
+- [liblzma](@ref md_plugins_lzma_lzma)
+- [LZMAT](@ref md_plugins_lzmat_lzmat)
+- [LZF](@ref md_plugins_lzf_lzf)
+- [liblzg](@ref md_plugins_lzg_lzg)
+- [LZJB](@ref md_plugins_lzjb_lzjb)
+- [LZO](@ref md_plugins_lzo_lzo)
+- [QuickLZ](@ref md_plugins_quicklz_quicklz)
+- [SHARC](@ref md_plugins_sharc_sharc)
+- [Snappy](@ref md_plugins_snappy_snappy)
+- [wfLZ](@ref md_plugins_wflz_wflz)
+- [zlib](@ref md_plugins_zlib_zlib)
+- [ZPAQ](@ref md_plugins_zpaq_zpaq)
 
 We hope to add more soon.  If you're interested in helping, please
 contact us!
