@@ -3,6 +3,7 @@ SUBDIRS = \
   bzip2 \
   doboz \
   fastlz \
+  ipp \
   lz4 \
   lzma \
   lzmat \

@@ -36,6 +36,7 @@ Squash currently contains plugins for the following libraries:
 - [bzip2](@ref md_bzip2)
 - [Doboz](@ref md_doboz)
 - [FastLZ](@ref md_fastlz)
+- [Intel® Performance Primitives](@ref md_ipp)
 - [LZ4](@ref md_lz4)
 - [liblzma](@ref md_lzma)
 - [LZMAT](@ref md_lzmat)
