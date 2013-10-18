@@ -115,13 +115,29 @@ squash_context_get_codec_ref_from_extension (SquashContext* context, const char*
  */
 SquashCodec*
 squash_context_get_codec (SquashContext* context, const char* codec) {
-  SquashCodecRef* codec_ref = squash_context_get_codec_ref (context, codec);
-  if (codec_ref != NULL) {
-    /* TODO: we should probably see if we can load the codec from a
-       different plugin if this fails.  */
-    return (squash_codec_init (codec_ref->codec) == SQUASH_OK) ? codec_ref->codec : NULL;
+  const char* sep_pos = strchr (codec, ':');
+  if (sep_pos != NULL) {
+    char* plugin_name = (char*) malloc ((sep_pos - codec) + 1);
+
+    strncpy (plugin_name, codec, sep_pos - codec);
+    plugin_name[sep_pos - codec] = 0;
+    codec = sep_pos + 1;
+
+    SquashPlugin* plugin = squash_context_get_plugin (context, plugin_name);
+    free (plugin_name);
+    if (plugin == NULL)
+      return NULL;
+
+    return squash_context_get_codec (context, codec);
   } else {
-    return NULL;
+    SquashCodecRef* codec_ref = squash_context_get_codec_ref (context, codec);
+    if (codec_ref != NULL) {
+      /* TODO: we should probably see if we can load the codec from a
+         different plugin if this fails.  */
+      return (squash_codec_init (codec_ref->codec) == SQUASH_OK) ? codec_ref->codec : NULL;
+    } else {
+      return NULL;
+    }
   }
 }
 
