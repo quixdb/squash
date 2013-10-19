@@ -64,6 +64,9 @@ struct BenchmarkContext {
   SquashTimer* timer;
 };
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format__ (__printf__, 2, 3)))
+#endif
 static void
 benchmark_context_write_json (struct BenchmarkContext* context, const char* fmt, ...) {
   if (context->format == BENCHMARK_OUTPUT_FORMAT_JSON) {
@@ -74,6 +77,9 @@ benchmark_context_write_json (struct BenchmarkContext* context, const char* fmt,
   }
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format__ (__printf__, 2, 3)))
+#endif
 static void
 benchmark_context_write_csv (struct BenchmarkContext* context, const char* fmt, ...) {
   if (context->format == BENCHMARK_OUTPUT_FORMAT_CSV) {
@@ -109,7 +115,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
   if (context->first) {
     context->first = false;
   } else {
-    benchmark_context_write_json (context, ", ", context->output);
+    benchmark_context_write_json (context, ", ");
   }
 
   fputs ("    compressing... ", stderr);
@@ -168,7 +174,7 @@ int main (int argc, char** argv) {
   struct BenchmarkContext context = { stdout, NULL, NULL, true, 0, BENCHMARK_OUTPUT_FORMAT_JSON, NULL };
   bool first_input = true;
   int opt;
-  int optc;
+  int optc = 0;
   SquashCodec* codec = NULL;
 
   context.timer = squash_timer_new ();
@@ -247,12 +253,12 @@ int main (int argc, char** argv) {
     }
 
     
-    benchmark_context_write_json (&context, "\n    ]\n  }", context.output);
+    benchmark_context_write_json (&context, "\n    ]\n  }");
 
     optind++;
   }
 
-  benchmark_context_write_json (&context, "\n};\n", context.output);
+  benchmark_context_write_json (&context, "\n};\n");
 
   squash_timer_free (context.timer);
 

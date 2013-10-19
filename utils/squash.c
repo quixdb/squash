@@ -104,7 +104,7 @@ int main (int argc, char** argv) {
   bool keep = false;
   bool force = true;
   int opt;
-  int optc;
+  int optc = 0;
   char* tmp_string;
 
   option_keys = (char**) malloc (sizeof (char*));

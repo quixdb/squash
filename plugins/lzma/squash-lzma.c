@@ -145,42 +145,42 @@ squash_lzma_parse_option (SquashOptions* options, const char* key, const char* v
     }
     res = SQUASH_OK;
   } else if (strcasecmp (key, "dict-size") == 0) {
-    const uint32_t dict_size = (uint32_t) strtol (value, &endptr, 0);
+    const long int dict_size = strtol (value, &endptr, 0);
     if ( *endptr == '\0' && dict_size >= 4096 && dict_size <= 1610612736 ) {
-      opts->options.dict_size = dict_size;
+      opts->options.dict_size = (uint32_t) dict_size;
     } else {
       return SQUASH_BAD_VALUE;
     }
     res = SQUASH_OK;
   } else if (strcasecmp (key, "lc") == 0) {
-    const uint32_t lc = (uint32_t) strtol (value, &endptr, 0);
+    const long int lc = strtol (value, &endptr, 0);
     if ( *endptr == '\0' && lc >= 0 && lc <= 4 ) {
-      opts->options.lc = lc;
+      opts->options.lc = (uint32_t) lc;
     } else {
       return SQUASH_BAD_VALUE;
     }
     res = SQUASH_OK;
   } else if (strcasecmp (key, "lp") == 0) {
-    const uint32_t lp = (uint32_t) strtol (value, &endptr, 0);
+    const long int lp = strtol (value, &endptr, 0);
     if ( *endptr == '\0' && lp >= 0 && lp <= 4 ) {
-      opts->options.lp = lp;
+      opts->options.lp = (uint32_t) lp;
     } else {
       return SQUASH_BAD_VALUE;
     }
     res = SQUASH_OK;
   } else if (strcasecmp (key, "pb") == 0) {
-    const uint32_t pb = (uint32_t) strtol (value, &endptr, 0);
+    const long int pb = strtol (value, &endptr, 0);
     if ( *endptr == '\0' && pb >= 0 && pb <= 4 ) {
-      opts->options.pb = pb;
+      opts->options.pb = (uint32_t) pb;
     } else {
       return SQUASH_BAD_VALUE;
     }
     res = SQUASH_OK;
   } else if (opts->type == SQUASH_LZMA_TYPE_XZ) {
     if (strcasecmp (key, "check") == 0) {
-      const lzma_check check = (lzma_check) strtol (value, &endptr, 0);
+      const long int check = strtol (value, &endptr, 0);
       if ( *endptr == '\0' ) {
-        if (lzma_check_is_supported (check)) {
+        if (lzma_check_is_supported ((lzma_check) check)) {
           opts->check = check;
         } else {
           return SQUASH_BAD_VALUE;
@@ -296,7 +296,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   }
 
   if (lzma_e != LZMA_OK) {
-    stream = squash_object_unref (stream), NULL;
+    stream = squash_object_unref (stream);
   }
 
   return stream;
