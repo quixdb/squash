@@ -2,6 +2,6 @@
 
 [PackageKit Catalog]
 InstallPackages(fedora)=gcc;gcc-g++;autoconf;automake;libtool;libtool-ltdl-devel;glib2-devel;bzip2-devel;xz-devel;liblzf-devel;lzo-devel;snappy-devel;zlib-devel
-InstallPackages(debian)=gcc;g++;automake;libtool;libltdl-dev;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
+InstallPackages(debian)=gcc;g++;autoconf;automake;libtool;libltdl-dev;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
 # Remember to keep this synced with .travis.yml
-InstallPackages(ubuntu)=gcc;g++;automake;libtool;libltdl-dev;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
+InstallPackages(ubuntu)=gcc;g++;autoconf;automake;libtool;libltdl-dev;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
