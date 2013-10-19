@@ -182,7 +182,7 @@ squash_bz2_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashB
   if (bz2_e != BZ_OK) {
     /* We validate the params so OOM is really the only time this
        should happen, and that really shouldn't be happening here. */
-    stream = squash_object_unref (stream), NULL;
+    stream = squash_object_unref (stream);
   }
 
   return stream;

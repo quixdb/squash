@@ -246,7 +246,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   }
 
   if (zlib_e != Z_OK) {
-    stream = squash_object_unref (stream), NULL;
+    stream = squash_object_unref (stream);
   }
 
   return stream;

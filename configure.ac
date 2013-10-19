@@ -9,7 +9,7 @@ m4_define([squash_version], [squash_major.squash_minor.squash_micro])
 m4_define([squash_api_version], [0.1])
 m4_define([squash_api_version_u], [0_1])
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.67])
 AC_INIT([Squash], [squash_version], [https://github.com/quixdb/squash/issues])
 AC_CONFIG_HEADERS([squash/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -210,8 +210,7 @@ AC_SUBST(SQUASH_DOXYGEN_PATHS)
 
 # Checks for header files.
 
-AC_CHECK_HEADERS([stddef.h])
-AC_CHECK_HEADER_STDBOOL
+AC_CHECK_HEADERS([stddef.h stdbool.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T

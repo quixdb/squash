@@ -210,7 +210,7 @@ squash_stream_destroy (void* stream) {
   }
 
   if (s->options != NULL) {
-    s->options = squash_object_unref (s->options), NULL;
+    s->options = squash_object_unref (s->options);
   }
 
   squash_object_destroy (stream);

@@ -182,7 +182,7 @@ squash_lzo_codec_from_name (const char* name) {
   return NULL;
 }
 
-static const SquashStatus
+static SquashStatus
 squash_lzo_status_to_squash_status (int lzo_e) {
   SquashStatus res;
 
