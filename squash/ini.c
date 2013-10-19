@@ -186,7 +186,7 @@ typedef enum _SquashIniParserState {
 	SQUASH_INI_PARSER_STATE_ESCAPED  = 8
 } SquashIniParserState;
 
-SquashIniParserError
+int
 squash_ini_parser_parse (SquashIniParser* parser, FILE* input) {
   char line[SQUASH_INI_PARSER_MAX_LINE] = { 0, };
   int line_num = 0;
