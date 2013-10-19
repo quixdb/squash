@@ -1,8 +1,8 @@
 AC_LANG_PUSH([C++])
 
 AC_ARG_ENABLE([zpaq],
-              [AC_HELP_STRING([--enable-zpaq=@<:@yes/no@:>@], [Enable zpaq plugin @<:@default=yes@:>@])],,
-              [enable_zpaq=yes])
+              [AC_HELP_STRING([--enable-zpaq=@<:@yes/no@:>@], [Enable zpaq plugin @<:@default=no@:>@])],,
+              [enable_zpaq=no])
 
 AM_CONDITIONAL([ENABLE_ZPAQ], test x$enable_zpaq = "xyes")
 
