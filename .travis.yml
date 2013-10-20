@@ -11,4 +11,5 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#squash"
+    on_success: change
     on_failure: always
