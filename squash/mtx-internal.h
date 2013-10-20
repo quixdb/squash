@@ -24,34 +24,31 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_INTERNAL_H__
-#define __SQUASH_INTERNAL_H__
+#ifndef __SQUASH_MTX_INTERNAL_H__
+#define __SQUASH_MTX_INTERNAL_H__
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
 #endif
 
+#include "tinycthread/source/tinycthread.h"
+
 SQUASH_BEGIN_DECLS
-#ifdef __GNUC__
-#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
-#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
-#else
-#  define SQUASH_LIKELY(expr) (expr)
-#  define SQUASH_UNLIKELY(expr) (expr)
-#endif
 
-#include "config.h"
-#include "tree-internal.h"
-#include "types-internal.h"
-#include "context-internal.h"
-#include "plugin-internal.h"
-#include "codec-internal.h"
-#include "slist-internal.h"
-#include "buffer-internal.h"
-#include "buffer-stream-internal.h"
-#include "ini-internal.h"
-#include "mtx-internal.h"
+#define SQUASH_MTX_NAME(name,suffix) _squash_ ## name ## _ ## suffix
+#define SQUASH_MTX_DEFINE(name) \
+  static once_flag SQUASH_MTX_NAME(name,init_flag) = ONCE_FLAG_INIT;            \
+  static mtx_t SQUASH_MTX_NAME(name,mtx);                                       \
+  static void SQUASH_MTX_NAME(name,init) (void);                                \
+    static void SQUASH_MTX_NAME(name,init) (void) {                             \
+    assert (mtx_init (&(SQUASH_MTX_NAME(name,mtx)),mtx_plain) == thrd_success); \
+  }
+#define SQUASH_MTX_LOCK(name) do{                                               \
+    call_once (&(SQUASH_MTX_NAME(name,init_flag)), SQUASH_MTX_NAME(name,init)); \
+    assert (mtx_lock (&(SQUASH_MTX_NAME(name,mtx))) == thrd_success);   \
+  } while(0);
+#define SQUASH_MTX_UNLOCK(name) do{                                     \
+    assert (mtx_unlock (&(SQUASH_MTX_NAME(name,mtx))) == thrd_success); \
+  } while(0);
 
-SQUASH_END_DECLS
-
-#endif /* __SQUASH_INTERNAL_H__ */
+#endif /* __SQUASH_MTX_INTERNAL_H__ */

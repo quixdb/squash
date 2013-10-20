@@ -26,12 +26,13 @@
 
 #include <assert.h>
 #include <string.h>
-#include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/mman.h>
+
+#include "tinycthread/source/tinycthread.h"
 
 #include "config.h"
 #include "squash.h"

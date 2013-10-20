@@ -31,3 +31,6 @@
 [submodule "plugins/lzjb/lzjb"]
 	path = plugins/lzjb/lzjb
 	url = https://github.com/nemequ/lzjb.git
+[submodule "squash/tinycthread"]
+	path = squash/tinycthread
+	url = git://gitorious.org/tinythread/nemequ-tinycthread.git

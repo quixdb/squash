@@ -30,23 +30,22 @@
 #include "squash.h"
 #include "config.h"
 
+#include "tinycthread/source/tinycthread.h"
+
 #if defined HAVE___SYNC_FETCH_AND_ADD && defined HAVE___SYNC_FETCH_AND_SUB
 #  define squash_atomic_ref(var) __sync_fetch_and_add(var, 1)
 #  define squash_atomic_unref(var) __sync_fetch_and_sub(var, 1)
 #  define squash_atomic_cas(var, orig, val) __sync_bool_compare_and_swap(var, orig, val)
-#elif HAVE_PTHREAD
-
-#include <pthread.h>
-
-pthread_mutex_t squash_atomic_ref_mutex = PTHREAD_MUTEX_INITIALIZER;
+#else
+SQUASH_MTX_DEFINE(atomic_ref)
 
 static unsigned int
 squash_atomic_ref (volatile unsigned int* var) {
   unsigned int old_val;
 
-  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_LOCK(atomic_ref);
   old_val = (*var)++;
-  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_UNLOCK(atomic_ref);
 
   return old_val;
 }
@@ -55,31 +54,26 @@ static unsigned int
 squash_atomic_unref (volatile unsigned int* var) {
   unsigned int old_val;
 
-  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_LOCK(atomic_ref);
   old_val = (*var)--;
-  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_UNLOCK(atomic_ref);
 
   return old_val;
 }
 
 static unsigned int
 squash_atomic_cas (volatile unsigned int* var,
-                unsigned int orig,
-                unsigned int val) {
+                   unsigned int orig,
+                   unsigned int val) {
   unsigned int res;
 
-  pthread_mutex_lock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_LOCK(atomic_ref);
   res = (*var == orig) ? ((*var = val), 1) : 0;
-  pthread_mutex_unlock (&squash_atomic_ref_mutex);
+  SQUASH_MTX_UNLOCK(atomic_ref);
 
   return res;
 }
 
-#else
-#  warning Reference counting will not be thread safe.
-#  define squash_atomic_ref(var) (*var)++
-#  define squash_atomic_unref(var) (*var)--
-#  define squash_atomic_cas(var,orig,val) ((*var == orig) ? ((*var = val), 1) : 0)
 #endif
 
 /**

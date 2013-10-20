@@ -30,7 +30,6 @@
 #include <stdio.h>
 
 #include <ltdl.h>
-#include <pthread.h>
 
 #include "config.h"
 #include "squash.h"
@@ -79,6 +78,8 @@ squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
   squash_context_add_codec (context, codec);
 }
 
+SQUASH_MTX_DEFINE(plugin_init)
+
 /**
  * @brief load a %SquashPlugin
  *
@@ -117,13 +118,12 @@ squash_plugin_init (SquashPlugin* plugin) {
     free (plugin_file_name);
 
     if (handle != NULL) {
-      static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-      pthread_mutex_lock (&mutex);
+      SQUASH_MTX_LOCK(plugin_init);
       if (plugin->plugin == NULL) {
         plugin->plugin = handle;
         handle = NULL;
       }
-      pthread_mutex_unlock (&mutex);
+      SQUASH_MTX_UNLOCK(plugin_init);
     }
 
     if (handle != NULL) {
@@ -193,6 +193,8 @@ squash_plugin_compare (SquashPlugin* a, SquashPlugin* b) {
   return strcmp (a->name, b->name);
 }
 
+SQUASH_MTX_DEFINE(codec_init)
+
 /**
  * @brief Initialize a codec
  * @private
@@ -217,7 +219,6 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
 
   if (codec->initialized == 0) {
     SquashStatus (*init_codec_func) (SquashCodec*, SquashCodecFuncs*);
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     *(void **) (&init_codec_func) = lt_dlsym (plugin->plugin, "squash_plugin_init_codec");
 
@@ -225,10 +226,10 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
       return SQUASH_UNABLE_TO_LOAD;
     }
 
-    pthread_mutex_lock (&mutex);
+    SQUASH_MTX_LOCK(codec_init);
     res = init_codec_func (codec, funcs);
     codec->initialized = (res == SQUASH_OK);
-    pthread_mutex_unlock (&mutex);
+    SQUASH_MTX_UNLOCK(codec_init);
   }
 
   return res;

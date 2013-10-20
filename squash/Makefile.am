@@ -17,6 +17,9 @@ squashincludedir = $(includedir)/squash-$(SQUASH_API_VERSION)/squash
 squashinclude_HEADERS = \
   $(squash_headers)
 
+TINYCTHREAD_FILES = \
+  tinycthread/source/tinycthread.c
+
 libsquash@SQUASH_API_VERSION@_la_SOURCES = \
   buffer.c \
 	buffer-stream.c \
@@ -27,7 +30,8 @@ libsquash@SQUASH_API_VERSION@_la_SOURCES = \
   options.c \
   plugin.c \
   status.c \
-  stream.c
+  stream.c \
+  $(TINYCTHREAD_FILES)
 
 libsquash@SQUASH_API_VERSION@_la_CFLAGS = \
   @WARN_CFLAGS@ \

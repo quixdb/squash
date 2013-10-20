@@ -46,9 +46,7 @@
 #include "squash.h"
 #include "internal.h"
 
-#if HAVE_PTHREAD
-#include <pthread.h>
-#endif
+#include "tinycthread/source/tinycthread.h"
 
 /**
  * @defgroup SquashContext SquashContext
@@ -530,56 +528,14 @@ squash_context_new (void) {
   return context;
 }
 
-#if HAVE_PTHREAD
 static SquashContext* squash_context_default = NULL;
 
 static void
 squash_context_create_default (void) {
+  assert (squash_context_default == NULL);
+
   squash_context_default = (SquashContext*) squash_context_new ();
 }
-
-SquashContext*
-squash_context_get_default (void) {
-  static pthread_once_t once = PTHREAD_ONCE_INIT;
-  int once_res = -1;
-
-  if (once_res != 0) {
-    once_res = pthread_once (&once, squash_context_create_default);
-  }
-
-  assert (once_res == 0);
-  assert (squash_context_default != NULL);
-
-  return squash_context_default;
-}
-#elif HAVE___SYNC_BOOL_COMPARE_AND_SWAP
-/* I don't think this is likely to be a major point of contention, but
-   it would be nice to provide a non-spinning implementation for
-   Windows (and anyone else who doesn't have pthreads, though I guess
-   that's probably a pretty small pool. */
-
-SquashContext*
-squash_context_get_default (void) {
-  static volatile SquashContext* squash_context_default;
-  static volatile unsigned int status = 0;
-
-  if (status == 0) {
-    if (__sync_bool_compare_and_swap (&status, 0, 1)) {
-      squash_context_default = (SquashContext*) squash_context_new ();
-      status = 2;
-      __sync_synchronize ();
-    }
-  }
-
-  while (status != 2) { /* Spin */ }
-
-  return squash_context_default;
-}
-#else
-
-/* A thread-safe implementation for anyone who hits this would be
-   greatly appreciated. */
-#warning squash_context_get_default() will not be thread-safe.
 
 /**
  * @brief Retrieve the default @ref SquashContext.
@@ -593,14 +549,14 @@ squash_context_get_default (void) {
  */
 SquashContext*
 squash_context_get_default (void) {
-  static SquashContext* squash_context_default = NULL;
+  static once_flag once = ONCE_FLAG_INIT;
 
-  if (squash_context_default == NULL) {
-    squash_context_default = (SquashContext*) squash_context_new ();
-  }
+  call_once (&once, squash_context_create_default);
+
+  assert (squash_context_default != NULL);
+
   return squash_context_default;
 }
-#endif
 
 /**
  * @}
