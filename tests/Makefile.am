@@ -17,7 +17,8 @@ TESTS = \
   random-data \
   stream-compress \
   stream-decompress \
-  single-byte
+  single-byte \
+  threads
 else
 TESTS =
 endif
@@ -29,6 +30,7 @@ random_data_SOURCES = test-codecs.c random-data.c
 stream_compress_SOURCES = test-codecs.c stream-compress.c
 stream_decompress_SOURCES = test-codecs.c stream-decompress.c
 single_byte_SOURCES = test-codecs.c single-byte.c
+threads_SOURCES = test-codecs.c threads.c
 
 CLEANFILES = \
   $(TESTS:=.log) \
