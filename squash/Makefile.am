@@ -20,12 +20,9 @@ squashinclude_HEADERS = \
 TINYCTHREAD_FILES = \
   tinycthread/source/tinycthread.c
 
-TINYCTHREAD_LIBS = \
-  @CLOCK_GETTIME_LIBS@
-
 libsquash@SQUASH_API_VERSION@_la_SOURCES = \
   buffer.c \
-	buffer-stream.c \
+  buffer-stream.c \
   codec.c \
   context.c \
   ini.c \
@@ -45,7 +42,7 @@ libsquash@SQUASH_API_VERSION@_la_CFLAGS = \
   -DSQUASH_VERSION_API="\"@SQUASH_API_VERSION@\""
 
 libsquash@SQUASH_API_VERSION@_la_LIBADD = \
-  $(TINY_CTHREAD_LIBS) \
+  @CLOCK_GETTIME_LIBS@ \
   -lltdl
 
 if HAVE_PTHREAD
