@@ -176,6 +176,10 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         res = squash_codec_decompress_with_options (stream->base_object.codec,
                                                     stream->output->data, &decompressed_size,
                                                     stream->input->data, stream->input->length, NULL);
+
+        if (res != SQUASH_OK) {
+          return res;
+        }
       } else {
         /* Yes, this is horrible.  If you're hitting this code you
            should really try to change your application to use the

@@ -463,6 +463,7 @@ squash_stream_finish (SquashStream* stream) {
   assert (codec != NULL);
 
   funcs = squash_codec_get_funcs (codec);
+  assert (funcs != NULL);
 
   const size_t avail_in = stream->avail_in;
   const size_t avail_out = stream->avail_out;
@@ -472,6 +473,7 @@ squash_stream_finish (SquashStream* stream) {
   } else if (funcs->create_stream == NULL && funcs->process_stream == NULL && funcs->flush_stream == NULL) {
     res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
   } else {
+    assert (funcs->process_stream != NULL);
     res = funcs->process_stream (stream);
   }
 

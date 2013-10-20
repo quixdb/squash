@@ -118,7 +118,7 @@ int main (int argc, char** argv) {
         codec = squash_get_codec (optarg);
         if ( codec == NULL ) {
           fprintf (stderr, "Unable to find codec '%s'\n", optarg);
-          return -1;
+          exit (-1);
         }
         break;
       case 'k':
@@ -167,10 +167,10 @@ int main (int argc, char** argv) {
     else
       squash_foreach_plugin (list_plugins_foreach_cb, NULL);
 
-    return 0;
+    exit (0);
   } else if (list_codecs) {
     squash_foreach_codec (list_codecs_foreach_cb, NULL);
-    return 0;
+    exit (0);
   }
 
   if ( optind < argc ) {
@@ -188,11 +188,11 @@ int main (int argc, char** argv) {
     }
   } else {
     fprintf (stderr, "You must provide an input file name.\n");
-    return -1;
+    exit (-1);
   }
 
   if ( optind < argc ) {
-    output_name = argv[optind++];
+    output_name = strdup (argv[optind++]);
 
     if ( codec == NULL && direction == SQUASH_STREAM_COMPRESS ) {
       const char* extension = rindex (output_name, '.');
@@ -207,7 +207,7 @@ int main (int argc, char** argv) {
       const char* extension = squash_codec_get_extension (codec);
       if (extension != NULL) {
         if (strcmp (input_name, "-") == 0) {
-          output_name = "-";
+          output_name = strdup ("-");
         } else {
           size_t extension_length = strlen (extension);
           size_t input_name_length = strlen (input_name);
@@ -228,12 +228,12 @@ int main (int argc, char** argv) {
 
   if ( codec == NULL ) {
     fprintf (stderr, "Unable to determine codec.  Please pass -c \"codec\", or -L to see a list of available codecs.\n");
-    return -1;
+    exit (-1);
   }
 
   if ( output_name == NULL ) {
     fprintf (stderr, "Unable to determine output file.\n");
-    return -1;
+    exit (-1);
   }
 
   if ( strcmp (input_name, "-") == 0 ) {
@@ -242,7 +242,7 @@ int main (int argc, char** argv) {
     input = fopen (input_name, "r");
     if ( input == NULL ) {
       perror ("Unable to open input file");
-      return -1;
+      exit (-1);
     }
   }
 
@@ -254,12 +254,12 @@ int main (int argc, char** argv) {
                           S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
-      return -1;
+      exit (-1);
     }
     output = fdopen (output_fd, "w");
     if ( output == NULL ) {
       perror ("Unable to open output");
-      return -1;
+      exit (-1);
     }
   }
 
@@ -275,7 +275,7 @@ int main (int argc, char** argv) {
     fprintf (stderr, "Failed to %s: %s\n",
              (direction == SQUASH_STREAM_COMPRESS) ? "compress" : "decompress",
              squash_status_to_string (res));
-    return -1;
+    exit (-1);
   }
 
   if ( !keep && input != stdin ) {
@@ -283,6 +283,10 @@ int main (int argc, char** argv) {
       perror ("Unable to remove input file");
     }
   }
+
+  free (output_name);
+  free (option_keys);
+  free (option_values);
 
   return 0;
 }
