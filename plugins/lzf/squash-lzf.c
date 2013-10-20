@@ -43,9 +43,9 @@ squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 #if LZF_VERSION >= 0x0106
     LZF_MAX_COMPRESSED_SIZE(uncompressed_length) + 1;
 #else
-    ((((uncompressed_length) * 33) >> 5 ) + 1) + 1 + 1;
+    ((((uncompressed_length) * 33) >> 5 ) + 1) + 1;
 #endif
-  return (res > 3) ? res : 3;
+  return (res > 4) ? res : 4;
 }
 
 static SquashStatus
