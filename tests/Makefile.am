@@ -1,31 +1,32 @@
-COMMON_CFLAGS = \
-   -I$(top_srcdir) \
-   @WARN_CFLAGS@ \
-  -DSQUASH_IS_UNSTABLE
-
-COMMON_LIBS = $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la
+LIBS = \
+  $(top_builddir)/squash/libsquash@SQUASH_API_VERSION@.la \
+  @GLIB_LIBS@
 
 TESTS_ENVIRONMENT = \
   SQUASH_PLUGINS="$(top_srcdir)/plugins"
 
-TESTS_CFLAGS = \
-  $(COMMON_CFLAGS) \
+AM_CFLAGS = \
+  -I$(top_srcdir) \
+  @WARN_CFLAGS@ \
+  -DSQUASH_IS_UNSTABLE \
   @GLIB_CFLAGS@
-
-TESTS_LIBS = \
-  $(COMMON_LIBS) \
-  @GLIB_LIBS@
 
 if ENABLE_UNIT_TESTING
 TESTS = \
-  check-plugins
-
-noinst_PROGRAMS = $(TESTS)
+  buffer \
+  random-data \
+  stream-compress \
+  stream-decompress
+else
+TESTS =
 endif
 
-check_plugins_CFLAGS = $(TESTS_CFLAGS)
-check_plugins_LDADD = $(TESTS_LIBS)
-check_plugins_SOURCES = check-plugins.c
+noinst_PROGRAMS = $(TESTS)
+
+buffer_SOURCES = test-codecs.c buffer.c
+random_data_SOURCES = test-codecs.c random-data.c
+stream_compress_SOURCES = test-codecs.c stream-compress.c
+stream_decompress_SOURCES = test-codecs.c stream-decompress.c
 
 CLEANFILES = \
   $(TESTS:=.log) \
