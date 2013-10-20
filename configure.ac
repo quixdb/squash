@@ -244,10 +244,8 @@ AC_C_INLINE
 
 # Checks for library functions.
 
-AC_CHECK_FUNCS([memset pathconf strchr strdup strtol clock_gettime ftruncate gettimeofday memmove munmap strcasecmp strndup])
+AC_CHECK_FUNCS([memset pathconf strchr strdup strtol clock_gettime ftruncate gettimeofday memmove munmap strcasecmp strndup malloc realloc])
 AC_CHECK_HEADERS([fcntl.h sys/time.h])
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_FUNC_MMAP
 AC_TYPE_OFF_T
 

@@ -1,6 +1,7 @@
 COMMON_CFLAGS = \
-   -I$(top_srcdir) \
-   @WARN_CFLAGS@ \
+  -I$(top_srcdir) \
+  @WARN_CFLAGS@ \
+  -Wno-missing-prototypes \
   -DSQUASH_IS_UNSTABLE
 
 BLOSC_FILES = \

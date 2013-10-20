@@ -33,12 +33,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <strings.h>
+
+#if !defined(_WIN32)
+  #include <dirent.h>
+#else
+  #include <windows.h>
+  #include <tchar.h> 
+  #include <strsafe.h>
+#endif
 
 #include <ltdl.h>
 
@@ -343,6 +350,7 @@ squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
 
 static void
 squash_context_find_plugins_in_directory (SquashContext* context, const char* directory_name) {
+#if !defined(_WIN32)
   DIR* directory = opendir (directory_name);
   size_t directory_name_length = strlen (directory_name);
   struct dirent* result = NULL;
@@ -399,7 +407,16 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 
   free (entry);
   closedir (directory);
+#else
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms686934%28v=vs.85%29.aspx
+#endif /* defined(_WIN32) */
 }
+
+#if !defined(_WIN32)
+#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_r(str,delim,saveptr)
+#else
+#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_s(str,delim,saveptr)
+#endif
 
 static void
 squash_context_find_plugins (SquashContext* context) {
@@ -415,9 +432,9 @@ squash_context_find_plugins (SquashContext* context) {
 
     directories = strdup (directories);
 
-    for ( directory_name = strtok_r (directories, ":", &saveptr) ;
+    for ( directory_name = SQUASH_STRTOK_R (directories, ":", &saveptr) ;
           directory_name != NULL ;
-          directory_name = strtok_r (NULL, ":", &saveptr) ) {
+          directory_name = SQUASH_STRTOK_R (NULL, ":", &saveptr) ) {
       squash_context_find_plugins_in_directory (context, directory_name);
     }
 

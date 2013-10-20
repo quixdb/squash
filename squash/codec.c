@@ -30,7 +30,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+
+#if !defined(_WIN32)
 #include <sys/mman.h>
+#endif
 
 #include "tinycthread/source/tinycthread.h"
 
@@ -862,6 +865,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
   uint8_t* inbuf = NULL;
   uint8_t* outbuf = NULL;
 
+#if !defined(_WIN32)
   if (((stream_type == SQUASH_STREAM_COMPRESS) && codec->funcs.compress_buffer != NULL) ||
       ((stream_type == SQUASH_STREAM_DECOMPRESS) && codec->funcs.decompress_buffer != NULL)) {
     /* Attempt to mmap the input and output.  This short circuits the
@@ -936,6 +940,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
   if (res == SQUASH_OK) {
     return res;
   }
+#endif /* !defined(_WIN32) */
 
   stream = squash_codec_create_stream_with_options (codec, stream_type, options);
   if ( stream == NULL ) {

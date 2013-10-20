@@ -38,7 +38,7 @@ parse_option (char*** keys, char*** values, const char* option) {
   size_t length = 0;
 
   key = strdup (option);
-  value = index (key, '=');
+  value = strchr (key, '=');
   if (value == NULL) {
     fprintf (stderr, "Invalid option (\"%s\").", option);
     exit (-1);
@@ -87,6 +87,23 @@ list_plugins_and_codecs_foreach_cb (SquashPlugin* plugin, void* data) {
   list_plugins_foreach_cb (plugin, data);
   squash_plugin_foreach_codec (plugin, list_codecs_foreach_cb, (void*) indent);
 }
+
+#if !defined(_WIN32)
+#define squash_strndup(s,n) strndup(s,n)
+#else
+char* squash_strndup(const char* s, size_t n);
+
+char*
+squash_strndup(const char* s, size_t n) {
+	const char* eos = (const char*) memchr (s, '\0', n);
+	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
+  char* res = (char*) malloc (res_len + 1);
+	memcpy (res, s, res_len);
+	res[res_len] = '\0';
+
+	return res;
+}
+#endif
 
 int main (int argc, char** argv) {
   SquashStatus res;
@@ -179,7 +196,7 @@ int main (int argc, char** argv) {
     if ( (direction == SQUASH_STREAM_DECOMPRESS) && codec == NULL ) {
       char* extension;
 
-      extension = rindex (input_name, '.');
+      extension = strrchr (input_name, '.');
       if (extension != NULL)
         extension++;
 
@@ -195,7 +212,7 @@ int main (int argc, char** argv) {
     output_name = strdup (argv[optind++]);
 
     if ( codec == NULL && direction == SQUASH_STREAM_COMPRESS ) {
-      const char* extension = rindex (output_name, '.');
+      const char* extension = strrchr (output_name, '.');
       if (extension != NULL)
         extension++;
 
@@ -215,7 +232,7 @@ int main (int argc, char** argv) {
           if ( (extension_length + 1) < input_name_length &&
                input_name[input_name_length - (1 + extension_length)] == '.' &&
                strcasecmp (extension, input_name + (input_name_length - (extension_length))) == 0 ) {
-            output_name = strndup (input_name, input_name_length - (1 + extension_length));
+            output_name = squash_strndup (input_name, input_name_length - (1 + extension_length));
           }
         }
       }
@@ -251,7 +268,11 @@ int main (int argc, char** argv) {
   } else {
     int output_fd = open (output_name,
                           O_WRONLY | O_CREAT | (force ? O_TRUNC : O_EXCL),
-                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                          S_IRUSR | S_IWUSR
+#if !defined(_WIN32)
+                          | S_IRGRP | S_IROTH
+#endif
+);
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
       exit (-1);
