@@ -39,11 +39,13 @@ SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* fun
 
 static size_t
 squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+  const size_t res =
 #if LZF_VERSION >= 0x0106
-  return LZF_MAX_COMPRESSED_SIZE(uncompressed_length) + 1;
+    LZF_MAX_COMPRESSED_SIZE(uncompressed_length) + 1;
 #else
-  return ((((uncompressed_length) * 33) >> 5 ) + 1) + 1;
+    ((((uncompressed_length) * 33) >> 5 ) + 1) + 1 + 1;
 #endif
+  return (res > 3) ? res : 3;
 }
 
 static SquashStatus
