@@ -91,9 +91,9 @@ list_plugins_and_codecs_foreach_cb (SquashPlugin* plugin, void* data) {
 #if !defined(_WIN32)
 #define squash_strndup(s,n) strndup(s,n)
 #else
-char* squash_strndup(const char* s, size_t n);
+static char* squash_strndup(const char* s, size_t n);
 
-char*
+static char*
 squash_strndup(const char* s, size_t n) {
 	const char* eos = (const char*) memchr (s, '\0', n);
 	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);

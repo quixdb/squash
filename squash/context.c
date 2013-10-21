@@ -348,11 +348,57 @@ squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
   return (SquashStatus) squash_ini_parser_parse ((SquashIniParser*) parser, input);
 }
 
+#if !defined(_WIN32)
+#define squash_strndup(s,n) strndup(s,n)
+#else
+static char* squash_strndup(const char* s, size_t n);
+
+static char*
+squash_strndup(const char* s, size_t n) {
+	const char* eos = (const char*) memchr (s, '\0', n);
+	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
+  char* res = (char*) malloc (res_len + 1);
+	memcpy (res, s, res_len);
+	res[res_len] = '\0';
+
+	return res;
+}
+#endif
+
+static void
+squash_context_check_directory_for_plugin (SquashContext* context, const char* directory_name, const char* plugin_name) {
+  size_t directory_name_length = strlen (directory_name);
+  size_t plugin_name_length = strlen (plugin_name);
+
+  size_t codecs_file_name_length = directory_name_length + (plugin_name_length * 2) + 10;
+  char* codecs_file_name = (char*) malloc (codecs_file_name_length + 1);
+  snprintf (codecs_file_name, codecs_file_name_length, "%s/%s/%s.codecs",
+            directory_name, plugin_name, plugin_name);
+
+  FILE* codecs_file = fopen (codecs_file_name, "r");
+
+  if (codecs_file != NULL) {
+    size_t plugin_directory_name_length = directory_name_length + plugin_name_length + 1;
+    char* plugin_directory_name = (char*) malloc (plugin_directory_name_length + 1);
+    snprintf (plugin_directory_name, plugin_directory_name_length + 1, "%s/%s",
+              directory_name, plugin_name);
+
+    SquashPlugin* plugin = squash_context_add_plugin (context, squash_strndup (plugin_name, 32), plugin_directory_name);
+    if (plugin != NULL) {
+      SquashCodecsFileParser parser;
+
+      squash_codecs_file_parser_init (&parser, plugin);
+      squash_codecs_file_parser_parse (&parser, codecs_file);
+    }
+  }
+
+  free (codecs_file_name);
+}
+
 static void
 squash_context_find_plugins_in_directory (SquashContext* context, const char* directory_name) {
 #if !defined(_WIN32)
   DIR* directory = opendir (directory_name);
-  size_t directory_name_length = strlen (directory_name);
   struct dirent* result = NULL;
   struct dirent* entry = NULL;
 
@@ -377,38 +423,48 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
         strcmp (entry->d_name, ".") == 0)
       continue;
 
-    size_t plugin_name_length = strlen (entry->d_name);
-    char* plugin_name = entry->d_name;
-
-    size_t codecs_file_name_length = directory_name_length + (plugin_name_length * 2) + 10;
-    char* codecs_file_name = (char*) malloc (codecs_file_name_length + 1);
-    snprintf (codecs_file_name, codecs_file_name_length, "%s/%s/%s.codecs",
-              directory_name, plugin_name, plugin_name);
-
-    FILE* codecs_file = fopen (codecs_file_name, "r");
-
-    if (codecs_file != NULL) {
-      size_t plugin_directory_name_length = directory_name_length + plugin_name_length + 1;
-      char* plugin_directory_name = (char*) malloc (plugin_directory_name_length + 1);
-      snprintf (plugin_directory_name, plugin_directory_name_length + 1, "%s/%s",
-                directory_name, plugin_name);
-
-      SquashPlugin* plugin = squash_context_add_plugin (context, strndup (plugin_name, 32), plugin_directory_name);
-      if (plugin != NULL) {
-        SquashCodecsFileParser parser;
-
-        squash_codecs_file_parser_init (&parser, plugin);
-        squash_codecs_file_parser_parse (&parser, codecs_file);
-      }
-    }
-
-    free (codecs_file_name);
+    squash_context_check_directory_for_plugin (context, directory_name, entry->d_name);
   }
 
   free (entry);
   closedir (directory);
 #else
-// http://msdn.microsoft.com/en-us/library/windows/desktop/ms686934%28v=vs.85%29.aspx
+  WIN32_FIND_DATA entry;
+  TCHAR* directory_query = NULL;
+  size_t directory_query_length;
+  HANDLE directory_handle = INVALID_HANDLE_VALUE;
+
+  StringCchLength (directory_name, MAX_PATH, &directory_query_length);
+  directory_query_length += 3;
+
+  if (directory_query_length > MAX_PATH) {
+    return;
+  }
+
+  directory_query = (TCHAR*) malloc (directory_query_length * sizeof(TCHAR));
+
+  StringCchCopy (directory_query, directory_query_length, directory_name);
+  StringCchCat (directory_query, directory_query_length, TEXT("\\*"));
+
+  directory_handle = FindFirstFile (directory_query, &entry);
+
+  if (INVALID_HANDLE_VALUE == directory_handle) {
+    return;
+  } 
+
+  do {
+    if (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      if (strcmp (entry.cFileName, "..") == 0 ||
+          strcmp (entry.cFileName, ".") == 0)
+        continue;
+
+      squash_context_check_directory_for_plugin (context, directory_name, entry.cFileName);
+    }
+  }
+  while (FindNextFile (directory_handle, &entry) != 0);
+
+  FindClose(directory_handle);
+  free (directory_query);
 #endif /* defined(_WIN32) */
 }
 
