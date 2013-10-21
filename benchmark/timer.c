@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #define SQUASH_TIMER_METHOD_CLOCK_GETTIME 0
 #define SQUASH_TIMER_METHOD_GETRUSAGE 1
@@ -38,8 +39,8 @@
 #define SQUASH_TIMER_METHOD_GETPROCESSTIMES 3
 
 #ifdef _WIN32
-#define SQUASH_TIMER_METHOD SQUASH_TIMER_METHOD_GETPROCESSTIMES
-#error Please teach me how to use GetProcessTimes
+#  define SQUASH_TIMER_METHOD SQUASH_TIMER_METHOD_GETPROCESSTIMES
+#  include <windows.h>
 #endif
 
 #if !defined(SQUASH_TIMER_METHOD) && (_POSIX_TIMERS > 0)
@@ -74,6 +75,11 @@ struct SquashTimer_s {
   struct timeval end_wall;
   struct rusage start_cpu;
   struct rusage end_cpu;
+#elif SQUASH_TIMER_METHOD == SQUASH_TIMER_METHOD_GETPROCESSTIMES
+  ULONGLONG start_wall;
+  ULONGLONG end_wall;
+  FILETIME start_cpu;
+  FILETIME end_cpu;
 #endif
 };
 
@@ -141,6 +147,16 @@ squash_timer_start (SquashTimer* timer) {
     fputs ("Unable to get CPU clock time\n", stderr);
     exit (-1);
   }
+#elif SQUASH_TIMER_METHOD == SQUASH_TIMER_METHOD_GETPROCESSTIMES
+  #if _WIN32_WINNT >= 0x0600
+    timer->start_wall = GetTickCount64 ();
+  #else
+    timer->start_wall = GetTickCount ();
+  #endif
+  FILETIME CreationTime, ExitTime, KernelTime;
+  if (!GetProcessTimes (GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &(timer->start_cpu))) {
+    fputs ("Unable to get CPU clock time\n", stderr);
+  }
 #endif
 }
 
@@ -198,6 +214,33 @@ squash_timer_stop (SquashTimer* timer) {
 
   timer->elapsed_cpu += squash_timer_rusage_elapsed (&(timer->start_cpu), &(timer->end_cpu));
   timer->elapsed_wall += squash_timer_timeval_elapsed (&(timer->start_wall), &(timer->end_wall));
+#elif SQUASH_TIMER_METHOD == SQUASH_TIMER_METHOD_GETPROCESSTIMES
+  FILETIME CreationTime, ExitTime, KernelTime;
+  if (!GetProcessTimes (GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &(timer->end_cpu))) {
+    fputs ("Unable to get CPU clock time\n", stderr);
+  }
+
+  #if _WIN32_WINNT >= 0x0600
+    timer->end_wall = GetTickCount64 ();
+  #else
+    timer->end_wall = GetTickCount ();
+    if (timer->end_wall < timer->start_wall) {
+      timer->end_wall += 0xffffffff;
+    }
+  #endif
+
+  uint64_t start_cpu, end_cpu;
+
+  start_cpu   = timer->start_cpu.dwHighDateTime;
+  start_cpu <<= sizeof (DWORD) * 8;
+  start_cpu  |= timer->start_cpu.dwLowDateTime;
+
+  end_cpu   = timer->end_cpu.dwHighDateTime;
+  end_cpu <<= sizeof (DWORD) * 8;
+  end_cpu  |= timer->end_cpu.dwLowDateTime;
+
+  timer->elapsed_cpu += ((double) (end_cpu - start_cpu)) / 10000000;
+  timer->elapsed_wall += ((double) (timer->end_wall - timer->start_wall)) / 1000;
 #endif
 }
 
