@@ -5,7 +5,5 @@ set (lzg_sources
   liblzg/src/lib/encode.c
   liblzg/src/lib/version.c)
 
-if ("${ENABLE_LZG}" STREQUAL "yes")
-  squash_plugin_add (lzg lzg_sources)
-  squash_plugin_add_include_directories (lzg lzg)
-endif ()
+squash_plugin_add (lzg lzg_sources)
+squash_plugin_add_include_directories (lzg lzg)

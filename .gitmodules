@@ -21,7 +21,7 @@
 	url = https://github.com/nemequ/zpaq
 [submodule "plugins/lzg/liblzg"]
 	path = plugins/lzg/liblzg
-	url = https://github.com/svn2github/liblzg.git
+	url = git://gitorious.org/liblzg/liblzg.git
 [submodule "plugins/fastlz/fastlz"]
 	path = plugins/fastlz/fastlz
 	url = https://github.com/svn2github/fastlz.git
