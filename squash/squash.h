@@ -44,7 +44,8 @@
 #  define SQUASH_API extern
 #endif
 
-#include "version.h"
+#include <squash/version.h>
+
 #include "types.h"
 #include "object.h"
 #include "status.h"

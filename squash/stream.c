@@ -26,7 +26,6 @@
 
 #include <assert.h>
 
-#include "config.h"
 #include "squash.h"
 #include "internal.h"
 

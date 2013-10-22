@@ -40,7 +40,8 @@ SQUASH_BEGIN_DECLS
 #  define SQUASH_UNLIKELY(expr) (expr)
 #endif
 
-#include "config.h"
+#include <squash/config.h>
+
 #include "tree-internal.h"
 #include "types-internal.h"
 #include "context-internal.h"

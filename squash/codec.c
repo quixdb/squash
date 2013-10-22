@@ -37,7 +37,6 @@
 
 #include "tinycthread/source/tinycthread.h"
 
-#include "config.h"
 #include "squash.h"
 #include "internal.h"
 

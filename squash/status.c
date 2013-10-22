@@ -24,7 +24,6 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#include "config.h"
 #include "squash.h"
 #include "internal.h"
 

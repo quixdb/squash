@@ -1,13 +1,12 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-bindir=@bindir@
-includedir=@includedir@
-datarootdir=@datarootdir@
-datadir=@datadir@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+bindir=@CMAKE_INSTALL_FULL_BINDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+datarootdir=@CMAKE_INSTALL_FULL_DATAROOTDIR@
+datadir=@CMAKE_INSTALL_FULL_DATADIR@
 
 Name: @PACKAGE_NAME@
 Description: Compression abstraction library
-Version: @SQUASH_VERSION@
-Libs: -L${libdir} -lsquash@SQUASH_API_VERSION@
-Cflags: -I${includedir}/squash-@SQUASH_API_VERSION@
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lsquash@SQUASH_VERSION_API@
+Cflags: -I${includedir}/squash-@SQUASH_VERSION_API@

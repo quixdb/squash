@@ -26,40 +26,17 @@
 
 #include <assert.h>
 
-#include "config.h"
 #include "squash.h"
-#include "config.h"
+#include "internal.h"
 
-#include "tinycthread/source/tinycthread.h"
-
-#if defined HAVE___SYNC_FETCH_AND_ADD && defined HAVE___SYNC_FETCH_AND_SUB
-#  define squash_atomic_ref(var) __sync_fetch_and_add(var, 1)
-#  define squash_atomic_unref(var) __sync_fetch_and_sub(var, 1)
+#if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
+#  define squash_atomic_inc(var) __sync_fetch_and_add(var, 1)
+#  define squash_atomic_dec(var) __sync_fetch_and_sub(var, 1)
 #  define squash_atomic_cas(var, orig, val) __sync_bool_compare_and_swap(var, orig, val)
+#elif defined(_WIN32)
+#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, orig, val)
 #else
 SQUASH_MTX_DEFINE(atomic_ref)
-
-static unsigned int
-squash_atomic_ref (volatile unsigned int* var) {
-  unsigned int old_val;
-
-  SQUASH_MTX_LOCK(atomic_ref);
-  old_val = (*var)++;
-  SQUASH_MTX_UNLOCK(atomic_ref);
-
-  return old_val;
-}
-
-static unsigned int
-squash_atomic_unref (volatile unsigned int* var) {
-  unsigned int old_val;
-
-  SQUASH_MTX_LOCK(atomic_ref);
-  old_val = (*var)--;
-  SQUASH_MTX_UNLOCK(atomic_ref);
-
-  return old_val;
-}
 
 static unsigned int
 squash_atomic_cas (volatile unsigned int* var,
@@ -73,8 +50,32 @@ squash_atomic_cas (volatile unsigned int* var,
 
   return res;
 }
-
 #endif
+
+#if !defined(squash_atomic_inc)
+static unsigned int
+squash_atomic_inc (volatile unsigned int* var) {
+  while (true) {
+    unsigned int tmp = *var;
+    if (squash_atomic_cas (var, tmp, tmp + 1) == tmp) {
+      return tmp;
+    }
+  }
+}
+#endif /* defined(squash_atomic_inc) */
+
+#if !defined(squash_atomic_dec)
+static unsigned int
+squash_atomic_dec (volatile unsigned int* var) {
+  while (true) {
+    unsigned int tmp = *var;
+    assert (tmp > 0);
+    if (squash_atomic_cas (var, tmp, tmp - 1) == tmp) {
+      return tmp;
+    }
+  }
+}
+#endif /* defined(squash_atomic_dec) */
 
 /**
  * @var _SquashObject::ref_count
@@ -209,10 +210,10 @@ squash_object_ref (void* obj) {
 
   if (object->is_floating) {
     if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
-      squash_atomic_ref (&(object->ref_count));
+      squash_atomic_inc (&(object->ref_count));
     }
   } else {
-    squash_atomic_ref (&(object->ref_count));
+    squash_atomic_inc (&(object->ref_count));
   }
 
   return obj;
@@ -260,7 +261,7 @@ squash_object_unref (void* obj) {
   if (object == NULL)
     return object;
 
-  unsigned int ref_count = squash_atomic_unref (&(object->ref_count));
+  unsigned int ref_count = squash_atomic_dec (&(object->ref_count));
 
   if (ref_count == 1) {
     if (object->destroy_notify != NULL) {
