@@ -10,7 +10,7 @@ compress_buffer_thread_func (SquashCodec* codec) {
   SquashStatus res;
   int i = 0;
 
-  for ( ; i < 16 ; i++ ) {
+  for ( ; i < 8 ; i++ ) {
     compressed_length = max_compressed_length;
 
     res = squash_codec_compress_with_options (codec, compressed, &compressed_length, (uint8_t*) LOREM_IPSUM, LOREM_IPSUM_LENGTH, NULL);
@@ -33,11 +33,13 @@ void
 check_codec (SquashCodec* codec) {
   GThread* threads[16] = { 0, };
   int i = 0;
-  GError* inner_error;
+  GError* inner_error = NULL;
 
   for ( ; i < 16 ; i++ ) {
     threads[i] = g_thread_create ((GThreadFunc) compress_buffer_thread_func, codec, true, &inner_error);
-    g_assert (inner_error != NULL);
+    if (inner_error != NULL) {
+      g_error ("Unable to create thread #%d: %s", i, inner_error->message);
+    }
   }
 
   for ( i = 0 ; i < 16 ; i++ ) {

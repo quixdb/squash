@@ -5,8 +5,8 @@ compiler:
 before_install:
  - sudo apt-get update -qq
  # Remember to keep this synced with build-deps.catalog
- - sudo apt-get install -qq gcc g++ autoconf automake make libtool libltdl-dev libglib2.0-dev libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev
-script: ./autogen.sh && make V=1 && make check
+ - sudo apt-get install -qq gcc g++ cmake make libtool libltdl-dev libglib2.0-dev libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev
+script: mkdir build && cd build && cmake .. && make VERBOSE=1 && make test
 notifications:
   irc:
     channels:

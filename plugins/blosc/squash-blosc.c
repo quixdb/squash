@@ -33,7 +33,7 @@
 
 #include <pthread.h>
 
-#include <blosc.h>
+#include "blosc/blosc/blosc.h"
 
 #define SQUASH_BLOSC_DEFAULT_LEVEL 6
 #define SQUASH_BLOSC_DEFAULT_SHUFFLE 1

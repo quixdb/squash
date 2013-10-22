@@ -49,11 +49,18 @@
 
 #include <ltdl.h>
 
-#include "config.h"
 #include "squash.h"
 #include "internal.h"
 
 #include "tinycthread/source/tinycthread.h"
+
+#if !defined(_WIN32)
+#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_r(str,delim,saveptr)
+#define squash_strndup(s,n) strndup(s,n)
+#else
+static char* squash_strndup(const char* s, size_t n);
+#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_s(str,delim,saveptr)
+#endif
 
 /**
  * @defgroup SquashContext SquashContext
@@ -348,11 +355,7 @@ squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
   return (SquashStatus) squash_ini_parser_parse ((SquashIniParser*) parser, input);
 }
 
-#if !defined(_WIN32)
-#define squash_strndup(s,n) strndup(s,n)
-#else
-static char* squash_strndup(const char* s, size_t n);
-
+#if defined(_WIN32)
 static char*
 squash_strndup(const char* s, size_t n) {
 	const char* eos = (const char*) memchr (s, '\0', n);
@@ -467,12 +470,6 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
   free (directory_query);
 #endif /* defined(_WIN32) */
 }
-
-#if !defined(_WIN32)
-#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_r(str,delim,saveptr)
-#else
-#define SQUASH_STRTOK_R(str,delim,saveptr) strtok_s(str,delim,saveptr)
-#endif
 
 static void
 squash_context_find_plugins (SquashContext* context) {
