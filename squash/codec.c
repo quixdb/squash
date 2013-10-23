@@ -891,7 +891,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
             outsize_max |= outsize_max >> 16;
             outsize_max++;
 
-            outsize_max <<= 1;
+            outsize_max <<= 2;
           }
 
           if (ftruncate(outfd, (off_t) outsize_max) != -1) {
