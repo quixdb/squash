@@ -24,13 +24,15 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#include <ltdl.h>
-
 #ifndef __SQUASH_TYPES_INTERNAL_H__
 #define __SQUASH_TYPES_INTERNAL_H__
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
+#endif
+
+#if defined(_WIN32)
+#include <windows.h>
 #endif
 
 SQUASH_BEGIN_DECLS
@@ -51,7 +53,11 @@ struct _SquashPlugin {
   char* name;
   char* directory;
 
-  lt_dlhandle plugin;
+#if !defined(_WIN32)
+  void* plugin;
+#else
+  HMODULE plugin;
+#endif
 
   SquashCodecTree codecs;
 

@@ -28,11 +28,14 @@ add_library(squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 
 find_package (Threads)
 target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries (squash${SQUASH_VERSION_API} ltdl)
 
-include (FindClockGettime)
-if (${CLOCK_GETTIME_REQUIRES_RT})
-  target_link_libraries (squash${SQUASH_VERSION_API} rt)
+if (WIN32)
+else ()
+  include (FindClockGettime)
+  if (${CLOCK_GETTIME_REQUIRES_RT})
+    target_link_libraries (squash${SQUASH_VERSION_API} rt)
+  endif ()
+  target_link_libraries (squash${SQUASH_VERSION_API} dl)
 endif ()
 
 install (TARGETS squash${SQUASH_VERSION_API}

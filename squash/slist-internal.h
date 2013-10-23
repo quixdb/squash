@@ -31,6 +31,8 @@
 #error "This is internal API; you cannot use it."
 #endif
 
+#include <stdlib.h>
+
 SQUASH_BEGIN_DECLS
 
 typedef struct _SquashSList {

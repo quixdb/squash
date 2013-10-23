@@ -29,7 +29,11 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <ltdl.h>
+#if !defined(_WIN32)
+#include <dlfcn.h>
+#else
+#include <windows.h>
+#endif
 
 #include "squash.h"
 #include "internal.h"
@@ -97,7 +101,11 @@ SQUASH_MTX_DEFINE(plugin_init)
 SquashStatus
 squash_plugin_init (SquashPlugin* plugin) {
   if (plugin->plugin == NULL) {
-    lt_dlhandle handle;
+#if !defined(_WIN32)
+    void* handle;
+#else
+    HMODULE handle;
+#endif
     char* plugin_file_name;
     size_t plugin_dir_length;
     size_t plugin_name_length;
@@ -106,15 +114,17 @@ squash_plugin_init (SquashPlugin* plugin) {
 
     plugin_dir_length = strlen (plugin->directory);
     plugin_name_length = strlen (plugin->name);
-    plugin_file_name_max_length = plugin_dir_length + squash_version_api_length + plugin_name_length + 19;
+    plugin_file_name_max_length = plugin_dir_length + squash_version_api_length + plugin_name_length + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
     plugin_file_name = (char*) malloc (plugin_file_name_max_length + 1);
 
     snprintf (plugin_file_name, plugin_file_name_max_length + 1,
-              "%s/libsquash%s-plugin-%s", plugin->directory, SQUASH_VERSION_API, plugin->name);
+              "%s/libsquash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
 
-    lt_dlinit ();
-    handle = lt_dlopenext (plugin_file_name);
-    free (plugin_file_name);
+#if !defined(_WIN32)
+    handle = dlopen (plugin_file_name, RTLD_LAZY);
+#else
+    handle = LoadLibrary (TEXT(plugin_file_name));
+#endif
 
     if (handle != NULL) {
       SQUASH_MTX_LOCK(plugin_init);
@@ -123,18 +133,29 @@ squash_plugin_init (SquashPlugin* plugin) {
         handle = NULL;
       }
       SQUASH_MTX_UNLOCK(plugin_init);
+    } else {
+      return SQUASH_UNABLE_TO_LOAD;
     }
 
     if (handle != NULL) {
-      lt_dlclose (handle);
+#if !defined(_WIN32)
+      dlclose (handle);
+#else
+      FreeLibrary (handle);
+#endif
     } else {
       SquashStatus (*init_func) (SquashPlugin*);
-      *(void **) (&init_func) = lt_dlsym (plugin->plugin, "squash_plugin_init");
-
+#if !defined(_WIN32)
+      *(void **) (&init_func) = dlsym (plugin->plugin, "squash_plugin_init");
+#else
+      *(void **) (&init_func) = GetProcAddress (handle, "squash_plugin_init");
+#endif
       if (init_func != NULL) {
         init_func (plugin);
       }
     }
+
+    free (plugin_file_name);
   }
 
   return (plugin->plugin != NULL) ? SQUASH_OK : SQUASH_UNABLE_TO_LOAD;
@@ -219,7 +240,11 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
   if (codec->initialized == 0) {
     SquashStatus (*init_codec_func) (SquashCodec*, SquashCodecFuncs*);
 
-    *(void **) (&init_codec_func) = lt_dlsym (plugin->plugin, "squash_plugin_init_codec");
+#if !defined(_WIN32)
+    *(void **) (&init_codec_func) = dlsym (plugin->plugin, "squash_plugin_init_codec");
+#else
+    *(void **) (&init_codec_func) = GetProcAddress (plugin->plugin, "squash_plugin_init_codec");
+#endif
 
     if (init_codec_func == NULL) {
       return SQUASH_UNABLE_TO_LOAD;

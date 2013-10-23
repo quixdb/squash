@@ -86,7 +86,8 @@ endmacro (squash_plugin_add_include_directories)
 
 macro (squash_plugin_add_for_package plugin package sources)
   find_package (${package})
-  string(TOUPPER ${package} package_uc)
+  string (TOUPPER ${package} package_uc)
+
   if (${package_uc}_FOUND)
     squash_plugin_add (${plugin} ${sources})
 
