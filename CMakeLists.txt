@@ -64,8 +64,10 @@ function (squash_plugin_add name sources)
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}.codecs
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
+
   install(TARGETS squash${SQUASH_VERSION_API}-plugin-${name}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
 
   set (squash_enabled_plugins "${squash_enabled_plugins};${name}" CACHE INTERNAL "enabled plugins" FORCE)
 
