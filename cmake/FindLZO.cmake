@@ -11,6 +11,7 @@ find_library (LZO_LIBRARY
 
 if (EXISTS ${LZO_INCLUDE_DIR})
   if (EXISTS ${LZO_LIBRARY})
+    set (LZO_LIBRARIES ${LZO_LIBRARY})
     set (LZO_FOUND "LZO_FOUND")
     break ()
   endif ()
