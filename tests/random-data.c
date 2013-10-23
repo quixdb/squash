@@ -24,6 +24,7 @@ check_codec (SquashCodec* codec) {
     res = squash_codec_compress_with_options (codec, compressed_data, &compressed_length, (uint8_t*) uncompressed_data, uncompressed_length, NULL);
     SQUASH_ASSERT_OK(res);
     g_assert (compressed_length > 0);
+    g_assert (compressed_length <= squash_codec_get_max_compressed_size (codec, uncompressed_length));
 
     decompressed_length = uncompressed_length;
     res = squash_codec_decompress_with_options (codec, decompressed_data, &decompressed_length, compressed_data, compressed_length, NULL);
