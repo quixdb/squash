@@ -126,6 +126,8 @@ squash_plugin_init (SquashPlugin* plugin) {
     handle = LoadLibrary (TEXT(plugin_file_name));
 #endif
 
+    free (plugin_file_name);
+
     if (handle != NULL) {
       SQUASH_MTX_LOCK(plugin_init);
       if (plugin->plugin == NULL) {
@@ -154,8 +156,6 @@ squash_plugin_init (SquashPlugin* plugin) {
         init_func (plugin);
       }
     }
-
-    free (plugin_file_name);
   }
 
   return (plugin->plugin != NULL) ? SQUASH_OK : SQUASH_UNABLE_TO_LOAD;

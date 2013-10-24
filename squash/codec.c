@@ -429,7 +429,11 @@ squash_codec_create_stream_with_options (SquashCodec* codec, SquashStreamType st
   assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
-  if (funcs != NULL && funcs->create_stream != NULL) {
+  if (funcs == NULL) {
+    return NULL;
+  }
+
+  if (funcs->create_stream != NULL) {
     return funcs->create_stream (codec, stream_type, options);
   } else {
     if (funcs->process_stream == NULL && funcs->flush_stream == NULL && funcs->finish_stream == NULL) {
@@ -902,8 +906,12 @@ squash_codec_process_file_with_options (SquashCodec* codec,
                 res = squash_codec_compress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
 
                 if (res == SQUASH_OK) {
-                  ftruncate (outfd, (off_t) outsize);
-                  fseek (output, outsize, SEEK_SET);
+                  if (ftruncate (outfd, (off_t) outsize) == -1) {
+                    res = SQUASH_FAILED;
+                  }
+                  if (fseek (output, outsize, SEEK_SET) == -1) {
+                    res = SQUASH_FAILED;
+                  }
                 }
               } else {
                 res = squash_codec_decompress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);

@@ -409,6 +409,8 @@ squash_context_check_directory_for_plugin (SquashContext* context, const char* d
       squash_codecs_file_parser_init (&parser, plugin);
       squash_codecs_file_parser_parse (&parser, codecs_file);
     }
+
+    fclose (codecs_file);
   }
 
   free (codecs_file_name);

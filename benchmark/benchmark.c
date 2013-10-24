@@ -35,6 +35,28 @@
 #include "timer.h"
 #include "json-writer.h"
 
+#if !defined(_WIN32)
+static FILE*
+squash_tmpfile () {
+  char template[] = "squash-benchmark-XXXXXX";
+  int fd = mkstemp (template);
+  FILE* res = NULL;
+
+  if (fd != -1) {
+    unlink (template);
+    res = fdopen (fd, "w+b");
+  }
+
+  return res;
+}
+#else
+static FILE*
+squash_tmpfile () {
+  FILE* res = NULL;
+  return tmpfile_s (&res) == 0 ? res : NULL;
+}
+#endif
+
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "Usage: %s [OPTION]... FILE...\n", argv[0]);
@@ -142,8 +164,8 @@ benchmark_codec (SquashCodec* codec, void* data) {
     for ( level = 0 ; level <= 999 ; level++ ) {
       snprintf (level_s, 4, "%d", level);
       if (squash_options_parse_option (opts, "level", level_s) == SQUASH_OK) {
-        compressed = tmpfile ();
-        decompressed = tmpfile ();
+        compressed = squash_tmpfile ();
+        decompressed = squash_tmpfile ();
 
         fprintf (stderr, "    level %d: ", level);
         squash_timer_start (context->compress_timer);
@@ -182,8 +204,8 @@ benchmark_codec (SquashCodec* codec, void* data) {
   }
 
   if (num_results == 0) {
-    compressed = tmpfile ();
-    decompressed = tmpfile ();
+    compressed = squash_tmpfile ();
+    decompressed = squash_tmpfile ();
 
     fprintf (stderr, "    compressing: ");
     squash_timer_start (context->compress_timer);

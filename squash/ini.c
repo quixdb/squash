@@ -197,7 +197,7 @@ squash_ini_parser_parse (SquashIniParser* parser, FILE* input) {
   SquashIniString detail = { 0, };
   SquashIniString value = { 0, };
   SquashIniParserState state = SQUASH_INI_PARSER_STATE_NONE;
-  int e = SQUASH_INI_PARSER_OK;
+  SquashIniParserError e = SQUASH_INI_PARSER_OK;
 
   while ( (e >= 0) && (fgets (line, SQUASH_INI_PARSER_MAX_LINE, input)) != NULL ) {
     line_num++;
@@ -304,7 +304,7 @@ squash_ini_parser_parse (SquashIniParser* parser, FILE* input) {
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_DETAIL) ||
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_VALUE) ||
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_SECTION) ) {
-        if (current->length != 0 || !isspace (*p)) {
+        if (current != NULL && current->length != 0 || !isspace (*p)) {
           squash_ini_string_append_c (current, *p);
         }
       } else {
@@ -331,15 +331,13 @@ squash_ini_parser_parse (SquashIniParser* parser, FILE* input) {
   }
 
   if ( (state & SQUASH_INI_PARSER_STATE_POS_MASK) != SQUASH_INI_PARSER_STATE_NONE ) {
-    e = squash_ini_parser_error (parser, SQUASH_INI_PARSER_UNEXPECTED_EOF, line_num, p - line, line);
+    e = squash_ini_parser_error (parser, SQUASH_INI_PARSER_UNEXPECTED_EOF, line_num, (int) ((char*) p - (char*) line), line);
   }
 
   squash_ini_string_destroy (&section);
   squash_ini_string_destroy (&key);
   squash_ini_string_destroy (&detail);
   squash_ini_string_destroy (&value);
-
-  fclose (input);
 
   return e;
 }

@@ -345,6 +345,9 @@ squash_stream_process (SquashStream* stream) {
   }
 
   funcs = squash_codec_get_funcs (codec);
+  if (funcs == NULL) {
+    return SQUASH_UNABLE_TO_LOAD;
+  }
 
   const size_t avail_in = stream->avail_in;
   const size_t avail_out = stream->avail_out;
