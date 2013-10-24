@@ -30,6 +30,8 @@
 #include <string.h>
 #include <strings.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <squash/squash.h>
 #include "timer.h"
@@ -144,6 +146,8 @@ benchmark_codec (SquashCodec* codec, void* data) {
   int level = 0;
   char level_s[4];
   int num_results = 0;
+
+  umask (0100);
 
   fprintf (stderr, "%s:%s\n",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
