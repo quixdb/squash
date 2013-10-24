@@ -146,6 +146,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
   int level = 0;
   char level_s[4];
   int num_results = 0;
+  SquashStatus res = SQUASH_OK;
 
   umask (0100);
 
@@ -173,8 +174,12 @@ benchmark_codec (SquashCodec* codec, void* data) {
 
         fprintf (stderr, "    level %d: ", level);
         squash_timer_start (context->compress_timer);
-        squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
+        res = squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
         squash_timer_stop (context->compress_timer);
+        if (res != SQUASH_OK) {
+          fputs ("FAILED.\n", stderr);
+          goto cleanup;
+        }
         assert (ftell (compressed) > 0);
         fprintf (stderr, "compressed (%.4f CPU, %.4f wall, %ld bytes)... ",
                  squash_timer_get_elapsed_cpu (context->compress_timer),
@@ -183,8 +188,12 @@ benchmark_codec (SquashCodec* codec, void* data) {
 
         fseek (compressed, 0, SEEK_SET);
         squash_timer_start (context->decompress_timer);
-        squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
+        res = squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
         squash_timer_stop (context->decompress_timer);
+        if (res != SQUASH_OK) {
+          fputs ("FAILED.\n", stderr);
+          goto cleanup;
+        }
         fprintf (stderr, "decompressed (%.6f CPU, %.6f wall).\n",
                  squash_timer_get_elapsed_cpu (context->decompress_timer),
                  squash_timer_get_elapsed_wall (context->decompress_timer));
@@ -197,6 +206,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
         benchmark_report_result (codec, context, compressed, decompressed, level);
         num_results++;
 
+      cleanup:
         squash_timer_reset (context->compress_timer);
         squash_timer_reset (context->decompress_timer);
         fclose (compressed);
