@@ -41,27 +41,19 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "Benchmark Squash plugins.\n");
   fprintf (stderr, "\n");
   fprintf (stderr, "Options:\n");
-  fprintf (stderr, "\t-o outfile    Write data to outfile (default is stdout)\n");
   fprintf (stderr, "\t-h            Print this help screen and exit.\n");
   fprintf (stderr, "\t-c codec      Benchmark the specified codec and exit.\n");
-  fprintf (stderr, "\t-f format     Output format.  One of:\n");
-  fprintf (stderr, "\t                \"json\" (default)\n");
-  fprintf (stderr, "\t                \"csv\"\n");
+  fprintf (stderr, "\t-j outfile    JSON output file.\n");
+  fprintf (stderr, "\t-s outfile    CSV output file.\n");
 
   exit (exit_code);
 }
 
-typedef enum _BenchmarkOutputFormat {
-  BENCHMARK_OUTPUT_FORMAT_JSON,
-  BENCHMARK_OUTPUT_FORMAT_CSV
-} BenchmarkOutputFormat;
-
 struct BenchmarkContext {
-  FILE* output;
+  FILE* csv;
   FILE* input;
   char* input_name;
   long input_size;
-  BenchmarkOutputFormat format;
   SquashJSONWriter* json;
   SquashTimer* compress_timer;
   SquashTimer* decompress_timer;
@@ -69,17 +61,17 @@ struct BenchmarkContext {
 
 static void
 benchmark_context_write_csv (struct BenchmarkContext* context, const char* fmt, ...) {
-  if (context->format == BENCHMARK_OUTPUT_FORMAT_CSV) {
+  if (context->csv != NULL) {
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(context->output, fmt, ap);
+    vfprintf(context->csv, fmt, ap);
     va_end(ap);
   }
 }
 
 static void
 benchmark_report_result (SquashCodec* codec, struct BenchmarkContext* context, FILE* compressed, FILE* decompressed, int level) {
-  if (context->format == BENCHMARK_OUTPUT_FORMAT_JSON) {
+  if (context->json != NULL) {
     squash_json_writer_begin_value_map (context->json);
 
     if (level >= 0)
@@ -90,9 +82,12 @@ benchmark_report_result (SquashCodec* codec, struct BenchmarkContext* context, F
     squash_json_writer_write_element_string_double (context->json, "decompress-cpu", squash_timer_get_elapsed_cpu (context->decompress_timer));
     squash_json_writer_write_element_string_double (context->json, "decompress-wall", squash_timer_get_elapsed_wall (context->decompress_timer));
     squash_json_writer_end_container (context->json);
-  } else {
+  }
+
+  if (context->csv != NULL) {
     if (level >= 0) {
-      benchmark_context_write_csv (context, "%s,%s,%s,%d,%ld,%ld,%g,%g,%g,%g",
+      // Dataset,Plugin,Codec,Level,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time
+      benchmark_context_write_csv (context, "%s,%s,%s,%d,%ld,%ld,%f,%f,%f,%f\n",
                                    context->input_name,
                                    squash_plugin_get_name (squash_codec_get_plugin (codec)),
                                    squash_codec_get_name (codec),
@@ -100,9 +95,11 @@ benchmark_report_result (SquashCodec* codec, struct BenchmarkContext* context, F
                                    context->input_size,
                                    ftell (compressed),
                                    squash_timer_get_elapsed_cpu (context->compress_timer),
-                                   squash_timer_get_elapsed_wall (context->compress_timer));
+                                   squash_timer_get_elapsed_wall (context->compress_timer),
+                                   squash_timer_get_elapsed_cpu (context->decompress_timer),
+                                   squash_timer_get_elapsed_wall (context->decompress_timer));
     } else {
-      benchmark_context_write_csv (context, "%s,%s,%s,,%ld,%ld,%g,%g,%g,%g",
+      benchmark_context_write_csv (context, "%s,%s,%s,,%ld,%ld,%f,%f,%f,%f\n",
                                    context->input_name,
                                    squash_plugin_get_name (squash_codec_get_plugin (codec)),
                                    squash_codec_get_name (codec),
@@ -135,7 +132,9 @@ benchmark_codec (SquashCodec* codec, void* data) {
     exit (-1);
   }
 
-  squash_json_writer_begin_element_string_array (context->json, squash_codec_get_name (codec));
+  if (context->json != NULL) {
+    squash_json_writer_begin_element_string_array (context->json, squash_codec_get_name (codec));
+  }
 
   opts = squash_options_new (codec, NULL);
   if (opts != NULL) {
@@ -211,7 +210,9 @@ benchmark_codec (SquashCodec* codec, void* data) {
     fseek (context->input, 0, SEEK_SET);
   }
 
-  squash_json_writer_end_container (context->json);
+  if (context->json != NULL) {
+    squash_json_writer_end_container (context->json);
+  }
 }
 
 static void
@@ -225,28 +226,43 @@ benchmark_plugin (SquashPlugin* plugin, void* data) {
     return;
   }
 
-  squash_json_writer_begin_element_string_map (context->json, squash_plugin_get_name (plugin));
+  if (context->json != NULL) {
+    squash_json_writer_begin_element_string_map (context->json, squash_plugin_get_name (plugin));
+  }
+
   squash_plugin_foreach_codec (plugin, benchmark_codec, data);
-  squash_json_writer_end_container (context->json);
+
+  if (context->json != NULL) {
+    squash_json_writer_end_container (context->json);
+  }
 }
 
 int main (int argc, char** argv) {
-  struct BenchmarkContext context = { stdout, NULL, NULL, 0, BENCHMARK_OUTPUT_FORMAT_JSON, NULL, NULL };
+  struct BenchmarkContext context = { NULL, NULL, NULL, 0, NULL, NULL };
   int opt;
   int optc = 0;
   SquashCodec* codec = NULL;
+  FILE* json_output = NULL;
 
   context.compress_timer = squash_timer_new ();
   context.decompress_timer = squash_timer_new ();
 
-  while ( (opt = getopt(argc, argv, "ho:c:f:")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "hc:j:s:")) != -1 ) {
     switch ( opt ) {
       case 'h':
         print_help_and_exit (argc, argv, 0);
         break;
-      case 'o':
-        context.output = fopen (optarg, "w+");
-        if (context.output == NULL) {
+      case 'j':
+        json_output = fopen (optarg, "w+");
+        if (json_output == NULL) {
+          perror ("Unable to open output file");
+          return -1;
+        }
+        context.json = squash_json_writer_new (json_output);
+        break;
+      case 's':
+        context.csv = fopen (optarg, "w+");
+        if (context.csv == NULL) {
           perror ("Unable to open output file");
           return -1;
         }
@@ -255,16 +271,6 @@ int main (int argc, char** argv) {
         codec = squash_get_codec ((const char*) optarg);
         if (codec == NULL) {
           fprintf (stderr, "Unable to find codec.\n");
-          return -1;
-        }
-        break;
-      case 'f':
-        if (strcasecmp ((const char*) optarg, "json") == 0) {
-          context.format = BENCHMARK_OUTPUT_FORMAT_JSON;
-        } else if (strcasecmp ((const char*) optarg, "csv") == 0) {
-          context.format = BENCHMARK_OUTPUT_FORMAT_CSV;
-        } else {
-          fprintf (stderr, "Invalid output format.\n");
           return -1;
         }
         break;
@@ -278,11 +284,9 @@ int main (int argc, char** argv) {
     return -1;
   }
 
-  if (context.format == BENCHMARK_OUTPUT_FORMAT_JSON) {
-    context.json = squash_json_writer_new (context.output);
+  if (context.csv != NULL) {
+    benchmark_context_write_csv (&context, "Dataset,Plugin,Codec,Level,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
   }
-
-  benchmark_context_write_csv (&context, "Dataset,Plugin,Codec,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
 
   while ( optind < argc ) {
     context.input_name = argv[optind];
@@ -300,18 +304,22 @@ int main (int argc, char** argv) {
 
     fprintf (stderr, "Using %s:\n", context.input_name);
 
-    squash_json_writer_begin_element_string_map (context.json, context.input_name);
-    squash_json_writer_write_element_string_int (context.json, "uncompressed-size", (int) context.input_size);
+    if (context.json != NULL) {
+      squash_json_writer_begin_element_string_map (context.json, context.input_name);
+      squash_json_writer_write_element_string_int (context.json, "uncompressed-size", (int) context.input_size);
+      squash_json_writer_begin_element_string_map (context.json, "plugins");
+    }
 
-    squash_json_writer_begin_element_string_map (context.json, "plugins");
     if (codec == NULL) {
       squash_foreach_plugin (benchmark_plugin, &context);
     } else {
       benchmark_codec (codec, &context);
     }
-    squash_json_writer_end_container (context.json);
 
-    squash_json_writer_end_container (context.json);
+    if (context.json != NULL) {
+      squash_json_writer_end_container (context.json);
+      squash_json_writer_end_container (context.json);
+    }
 
     optind++;
   }
@@ -319,9 +327,10 @@ int main (int argc, char** argv) {
   if (context.json != NULL) {
     squash_json_writer_free (context.json);
   }
-
+  if (context.csv != NULL) {
+    fclose (context.csv);
+  }
   fclose (context.input);
-  fclose (context.output);
 
   squash_timer_free (context.compress_timer);
   squash_timer_free (context.decompress_timer);
