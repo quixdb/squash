@@ -155,8 +155,6 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
           result.decompress_wall = squash_timer_get_elapsed_wall (timer);
           squash_timer_reset (timer);
 
-          fseek (decompressed, 0, SEEK_END);
-
           if (ftell (decompressed) != context->input_size) {
             /* Should never happen. */
             fputs ("Size mismatch.\n", stderr);

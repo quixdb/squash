@@ -928,7 +928,12 @@ squash_codec_process_file_with_options (SquashCodec* codec,
                 }
 
                 if (res == SQUASH_OK) {
-                  ftruncate (outfd, (off_t) outsize);
+                  if (ftruncate (outfd, (off_t) outsize) == -1) {
+                    res = SQUASH_FAILED;
+                  }
+                  if (fseek (output, outsize, SEEK_SET) == -1) {
+                    res = SQUASH_FAILED;
+                  }
                 }
               }
 
