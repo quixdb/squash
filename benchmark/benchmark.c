@@ -135,7 +135,7 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
       squash_timer_reset (timer);
 
       if (result.compressed_size == 0) {
-        fprintf (stderr, "FAILED: %s\n", squash_status_to_string (res));
+        fprintf (stderr, "error (%s)... ", squash_status_to_string (res));
       } else {
         fprintf (stderr, "compressed (%.4f CPU, %.4f wall, %ld bytes)... ",
                  result.compress_cpu,
@@ -149,7 +149,7 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
         squash_timer_stop (timer);
 
         if (res != SQUASH_OK) {
-          fprintf (stderr, "FAILED: %s\n", squash_status_to_string (res));
+          fprintf (stderr, "error (%s)... ", squash_status_to_string (res));
         } else {
           result.decompress_cpu = squash_timer_get_elapsed_cpu (timer);
           result.decompress_wall = squash_timer_get_elapsed_wall (timer);
@@ -183,11 +183,14 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
   } else {
     descriptor = open (fifo_name, O_RDONLY);
     size_t bytes_read = read (descriptor, &result, sizeof (SquashBenchmarkResult));
-    if (bytes_read == sizeof (SquashBenchmarkResult)) {
+    wait (NULL);
+    if (bytes_read != sizeof (SquashBenchmarkResult)) {
 #else
   } {
-    if (res == SQUASH_OK) {
+    if (res != SQUASH_OK) {
 #endif
+      fputs ("Failed.\n", stderr);
+    } else {
       if (context->json != NULL) {
         squash_json_writer_begin_value_map (context->json);
 
@@ -273,7 +276,7 @@ benchmark_codec (SquashCodec* codec, void* data) {
   }
 
   if (!have_results) {
-    benchmark_codec_with_options (context, codec, NULL, level);
+    benchmark_codec_with_options (context, codec, NULL, -1);
   }
 
   if (context->json != NULL) {
