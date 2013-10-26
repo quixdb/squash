@@ -38,6 +38,8 @@
 #include "timer.h"
 #include "json-writer.h"
 
+#define SQUASH_BENCHMARK_MIN_EXEC_TIME 5.0
+
 #if defined(__MINGW32__)
 #define squash_tmpfile() tmpfile()
 #elif !defined(_WIN32)
@@ -112,6 +114,7 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
     FILE* compressed = squash_tmpfile ();
     FILE* decompressed = squash_tmpfile ();
     SquashTimer* timer = squash_timer_new ();
+    int iterations = 0;
 
     if (level < 0) {
       fputs ("    compressing: ", stderr);
@@ -124,14 +127,23 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
       exit (-1);
     }
 
-    squash_timer_start (timer);
-    res = squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
-    squash_timer_stop (timer);
+    for ( iterations = 0 ; squash_timer_get_elapsed_cpu (timer) < SQUASH_BENCHMARK_MIN_EXEC_TIME ; iterations++ ) {
+      fseek (context->input, 0, SEEK_SET);
+      fseek (compressed, 0, SEEK_SET);
+
+      squash_timer_start (timer);
+      res = squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
+      squash_timer_stop (timer);
+
+      if (res != SQUASH_OK) {
+        break;
+      }
+    }
 
     if (res == SQUASH_OK) {
       result.compressed_size = ftell (compressed);
-      result.compress_cpu = squash_timer_get_elapsed_cpu (timer);
-      result.compress_wall = squash_timer_get_elapsed_wall (timer);
+      result.compress_cpu = squash_timer_get_elapsed_cpu (timer) / iterations;
+      result.compress_wall = squash_timer_get_elapsed_wall (timer) / iterations;
       squash_timer_reset (timer);
 
       if (result.compressed_size == 0) {
@@ -142,17 +154,24 @@ benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* cod
                  result.compress_wall,
                  result.compressed_size);
 
-        fseek (compressed, 0, SEEK_SET);
+        for ( iterations = 0 ; squash_timer_get_elapsed_cpu (timer) < SQUASH_BENCHMARK_MIN_EXEC_TIME ; iterations++ ) {
+          fseek (compressed, 0, SEEK_SET);
+          fseek (decompressed, 0, SEEK_SET);
 
-        squash_timer_start (timer);
-        res = squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
-        squash_timer_stop (timer);
+          squash_timer_start (timer);
+          res = squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
+          squash_timer_stop (timer);
+
+          if (res != SQUASH_OK) {
+            break;
+          }
+        }
 
         if (res != SQUASH_OK) {
           fprintf (stderr, "error (%s)... ", squash_status_to_string (res));
         } else {
-          result.decompress_cpu = squash_timer_get_elapsed_cpu (timer);
-          result.decompress_wall = squash_timer_get_elapsed_wall (timer);
+          result.decompress_cpu = squash_timer_get_elapsed_cpu (timer) / iterations;
+          result.decompress_wall = squash_timer_get_elapsed_wall (timer) / iterations;
           squash_timer_reset (timer);
 
           if (ftell (decompressed) != context->input_size) {
