@@ -32,12 +32,15 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 #include <squash/squash.h>
 #include "timer.h"
 #include "json-writer.h"
 
-#if !defined(_WIN32)
+#if defined(__MINGW32__)
+#define squash_tmpfile() tmpfile()
+#elif !defined(_WIN32)
 static FILE*
 squash_tmpfile () {
   char template[] = "squash-benchmark-XXXXXX";
@@ -79,85 +82,179 @@ struct BenchmarkContext {
   char* input_name;
   long input_size;
   SquashJSONWriter* json;
-  SquashTimer* compress_timer;
-  SquashTimer* decompress_timer;
 };
 
-static void
-benchmark_context_write_csv (struct BenchmarkContext* context, const char* fmt, ...) {
-  if (context->csv != NULL) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(context->csv, fmt, ap);
-    va_end(ap);
-  }
-}
+typedef struct {
+  long int compressed_size;
+  double compress_cpu;
+  double compress_wall;
+  double decompress_cpu;
+  double decompress_wall;
+} SquashBenchmarkResult;
 
-static void
-benchmark_report_result (SquashCodec* codec, struct BenchmarkContext* context, FILE* compressed, FILE* decompressed, int level) {
-  if (context->json != NULL) {
-    squash_json_writer_begin_value_map (context->json);
+static bool
+benchmark_codec_with_options (struct BenchmarkContext* context, SquashCodec* codec, SquashOptions* opts, int level) {
+  SquashBenchmarkResult result = { 0, 0.0, 0.0, 0.0, 0.0 };
+  bool success = false;
+  SquashStatus res = SQUASH_OK;
 
-    if (level >= 0)
-      squash_json_writer_write_element_string_int (context->json, "level", level);
-    squash_json_writer_write_element_string_int (context->json, "compressed-size", ftell (compressed));
-    squash_json_writer_write_element_string_double (context->json, "compress-cpu", squash_timer_get_elapsed_cpu (context->compress_timer));
-    squash_json_writer_write_element_string_double (context->json, "compress-wall", squash_timer_get_elapsed_wall (context->compress_timer));
-    squash_json_writer_write_element_string_double (context->json, "decompress-cpu", squash_timer_get_elapsed_cpu (context->decompress_timer));
-    squash_json_writer_write_element_string_double (context->json, "decompress-wall", squash_timer_get_elapsed_wall (context->decompress_timer));
-    squash_json_writer_end_container (context->json);
-  }
+#if !defined(_WIN32)
+  char fifo_name[] = ".squash-benchmark-fifo-XXXXXX";
+  int descriptor;
 
-  if (context->csv != NULL) {
-    if (level >= 0) {
-      // Dataset,Plugin,Codec,Level,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time
-      benchmark_context_write_csv (context, "%s,%s,%s,%d,%ld,%ld,%f,%f,%f,%f\n",
-                                   context->input_name,
-                                   squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                                   squash_codec_get_name (codec),
-                                   level,
-                                   context->input_size,
-                                   ftell (compressed),
-                                   squash_timer_get_elapsed_cpu (context->compress_timer),
-                                   squash_timer_get_elapsed_wall (context->compress_timer),
-                                   squash_timer_get_elapsed_cpu (context->decompress_timer),
-                                   squash_timer_get_elapsed_wall (context->decompress_timer));
+  assert (mkfifo (mktemp (fifo_name), 0600) == 0);
+
+  if (fork () == 0) {
+    descriptor = open (fifo_name, O_WRONLY);
+#else
+  {
+#endif
+    FILE* compressed = squash_tmpfile ();
+    FILE* decompressed = squash_tmpfile ();
+    SquashTimer* timer = squash_timer_new ();
+
+    if (level < 0) {
+      fputs ("    compressing: ", stderr);
     } else {
-      benchmark_context_write_csv (context, "%s,%s,%s,,%ld,%ld,%f,%f,%f,%f\n",
-                                   context->input_name,
-                                   squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                                   squash_codec_get_name (codec),
-                                   context->input_size,
-                                   ftell (compressed),
-                                   squash_timer_get_elapsed_cpu (context->compress_timer),
-                                   squash_timer_get_elapsed_wall (context->compress_timer),
-                                   squash_timer_get_elapsed_cpu (context->decompress_timer),
-                                   squash_timer_get_elapsed_wall (context->decompress_timer));
+      fprintf (stderr, "    level %d: ", level);
     }
+
+    if (fseek (context->input, 0, SEEK_SET) != 0) {
+      perror ("Unable to seek to beginning of input file");
+      exit (-1);
+    }
+
+    squash_timer_start (timer);
+    res = squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
+    squash_timer_stop (timer);
+
+    if (res == SQUASH_OK) {
+      result.compressed_size = ftell (compressed);
+      result.compress_cpu = squash_timer_get_elapsed_cpu (timer);
+      result.compress_wall = squash_timer_get_elapsed_wall (timer);
+      squash_timer_reset (timer);
+
+      if (result.compressed_size == 0) {
+        fprintf (stderr, "FAILED: %s\n", squash_status_to_string (res));
+      } else {
+        fprintf (stderr, "compressed (%.4f CPU, %.4f wall, %ld bytes)... ",
+                 result.compress_cpu,
+                 result.compress_wall,
+                 result.compressed_size);
+
+        fseek (compressed, 0, SEEK_SET);
+
+        squash_timer_start (timer);
+        res = squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
+        squash_timer_stop (timer);
+
+        if (res != SQUASH_OK) {
+          fprintf (stderr, "FAILED: %s\n", squash_status_to_string (res));
+        } else {
+          result.decompress_cpu = squash_timer_get_elapsed_cpu (timer);
+          result.decompress_wall = squash_timer_get_elapsed_wall (timer);
+          squash_timer_reset (timer);
+
+          fseek (decompressed, 0, SEEK_END);
+
+          if (ftell (decompressed) != context->input_size) {
+            /* Should never happen. */
+            fputs ("Size mismatch.\n", stderr);
+          } else {
+            fprintf (stderr, "decompressed (%.6f CPU, %.6f wall).\n",
+                     result.decompress_cpu,
+                     result.decompress_wall);
+
+#if !defined(_WIN32)
+            write (descriptor, &result, sizeof (SquashBenchmarkResult));
+#endif
+          }
+        }
+      }
+    }
+
+    fflush (stderr);
+
+    squash_timer_free (timer);
+    fclose (compressed);
+    fclose (decompressed);
+
+#if !defined(_WIN32)
+    close (descriptor);
+    exit (0);
+  } else {
+    descriptor = open (fifo_name, O_RDONLY);
+    size_t bytes_read = read (descriptor, &result, sizeof (SquashBenchmarkResult));
+    if (bytes_read == sizeof (SquashBenchmarkResult)) {
+#else
+  } {
+    if (res == SQUASH_OK) {
+#endif
+      if (context->json != NULL) {
+        squash_json_writer_begin_value_map (context->json);
+
+        if (level >= 0)
+          squash_json_writer_write_element_string_int (context->json, "level", level);
+        squash_json_writer_write_element_string_int (context->json, "compressed-size", result.compressed_size);
+        squash_json_writer_write_element_string_double (context->json, "compress-cpu", result.compress_cpu);
+        squash_json_writer_write_element_string_double (context->json, "compress-wall", result.compress_wall);
+        squash_json_writer_write_element_string_double (context->json, "decompress-cpu", result.decompress_cpu);
+        squash_json_writer_write_element_string_double (context->json, "decompress-wall", result.decompress_wall);
+        squash_json_writer_end_container (context->json);
+      }
+
+      if (context->csv != NULL) {
+        if (level >= 0) {
+          fprintf (context->csv, "%s,%s,%s,%d,%ld,%ld,%f,%f,%f,%f\n",
+                   context->input_name,
+                   squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                   squash_codec_get_name (codec),
+                   level,
+                   context->input_size,
+                   result.compressed_size,
+                   result.compress_cpu,
+                   result.compress_wall,
+                   result.decompress_cpu,
+                   result.decompress_wall);
+        } else {
+          fprintf (context->csv, "%s,%s,%s,,%ld,%ld,%f,%f,%f,%f\n",
+                   context->input_name,
+                   squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                   squash_codec_get_name (codec),
+                   context->input_size,
+                   result.compressed_size,
+                   result.compress_cpu,
+                   result.compress_wall,
+                   result.decompress_cpu,
+                   result.decompress_wall);
+        }
+      }
+
+      success = true;
+    }
+#if !defined(_WIN32)
+    unlink (fifo_name);
+    close (descriptor);
+#endif
   }
+
+  return success;
 }
 
 static void
 benchmark_codec (SquashCodec* codec, void* data) {
   struct BenchmarkContext* context = (struct BenchmarkContext*) data;
-  FILE* compressed;
-  FILE* decompressed;
   SquashOptions* opts;
   int level = 0;
   char level_s[4];
-  int num_results = 0;
   SquashStatus res = SQUASH_OK;
+  bool have_results = false;
 
   umask (0100);
 
   fprintf (stderr, "%s:%s\n",
            squash_plugin_get_name (squash_codec_get_plugin (codec)),
            squash_codec_get_name (codec));
-
-  if (fseek (context->input, 0, SEEK_SET) != 0) {
-    perror ("Unable to seek to beginning of input file");
-    exit (-1);
-  }
 
   if (context->json != NULL) {
     squash_json_writer_begin_element_string_array (context->json, squash_codec_get_name (codec));
@@ -169,81 +266,16 @@ benchmark_codec (SquashCodec* codec, void* data) {
     for ( level = 0 ; level <= 999 ; level++ ) {
       snprintf (level_s, 4, "%d", level);
       if (squash_options_parse_option (opts, "level", level_s) == SQUASH_OK) {
-        compressed = squash_tmpfile ();
-        decompressed = squash_tmpfile ();
-
-        fprintf (stderr, "    level %d: ", level);
-        squash_timer_start (context->compress_timer);
-        res = squash_codec_compress_file_with_options (codec, compressed, context->input, opts);
-        squash_timer_stop (context->compress_timer);
-        if (res != SQUASH_OK) {
-          fputs ("FAILED.\n", stderr);
-          goto cleanup;
+        if (benchmark_codec_with_options (context, codec, opts, level)) {
+          have_results = true;
         }
-        assert (ftell (compressed) > 0);
-        fprintf (stderr, "compressed (%.4f CPU, %.4f wall, %ld bytes)... ",
-                 squash_timer_get_elapsed_cpu (context->compress_timer),
-                 squash_timer_get_elapsed_wall (context->compress_timer),
-                 ftell (compressed));
-
-        fseek (compressed, 0, SEEK_SET);
-        squash_timer_start (context->decompress_timer);
-        res = squash_codec_decompress_file_with_options (codec, decompressed, compressed, opts);
-        squash_timer_stop (context->decompress_timer);
-        if (res != SQUASH_OK) {
-          fputs ("FAILED.\n", stderr);
-          goto cleanup;
-        }
-        fprintf (stderr, "decompressed (%.6f CPU, %.6f wall).\n",
-                 squash_timer_get_elapsed_cpu (context->decompress_timer),
-                 squash_timer_get_elapsed_wall (context->decompress_timer));
-
-        fseek (context->input, 0, SEEK_END);
-        fseek (compressed, 0, SEEK_END);
-        fseek (decompressed, 0, SEEK_END);
-        assert (ftell (context->input) == ftell (decompressed));
-
-        benchmark_report_result (codec, context, compressed, decompressed, level);
-        num_results++;
-
-      cleanup:
-        squash_timer_reset (context->compress_timer);
-        squash_timer_reset (context->decompress_timer);
-        fclose (compressed);
-        fclose (decompressed);
-        fseek (context->input, 0, SEEK_SET);
       }
     }
     squash_object_unref (opts);
   }
 
-  if (num_results == 0) {
-    compressed = squash_tmpfile ();
-    decompressed = squash_tmpfile ();
-
-    fprintf (stderr, "    compressing: ");
-    squash_timer_start (context->compress_timer);
-    squash_codec_compress_file_with_options (codec, compressed, context->input, NULL);
-    squash_timer_stop (context->compress_timer);
-    fprintf (stderr, "compressed (%.4f CPU, %.4f wall)... ",
-             squash_timer_get_elapsed_cpu (context->compress_timer),
-             squash_timer_get_elapsed_wall (context->compress_timer));
-
-    squash_timer_start (context->decompress_timer);
-    squash_codec_decompress_file_with_options (codec, decompressed, compressed, NULL);
-    squash_timer_stop (context->decompress_timer);
-    fprintf (stderr, "decompressed (%.6f CPU, %.6f wall).\n",
-             squash_timer_get_elapsed_cpu (context->decompress_timer),
-             squash_timer_get_elapsed_wall (context->decompress_timer));
-
-    benchmark_report_result (codec, context, compressed, decompressed, -1);
-    num_results++;
-
-    squash_timer_reset (context->compress_timer);
-    squash_timer_reset (context->decompress_timer);
-    fclose (compressed);
-    fclose (decompressed);
-    fseek (context->input, 0, SEEK_SET);
+  if (!have_results) {
+    benchmark_codec_with_options (context, codec, NULL, level);
   }
 
   if (context->json != NULL) {
@@ -274,14 +306,11 @@ benchmark_plugin (SquashPlugin* plugin, void* data) {
 }
 
 int main (int argc, char** argv) {
-  struct BenchmarkContext context = { NULL, NULL, NULL, 0, NULL, NULL };
+  struct BenchmarkContext context = { NULL, NULL, NULL, 0 };
   int opt;
   int optc = 0;
   SquashCodec* codec = NULL;
   FILE* json_output = NULL;
-
-  context.compress_timer = squash_timer_new ();
-  context.decompress_timer = squash_timer_new ();
 
   while ( (opt = getopt(argc, argv, "hc:j:s:")) != -1 ) {
     switch ( opt ) {
@@ -321,7 +350,7 @@ int main (int argc, char** argv) {
   }
 
   if (context.csv != NULL) {
-    benchmark_context_write_csv (&context, "Dataset,Plugin,Codec,Level,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
+    fprintf (context.csv, "Dataset,Plugin,Codec,Level,Uncompressed Size,Compressed Size,Compression CPU Time,Compression Wall Clock Time,Decompression CPU Time,Decompression Wall Clock Time\n");
   }
 
   while ( optind < argc ) {
@@ -367,9 +396,6 @@ int main (int argc, char** argv) {
     fclose (context.csv);
   }
   fclose (context.input);
-
-  squash_timer_free (context.compress_timer);
-  squash_timer_free (context.decompress_timer);
 
   return 0;
 }
