@@ -343,6 +343,7 @@ int main (int argc, char** argv) {
           perror ("Unable to open output file");
           return -1;
         }
+        setbuf (json_output, NULL);
         context.json = squash_json_writer_new (json_output);
         break;
       case 's':
@@ -351,6 +352,7 @@ int main (int argc, char** argv) {
           perror ("Unable to open output file");
           return -1;
         }
+        setbuf (context.csv, NULL);
         break;
       case 'c':
         codec = squash_get_codec ((const char*) optarg);
