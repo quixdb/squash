@@ -13,7 +13,9 @@ check_codec (SquashCodec* codec) {
   size_t uncompressed_data_filled = 0;
   SquashStatus res;
 
-  for ( uncompressed_length = 32 ; uncompressed_length <= max_uncompressed_length ; uncompressed_length += g_test_rand_int_range (32, 128) ) {
+  for ( uncompressed_length = 32 ;
+        uncompressed_length <= max_uncompressed_length ;
+        uncompressed_length += g_test_quick () ? g_test_rand_int_range (32, 128) : 1 ) {
     for ( ; uncompressed_data_filled < uncompressed_length ; uncompressed_data_filled++ ) {
       uncompressed_data[uncompressed_data_filled] = (uint8_t) g_test_rand_int_range (0x00, 0xff);
     }
