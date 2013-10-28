@@ -45,7 +45,7 @@ squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 #else
     ((((uncompressed_length) * 33) >> 5 ) + 1) + 1;
 #endif
-  return (res > 4) ? res : 4;
+    return (res > 4) ? (res + 2) : 4;
 }
 
 static SquashStatus
