@@ -472,11 +472,12 @@ squash_stream_finish (SquashStream* stream) {
 
   if (funcs->finish_stream != NULL) {
     res = funcs->finish_stream (stream);
-  } else if (funcs->create_stream == NULL && funcs->process_stream == NULL && funcs->flush_stream == NULL) {
-    res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
-  } else {
-    assert (funcs->process_stream != NULL);
+  } else if (funcs->flush_stream != NULL) {
+    res = funcs->flush_stream (stream);
+  } else if (funcs->process_stream != NULL) {
     res = funcs->process_stream (stream);
+  } else {
+    res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
   }
 
   stream->total_in += (avail_in - stream->avail_in);
