@@ -85,6 +85,7 @@ namespace Squash {
     private Codec ();
     [CCode (cname = "squash_get_codec")]
     public static unowned Codec from_name (string plugin);
+    public void init ();
 
     public string name { get; }
     public uint priority { get; }
@@ -111,6 +112,7 @@ namespace Squash {
     private Plugin ();
     [CCode (cname = "squash_get_plugin")]
     public static unowned Plugin from_name (string plugin);
+    public void init ();
 
     public Squash.Codec? get_codec (string name);
 
