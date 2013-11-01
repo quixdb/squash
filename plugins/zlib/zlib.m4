@@ -1,1 +1,0 @@
-SQUASH_ENABLE_PLUGIN_PKG_CONFIG([zlib],[ZLIB],[zlib])
