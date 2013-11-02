@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #include <squash/squash.h>
 #include "timer.h"
@@ -42,7 +43,9 @@
 
 #if defined(__MINGW32__)
 #define squash_tmpfile() tmpfile()
-#elif !defined(_WIN32)
+#else
+static FILE* squash_tmpfile (void);
+#if !defined(_WIN32)
 static FILE*
 squash_tmpfile () {
   char template[] = "squash-benchmark-XXXXXX";
@@ -62,7 +65,8 @@ squash_tmpfile () {
   FILE* res = NULL;
   return tmpfile_s (&res) == 0 ? res : NULL;
 }
-#endif
+#endif /* !defined(_WIN32) */
+#endif /* defined(__MINGW32__) */
 
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
@@ -267,7 +271,6 @@ benchmark_codec (SquashCodec* codec, void* data) {
   SquashOptions* opts;
   int level = 0;
   char level_s[4];
-  SquashStatus res = SQUASH_OK;
   bool have_results = false;
 
   umask (0100);

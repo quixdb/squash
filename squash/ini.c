@@ -304,7 +304,7 @@ squash_ini_parser_parse (SquashIniParser* parser, FILE* input) {
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_DETAIL) ||
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_VALUE) ||
                   ((state & SQUASH_INI_PARSER_STATE_POS_MASK) == SQUASH_INI_PARSER_STATE_SECTION) ) {
-        if (current != NULL && current->length != 0 || !isspace (*p)) {
+        if (current != NULL && (current->length != 0 || !isspace (*p))) {
           squash_ini_string_append_c (current, *p);
         }
       } else {
