@@ -5,6 +5,7 @@ project (Squash)
 enable_testing ()
 
 include (GNUInstallDirs)
+include (ExtraWarningFlags)
 
 set (PACKAGE_NAME Squash)
 set (SQUASH_TOP_SRCDIR "${PROJECT_SOURCE_DIR}")
@@ -100,6 +101,17 @@ macro (squash_plugin_add_for_package plugin package sources)
     endif ()
   endif (${package_uc}_FOUND)
 endmacro (squash_plugin_add_for_package)
+
+function (squash_target_add_cflag target flag)
+  get_target_property (existing ${target} COMPILE_FLAGS)
+  if (${existing} STREQUAL "existing-NOTFOUND")
+    set_target_properties (${target}
+      PROPERTIES COMPILE_FLAGS "${flag}")
+  else ()
+    set_target_properties (${target}
+      PROPERTIES COMPILE_FLAGS "${existing} ${flag}")
+  endif ()
+endfunction ()
 
 function (squash_source_file_add_cflag file flag)
   get_source_file_property (existing ${file} COMPILE_FLAGS)
