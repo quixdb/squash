@@ -15,7 +15,47 @@ foreach (flag
     -Werror=init-self
     -Werror=format-security
     -Werror=format=2
-    -Werror=missing-include-dirs)
+    -Werror=missing-include-dirs
+    -Wextra
+    -Waggregate-return
+    -Wcast-align
+    -Wno-uninitialized
+    -Wclobbered
+    # -Wdeclaration-after-statement
+    -Wempty-body
+    -Wformat-nonliteral
+    -Wformat-security
+    -Wignored-qualifiers
+    -Winit-self
+    -Winline
+    -Winvalid-pch
+    -Wlogical-op
+    -Wmissing-declarations
+    -Wmissing-format-attribute
+    -Wmissing-include-dirs
+    -Wmissing-noreturn
+    -Wmissing-parameter-type
+    -Wmissing-prototypes
+    -Wno-missing-field-initializers
+    -Wno-strict-aliasing
+    -Wno-unused-parameter
+    -Wold-style-definition
+    -Woverride-init
+    -Wpacked
+    -Wpointer-arith
+    -Wredundant-decls
+    -Wreturn-type
+    -Wshadow
+    -Wsign-compare
+    # -Wswitch-default
+    -Wswitch-enum
+    -Wsync-nand
+    -Wtype-limits
+    -Wundef
+    -Wuninitialized
+    -WUnsafe-loop-optimizations
+    -Wwrite-strings
+)
   # Hackish, I know.  If anyone knows a better way please let me know.
   string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
   CHECK_C_COMPILER_FLAG (${flag} ${test_name})

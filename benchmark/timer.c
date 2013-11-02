@@ -107,7 +107,7 @@ struct SquashTimer_s {
  * @see squash_timer_free
  */
 SquashTimer*
-squash_timer_new () {
+squash_timer_new (void) {
   SquashTimer* timer = (SquashTimer*) malloc (sizeof (SquashTimer));
   squash_timer_reset (timer);
   return timer;

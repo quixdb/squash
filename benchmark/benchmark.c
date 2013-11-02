@@ -47,7 +47,7 @@
 static FILE* squash_tmpfile (void);
 #if !defined(_WIN32)
 static FILE*
-squash_tmpfile () {
+squash_tmpfile (void) {
   char template[] = "squash-benchmark-XXXXXX";
   int fd = mkstemp (template);
   FILE* res = NULL;
@@ -61,7 +61,7 @@ squash_tmpfile () {
 }
 #else
 static FILE*
-squash_tmpfile () {
+squash_tmpfile (void) {
   FILE* res = NULL;
   return tmpfile_s (&res) == 0 ? res : NULL;
 }

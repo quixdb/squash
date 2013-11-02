@@ -83,7 +83,7 @@ list_plugins_foreach_cb (SquashPlugin* plugin, void* data) {
 
 static void
 list_plugins_and_codecs_foreach_cb (SquashPlugin* plugin, void* data) {
-  char* indent = "\t";
+  const char* indent = "\t";
   list_plugins_foreach_cb (plugin, data);
   squash_plugin_foreach_codec (plugin, list_codecs_foreach_cb, (void*) indent);
 }
