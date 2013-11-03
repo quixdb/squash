@@ -95,11 +95,11 @@ namespace Squash {
     public Squash.Stream create_stream (Squash.StreamType stream_type, ...);
     public Squash.Stream create_stream_with_options (Squash.StreamType stream_type, Squash.Options? options = null);
 
-    public Squash.Status compress ([CCode (array_length_type = "size_t")] uint8[] compressed, [CCode (array_length_type = "size_t")] uint8[] uncompressed, ...);
-    public Squash.Status compress_with_options ([CCode (array_length_type = "size_t")] uint8[] compressed, [CCode (array_length_type = "size_t")] uint8[] uncompressed, Squash.Options? options = null);
+    public Squash.Status compress ([CCode (array_length = false)] uint8[] compressed, ref size_t compressed_length, [CCode (array_length_type = "size_t")] uint8[] uncompressed, ...);
+    public Squash.Status compress_with_options ([CCode (array_length = false)] uint8[] compressed, ref size_t compressed_length, [CCode (array_length_type = "size_t")] uint8[] uncompressed, Squash.Options? options = null);
 
-    public Squash.Status decompress ([CCode (array_length_type = "size_t")] uint8[] decompressed, [CCode (array_length_type = "size_t")] uint8[] compressed, ...);
-    public Squash.Status decompress_with_options ([CCode (array_length_type = "size_t")] uint8[] decompressed, [CCode (array_length_type = "size_t")] uint8[] uncompressed, Squash.Options? options = null);
+    public Squash.Status decompress ([CCode (array_length = false)] uint8[] decompressed, ref size_t decompressed_length, [CCode (array_length_type = "size_t")] uint8[] compressed, ...);
+    public Squash.Status decompress_with_options ([CCode (array_length = false)] uint8[] decompressed, ref size_t decompressed_length, [CCode (array_length_type = "size_t")] uint8[] uncompressed, Squash.Options? options = null);
 
     public Squash.Status compress_file_with_options (GLib.FileStream compressed, GLib.FileStream uncompressed, Squash.Options? options = null);
     public Squash.Status decompress_file_with_options (GLib.FileStream decompressed, GLib.FileStream compressed, Squash.Options? options = null);
@@ -131,7 +131,11 @@ namespace Squash {
   [CCode (has_target = false)]
   public delegate void DestroyNotify (void* data);
 
+  public static Squash.Status compress (string codec, [CCode (array_length = false)] uint8[] compressed, ref size_t compressed_length, [CCode (array_length_type = "size_t")] uint8[] uncompressed, ...);
+  public static Squash.Status compress_with_options (string codec, [CCode (array_length = false)] uint8[] compressed, ref size_t compressed_length, [CCode (array_length_type = "size_t")] uint8[] uncompressed, Squash.Options? options = null);
   public static Squash.Status compress_file (string codec, GLib.FileStream compressed, GLib.FileStream uncompressed, ...);
+  public static Squash.Status decompress (string codec, [CCode (array_length = false)] uint8[] decompressed, ref size_t decompressed_length, [CCode (array_length_type = "size_t")] uint8[] compressed, ...);
+  public static Squash.Status decompress_with_options (string codec, [CCode (array_length = false)] uint8[] decompressed, ref size_t decompressed_length, [CCode (array_length_type = "size_t")] uint8[] compressed, Squash.Options? options = null);
   public static Squash.Status decompress_file (string codec, GLib.FileStream decompressed, GLib.FileStream compressed, ...);
   public static Squash.Status compress_file_with_options (string codec, GLib.FileStream compressed, GLib.FileStream uncompressed, Squash.Options? options = null);
   public static Squash.Status decompress_file_with_options (string codec, GLib.FileStream decompressed, GLib.FileStream compressed, Squash.Options? options = null);
