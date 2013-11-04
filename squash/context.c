@@ -47,8 +47,6 @@
   #include <strsafe.h>
 #endif
 
-#include <ltdl.h>
-
 #include "squash.h"
 #include "internal.h"
 
