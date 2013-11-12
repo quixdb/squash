@@ -617,17 +617,23 @@ squash_codec_decompress_with_options (SquashCodec* codec,
     stream->avail_out = *decompressed_length;
 
     do {
-      status = squash_stream_finish (stream);
+      status = squash_stream_process (stream);
     } while (status == SQUASH_PROCESSING);
 
-    switch (status) {
-      case SQUASH_END_OF_STREAM:
-        status = SQUASH_OK;
-      case SQUASH_OK:
+    if (status == SQUASH_END_OF_STREAM) {
+      status = SQUASH_OK;
+      *decompressed_length = stream->total_out;
+    } else if (status == SQUASH_OK) {
+      do {
+        status = squash_stream_finish (stream);
+      } while (status == SQUASH_PROCESSING);
+
+      if (status == SQUASH_OK) {
         *decompressed_length = stream->total_out;
-      default:
-        squash_object_unref (stream);
+      }
     }
+
+    squash_object_unref (stream);
 
     return status;
   }

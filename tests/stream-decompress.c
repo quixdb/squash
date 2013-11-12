@@ -23,18 +23,24 @@ buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
     }
   }
 
-  if (res > 0) {
+  if (res == SQUASH_END_OF_STREAM) {
+    res = SQUASH_OK;
+  } else if (res > 0) {
     do {
       stream->avail_in = MIN(compressed_length - stream->total_in, step_size);
       stream->avail_out = MIN(*decompressed_length - stream->total_out, step_size);
 
       res = squash_stream_finish (stream);
-    } while (res != SQUASH_OK);
+    } while (res == SQUASH_PROCESSING);
+  }
+
+  if (res == SQUASH_OK) {
+    *decompressed_length = stream->total_out;
   }
 
   squash_object_unref (stream);
 
-  return (res > 0) ? SQUASH_OK : res;
+  return res;
 }
 
 void

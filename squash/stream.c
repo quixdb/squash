@@ -304,6 +304,189 @@ squash_stream_new_with_options (const char* codec,
     squash_codec_create_stream_with_options (codec_real, stream_type, options) : NULL;
 }
 
+static SquashStatus
+squash_stream_process_internal (SquashStream* stream, int operation) {
+  SquashCodec* codec;
+  SquashCodecFuncs* funcs = NULL;
+  SquashStatus res;
+  int current_operation;
+
+  assert (stream != NULL);
+  codec = stream->codec;
+  assert (codec != NULL);
+  funcs = squash_codec_get_funcs (codec);
+  assert (funcs != NULL);
+
+  /* Flush is optional, so return an error if it doesn't exist but
+     flushing was requested. */
+  if (operation == 1 && funcs->flush_stream == NULL) {
+    return SQUASH_INVALID_OPERATION;
+  }
+
+  /* In order to take some of the load off of the plugins, there is
+     some extra logic here which may seem a bit disorienting at first
+     glance.  Basically, instead of requiring that plugins handle
+     flushing or finishing with arbitrarily large inputs, we first try
+     to process as much input as we can.  So, when someone calls
+     squash_stream_flush or squash_stream finish Squash may, depending
+     on the stream state, first call the process function.  Note that
+     Squash will not flush a stream before finishing it (unless there
+     is logic to do so in the plugin) as it could cause an increase in
+     the output size (it does with zlib).
+
+     One interesting consequence of this is that the stream_state
+     field may not be what you're expecting.  If an earlier operation
+     returned SQUASH_PROCESSING, stream_type may never transition to
+     the new value.  In this case, the stream_type does accurately
+     represent the state of the stream, though it probably isn't wise
+     to depend on that behavior. */
+
+  if ((operation == 0 && stream->state > SQUASH_STREAM_STATE_RUNNING) ||
+      (operation == 1 && stream->state > SQUASH_STREAM_STATE_FLUSHING) ||
+      (operation == 2 && stream->state > SQUASH_STREAM_STATE_FINISHING)) {
+    return SQUASH_STATE;
+  }
+
+  switch (stream->state) {
+    case SQUASH_STREAM_STATE_IDLE:
+    case SQUASH_STREAM_STATE_RUNNING:
+      current_operation = 0;
+      break;
+    case SQUASH_STREAM_STATE_FLUSHING:
+      current_operation = 1;
+      break;
+    case SQUASH_STREAM_STATE_FINISHING:
+      current_operation = 2;
+      break;
+    case SQUASH_STREAM_STATE_FINISHED:
+      current_operation = 3;
+      break;
+  }
+
+  if (current_operation > operation) {
+    return SQUASH_STATE;
+  }
+
+  const size_t avail_in = stream->avail_in;
+  const size_t avail_out = stream->avail_out;
+
+  /* Some libraries (like zlib) will realize that we're not providing
+     it any room for output and are eager to tell us that we don't
+     have any space instead of decoding the stream enough to know if we
+     actually need that space.
+
+     In cases where this might be problematic, we provide a
+     single-byte buffer to the plugin instead.  If anything actually
+     gets written to it then we'll return an error
+     (SQUASH_BUFFER_FULL), which is non-recoverable.
+
+     There are a few cases where this might reasonably be a problem:
+
+      * Decompression streams which know the exact size of the
+        decompressed output, when using codecs which contain extra
+        data at the end, such as a footer or EOS marker.
+
+      * Compression streams writing to a fixed buffer with a length of
+        less than or equal to max_compressed_size bytes.  This is a
+        pretty reasonable thing to do, since you might want to only
+        bother using compression if you can achieve a certain ratio.
+
+     For consumers which don't satisfy either of these conditions,
+     this code should never be reached. */
+
+  uint8_t* next_out = NULL;
+  uint8_t output_sbb = 0;
+  if (stream->avail_out == 0) {
+    next_out = stream->next_out;
+    stream->avail_out = 1;
+    stream->next_out = &output_sbb;
+  }
+
+  while (current_operation <= operation) {
+    if (current_operation == 0) {
+      /* Process */
+      if (stream->avail_in == 0 && stream->state == SQUASH_STREAM_STATE_IDLE) {
+        res = SQUASH_OK;
+      } else if (funcs->process_stream != NULL) {
+        res = funcs->process_stream (stream);
+      } else {
+        res = squash_buffer_stream_process ((SquashBufferStream*) stream);
+      }
+    } else if (current_operation == 1) {
+      /* Flush */
+      if (current_operation == operation) {
+        if (funcs->flush_stream != NULL) {
+          res = funcs->flush_stream (stream);
+        } else {
+          /* We aready checked to make sure flush_stream exists if the
+             user called flush directly, so if this code is reached the
+             user didn't call flush, they called finish which attempts
+             to flush internally.  Just pretend it worked so we can
+             proceed to invoking the finish_stream callback. */
+          res = SQUASH_OK;
+        }
+      }
+    } else if (current_operation == 2) {
+      /* Finish */
+      if (funcs->finish_stream != NULL) {
+        res = funcs->finish_stream (stream);
+      } else if (funcs->process_stream == NULL) {
+        res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
+      } else {
+        res = SQUASH_INVALID_OPERATION;
+      }
+
+      /* Plugins *should* return SQUASH_OK, not SQUASH_END_OF_STREAM,
+         from the finish function, but it's an easy mistake to make
+         (and correct), so... */
+      if (SQUASH_UNLIKELY(res == SQUASH_END_OF_STREAM)) {
+        res = SQUASH_OK;
+      }
+    }
+
+    /* Check our internal single byte buffer */
+    if (next_out != 0) {
+      if (stream->avail_out == 0) {
+        res = SQUASH_BUFFER_FULL;
+      }
+    }
+
+    if (res == SQUASH_PROCESSING) {
+      switch (current_operation) {
+        case 0:
+          stream->state = SQUASH_STREAM_STATE_RUNNING;
+          break;
+        case 1:
+          stream->state = SQUASH_STREAM_STATE_FLUSHING;
+          break;
+        case 2:
+          stream->state = SQUASH_STREAM_STATE_FINISHING;
+          break;
+      }
+      break;
+    } else if (res == SQUASH_END_OF_STREAM || (current_operation == 2 && res == SQUASH_OK)) {
+      stream->state = SQUASH_STREAM_STATE_FINISHED;
+      current_operation++;
+      break;
+    } else if (res == SQUASH_OK) {
+      stream->state = SQUASH_STREAM_STATE_IDLE;
+      current_operation++;
+    } else {
+      break;
+    }
+  }
+
+  if (next_out != 0) {
+    stream->avail_out = 0;
+    stream->next_out = next_out;
+  }
+
+  stream->total_in += (avail_in - stream->avail_in);
+  stream->total_out += (avail_out - stream->avail_out);
+
+  return res;
+}
+
 /**
  * @brief Process a stream.
  *
@@ -319,61 +502,11 @@ squash_stream_new_with_options (const char* codec,
  *   be consumed.  Remove some data from the output buffer and run
  *   ::squash_stream_process again.
  * @retval SQUASH_END_OF_STREAM The end of stream was reached.  You
- *   shouldn't squashl ::squash_stream_process again.  *Decompression only*.
+ *   shouldn't call ::squash_stream_process again.  *Decompression only*.
  */
 SquashStatus
 squash_stream_process (SquashStream* stream) {
-  SquashCodec* codec;
-  SquashCodecFuncs* funcs;
-  SquashStatus res;
-
-  assert (stream != NULL);
-
-  switch (stream->state) {
-    case SQUASH_STREAM_STATE_IDLE:
-    case SQUASH_STREAM_STATE_RUNNING:
-      break;
-    default:
-      return SQUASH_INVALID_OPERATION;
-  }
-
-  codec = stream->codec;
-  assert (codec != NULL);
-
-  if (stream->avail_out == 0) {
-    return SQUASH_BUFFER_FULL;
-  }
-
-  funcs = squash_codec_get_funcs (codec);
-  if (funcs == NULL) {
-    return SQUASH_UNABLE_TO_LOAD;
-  }
-
-  const size_t avail_in = stream->avail_in;
-  const size_t avail_out = stream->avail_out;
-
-  if (funcs->process_stream != NULL) {
-    res = funcs->process_stream (stream);
-  } else if (funcs->create_stream == NULL && funcs->flush_stream == NULL && funcs->finish_stream == NULL) {
-    res = squash_buffer_stream_process ((SquashBufferStream*) stream);
-  } else {
-    res = SQUASH_INVALID_OPERATION;
-  }
-
-  stream->total_in += (avail_in - stream->avail_in);
-  stream->total_out += (avail_out - stream->avail_out);
-
-  switch (res) {
-    case SQUASH_OK:
-    case SQUASH_PROCESSING:
-      stream->state = SQUASH_STREAM_STATE_RUNNING;
-      break;
-    case SQUASH_END_OF_STREAM:
-      stream->state = SQUASH_STREAM_STATE_FINISHED;
-      break;
-  }
-
-  return res;
+  return squash_stream_process_internal (stream, 0);
 }
 
 /**
@@ -388,52 +521,7 @@ squash_stream_process (SquashStream* stream) {
  */
 SquashStatus
 squash_stream_flush (SquashStream* stream) {
-  SquashCodec* codec;
-  SquashCodecFuncs* funcs = NULL;
-  SquashStatus res;
-
-  assert (stream != NULL);
-
-  switch (stream->state) {
-    case SQUASH_STREAM_STATE_RUNNING:
-    case SQUASH_STREAM_STATE_FLUSHING:
-    case SQUASH_STREAM_STATE_IDLE:
-      break;
-    default:
-      return SQUASH_INVALID_OPERATION;
-  }
-
-  if (stream->stream_type != SQUASH_STREAM_COMPRESS) {
-    return SQUASH_INVALID_OPERATION;
-  }
-
-  codec = stream->codec;
-  assert (codec != NULL);
-
-  funcs = squash_codec_get_funcs (codec);
-
-  if (funcs != NULL && funcs->flush_stream != NULL) {
-    const size_t avail_in = stream->avail_in;
-    const size_t avail_out = stream->avail_out;
-
-    res = funcs->flush_stream (stream);
-
-    stream->total_in += (avail_in - stream->avail_in);
-    stream->total_out += (avail_out - stream->avail_out);
-  } else {
-    res = SQUASH_INVALID_OPERATION;
-  }
-
-  switch (res) {
-    case SQUASH_OK:
-      stream->state = SQUASH_STREAM_STATE_RUNNING;
-      break;
-    case SQUASH_PROCESSING:
-      stream->state = SQUASH_STREAM_STATE_FLUSHING;
-      break;
-  }
-
-  return res;
+  return squash_stream_process_internal (stream, 1);
 }
 
 /**
@@ -444,57 +532,7 @@ squash_stream_flush (SquashStream* stream) {
  */
 SquashStatus
 squash_stream_finish (SquashStream* stream) {
-  SquashCodec* codec;
-  SquashCodecFuncs* funcs;
-  SquashStatus res;
-
-  assert (stream != NULL);
-
-  switch (stream->state) {
-    case SQUASH_STREAM_STATE_RUNNING:
-    case SQUASH_STREAM_STATE_FINISHING:
-    case SQUASH_STREAM_STATE_IDLE:
-      break;
-    case SQUASH_STREAM_STATE_FINISHED:
-      return SQUASH_OK;
-    default:
-      return SQUASH_INVALID_OPERATION;
-  }
-
-  codec = stream->codec;
-  assert (codec != NULL);
-
-  funcs = squash_codec_get_funcs (codec);
-  assert (funcs != NULL);
-
-  const size_t avail_in = stream->avail_in;
-  const size_t avail_out = stream->avail_out;
-
-  if (funcs->finish_stream != NULL) {
-    res = funcs->finish_stream (stream);
-  } else if (funcs->flush_stream != NULL) {
-    res = funcs->flush_stream (stream);
-  } else if (funcs->process_stream != NULL) {
-    res = funcs->process_stream (stream);
-  } else {
-    res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
-  }
-
-  stream->total_in += (avail_in - stream->avail_in);
-  stream->total_out += (avail_out - stream->avail_out);
-
-  switch (res) {
-    case SQUASH_END_OF_STREAM:
-      res = SQUASH_OK;
-    case SQUASH_OK:
-      stream->state = SQUASH_STREAM_STATE_FINISHED;
-      break;
-    case SQUASH_PROCESSING:
-      stream->state = SQUASH_STREAM_STATE_FINISHING;
-      break;
-  }
-
-  return res;
+  return squash_stream_process_internal (stream, 2);
 }
 
 /**

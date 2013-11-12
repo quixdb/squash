@@ -271,7 +271,7 @@ squash_zlib_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 
 
 static SquashStatus
-squash_zlib_process_stream_internal (SquashStream* stream, int flush) {
+squash_zlib_process_stream_internal (SquashStream* stream, int operation) {
   z_stream* zlib_stream;
   int zlib_e;
   SquashStatus res;
@@ -283,31 +283,53 @@ squash_zlib_process_stream_internal (SquashStream* stream, int flush) {
   SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream, zlib_stream);
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    zlib_e = deflate (zlib_stream, flush);
+    zlib_e = deflate (zlib_stream, operation);
   } else {
-    zlib_e = inflate (zlib_stream, flush);
+    zlib_e = inflate (zlib_stream, operation);
   }
 
   SQUASH_ZLIB_STREAM_COPY_FROM_ZLIB_STREAM(stream, zlib_stream);
 
-  if (flush == Z_FINISH) {
-    if (zlib_e == Z_OK) {
-      res = SQUASH_PROCESSING;
-    } else if (zlib_e == Z_STREAM_END) {
+  switch (zlib_e) {
+    case Z_OK:
+      switch (operation) {
+        case Z_NO_FLUSH:
+          res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+          break;
+        case Z_SYNC_FLUSH:
+        case Z_FINISH:
+          res = SQUASH_PROCESSING;
+          break;
+      }
+      break;
+    case Z_BUF_ERROR:
+      switch (operation) {
+        case Z_NO_FLUSH:
+          res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_BUFFER_FULL;
+          break;
+        case Z_SYNC_FLUSH:
+        case Z_FINISH:
+          if (stream->avail_in == 0) {
+            if (stream->avail_out == 0) {
+              res = SQUASH_PROCESSING;
+            } else {
+              res = SQUASH_OK;
+            }
+          } else {
+            res = SQUASH_PROCESSING;
+          }
+          break;
+      }
+      break;
+    case Z_STREAM_END:
       res = SQUASH_OK;
-    } else {
+      break;
+    case Z_MEM_ERROR:
+      res = SQUASH_MEMORY;
+      break;
+    default:
       res = SQUASH_FAILED;
-    }
-  } else if (zlib_e == Z_OK || zlib_e == Z_BUF_ERROR) {
-    if (zlib_stream->avail_in > 0) {
-      res = SQUASH_PROCESSING;
-    } else {
-      res = SQUASH_OK;
-    }
-  } else if (zlib_e == Z_STREAM_END) {
-    res = SQUASH_END_OF_STREAM;
-  } else {
-    res = SQUASH_FAILED;
+      break;
   }
 
   return res;
