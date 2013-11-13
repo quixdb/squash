@@ -35,7 +35,6 @@
 #include <windows.h>
 #endif
 
-#include "squash.h"
 #include "internal.h"
 
 /**

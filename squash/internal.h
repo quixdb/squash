@@ -31,7 +31,10 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+#ifdef __SQUASH_H__
+#error "You must include internal.h before (or instead of) squash.h"
+#endif
+
 #ifdef __GNUC__
 #  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
 #  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
@@ -39,6 +42,27 @@ SQUASH_BEGIN_DECLS
 #  define SQUASH_LIKELY(expr) (expr)
 #  define SQUASH_UNLIKELY(expr) (expr)
 #endif
+
+#ifndef SQUASH_API
+  #if defined _WIN32 || defined __CYGWIN__
+    #ifdef __GNUC__
+      #define SQUASH_API __attribute__ ((dllexport))
+    #else
+      #define SQUASH_API __declspec(dllexport)
+    #endif
+    #define SQUASH_INTERNAL
+  #else
+    #if __GNUC__ >= 4
+      #define SQUASH_API __attribute__ ((visibility ("default")))
+      #define SQUASH_INTERNAL __attribute__ ((visibility ("hidden")))
+    #else
+      #define SQUASH_API
+      #define SQUASH_INTERNAL
+    #endif
+  #endif
+#endif
+
+#include "squash.h"
 
 #include <squash/config.h>
 
@@ -52,7 +76,5 @@ SQUASH_BEGIN_DECLS
 #include "buffer-stream-internal.h"
 #include "ini-internal.h"
 #include "mtx-internal.h"
-
-SQUASH_END_DECLS
 
 #endif /* __SQUASH_INTERNAL_H__ */

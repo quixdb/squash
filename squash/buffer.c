@@ -30,7 +30,6 @@
 
 #include <stdio.h>
 
-#include "squash.h"
 #include "internal.h"
 
 /**

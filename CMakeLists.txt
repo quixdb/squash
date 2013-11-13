@@ -35,6 +35,8 @@ configure_file (
 
 set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
+check_c_compiler_flag (-fvisibility=hidden CFLAG__fvisibility_hidden)
+
 ####
 ## Compatibility with older CMake
 ##
@@ -110,6 +112,17 @@ function (squash_target_add_cflag target flag)
   else ()
     set_target_properties (${target}
       PROPERTIES COMPILE_FLAGS "${existing} ${flag}")
+  endif ()
+endfunction ()
+
+function (squash_target_add_ldflag target flag)
+  get_target_property (existing ${target} LINK_FLAGS)
+  if (${existing} STREQUAL "existing-NOTFOUND")
+    set_target_properties (${target}
+      PROPERTIES LINK_FLAGS "${flag}")
+  else ()
+    set_target_properties (${target}
+      PROPERTIES LINK_FLAGS "${existing} ${flag}")
   endif ()
 endfunction ()
 

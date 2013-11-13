@@ -35,10 +35,8 @@
 #include <sys/mman.h>
 #endif
 
-#include "tinycthread/source/tinycthread.h"
-
-#include "squash.h"
 #include "internal.h"
+#include "tinycthread/source/tinycthread.h"
 
 #ifndef SQUASH_CODEC_FILE_BUF_SIZE
 #  define SQUASH_CODEC_FILE_BUF_SIZE (1024 * 1024)

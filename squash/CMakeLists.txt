@@ -27,6 +27,11 @@ set (squash_PUBLIC_HEADERS
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 add_extra_warning_flags (TARGET squash${SQUASH_VERSION_API})
 
+if (CFLAG__fvisibility_hidden)
+  squash_target_add_cflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
+  squash_target_add_ldflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
+endif ()
+
 find_package (Threads)
 target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 

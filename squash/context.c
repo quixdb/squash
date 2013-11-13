@@ -47,9 +47,7 @@
   #include <strsafe.h>
 #endif
 
-#include "squash.h"
 #include "internal.h"
-
 #include "tinycthread/source/tinycthread.h"
 
 #if !defined(_WIN32)

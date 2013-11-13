@@ -26,7 +26,6 @@
 
 #include <assert.h>
 
-#include "squash.h"
 #include "internal.h"
 
 #if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
