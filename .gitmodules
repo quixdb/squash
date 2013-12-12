@@ -34,3 +34,6 @@
 [submodule "squash/tinycthread"]
 	path = squash/tinycthread
 	url = git://gitorious.org/tinythread/nemequ-tinycthread.git
+[submodule "plugins/fari/FastARI"]
+	path = plugins/fari/FastARI
+	url = https://github.com/davidcatt/FastARI.git

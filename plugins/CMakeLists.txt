@@ -2,6 +2,7 @@ set (plugins_available
   blosc
   bzip2
   doboz
+  fari
   fastlz
   ipp
   lz4
