@@ -38,7 +38,7 @@ SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* fun
 
 static size_t
 squash_fari_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length * 2;
+  return uncompressed_length + 4 + (uncompressed_length / 50);
 }
 
 static SquashStatus
