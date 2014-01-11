@@ -22,7 +22,8 @@ set (squash_PUBLIC_HEADERS
   squash.h
   status.h
   stream.h
-  types.h)
+  types.h
+  version.h)
 
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 add_extra_warning_flags (TARGET squash${SQUASH_VERSION_API})

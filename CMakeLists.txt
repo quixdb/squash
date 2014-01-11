@@ -19,7 +19,7 @@ set (PACKAGE_VERSION ${SQUASH_VERSION_MAJOR}.${SQUASH_VERSION_MINOR}.${SQUASH_VE
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}")
 
-set (SQUASH_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
+set (SQUASH_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/squash/config.h.in"
@@ -31,7 +31,8 @@ configure_file (
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/squash.pc.in"
-    "${PROJECT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc")
+    "${PROJECT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"
+    @ONLY)
 
 set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
@@ -151,3 +152,6 @@ add_subdirectory (examples)
 add_subdirectory (bindings)
 add_subdirectory (tests)
 add_subdirectory (benchmark)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
