@@ -5,4 +5,3 @@ set (blosc_sources
   blosc/blosc/shuffle.c)
 
 squash_plugin_add (blosc blosc_sources)
-
