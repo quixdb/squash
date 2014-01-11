@@ -1,3 +1,10 @@
 /build
+/CMakeCache.txt
+/install_manifest.txt
+/squash-0.1.pc
 
 *~
+CMakeFiles/
+CTestTestfile.cmake
+Makefile
+cmake_install.cmake
