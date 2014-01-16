@@ -38,7 +38,7 @@ extern "C" SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCode
 
 static size_t
 squash_doboz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return (size_t) doboz::Compressor::getMaxCompressedSize ((uint64_t) uncompressed_length) + 2;
+  return (size_t) doboz::Compressor::getMaxCompressedSize ((uint64_t) uncompressed_length);
 }
 
 static size_t
