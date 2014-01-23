@@ -31,7 +31,7 @@
 #if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
 #  define squash_atomic_inc(var) __sync_fetch_and_add(var, 1)
 #  define squash_atomic_dec(var) __sync_fetch_and_sub(var, 1)
-#  define squash_atomic_cas(var, orig, val) __sync_bool_compare_and_swap(var, orig, val)
+#  define squash_atomic_cas(var, orig, val) __sync_val_compare_and_swap(var, orig, val)
 #elif defined(_WIN32)
 #  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, orig, val)
 #else
@@ -44,7 +44,9 @@ squash_atomic_cas (volatile unsigned int* var,
   unsigned int res;
 
   SQUASH_MTX_LOCK(atomic_ref);
-  res = (*var == orig) ? ((*var = val), 1) : 0;
+  res = *var;
+  if (res == orig)
+    *var = val;
   SQUASH_MTX_UNLOCK(atomic_ref);
 
   return res;
@@ -88,7 +90,7 @@ squash_atomic_dec (volatile unsigned int* var) {
 
 /**
  * @var _SquashObject::destroy_notify
- * @brief Function to squashl when the reference count reaches 0.
+ * @brief Function to call when the reference count reaches 0.
  */
 
 /**
@@ -134,7 +136,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  * @endcode
  *
  * Of course, whatever is created must be destroyed, so you'll also
- * want to create a *_destroy method to be squashled when the reference
+ * want to create a *_destroy method to be called when the reference
  * count reaches 0.  Destroy any of your fields first, then chain up
  * to the base class' *_destroy function:
  *
@@ -151,7 +153,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  *
  * If your class is not abstract (it is meant to be instantiated, not
  * just subclassed), you should create two more functions.  First, a
- * *_free function which will squashl your *_destroy function and release
+ * *_free function which will call your *_destroy function and release
  * any memory you've allocated for the struct itself:
  *
  * @code
@@ -186,7 +188,7 @@ squash_atomic_dec (volatile unsigned int* var) {
 
 /**
  * @typedef SquashDestroyNotify
- * @brief Squashlback to be invoked when information @a data is no longer
+ * @brief Callback to be invoked when information @a data is no longer
  *   needed.
  *
  * When you are not subclassing @ref SquashObject, ::SquashDestroyNotify is
@@ -238,11 +240,7 @@ squash_object_ref_sink (void* obj) {
   if (object == NULL)
     return object;
 
-  if (object->is_floating) {
-    squash_atomic_cas (&(object->is_floating), 1, 0);
-  }
-
-  return obj;
+  return (squash_atomic_cas (&(object->is_floating), 1, 0) == 1) ? obj : NULL;
 }
 
 /**
@@ -292,12 +290,12 @@ squash_object_get_ref_count (void* obj) {
  *
  * This function should only be used to implement a subclass of @ref
  * SquashObject.  Objects returned by *_new functions will already be
- * initialized, and you *must* *not* squashl this function on them.
+ * initialized, and you *must* *not* call this function on them.
  *
  * @param obj The object to initialize.
  * @param is_floating Whether or not the object's reference is
  *   floating
- * @param destroy_notify Function to squashl when the reference count
+ * @param destroy_notify Function to call when the reference count
  *     reaches 0
  */
 void
