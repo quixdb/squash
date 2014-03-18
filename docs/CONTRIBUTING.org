@@ -1,0 +1,74 @@
+Contributing to Squash is similar to contributing to most other
+open-source projects.  Requirements which you may or may not have
+encountered with other projects include:
+
+  + You are required to sign a contributor license agreement (CLA).
+    Our CLA does not assign copyright, and its terms should not be
+    objectionable to anyone without malicious intent.
+  + Commit messages must be well-formed and informative.
+  + You must PGP-sign all commits.
+
+* Signing the CLA
+
+  Before we can accept a contribution from Squash, you must sign the
+  contributor license agreement (in docs/CLA/CLA.txt).  The agreement
+  is copied from the Linux Kernel, and does *not* require copyright
+  assignment.  It is short and easy to understand, so you should have
+  no problem reviewing the text.  Please use your real name; no
+  pseudonyms or aliases.
+
+  Once you have read the CLA, and assuming you agree to it, you should
+  cryptographically sign it with your PGP key.  If you don't already
+  have a PGP key, please generate one.  There are a vast number of
+  tutorials online explaining how to generate a key, so it will not be
+  explained here.
+
+  If you are Using GPG, generating the signature you should use something like:
+
+    gpg --output Your-Name.sig --detach-sign CLA.txt
+
+  Then git add Your-Name.sig and commit it:
+
+    git add Your-Name.sig
+    git commit -Sm 'Sign CLA.'
+
+  This should be the only change in this commit—please do not combine it
+  with other changes.
+
+  After making sure that the address used in your git commit matches
+  one of the addresses associated with your public key, a developer
+  will send an encrypted e-mail to that address to verify your
+  identity, so please make sure to export your signature to a key
+  server:
+
+    gpg --send-key KEYID
+
+  From this point on you can pretty much send patches however you
+  prefer; pull requests on github, use `git format-patch` and attach
+  the resulting file(s) to an issue, or use `git send-email` to send a
+  patch set to the mailing list (squash-compression@googlegroups.com).
+
+* Commit Messages
+
+  The format used by Squash for commit messages is the de-facto
+  standard used by a lot of open-source projects, so if you've ever
+  contributed to a project which cares about commit messages before
+  you're probably already familiar with the rules.
+
+  All lines in a commit message must be less than or equal to 72
+  characters long, with the exception of lines which contain
+  non-breaking text (such as a link or code fragment).
+
+  The first line must be a short summary of the change, preceeded by a
+  component name if applicable.
+
+  If the summary is insufficient to fully describe the change it
+  should be followed by as many paragraphs as are necessary in order
+  to do so.
+
+  Finally, if the patch relates to an issue, a link to that issue.
+
+* Signing Your Commits
+
+  Please sign all your commits (with the key you used to sign the CLA)
+  by passing the -S flag to git commit.
