@@ -140,6 +140,14 @@
  */
 
 /**
+ * @var _SquashCodecFuncs::get_features
+ * @brief Get the features this codec supports.
+ *
+ * @param codec The codec.
+ * @return features supported by the codec.
+ */
+
+/**
  * @var _SquashCodecFuncs::decompress_buffer
  * @brief Decompress a buffer.
  *
@@ -190,6 +198,21 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
  * @brief A compression/decompression codec
  *
  * @{
+ */
+
+/**
+ * @enum SquashCodecFeatures
+ * @brief Optional features supported by some codecs
+ */
+
+/**
+ * @var SquashCodecFeatures::SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE
+ * @brief Knows the size of the uncompressed buffer without decompressing it.
+ */
+
+/**
+ * @var SquashCodecFeatures::SQUASH_CODEC_FEATURE_CAN_FLUSH
+ * @brief Can flush so all input is available in the output.
  */
 
 /**
@@ -284,20 +307,14 @@ squash_codec_get_funcs (SquashCodec* codec) {
 }
 
 /**
- * @brief Whether or not the codec knows the uncompressed size of
- *   compressed data
- *
- * Some codecs, such as Snappy, will embed the uncompressed size inside
- * of a compressed buffer, which allows you to know exactly how much
- * space to allocate in order to successfully uncompress the buffer.
- * This function will return *true* if this is one such codec, or
- * *false* if not.
+ * @brief Get the features implemented by a codec
  *
  * @param codec the codec
- * @return whether or not the codec knows the uncompressed size
+ * @return features implemented by the codec
  */
-bool
-squash_codec_get_knows_uncompressed_size (SquashCodec* codec) {
+SquashCodecFeatures
+squash_codec_get_features (SquashCodec* codec) {
+  SquashCodecFeatures features = 0;
   SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
@@ -307,16 +324,23 @@ squash_codec_get_knows_uncompressed_size (SquashCodec* codec) {
   assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
-  return (funcs != NULL && funcs->get_uncompressed_size);
+
+  if (funcs->get_features != NULL)
+    features = funcs->get_features (codec);
+
+  if (funcs->get_uncompressed_size != NULL)
+    features |= SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE;
+
+  return features;
 }
 
 /**
  * @brief Get the uncompressed size of the compressed buffer
  *
- * This function is only useful for codecs where
- * ::squash_codec_get_knows_uncompressed_size is *true*.  For situations
- * where the codec does not know the uncompressed size, *0* will be
- * returned.
+ * This function is only useful for codecs where the return value of
+ * ::squash_codec_get_features includes
+ * *SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE*.  For situations where the
+ * codec does not know the uncompressed size, *0* will be returned.
  *
  * @param codec The codec
  * @param compressed The compressed data
