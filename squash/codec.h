@@ -60,6 +60,16 @@ struct _SquashCodecFuncs {
   size_t          (* get_uncompressed_size)   (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
   size_t          (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_length);
   size_t          (* get_features)            (SquashCodec* codec);
+
+  /* Reserved */
+  void            (* _reserved1)              (void);
+  void            (* _reserved2)              (void);
+  void            (* _reserved3)              (void);
+  void            (* _reserved4)              (void);
+  void            (* _reserved5)              (void);
+  void            (* _reserved6)              (void);
+  void            (* _reserved7)              (void);
+  void            (* _reserved8)              (void);
 };
 
 typedef void (*SquashCodecForeachFunc) (SquashCodec* codec, void* data);

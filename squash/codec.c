@@ -177,6 +177,46 @@
  * @see squash_codec_compress_with_options
  */
 
+/**
+ * @var _SquashCodecFuncs::_reserved1
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved2
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved3
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved4
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved5
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved6
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved7
+ * @brief Reserved for future use.
+ */
+
+/**
+ * @var _SquashCodecFuncs::_reserved8
+ * @brief Reserved for future use.
+ */
+
 int
 squash_codec_compare (SquashCodec* a, SquashCodec* b) {
   assert (a != NULL);
