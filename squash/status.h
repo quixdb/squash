@@ -33,7 +33,7 @@
 
 SQUASH_BEGIN_DECLS
 
-enum SquashStatus_e {
+typedef enum {
   SQUASH_OK                    =  1,
   SQUASH_PROCESSING            =  2,
   SQUASH_END_OF_STREAM         =  3,
@@ -48,7 +48,7 @@ enum SquashStatus_e {
   SQUASH_STATE                 = -8,
   SQUASH_INVALID_OPERATION     = -9,
   SQUASH_NOT_FOUND             = -10
-};
+} SquashStatus;
 
 SQUASH_API const char* squash_status_to_string (SquashStatus status);
 

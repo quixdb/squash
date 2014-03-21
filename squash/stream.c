@@ -122,7 +122,7 @@
  */
 
 /**
- * @enum _SquashStreamType
+ * @enum SquashStreamType
  * @brief Stream type.
  */
 

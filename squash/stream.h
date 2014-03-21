@@ -35,18 +35,18 @@ SQUASH_BEGIN_DECLS
 
 typedef struct _SquashStreamPrivate SquashStreamPrivate;
 
-enum _SquashStreamType {
+typedef enum {
   SQUASH_STREAM_COMPRESS = 1,
   SQUASH_STREAM_DECOMPRESS = 2
-};
+} SquashStreamType;
 
-enum _SquashStreamState {
+typedef enum {
   SQUASH_STREAM_STATE_IDLE = 0,
   SQUASH_STREAM_STATE_RUNNING = 1,
   SQUASH_STREAM_STATE_FLUSHING = 2,
   SQUASH_STREAM_STATE_FINISHING = 3,
   SQUASH_STREAM_STATE_FINISHED = 4
-};
+} SquashStreamState;
 
 struct _SquashStream {
   SquashObject base_object;

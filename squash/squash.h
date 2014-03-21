@@ -46,9 +46,9 @@
 
 #include <squash/version.h>
 
+#include "status.h"
 #include "types.h"
 #include "object.h"
-#include "status.h"
 #include "options.h"
 #include "stream.h"
 #include "codec.h"

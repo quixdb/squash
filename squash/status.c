@@ -34,7 +34,7 @@
  */
 
 /**
- * @enum SquashStatus_e
+ * @enum SquashStatus
  * @brief Status codes
  */
 
