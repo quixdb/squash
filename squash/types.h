@@ -24,10 +24,10 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_TYPES_H__
-#define __SQUASH_TYPES_H__
+#ifndef SQUASH_TYPES_H
+#define SQUASH_TYPES_H
 
-#if !defined (__SQUASH_H_INSIDE__) && !defined (SQUASH_COMPILATION)
+#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
@@ -53,4 +53,4 @@ typedef enum _SquashCodecFeatures {
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_TYPES_H__ */
+#endif /* SQUASH_TYPES_H */

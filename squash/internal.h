@@ -24,14 +24,14 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_INTERNAL_H__
-#define __SQUASH_INTERNAL_H__
+#ifndef SQUASH_INTERNAL_H
+#define SQUASH_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
 #endif
 
-#ifdef __SQUASH_H__
+#ifdef SQUASH_H
 #error "You must include internal.h before (or instead of) squash.h"
 #endif
 
@@ -77,4 +77,4 @@
 #include "ini-internal.h"
 #include "mtx-internal.h"
 
-#endif /* __SQUASH_INTERNAL_H__ */
+#endif /* SQUASH_INTERNAL_H */

@@ -1,8 +1,8 @@
 /* Copyright (c) 2005 Ian Piumarta
  * Copyright (c) 2013 Evan Nemerson
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the 'Software'), to deal in the Software without
@@ -36,7 +36,7 @@
  * organization of information', Doklady Akademii Nauk SSSR,
  * 146:263-266, 1962 (Russian).  Also in Myron J. Ricci (trans.),
  * Soviet Math, 3:1259-1263, 1962 (English)].
- * 
+ *
  * An AVL tree is headed by pointers to the root node and to a
  * function defining the ordering relation between nodes.  Each node
  * contains an arbitrary payload plus three fields per tree entry: the
@@ -46,21 +46,21 @@
  * children).  The tree is rebalanced after every insertion or
  * removal.  The tree may be traversed in two directions: forward
  * (in-order left-to-right) and reverse (in-order, right-to-left).
- * 
+ *
  * Because of the recursive nature of many of the operations on trees
  * it is necessary to define a number of helper functions for each
  * type of tree node.  The macro TREE_DEFINE(node_tag, entry_name)
  * defines these functions with unique names according to the
  * node_tag.  This macro should be invoked, thereby defining the
  * necessary functions, once per node tag in the program.
- * 
+ *
  * For details on the use of these macros, see the tree(3) manual page
  * (which is not distributed with SQUASH--you can get a copy from
  * http://piumarta.com/software/tree/).
  */
 
-#ifndef __SQUASH_TREE_H__
-#define __SQUASH_TREE_H__
+#ifndef SQUASH_TREE_H
+#define SQUASH_TREE_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -106,7 +106,7 @@
   (struct node *self, void (*function)(struct node *node, void *data), void *data); \
   SQUASH_TREE_API void SQUASH_TREE_REVERSE_APPLY_ALL_##node##_##field         \
   (struct node *self, void (*function)(struct node *node, void *data), void *data);
-  
+
 
 #define SQUASH_TREE_DEFINE(node, field)                                    \
                                                                         \
@@ -254,4 +254,4 @@
     field.avl_height = 0;                       \
   } while (0)
 
-#endif /* __SQUASH_TREE_H__ */
+#endif /* SQUASH_TREE_H */

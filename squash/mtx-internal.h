@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_MTX_INTERNAL_H__
-#define __SQUASH_MTX_INTERNAL_H__
+#ifndef SQUASH_MTX_INTERNAL_H
+#define SQUASH_MTX_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -51,4 +51,4 @@ SQUASH_BEGIN_DECLS
     assert (mtx_unlock (&(SQUASH_MTX_NAME(name,mtx))) == thrd_success); \
   } while(0);
 
-#endif /* __SQUASH_MTX_INTERNAL_H__ */
+#endif /* SQUASH_MTX_INTERNAL_H */

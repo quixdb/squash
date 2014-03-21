@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_JSON_WRITER_H__
-#define __SQUASH_JSON_WRITER_H__
+#ifndef SQUASH_JSON_WRITER_H
+#define SQUASH_JSON_WRITER_H
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -55,4 +55,4 @@ void squash_json_writer_begin_element_string_map (SquashJSONWriter* writer, cons
 void squash_json_writer_begin_value_array (SquashJSONWriter* writer);
 void squash_json_writer_begin_value_map (SquashJSONWriter* writer);
 
-#endif /* __SQUASH_JSON_WRITER_H__ */
+#endif /* SQUASH_JSON_WRITER_H */

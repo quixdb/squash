@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_TYPES_INTERNAL_H__
-#define __SQUASH_TYPES_INTERNAL_H__
+#ifndef SQUASH_TYPES_INTERNAL_H
+#define SQUASH_TYPES_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -85,4 +85,4 @@ typedef struct _SquashCodecRef {
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_TYPES_INTERNAL_H__ */
+#endif /* SQUASH_TYPES_INTERNAL_H */

@@ -24,10 +24,10 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_STREAM_H__
-#define __SQUASH_STREAM_H__
+#ifndef SQUASH_STREAM_H
+#define SQUASH_STREAM_H
 
-#if !defined (__SQUASH_H_INSIDE__) && !defined (SQUASH_COMPILATION)
+#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
@@ -78,13 +78,13 @@ SQUASH_API SquashStatus  squash_stream_process          (SquashStream* stream);
 SQUASH_API SquashStatus  squash_stream_flush            (SquashStream* stream);
 SQUASH_API SquashStatus  squash_stream_finish           (SquashStream* stream);
 
-SQUASH_API void       squash_stream_init             (void* stream,
-                                                SquashCodec* codec,
-                                                SquashStreamType stream_type,
-                                                SquashOptions* options,
-                                                SquashDestroyNotify destroy_notify);
-SQUASH_API void       squash_stream_destroy          (void* stream);
+SQUASH_API void          squash_stream_init             (void* stream,
+                                                         SquashCodec* codec,
+                                                         SquashStreamType stream_type,
+                                                         SquashOptions* options,
+                                                         SquashDestroyNotify destroy_notify);
+SQUASH_API void          squash_stream_destroy          (void* stream);
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_STREAM_H__ */
+#endif /* SQUASH_STREAM_H */

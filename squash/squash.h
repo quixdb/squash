@@ -24,10 +24,10 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_H__
-#define __SQUASH_H__
+#ifndef SQUASH_H
+#define SQUASH_H
 
-#define __SQUASH_H_INSIDE__
+#define SQUASH_H_INSIDE
 
 #include <stddef.h>
 #include <stdint.h>
@@ -55,6 +55,6 @@
 #include "plugin.h"
 #include "context.h"
 
-#undef __SQUASH_H_INSIDE__
+#undef SQUASH_H_INSIDE
 
-#endif /* __SQUASH_H__ */
+#endif /* SQUASH_H */

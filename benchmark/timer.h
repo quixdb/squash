@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_TIMER_H__
-#define __SQUASH_TIMER_H__
+#ifndef SQUASH_TIMER_H
+#define SQUASH_TIMER_H
 
 typedef struct SquashTimer_s SquashTimer;
 
@@ -40,4 +40,4 @@ void         squash_timer_restart          (SquashTimer* timer);
 double       squash_timer_get_elapsed_cpu  (SquashTimer* timer);
 double       squash_timer_get_elapsed_wall (SquashTimer* timer);
 
-#endif /* __SQUASH_TIMER_H__ */
+#endif /* SQUASH_TIMER_H */

@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_BUFFER_INTERNAL_H__
-#define __SQUASH_BUFFER_INTERNAL_H__
+#ifndef SQUASH_BUFFER_INTERNAL_H
+#define SQUASH_BUFFER_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -49,4 +49,4 @@ void          squash_buffer_set_size       (SquashBuffer* buffer, size_t length)
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_SLIST_INTERNAL_H__ */
+#endif /* SQUASH_SLIST_INTERNAL_H */

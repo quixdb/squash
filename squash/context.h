@@ -24,10 +24,10 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_CONTEXT_H__
-#define __SQUASH_CONTEXT_H__
+#ifndef SQUASH_CONTEXT_H
+#define SQUASH_CONTEXT_H
 
-#if !defined (__SQUASH_H_INSIDE__) && !defined (SQUASH_COMPILATION)
+#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
@@ -48,4 +48,4 @@ SQUASH_API SquashCodec*   squash_get_codec_from_extension         (const char* e
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_CONTEXT_H__ */
+#endif /* SQUASH_CONTEXT_H */

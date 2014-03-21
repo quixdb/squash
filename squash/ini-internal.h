@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_INI_H__
-#define __SQUASH_INI_H__
+#ifndef SQUASH_INI_H
+#define SQUASH_INI_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -82,4 +82,4 @@ void squash_ini_parser_init    (SquashIniParser* parser,
 void squash_ini_parser_destroy (SquashIniParser* parser);
 int  squash_ini_parser_parse   (SquashIniParser* parser, FILE* input);
 
-#endif /* __SQUASH_INI_H__ */
+#endif /* SQUASH_INI_H */

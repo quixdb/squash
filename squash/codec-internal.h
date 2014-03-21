@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_CODEC_INTERNAL_H__
-#define __SQUASH_CODEC_INTERNAL_H__
+#ifndef SQUASH_CODEC_INTERNAL_H
+#define SQUASH_CODEC_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -45,4 +45,4 @@ SQUASH_TREE_DEFINE(_SquashCodec, tree)
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_CODEC_INTERNAL_H__ */
+#endif /* SQUASH_CODEC_INTERNAL_H */

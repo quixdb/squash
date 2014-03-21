@@ -24,10 +24,10 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_PLUGIN_H__
-#define __SQUASH_PLUGIN_H__
+#ifndef SQUASH_PLUGIN_H
+#define SQUASH_PLUGIN_H
 
-#if !defined (__SQUASH_H_INSIDE__) && !defined (SQUASH_COMPILATION)
+#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
@@ -44,4 +44,4 @@ SQUASH_API void         squash_plugin_foreach_codec (SquashPlugin* plugin, Squas
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_PLUGIN_H__ */
+#endif /* SQUASH_PLUGIN_H */

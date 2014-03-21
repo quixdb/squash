@@ -24,8 +24,8 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
-#ifndef __SQUASH_BUFFER_STREAM_INTERNAL_H__
-#define __SQUASH_BUFFER_STREAM_INTERNAL_H__
+#ifndef SQUASH_BUFFER_STREAM_INTERNAL_H
+#define SQUASH_BUFFER_STREAM_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
@@ -59,4 +59,4 @@ SquashStatus        squash_buffer_stream_finish  (SquashBufferStream* stream);
 
 SQUASH_END_DECLS
 
-#endif /* __SQUASH_BUFFER_STREAM_INTERNAL_H__ */
+#endif /* SQUASH_BUFFER_STREAM_INTERNAL_H */
