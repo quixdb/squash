@@ -30,7 +30,7 @@ encountered with other projects include:
   Then git add Your-Name.sig and commit it:
 
     git add Your-Name.sig
-    git commit -Sm 'Sign CLA.'
+    git commit -S -m 'Sign CLA.'
 
   This should be the only change in this commit—please do not combine it
   with other changes.
