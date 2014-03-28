@@ -13,13 +13,31 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define SQUASH_ASSERT_OK(expr)                                          \
-  do {                                                                  \
-    if ((expr) != SQUASH_OK) {                                          \
-      fprintf (stderr, "%s:%d: %s (%d)\n",__FILE__, __LINE__, squash_status_to_string ((expr)), (expr)); \
-      exit (SIGTRAP);                                                   \
-    }                                                                   \
+#define SQUASH_ASSERT_VALUE(expr, expected)           \
+  do {                                                \
+    if ((expr) != (expected)) {                       \
+      fprintf (stderr, "%s:%d: %s != %s\n",           \
+               __FILE__, __LINE__, #expr, #expected); \
+      exit (SIGTRAP);                                 \
+    }                                                 \
   } while (0)
+
+static inline void
+squash__assert_status (SquashStatus value, SquashStatus status, const char* file, const int line) {
+  if (value != status) {
+      fprintf (stderr, "%s:%d: %s (%d), expected %s (%d)\n",
+               file, line,
+               squash_status_to_string (value), value,
+               squash_status_to_string (status), status);
+      exit (SIGTRAP);
+  }
+}
+
+#define SQUASH_ASSERT_STATUS(expr, status) \
+  squash__assert_status ((expr), (status), __FILE__, __LINE__)
+
+#define SQUASH_ASSERT_OK(expr) \
+  SQUASH_ASSERT_STATUS(expr, SQUASH_OK)
 
 #define SQUASH_ASSERT_NO_ERROR(expr)                                    \
   do {                                                                  \
@@ -29,6 +47,15 @@
     }                                                                   \
   } while (0)
 
+static inline void squash__assert (bool e, const char* expr, const char* file, int line) {
+  if (!e) {
+    fprintf (stderr, "%s:%d: assertion (%s) failed\n", file, line, expr);
+    exit (SIGTRAP);
+  }
+}
+
+#define SQUASH_ASSERT(expr) \
+  squash__assert ((expr), #expr, __FILE__, __LINE__)
 
 #define LOREM_IPSUM_LENGTH 2725
 #define LOREM_IPSUM                                                     \
