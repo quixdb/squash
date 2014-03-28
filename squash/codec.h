@@ -37,39 +37,39 @@ SQUASH_BEGIN_DECLS
 
 struct _SquashCodecFuncs {
   /* Options */
-  SquashOptions*  (* create_options)          (SquashCodec* codec);
-  SquashStatus    (* parse_option)            (SquashOptions* options, const char* key, const char* value);
+  SquashOptions*      (* create_options)          (SquashCodec* codec);
+  SquashStatus        (* parse_option)            (SquashOptions* options, const char* key, const char* value);
 
   /* Streams */
-  SquashStream*   (* create_stream)           (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-  SquashStatus    (* process_stream)          (SquashStream* stream);
-  SquashStatus    (* flush_stream)            (SquashStream* stream);
-  SquashStatus    (* finish_stream)           (SquashStream* stream);
+  SquashStream*       (* create_stream)           (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
+  SquashStatus        (* process_stream)          (SquashStream* stream);
+  SquashStatus        (* flush_stream)            (SquashStream* stream);
+  SquashStatus        (* finish_stream)           (SquashStream* stream);
 
   /* Buffers */
-  SquashStatus    (* decompress_buffer)       (SquashCodec* codec,
-                                               uint8_t* decompressed, size_t* decompressed_length,
-                                               const uint8_t* compressed, size_t compressed_length,
-                                               SquashOptions* options);
-  SquashStatus    (* compress_buffer)         (SquashCodec* codec,
-                                               uint8_t* compressed, size_t* compressed_length,
-                                               const uint8_t* uncompressed, size_t uncompressed_length,
-                                               SquashOptions* options);
+  SquashStatus        (* decompress_buffer)       (SquashCodec* codec,
+                                                   uint8_t* decompressed, size_t* decompressed_length,
+                                                   const uint8_t* compressed, size_t compressed_length,
+                                                   SquashOptions* options);
+  SquashStatus        (* compress_buffer)         (SquashCodec* codec,
+                                                   uint8_t* compressed, size_t* compressed_length,
+                                                   const uint8_t* uncompressed, size_t uncompressed_length,
+                                                   SquashOptions* options);
 
   /* Codecs */
-  size_t          (* get_uncompressed_size)   (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
-  size_t          (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_length);
-  size_t          (* get_features)            (SquashCodec* codec);
+  size_t              (* get_uncompressed_size)   (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
+  size_t              (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_length);
+  SquashCodecFeatures (* get_features)            (SquashCodec* codec);
 
   /* Reserved */
-  void            (* _reserved1)              (void);
-  void            (* _reserved2)              (void);
-  void            (* _reserved3)              (void);
-  void            (* _reserved4)              (void);
-  void            (* _reserved5)              (void);
-  void            (* _reserved6)              (void);
-  void            (* _reserved7)              (void);
-  void            (* _reserved8)              (void);
+  void                (* _reserved1)              (void);
+  void                (* _reserved2)              (void);
+  void                (* _reserved3)              (void);
+  void                (* _reserved4)              (void);
+  void                (* _reserved5)              (void);
+  void                (* _reserved6)              (void);
+  void                (* _reserved7)              (void);
+  void                (* _reserved8)              (void);
 };
 
 typedef void (*SquashCodecForeachFunc) (SquashCodec* codec, void* data);

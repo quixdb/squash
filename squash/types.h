@@ -45,7 +45,9 @@ typedef struct _SquashPlugin     SquashPlugin;
 
 typedef enum _SquashCodecFeatures {
   SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE = 1 << 0,
-  SQUASH_CODEC_FEATURE_CAN_FLUSH               = 1 << 1
+  SQUASH_CODEC_FEATURE_CAN_FLUSH               = 1 << 1,
+  SQUASH_CODEC_FEATURE_COMPRESS_IN_PLACE       = 1 << 2,
+  SQUASH_CODEC_FEATURE_DECOMPRESS_IN_PLACE     = 1 << 3
 } SquashCodecFeatures;
 
 SQUASH_END_DECLS

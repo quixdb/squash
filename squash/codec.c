@@ -355,16 +355,10 @@ squash_codec_get_funcs (SquashCodec* codec) {
 SquashCodecFeatures
 squash_codec_get_features (SquashCodec* codec) {
   SquashCodecFeatures features = 0;
-  SquashPlugin* plugin = NULL;
-  SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
 
-  plugin = codec->plugin;
-  assert (plugin != NULL);
-
-  funcs = squash_codec_get_funcs (codec);
-
+  SquashCodecFuncs* funcs = squash_codec_get_funcs (codec);
   if (funcs->get_features != NULL)
     features = funcs->get_features (codec);
 
@@ -560,10 +554,18 @@ squash_codec_compress_with_options (SquashCodec* codec,
   plugin = codec->plugin;
   assert (plugin != NULL);
 
+  assert (compressed != NULL);
+  assert (uncompressed != NULL);
+
   funcs = squash_codec_get_funcs (codec);
-  if (funcs == NULL) {
+  if (funcs == NULL)
     return SQUASH_UNABLE_TO_LOAD;
-  } else if (funcs->compress_buffer != NULL) {
+
+  if (compressed == uncompressed &&
+      ((squash_codec_get_features (codec) & SQUASH_CODEC_FEATURE_COMPRESS_IN_PLACE) != SQUASH_CODEC_FEATURE_COMPRESS_IN_PLACE))
+    return SQUASH_INVALID_BUFFER;
+
+  if (funcs->compress_buffer != NULL) {
     return funcs->compress_buffer (codec,
                                    compressed, compressed_length,
                                    uncompressed, uncompressed_length,
@@ -661,9 +663,14 @@ squash_codec_decompress_with_options (SquashCodec* codec,
   assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
-  if (funcs == NULL) {
+  if (funcs == NULL)
     return SQUASH_UNABLE_TO_LOAD;
-  } else if (funcs->decompress_buffer != NULL) {
+
+  if (decompressed == compressed &&
+      ((squash_codec_get_features (codec) & SQUASH_CODEC_FEATURE_DECOMPRESS_IN_PLACE) != SQUASH_CODEC_FEATURE_DECOMPRESS_IN_PLACE))
+    return SQUASH_INVALID_BUFFER;
+
+  if (funcs->decompress_buffer != NULL) {
     return funcs->decompress_buffer (codec,
                                      decompressed, decompressed_length,
                                      compressed, compressed_length,

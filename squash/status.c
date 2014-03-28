@@ -100,6 +100,11 @@
  */
 
 /**
+ * @var SquashStreamType_e::SQUASH_INVALID_BUFFER
+ * @brief A buffer passed to squash was invalid
+ */
+
+/**
  * @brief Get a string representation of a status code.
  *
  * @param status The status.
@@ -134,6 +139,8 @@ squash_status_to_string (SquashStatus status) {
       return "The requested operation is not available";
     case SQUASH_NOT_FOUND:
       return "The requested codec could not be found";
+    case SQUASH_INVALID_BUFFER:
+      return "Invalid buffer";
     default:
       return "Unknown.";
   }
