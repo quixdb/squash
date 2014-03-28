@@ -4,8 +4,7 @@ set (codec_tests
   stream-compress
   stream-decompress
   single-byte
-  threads
-  in-place)
+  threads)
 
 find_package(PkgConfig)
 

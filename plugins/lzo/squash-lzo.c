@@ -376,12 +376,6 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   return squash_lzo_status_to_squash_status (lzo_e);
 }
 
-static SquashCodecFeatures
-squash_lzo_get_features (SquashCodec* codec) {
-  return
-    SQUASH_CODEC_FEATURE_COMPRESS_IN_PLACE;
-}
-
 SquashStatus
 squash_plugin_init (SquashPlugin* plugin) {
   return squash_lzo_status_to_squash_status (lzo_init ());
@@ -395,7 +389,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
     funcs->decompress_buffer = squash_lzo_decompress_buffer;
     funcs->compress_buffer = squash_lzo_compress_buffer;
-    funcs->get_features = squash_lzo_get_features;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

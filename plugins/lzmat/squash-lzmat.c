@@ -95,12 +95,6 @@ squash_lzmat_decompress_buffer (SquashCodec* codec,
   return SQUASH_OK;
 }
 
-static SquashCodecFeatures
-squash_lzmat_get_features (SquashCodec* codec) {
-  return
-    SQUASH_CODEC_FEATURE_COMPRESS_IN_PLACE;
-}
-
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
@@ -109,7 +103,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->get_max_compressed_size = squash_lzmat_get_max_compressed_size;
     funcs->compress_buffer = squash_lzmat_compress_buffer;
     funcs->decompress_buffer = squash_lzmat_decompress_buffer;
-    funcs->get_features = squash_lzmat_get_features;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }
