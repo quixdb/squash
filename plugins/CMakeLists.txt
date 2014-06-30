@@ -4,6 +4,7 @@ set (plugins_available
   doboz
   fari
   fastlz
+  gipfeli
   ipp
   lz4
   lzf

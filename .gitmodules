@@ -37,3 +37,6 @@
 [submodule "plugins/fari/FastARI"]
 	path = plugins/fari/FastARI
 	url = https://github.com/davidcatt/FastARI.git
+[submodule "plugins/gipfeli/gipfeli"]
+	path = plugins/gipfeli/gipfeli
+	url = https://github.com/google/gipfeli.git
