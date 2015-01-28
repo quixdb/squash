@@ -43,3 +43,6 @@
 [submodule "plugins/lzham/lzham"]
 	path = plugins/lzham/lzham
 	url = https://github.com/richgel999/lzham_codec.git
+[submodule "plugins/brotli/brotli"]
+	path = plugins/brotli/brotli
+	url = https://github.com/google/brotli.git
