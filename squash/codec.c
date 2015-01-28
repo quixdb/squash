@@ -700,6 +700,7 @@ squash_codec_decompress_with_options (SquashCodec* codec,
       }
     }
 
+    assert (stream->stream_type == SQUASH_STREAM_DECOMPRESS);
     squash_object_unref (stream);
 
     return status;

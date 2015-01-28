@@ -9,6 +9,7 @@ set (plugins_available
   lz4
   lzf
   lzg
+  lzham
   lzjb
   lzma
   lzmat
@@ -26,4 +27,3 @@ foreach (plugin ${plugins_available})
     add_subdirectory (${plugin})
   endif()
 endforeach(plugin)
-

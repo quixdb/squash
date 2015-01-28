@@ -40,3 +40,6 @@
 [submodule "plugins/gipfeli/gipfeli"]
 	path = plugins/gipfeli/gipfeli
 	url = https://github.com/google/gipfeli.git
+[submodule "plugins/lzham/lzham"]
+	path = plugins/lzham/lzham
+	url = https://github.com/richgel999/lzham_codec.git
