@@ -265,11 +265,6 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
   size_t input_size = stream->avail_in;
   size_t output_size = stream->avail_out;
 
-  fprintf (stderr, "%s %zu @ %p -> %zu @ %p\n",
-           (stream->stream_type == SQUASH_STREAM_COMPRESS) ? "ENC" : "DEC",
-           stream->avail_in, stream->next_in,
-           stream->avail_out, stream->next_out);
-
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     lzham_compress_status_t status;
 
@@ -288,7 +283,6 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
         res = SQUASH_OK;
         break;
       default:
-        fprintf (stderr, "o_o %d\n", status);
         res = SQUASH_FAILED;
         break;
     }
@@ -310,7 +304,6 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
         res = SQUASH_OK;
         break;
       default:
-        fprintf (stderr, "o_o %d\n", status);
         res = SQUASH_FAILED;
         break;
     }
@@ -320,12 +313,6 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
   stream->avail_in  -= input_size;
   stream->next_out  += output_size;
   stream->avail_out -= output_size;
-
-  fprintf (stderr, "<<< %zu @ %p -> %zu @ %p\n",
-           stream->avail_in, stream->next_in,
-           stream->avail_out, stream->next_out);
-
-  fprintf (stderr, "::> %d (%s)\n", res, squash_status_to_string (res));
 
   return res;
 }
