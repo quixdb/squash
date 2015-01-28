@@ -14,7 +14,9 @@ set (brotli_sources
   brotli/enc/literal_cost.cc
   brotli/tools/bro.cc)
 
-squash_plugin_add (brotli brotli_sources)
-squash_plugin_add_include_directories (brotli brotli)
+if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
+  squash_plugin_add (brotli brotli_sources)
+  squash_plugin_add_include_directories (brotli brotli)
 
-list (APPEND CMAKE_CXX_FLAGS "-std=c++11")
+  list (APPEND CMAKE_CXX_FLAGS "-std=c++11")
+endif ()
