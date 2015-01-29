@@ -28,9 +28,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <pthread.h>
 
 #include <squash/squash.h>
+
+#if !(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L)) && !defined(_Thread_local)
+ #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
+  #define _Thread_local __thread
+ #else
+  #define _Thread_local __declspec(thread)
+ #endif
+#elif defined(__GNUC__) && defined(__GNUC_MINOR__) && (((__GNUC__ << 8) | __GNUC_MINOR__) < ((4 << 8) | 9))
+ #define _Thread_local __thread
+#endif
 
 #include "libzpaq.h"
 
@@ -84,17 +93,17 @@ static SquashZpaqStream*  squash_zpaq_stream_new      (SquashCodec* codec, Squas
 static void               squash_zpaq_stream_destroy  (void* stream);
 static void               squash_zpaq_stream_free     (void* stream);
 
+static _Thread_local SquashStream* squash_zpaq_thread_stream = NULL;
+
 void
 libzpaq::error (const char* msg) {
-  fprintf (stderr, "ERROR: %s\n", msg);
-  exit (-1);
+  assert (squash_zpaq_thread_stream != NULL);
+  squash_stream_yield (squash_zpaq_thread_stream, SQUASH_FAILED);
 }
 
 SquashZpaqIO::SquashZpaqIO (SquashZpaqStream* stream) {
   this->stream = stream;
 }
-
-size_t bytes_read = 0;
 
 int SquashZpaqIO::get () {
   SquashStream* stream = (SquashStream*) this->stream;
@@ -109,7 +118,6 @@ int SquashZpaqIO::get () {
     int r = stream->next_in[0];
     stream->next_in++;
     stream->avail_in--;
-    bytes_read++;
     return r;
   }
 }
@@ -246,9 +254,13 @@ squash_zpaq_thread_process (SquashStream* stream, SquashOperation operation) {
   s->operation = operation;
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    squash_zpaq_thread_stream = stream;
     compress (s->stream, s->stream, (stream->options != NULL) ? ((SquashZpaqOptions*) stream->options)->level : 1);
+    squash_zpaq_thread_stream = NULL;
   } else {
+    squash_zpaq_thread_stream = stream;
     decompress (s->stream, s->stream);
+    squash_zpaq_thread_stream = NULL;
   }
 
   return SQUASH_OK;
