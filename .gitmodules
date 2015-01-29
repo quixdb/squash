@@ -16,9 +16,6 @@
 [submodule "plugins/blosc/blosc"]
 	path = plugins/blosc/blosc
 	url = https://github.com/FrancescAlted/blosc.git
-[submodule "plugins/zpaq/zpaq"]
-	path = plugins/zpaq/zpaq
-	url = https://github.com/nemequ/zpaq
 [submodule "plugins/lzg/liblzg"]
 	path = plugins/lzg/liblzg
 	url = git://gitorious.org/liblzg/liblzg.git
@@ -33,7 +30,7 @@
 	url = https://github.com/nemequ/lzjb.git
 [submodule "squash/tinycthread"]
 	path = squash/tinycthread
-	url = git://gitorious.org/tinythread/nemequ-tinycthread.git
+	url = https://github.com/tinycthread/tinycthread.git
 [submodule "plugins/fari/FastARI"]
 	path = plugins/fari/FastARI
 	url = https://github.com/davidcatt/FastARI.git
@@ -46,3 +43,6 @@
 [submodule "plugins/brotli/brotli"]
 	path = plugins/brotli/brotli
 	url = https://github.com/google/brotli.git
+[submodule "plugins/zpaq/zpaq"]
+	path = plugins/zpaq/zpaq
+	url = https://github.com/zpaq/zpaq.git
