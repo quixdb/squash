@@ -269,9 +269,6 @@ squash_stream_init (void* stream,
     s->priv = NULL;
   } else {
     s->priv = malloc (sizeof (SquashStreamPrivate));
-    if (s->priv == NULL) {
-      return SQUASH_MEMORY;
-    }
 
     mtx_init (&(s->priv->input_mtx), mtx_plain);
     cnd_init (&(s->priv->input_cnd));
