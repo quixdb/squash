@@ -61,6 +61,8 @@ struct _SquashCodecFuncs {
   size_t              (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_length);
   SquashCodecFeatures (* get_features)            (SquashCodec* codec);
 
+  SquashStatus        (* thread_process)          (SquashStream* stream, SquashOperation operation);
+
   /* Reserved */
   void                (* _reserved1)              (void);
   void                (* _reserved2)              (void);
@@ -69,7 +71,6 @@ struct _SquashCodecFuncs {
   void                (* _reserved5)              (void);
   void                (* _reserved6)              (void);
   void                (* _reserved7)              (void);
-  void                (* _reserved8)              (void);
 };
 
 typedef void (*SquashCodecForeachFunc) (SquashCodec* codec, void* data);

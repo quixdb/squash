@@ -142,6 +142,87 @@
  * @brief Compression/decompression streams.
  */
 
+#define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
+#define SQUASH_STATUS_INVALID ((SquashStatus) 0)
+
+struct _SquashStreamPrivate {
+  thrd_t thread;
+  bool thread_active;
+
+  mtx_t input_mtx;
+  cnd_t input_cnd;
+  SquashOperation request;
+
+  mtx_t output_mtx;
+  cnd_t output_cnd;
+  SquashStatus result;
+};
+
+static int
+squash_stream_thread_func (SquashStream* stream) {
+  SquashStreamPrivate* priv = stream->priv;
+  SquashOperation operation;
+  SquashStatus status;
+
+  mtx_lock (&(priv->input_mtx));
+  while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
+    cnd_wait (&(priv->input_cnd), &(priv->input_mtx));
+  }
+  priv->request = SQUASH_OPERATION_INVALID;
+  mtx_unlock (&(priv->input_mtx));
+
+  status = stream->codec->funcs.thread_process (stream, operation);
+
+  mtx_lock (&(priv->output_mtx));
+  priv->thread_active = false;
+  priv->result = status;
+  cnd_signal (&(priv->output_cnd));
+  mtx_unlock (&(priv->output_mtx));
+
+  return 0;
+}
+
+SquashOperation
+squash_stream_yield (SquashStream* stream, SquashStatus status) {
+  SquashStreamPrivate* priv = stream->priv;
+  SquashOperation operation;
+
+  mtx_lock (&(priv->output_mtx));
+  priv->result = status;
+  cnd_signal (&(priv->output_cnd));
+  mtx_unlock (&(priv->output_mtx));
+
+  mtx_lock (&(priv->input_mtx));
+  while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
+    cnd_wait (&(priv->input_cnd), &(priv->input_mtx));
+  }
+  priv->request = SQUASH_OPERATION_INVALID;
+  mtx_unlock (&(priv->input_mtx));
+
+  return operation;
+}
+
+static SquashStatus
+squash_stream_send_to_thread (SquashStream* stream, SquashOperation operation) {
+  SquashStreamPrivate* priv = stream->priv;
+  SquashStatus result;
+
+  mtx_lock (&(priv->input_mtx));
+  mtx_lock (&(priv->output_mtx));
+
+  priv->request = operation;
+  cnd_signal (&(priv->input_cnd));
+  mtx_unlock (&(priv->input_mtx));
+
+  while ((result = priv->result) == SQUASH_STATUS_INVALID) {
+    cnd_wait (&(priv->output_cnd), &(priv->output_mtx));
+  }
+  priv->result = SQUASH_STATUS_INVALID;
+  mtx_unlock (&(priv->output_mtx));
+
+  return result;
+}
+
 /**
  * @brief Initialize a stream.
  * @protected
@@ -150,7 +231,7 @@
  * @param codec The codec to use.
  * @param stream_type The stream type.
  * @param options The options.
- * @param destroy_notify Function to squashl to destroy the instance.
+ * @param destroy_notify Function to call to destroy the instance.
  *
  * @see squash_object_init
  */
@@ -168,8 +249,6 @@ squash_stream_init (void* stream,
 
   squash_object_init (stream, false, destroy_notify);
 
-  s->priv = NULL;
-
   s->next_in = NULL;
   s->avail_in = 0;
   s->total_in = 0;
@@ -185,6 +264,26 @@ squash_stream_init (void* stream,
 
   s->user_data = NULL;
   s->destroy_user_data = NULL;
+
+  if (SQUASH_LIKELY(codec->funcs.thread_process == NULL)) {
+    s->priv = NULL;
+  } else {
+    s->priv = malloc (sizeof (SquashStreamPrivate));
+    if (s->priv == NULL) {
+      return SQUASH_MEMORY;
+    }
+
+    mtx_init (&(s->priv->input_mtx), mtx_plain);
+    cnd_init (&(s->priv->input_cnd));
+    mtx_init (&(s->priv->output_mtx), mtx_plain);
+    cnd_init (&(s->priv->output_cnd));
+
+    s->priv->request = SQUASH_OPERATION_INVALID;
+    s->priv->result = SQUASH_STATUS_INVALID;
+
+    s->priv->thread_active = true;
+    thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
+  }
 }
 
 /**
@@ -202,6 +301,10 @@ squash_stream_destroy (void* stream) {
   assert (stream != NULL);
 
   s = (SquashStream*) stream;
+
+  if (SQUASH_UNLIKELY(s->priv != NULL)) {
+    free (s->priv);
+  }
 
   if (s->destroy_user_data != NULL && s->user_data != NULL) {
     s->destroy_user_data (s->user_data);
@@ -304,11 +407,11 @@ squash_stream_new_with_options (const char* codec,
 }
 
 static SquashStatus
-squash_stream_process_internal (SquashStream* stream, int operation) {
+squash_stream_process_internal (SquashStream* stream, SquashOperation operation) {
   SquashCodec* codec;
   SquashCodecFuncs* funcs = NULL;
   SquashStatus res;
-  int current_operation;
+  SquashOperation current_operation;
 
   assert (stream != NULL);
   codec = stream->codec;
@@ -318,7 +421,7 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
 
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
-  if (operation == 1 && funcs->flush_stream == NULL) {
+  if (operation == SQUASH_OPERATION_FLUSH && funcs->flush_stream == NULL) {
     return SQUASH_INVALID_OPERATION;
   }
 
@@ -340,25 +443,25 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
      represent the state of the stream, though it probably isn't wise
      to depend on that behavior. */
 
-  if ((operation == 0 && stream->state > SQUASH_STREAM_STATE_RUNNING) ||
-      (operation == 1 && stream->state > SQUASH_STREAM_STATE_FLUSHING) ||
-      (operation == 2 && stream->state > SQUASH_STREAM_STATE_FINISHING)) {
+  if ((operation == SQUASH_OPERATION_PROCESS && stream->state > SQUASH_STREAM_STATE_RUNNING) ||
+      (operation == SQUASH_OPERATION_FLUSH   && stream->state > SQUASH_STREAM_STATE_FLUSHING) ||
+      (operation == SQUASH_OPERATION_FINISH  && stream->state > SQUASH_STREAM_STATE_FINISHING)) {
     return SQUASH_STATE;
   }
 
   switch (stream->state) {
     case SQUASH_STREAM_STATE_IDLE:
     case SQUASH_STREAM_STATE_RUNNING:
-      current_operation = 0;
+      current_operation = SQUASH_OPERATION_PROCESS;
       break;
     case SQUASH_STREAM_STATE_FLUSHING:
-      current_operation = 1;
+      current_operation = SQUASH_OPERATION_FLUSH;
       break;
     case SQUASH_STREAM_STATE_FINISHING:
-      current_operation = 2;
+      current_operation = SQUASH_OPERATION_FINISH;
       break;
     case SQUASH_STREAM_STATE_FINISHED:
-      current_operation = 3;
+      current_operation = (SQUASH_OPERATION_FINISH + 1);
       break;
   }
 
@@ -402,20 +505,24 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
   }
 
   while (current_operation <= operation) {
-    if (current_operation == 0) {
+    if (current_operation == SQUASH_OPERATION_PROCESS) {
       /* Process */
       if (stream->avail_in == 0 && stream->state == SQUASH_STREAM_STATE_IDLE) {
         res = SQUASH_OK;
       } else if (funcs->process_stream != NULL) {
         res = funcs->process_stream (stream);
+      } else if (funcs->thread_process != NULL) {
+        res = squash_stream_send_to_thread (stream, current_operation);
       } else {
         res = squash_buffer_stream_process ((SquashBufferStream*) stream);
       }
-    } else if (current_operation == 1) {
+    } else if (current_operation == SQUASH_OPERATION_FLUSH) {
       /* Flush */
       if (current_operation == operation) {
         if (funcs->flush_stream != NULL) {
           res = funcs->flush_stream (stream);
+        } else if (funcs->thread_process != NULL) {
+          res = squash_stream_send_to_thread (stream, current_operation);
         } else {
           /* We aready checked to make sure flush_stream exists if the
              user called flush directly, so if this code is reached the
@@ -425,10 +532,12 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
           res = SQUASH_OK;
         }
       }
-    } else if (current_operation == 2) {
+    } else if (current_operation == SQUASH_OPERATION_FINISH) {
       /* Finish */
       if (funcs->finish_stream != NULL) {
         res = funcs->finish_stream (stream);
+      } else if (funcs->thread_process != NULL) {
+        res = squash_stream_send_to_thread (stream, current_operation);
       } else if (funcs->process_stream == NULL) {
         res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
       } else {
@@ -452,18 +561,18 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
 
     if (res == SQUASH_PROCESSING) {
       switch (current_operation) {
-        case 0:
+        case SQUASH_OPERATION_PROCESS:
           stream->state = SQUASH_STREAM_STATE_RUNNING;
           break;
-        case 1:
+        case SQUASH_OPERATION_FLUSH:
           stream->state = SQUASH_STREAM_STATE_FLUSHING;
           break;
-        case 2:
+        case SQUASH_OPERATION_FINISH:
           stream->state = SQUASH_STREAM_STATE_FINISHING;
           break;
       }
       break;
-    } else if (res == SQUASH_END_OF_STREAM || (current_operation == 2 && res == SQUASH_OK)) {
+    } else if (res == SQUASH_END_OF_STREAM || (current_operation == SQUASH_OPERATION_FINISH && res == SQUASH_OK)) {
       stream->state = SQUASH_STREAM_STATE_FINISHED;
       current_operation++;
       break;
@@ -505,7 +614,7 @@ squash_stream_process_internal (SquashStream* stream, int operation) {
  */
 SquashStatus
 squash_stream_process (SquashStream* stream) {
-  return squash_stream_process_internal (stream, 0);
+  return squash_stream_process_internal (stream, SQUASH_OPERATION_PROCESS);
 }
 
 /**
@@ -520,7 +629,7 @@ squash_stream_process (SquashStream* stream) {
  */
 SquashStatus
 squash_stream_flush (SquashStream* stream) {
-  return squash_stream_process_internal (stream, 1);
+  return squash_stream_process_internal (stream, SQUASH_OPERATION_FLUSH);
 }
 
 /**
@@ -531,7 +640,7 @@ squash_stream_flush (SquashStream* stream) {
  */
 SquashStatus
 squash_stream_finish (SquashStream* stream) {
-  return squash_stream_process_internal (stream, 2);
+  return squash_stream_process_internal (stream, SQUASH_OPERATION_FINISH);
 }
 
 /**

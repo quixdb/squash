@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -48,6 +48,12 @@ typedef enum {
   SQUASH_STREAM_STATE_FINISHED = 4
 } SquashStreamState;
 
+typedef enum {
+  SQUASH_OPERATION_PROCESS = 1,
+  SQUASH_OPERATION_FLUSH = 2,
+  SQUASH_OPERATION_FINISH = 3
+} SquashOperation;
+
 struct _SquashStream {
   SquashObject base_object;
   SquashStreamPrivate* priv;
@@ -69,21 +75,32 @@ struct _SquashStream {
   SquashDestroyNotify destroy_user_data;
 };
 
-SQUASH_API SquashStream* squash_stream_new              (const char* codec, SquashStreamType stream_type, ...);
-SQUASH_API SquashStream* squash_stream_newv             (const char* codec, SquashStreamType stream_type, va_list options);
-SQUASH_API SquashStream* squash_stream_newa             (const char* codec, SquashStreamType stream_type, const char* const* keys, const char* const* values);
-SQUASH_API SquashStream* squash_stream_new_with_options (const char* codec, SquashStreamType stream_type, SquashOptions* options);
+SQUASH_API SquashStream*   squash_stream_new              (const char* codec,
+                                                           SquashStreamType stream_type,
+                                                           ...);
+SQUASH_API SquashStream*   squash_stream_newv             (const char* codec,
+                                                           SquashStreamType stream_type,
+                                                           va_list options);
+SQUASH_API SquashStream*   squash_stream_newa             (const char* codec,
+                                                           SquashStreamType stream_type,
+                                                           const char* const* keys,
+                                                           const char* const* values);
+SQUASH_API SquashStream*   squash_stream_new_with_options (const char* codec,
+                                                           SquashStreamType stream_type,
+                                                           SquashOptions* options);
 
-SQUASH_API SquashStatus  squash_stream_process          (SquashStream* stream);
-SQUASH_API SquashStatus  squash_stream_flush            (SquashStream* stream);
-SQUASH_API SquashStatus  squash_stream_finish           (SquashStream* stream);
+SQUASH_API SquashStatus    squash_stream_process          (SquashStream* stream);
+SQUASH_API SquashStatus    squash_stream_flush            (SquashStream* stream);
+SQUASH_API SquashStatus    squash_stream_finish           (SquashStream* stream);
 
-SQUASH_API void          squash_stream_init             (void* stream,
-                                                         SquashCodec* codec,
-                                                         SquashStreamType stream_type,
-                                                         SquashOptions* options,
-                                                         SquashDestroyNotify destroy_notify);
-SQUASH_API void          squash_stream_destroy          (void* stream);
+SQUASH_API void            squash_stream_init             (void* stream,
+                                                           SquashCodec* codec,
+                                                           SquashStreamType stream_type,
+                                                           SquashOptions* options,
+                                                           SquashDestroyNotify destroy_notify);
+SQUASH_API void            squash_stream_destroy          (void* stream);
+
+SQUASH_API SquashOperation squash_stream_yield            (SquashStream* stream, SquashStatus status);
 
 SQUASH_END_DECLS
 
