@@ -391,6 +391,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("gzip", name) == 0 ||
       strcmp ("zlib", name) == 0 ||
       strcmp ("deflate", name) == 0) {
+    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     funcs->create_options = squash_zlib_create_options;
     funcs->parse_option = squash_zlib_parse_option;
     funcs->create_stream = squash_zlib_create_stream;

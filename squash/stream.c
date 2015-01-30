@@ -509,7 +509,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       } else if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
         res = squash_stream_send_to_thread (stream, current_operation);
       } else if (funcs->process_stream != NULL) {
-        res = funcs->process_stream (stream, operation);
+        res = funcs->process_stream (stream, current_operation);
       } else {
         res = squash_buffer_stream_process ((SquashBufferStream*) stream);
       }
