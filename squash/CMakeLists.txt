@@ -1,5 +1,7 @@
 add_definitions (-DSQUASH_COMPILATION)
 
+configure_file (version.h.in version.h)
+
 set (squash_SOURCES
   buffer.c
   codec.c
@@ -22,8 +24,7 @@ set (squash_PUBLIC_HEADERS
   squash.h
   status.h
   stream.h
-  types.h
-  version.h)
+  types.h)
 
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 add_extra_warning_flags (TARGET squash${SQUASH_VERSION_API})
@@ -48,5 +49,5 @@ endif ()
 install (TARGETS squash${SQUASH_VERSION_API}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${squash_PUBLIC_HEADERS}
+install(FILES ${squash_PUBLIC_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/version.h
   DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash)
