@@ -76,5 +76,6 @@
 #include "buffer-stream-internal.h"
 #include "ini-internal.h"
 #include "mtx-internal.h"
+#include "stream-internal.h"
 
 #endif /* SQUASH_INTERNAL_H */

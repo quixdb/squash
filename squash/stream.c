@@ -142,21 +142,13 @@
  * @brief Compression/decompression streams.
  */
 
-#define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
-#define SQUASH_STATUS_INVALID ((SquashStatus) 0)
-
-struct _SquashStreamPrivate {
-  thrd_t thread;
-  bool thread_active;
-
-  mtx_t input_mtx;
-  cnd_t input_cnd;
-  SquashOperation request;
-
-  mtx_t output_mtx;
-  cnd_t output_cnd;
-  SquashStatus result;
-};
+/**
+ * @struct _SquashStreamPrivate
+ * @brief Private data for streams
+ *
+ * Currently this is used exclusively for information for thread-based
+ * plugins.
+ */
 
 static int
 squash_stream_thread_func (SquashStream* stream) {
@@ -182,6 +174,17 @@ squash_stream_thread_func (SquashStream* stream) {
   return 0;
 }
 
+/**
+ * @brief Yield execution back to the main thread
+ * @protected
+ *
+ * This function may only be called inside the processing thread
+ * spawned for thread-based plugins.
+ *
+ * @param stream The stream
+ * @param status Status code to return for the current request
+ * @return The code of the next requested operation
+ */
 SquashOperation
 squash_stream_yield (SquashStream* stream, SquashStatus status) {
   SquashStreamPrivate* priv = stream->priv;

@@ -54,6 +54,11 @@
  */
 
 /**
+ * @var _SquashCodecFuncs::info
+ * @brief Capability information about the codec
+ */
+
+/**
  * @var _SquashCodecFuncs::create_options
  * @brief Create a new %SquashOptions instance.
  *
@@ -90,29 +95,10 @@
  * @brief Process a %SquashStream.
  *
  * @param stream The stream.
+ * @param operation The operation to perform.
  * @return A status code.
  *
  * @see squash_stream_process
- */
-
-/**
- * @var _SquashCodecFuncs::flush_stream
- * @brief Flush a %SquashStream.
- *
- * @param stream The stream.
- * @return A status code.
- *
- * @see squash_stream_flush
- */
-
-/**
- * @var _SquashCodecFuncs::finish_stream
- * @brief Finish writing to stream.
- *
- * @param stream The stream.
- * @return A status code.
- *
- * @see squash_stream_finish
  */
 
 /**
@@ -137,14 +123,6 @@
  *   compressed data.
  *
  * @see squash_codec_get_max_compressed_size
- */
-
-/**
- * @var _SquashCodecFuncs::get_features
- * @brief Get the features this codec supports.
- *
- * @param codec The codec.
- * @return features supported by the codec.
  */
 
 /**
@@ -335,9 +313,9 @@ squash_codec_get_funcs (SquashCodec* codec) {
  * @brief Get the uncompressed size of the compressed buffer
  *
  * This function is only useful for codecs where the return value of
- * ::squash_codec_get_features includes
- * *SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE*.  For situations where the
- * codec does not know the uncompressed size, *0* will be returned.
+ * ::squash_codec_knows_uncompressed_size is true.  For situations
+ * where the codec does not know the uncompressed size, *0* will be
+ * returned.
  *
  * @param codec The codec
  * @param compressed The compressed data
@@ -1264,11 +1242,25 @@ squash_decompress_file (const char* codec,
   return squash_decompress_file_with_options (codec, decompressed, compressed, options);
 }
 
+/**
+ * @brief Check whether a codec knows the size of the uncompressed
+ *   data based on the compressed data
+ *
+ * @param codec The codec to check
+ * @return true if it does, false if it doesn't
+ */
 bool
 squash_codec_knows_uncompressed_size (SquashCodec* codec) {
   return codec->funcs.get_uncompressed_size != NULL;
 }
 
+/**
+ * @brief Check whether a codec knows the size of the uncompressed
+ *   data based on the compressed data
+ *
+ * @param codec The codec to check
+ * @return true if it does, false if it doesn't
+ */
 bool squash_knows_uncompressed_size (const char* codec) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
@@ -1278,11 +1270,23 @@ bool squash_knows_uncompressed_size (const char* codec) {
     return false;
 }
 
+/**
+ * @brief Check whether a codec knows can flush
+ *
+ * @param codec The codec to check
+ * @return true if it can, false if it cannot
+ */
 bool
 squash_codec_can_flush (SquashCodec* codec) {
   return (codec->funcs.info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH;
 }
 
+/**
+ * @brief Check whether a codec knows can flush
+ *
+ * @param codec The codec to check
+ * @return true if it can, false if it cannot
+ */
 bool squash_can_flush (const char* codec) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
