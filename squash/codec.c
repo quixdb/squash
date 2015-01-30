@@ -241,21 +241,6 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
  */
 
 /**
- * @enum SquashCodecFeatures
- * @brief Optional features supported by some codecs
- */
-
-/**
- * @var SquashCodecFeatures::SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE
- * @brief Knows the size of the uncompressed buffer without decompressing it.
- */
-
-/**
- * @var SquashCodecFeatures::SQUASH_CODEC_FEATURE_CAN_FLUSH
- * @brief Can flush so all input is available in the output.
- */
-
-/**
  * @typedef SquashCodecForeachFunc
  * @brief Squashlback to be invoked on each @ref SquashCodec in a set
  *
@@ -344,28 +329,6 @@ squash_codec_get_funcs (SquashCodec* codec) {
   }
 
   return &(codec->funcs);
-}
-
-/**
- * @brief Get the features implemented by a codec
- *
- * @param codec the codec
- * @return features implemented by the codec
- */
-SquashCodecFeatures
-squash_codec_get_features (SquashCodec* codec) {
-  SquashCodecFeatures features = 0;
-
-  assert (codec != NULL);
-
-  SquashCodecFuncs* funcs = squash_codec_get_funcs (codec);
-  if (funcs->get_features != NULL)
-    features = funcs->get_features (codec);
-
-  if (funcs->get_uncompressed_size != NULL)
-    features |= SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE;
-
-  return features;
 }
 
 /**
@@ -492,7 +455,7 @@ squash_codec_create_stream_with_options (SquashCodec* codec, SquashStreamType st
   if (funcs->create_stream != NULL) {
     return funcs->create_stream (codec, stream_type, options);
   } else {
-    if (funcs->process_stream == NULL && funcs->flush_stream == NULL && funcs->finish_stream == NULL) {
+    if (funcs->process_stream == NULL) {
       return (SquashStream*) squash_buffer_stream_new (codec, stream_type, options);
     } else {
       return NULL;
@@ -1299,6 +1262,34 @@ squash_decompress_file (const char* codec,
   va_end (ap);
 
   return squash_decompress_file_with_options (codec, decompressed, compressed, options);
+}
+
+bool
+squash_codec_knows_uncompressed_size (SquashCodec* codec) {
+  return codec->funcs.get_uncompressed_size != NULL;
+}
+
+bool squash_knows_uncompressed_size (const char* codec) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real != NULL)
+    return squash_codec_knows_uncompressed_size (codec_real);
+  else
+    return false;
+}
+
+bool
+squash_codec_can_flush (SquashCodec* codec) {
+  return (codec->funcs.info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH;
+}
+
+bool squash_can_flush (const char* codec) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real != NULL)
+    return squash_codec_can_flush (codec_real);
+  else
+    return false;
 }
 
 /**

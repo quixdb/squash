@@ -244,7 +244,7 @@ squash_zling_create_stream (SquashCodec* codec, SquashStreamType stream_type, Sq
 }
 
 static SquashStatus
-squash_zling_thread_process (SquashStream* stream, SquashOperation operation) {
+squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashStatus res = SQUASH_OK;
   SquashZlingStream* s = (SquashZlingStream*) stream;
 
@@ -276,10 +276,11 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zling", name) == 0) {
+    funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     funcs->create_options = squash_zling_create_options;
     funcs->parse_option = squash_zling_parse_option;
     funcs->create_stream = squash_zling_create_stream;
-    funcs->thread_process = squash_zling_thread_process;
+    funcs->process_stream = squash_zling_process_stream;
     funcs->get_max_compressed_size = squash_zling_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;

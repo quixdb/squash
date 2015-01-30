@@ -320,7 +320,7 @@ squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
   stream->avail_out = lzma_stream->avail_out
 
 static SquashStatus
-squash_lzma_process_stream (SquashStream* stream) {
+squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
   lzma_stream* lzma_stream;
   lzma_ret lzma_e;
 
@@ -328,39 +328,29 @@ squash_lzma_process_stream (SquashStream* stream) {
   lzma_stream = &(((SquashLZMAStream*) stream)->stream);
 
   SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream, lzma_stream);
-  lzma_e = lzma_code (lzma_stream, LZMA_RUN);
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      lzma_e = lzma_code (lzma_stream, LZMA_RUN);
+      break;
+    case SQUASH_OPERATION_FINISH:
+      lzma_e = lzma_code (lzma_stream, LZMA_FINISH);
+      break;
+  }
   SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, lzma_stream);
 
   if (lzma_e == LZMA_OK) {
-    return (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+    switch (operation) {
+      case SQUASH_OPERATION_PROCESS:
+        return (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+        break;
+      case SQUASH_OPERATION_FINISH:
+        return SQUASH_PROCESSING;
+        break;
+      default:
+        assert (false);
+    }
   } else if (lzma_e == LZMA_STREAM_END) {
     return SQUASH_END_OF_STREAM;
-  } else {
-    return SQUASH_FAILED;
-  }
-}
-
-/* static SquashStatus */
-/* squash_lzma_flush_stream (SquashStream* stream) { */
-/*   return SQUASH_OK; */
-/* } */
-
-static SquashStatus
-squash_lzma_finish_stream (SquashStream* stream) {
-  lzma_stream* lzma_stream;
-  lzma_ret lzma_e;
-
-  assert (stream != NULL);
-  lzma_stream = &(((SquashLZMAStream*) stream)->stream);
-
-  SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream, lzma_stream);
-  lzma_e = lzma_code (lzma_stream, LZMA_FINISH);
-  SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, lzma_stream);
-
-  if (lzma_e == LZMA_OK) {
-    return SQUASH_PROCESSING;
-  } else if (lzma_e == LZMA_STREAM_END) {
-    return SQUASH_OK;
   } else {
     return SQUASH_FAILED;
   }
@@ -383,7 +373,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_lzma_parse_option;
     funcs->create_stream = squash_lzma_create_stream;
     funcs->process_stream = squash_lzma_process_stream;
-    funcs->finish_stream = squash_lzma_finish_stream;
     funcs->get_max_compressed_size = squash_lzma_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;

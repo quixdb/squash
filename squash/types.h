@@ -43,11 +43,6 @@ typedef struct _SquashCodec      SquashCodec;
 typedef struct _SquashCodecFuncs SquashCodecFuncs;
 typedef struct _SquashPlugin     SquashPlugin;
 
-typedef enum _SquashCodecFeatures {
-  SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE = 1 << 0,
-  SQUASH_CODEC_FEATURE_CAN_FLUSH               = 1 << 1
-} SquashCodecFeatures;
-
 SQUASH_END_DECLS
 
 #endif /* SQUASH_TYPES_H */

@@ -206,37 +206,23 @@ squash_sharc_stream_status_to_squash_status (SquashSharcStreamStatus status) {
   stream->avail_out = sharc_stream->avail_out
 
 static SquashStatus
-squash_sharc_process_stream (SquashStream* stream) {
+squash_sharc_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashSharcStream* sharc_stream = &(((SquashSharcPluginStream*) stream)->sharc_stream);
   SquashSharcStreamStatus sharc_e;
 
   SQUASH_SHARC_PLUGIN_STREAM_COPY_TO_SHARC_STREAM(stream, sharc_stream);
-  sharc_e = squash_sharc_stream_process (sharc_stream);
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      sharc_e = squash_sharc_stream_process (sharc_stream);
+      break;
+    case SQUASH_OPERATION_FLUSH:
+      sharc_e = squash_sharc_stream_flush (sharc_stream);
+      break;
+    case SQUASH_OPERATION_FINISH:
+      sharc_e = squash_sharc_stream_finish (sharc_stream);
+      break;
+  }
   SQUASH_SHARC_PLUGIN_STREAM_COPY_FROM_SHARC_STREAM(stream, sharc_stream);
-
-  return squash_sharc_stream_status_to_squash_status (sharc_e);
-}
-
-static SquashStatus
-squash_sharc_flush_stream (SquashStream* stream) {
-  SquashSharcStream* sharc_stream = &(((SquashSharcPluginStream*) stream)->sharc_stream);
-  SquashSharcStreamStatus sharc_e;
-
-  SQUASH_SHARC_PLUGIN_STREAM_COPY_TO_SHARC_STREAM(stream, sharc_stream);
-  sharc_e = squash_sharc_stream_flush (sharc_stream);
-  SQUASH_SHARC_PLUGIN_STREAM_COPY_FROM_SHARC_STREAM(stream,sharc_stream);
-
-  return squash_sharc_stream_status_to_squash_status (sharc_e);
-}
-
-static SquashStatus
-squash_sharc_finish_stream (SquashStream* stream) {
-  SquashSharcStream* sharc_stream = &(((SquashSharcPluginStream*) stream)->sharc_stream);
-  SquashSharcStreamStatus sharc_e;
-
-  SQUASH_SHARC_PLUGIN_STREAM_COPY_TO_SHARC_STREAM(stream, sharc_stream);
-  sharc_e = squash_sharc_stream_finish (sharc_stream);
-  SQUASH_SHARC_PLUGIN_STREAM_COPY_FROM_SHARC_STREAM(stream,sharc_stream);
 
   return squash_sharc_stream_status_to_squash_status (sharc_e);
 }
@@ -258,8 +244,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_sharc_parse_option;
     funcs->create_stream = squash_sharc_create_stream;
     funcs->process_stream = squash_sharc_process_stream;
-    funcs->flush_stream = squash_sharc_flush_stream;
-    funcs->finish_stream = squash_sharc_finish_stream;
     funcs->get_max_compressed_size = squash_sharc_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;

@@ -167,7 +167,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
 
       stream->output->length = compressed_size;
     } else if (stream->base_object.stream_type == SQUASH_STREAM_DECOMPRESS) {
-      if (squash_codec_get_features (stream->base_object.codec) & SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE) {
+      if (stream->base_object.codec->funcs.get_uncompressed_size != NULL) {
         decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->data, stream->input->length);
         stream->output = squash_buffer_new (decompressed_size);
         squash_buffer_set_size (stream->output, decompressed_size);

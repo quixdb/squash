@@ -35,16 +35,24 @@
 
 SQUASH_BEGIN_DECLS
 
+typedef enum {
+  SQUASH_CODEC_INFO_CAN_FLUSH     = 1 <<  0,
+  SQUASH_CODEC_INFO_RUN_IN_THREAD = 1 <<  1,
+  SQUASH_CODEC_INFO_COMPRESS_SAFE = 1 <<  2,
+
+  SQUASH_CODEC_INFO_MASK          = 0xffffffff
+} SquashCodecInfo;
+
 struct _SquashCodecFuncs {
+  SquashCodecInfo        info;
+
   /* Options */
   SquashOptions*      (* create_options)          (SquashCodec* codec);
   SquashStatus        (* parse_option)            (SquashOptions* options, const char* key, const char* value);
 
   /* Streams */
   SquashStream*       (* create_stream)           (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-  SquashStatus        (* process_stream)          (SquashStream* stream);
-  SquashStatus        (* flush_stream)            (SquashStream* stream);
-  SquashStatus        (* finish_stream)           (SquashStream* stream);
+  SquashStatus        (* process_stream)          (SquashStream* stream, SquashOperation operation);
 
   /* Buffers */
   SquashStatus        (* decompress_buffer)       (SquashCodec* codec,
@@ -59,9 +67,6 @@ struct _SquashCodecFuncs {
   /* Codecs */
   size_t              (* get_uncompressed_size)   (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
   size_t              (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_length);
-  SquashCodecFeatures (* get_features)            (SquashCodec* codec);
-
-  SquashStatus        (* thread_process)          (SquashStream* stream, SquashOperation operation);
 
   /* Reserved */
   void                (* _reserved1)              (void);
@@ -71,6 +76,7 @@ struct _SquashCodecFuncs {
   void                (* _reserved5)              (void);
   void                (* _reserved6)              (void);
   void                (* _reserved7)              (void);
+  void                (* _reserved8)              (void);
 };
 
 typedef void (*SquashCodecForeachFunc) (SquashCodec* codec, void* data);
@@ -83,7 +89,6 @@ SQUASH_API const char*         squash_codec_get_extension                (Squash
 
 SQUASH_API size_t              squash_codec_get_uncompressed_size        (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length);
 SQUASH_API size_t              squash_codec_get_max_compressed_size      (SquashCodec* codec, size_t uncompressed_length);
-SQUASH_API SquashCodecFeatures squash_codec_get_features                 (SquashCodec* codec);
 
 SQUASH_API SquashStream*       squash_codec_create_stream                (SquashCodec* codec, SquashStreamType stream_type, ...);
 SQUASH_API SquashStream*       squash_codec_create_stream_with_options   (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
@@ -114,6 +119,8 @@ SQUASH_API SquashStatus        squash_codec_compress_file                (Squash
 SQUASH_API SquashStatus        squash_codec_decompress_file              (SquashCodec* codec,
                                                                           FILE* decompressed, FILE* compressed,
                                                                           ...);
+SQUASH_API bool                squash_codec_knows_uncompressed_size      (SquashCodec* codec);
+SQUASH_API bool                squash_codec_can_flush                    (SquashCodec* codec);
 
 
 SQUASH_API size_t              squash_get_max_compressed_size            (const char* codec, size_t uncompressed_length);
@@ -143,6 +150,8 @@ SQUASH_API SquashStatus        squash_compress_file                      (const 
 SQUASH_API SquashStatus        squash_decompress_file                    (const char* codec,
                                                                           FILE* decompressed, FILE* compressed,
                                                                           ...);
+SQUASH_API bool                squash_knows_uncompressed_size            (const char* codec);
+SQUASH_API bool                squash_can_flush                          (const char* codec);
 
 SQUASH_END_DECLS
 

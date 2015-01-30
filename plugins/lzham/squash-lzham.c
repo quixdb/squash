@@ -257,8 +257,23 @@ squash_lzham_create_stream (SquashCodec* codec, SquashStreamType stream_type, Sq
   return (SquashStream*) squash_lzham_stream_new (codec, stream_type, (SquashLZHAMOptions*) options);
 }
 
+static lzham_flush_t
+squash_operation_to_lzham (SquashOperation operation) {
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      return LZHAM_NO_FLUSH;
+      break;
+    case SQUASH_OPERATION_FLUSH:
+      return LZHAM_SYNC_FLUSH;
+      break;
+    case SQUASH_OPERATION_FINISH:
+      return LZHAM_FINISH;
+      break;
+  }
+}
+
 static SquashStatus
-squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) {
+squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashLZHAMStream* s = (SquashLZHAMStream*) stream;
   SquashStatus res = SQUASH_FAILED;
 
@@ -271,7 +286,7 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
     status = lzham_compress2 (s->lzham.comp.ctx,
                               stream->next_in, &input_size,
                               stream->next_out, &output_size,
-                              flush_type);
+                              squash_operation_to_lzham (operation));
 
     switch (status) {
       case LZHAM_COMP_STATUS_NOT_FINISHED:
@@ -292,7 +307,7 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
     status = lzham_decompress (s->lzham.comp.ctx,
                                stream->next_in, &input_size,
                                stream->next_out, &output_size,
-                               (flush_type == LZHAM_FINISH && input_size == 0));
+                               (operation == SQUASH_OPERATION_FINISH && input_size == 0));
 
     switch (status) {
       case LZHAM_DECOMP_STATUS_NOT_FINISHED:
@@ -315,21 +330,6 @@ squash_lzham_process_stream_ex (SquashStream* stream, lzham_flush_t flush_type) 
   stream->avail_out -= output_size;
 
   return res;
-}
-
-static SquashStatus
-squash_lzham_process_stream (SquashStream* stream) {
-  return squash_lzham_process_stream_ex (stream, LZHAM_NO_FLUSH);
-}
-
-static SquashStatus
-squash_lzham_flush_stream (SquashStream* stream) {
-  return squash_lzham_process_stream_ex (stream, LZHAM_SYNC_FLUSH);
-}
-
-static SquashStatus
-squash_lzham_finish_stream (SquashStream* stream) {
-  return squash_lzham_process_stream_ex (stream, LZHAM_FINISH);
 }
 
 static size_t
@@ -390,11 +390,9 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_lzham_parse_option;
     funcs->create_stream = squash_lzham_create_stream;
     funcs->process_stream = squash_lzham_process_stream;
-    funcs->flush_stream = squash_lzham_flush_stream;
-    funcs->finish_stream = squash_lzham_finish_stream;
     funcs->get_max_compressed_size = squash_lzham_get_max_compressed_size;
-    /* funcs->decompress_buffer = squash_lzham_decompress_buffer; */
-    /* funcs->compress_buffer = squash_lzham_compress_buffer; */
+    funcs->decompress_buffer = squash_lzham_decompress_buffer;
+    funcs->compress_buffer = squash_lzham_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

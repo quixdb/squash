@@ -255,7 +255,7 @@ squash_bz2_status_to_squash_status (int status) {
   stream->avail_out = (size_t) bz2_stream->avail_out
 
 static SquashStatus
-squash_bz2_process_stream (SquashStream* stream) {
+squash_bz2_process_stream_ex (SquashStream* stream) {
   bz_stream* bz2_stream;
   int bz2_res;
   SquashStatus res;
@@ -304,7 +304,7 @@ squash_bz2_finish_stream (SquashStream* stream) {
   SquashStatus res;
 
   if (stream->stream_type != SQUASH_STREAM_COMPRESS) {
-    return squash_bz2_process_stream (stream);
+    return squash_bz2_process_stream_ex (stream);
   }
 
   assert (stream != NULL);
@@ -333,6 +333,18 @@ squash_bz2_finish_stream (SquashStream* stream) {
   SQUASH_BZ2_STREAM_COPY_FROM_BZ_STREAM(stream, bz2_stream);
 
   return res;
+}
+
+static SquashStatus
+squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      return squash_bz2_process_stream_ex (stream);
+    case SQUASH_OPERATION_FLUSH:
+      return squash_bz2_flush_stream (stream);
+    case SQUASH_OPERATION_FINISH:
+      return squash_bz2_finish_stream (stream);
+  }
 }
 
 static size_t
@@ -397,8 +409,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_bz2_parse_option;
     funcs->create_stream = squash_bz2_create_stream;
     funcs->process_stream = squash_bz2_process_stream;
-    funcs->flush_stream = squash_bz2_flush_stream;
-    funcs->finish_stream = squash_bz2_finish_stream;
     funcs->get_max_compressed_size = squash_bz2_get_max_compressed_size;
     funcs->decompress_buffer = squash_bz2_decompress_buffer;
     funcs->compress_buffer = squash_bz2_compress_buffer;

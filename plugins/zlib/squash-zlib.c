@@ -269,9 +269,22 @@ squash_zlib_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
   stream->next_out = (uint8_t*) zlib_stream->next_out;    \
   stream->avail_out = (size_t) zlib_stream->avail_out
 
+static int
+squash_operation_to_zlib (SquashOperation operation) {
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      return Z_NO_FLUSH;
+    case SQUASH_OPERATION_FLUSH:
+      return Z_SYNC_FLUSH;
+    case SQUASH_OPERATION_FINISH:
+      return Z_FINISH;
+    default:
+      assert (false);
+  }
+}
 
 static SquashStatus
-squash_zlib_process_stream_internal (SquashStream* stream, int operation) {
+squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
   z_stream* zlib_stream;
   int zlib_e;
   SquashStatus res;
@@ -283,9 +296,9 @@ squash_zlib_process_stream_internal (SquashStream* stream, int operation) {
   SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream, zlib_stream);
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    zlib_e = deflate (zlib_stream, operation);
+    zlib_e = deflate (zlib_stream, squash_operation_to_zlib (operation));
   } else {
-    zlib_e = inflate (zlib_stream, operation);
+    zlib_e = inflate (zlib_stream, squash_operation_to_zlib (operation));
   }
 
   SQUASH_ZLIB_STREAM_COPY_FROM_ZLIB_STREAM(stream, zlib_stream);
@@ -293,22 +306,22 @@ squash_zlib_process_stream_internal (SquashStream* stream, int operation) {
   switch (zlib_e) {
     case Z_OK:
       switch (operation) {
-        case Z_NO_FLUSH:
+        case SQUASH_OPERATION_PROCESS:
           res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
           break;
-        case Z_SYNC_FLUSH:
-        case Z_FINISH:
+        case SQUASH_OPERATION_FLUSH:
+        case SQUASH_OPERATION_FINISH:
           res = SQUASH_PROCESSING;
           break;
       }
       break;
     case Z_BUF_ERROR:
       switch (operation) {
-        case Z_NO_FLUSH:
+        case SQUASH_OPERATION_PROCESS:
           res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_BUFFER_FULL;
           break;
-        case Z_SYNC_FLUSH:
-        case Z_FINISH:
+        case SQUASH_OPERATION_FLUSH:
+        case SQUASH_OPERATION_FINISH:
           if (stream->avail_in == 0) {
             if (stream->avail_out == 0) {
               res = SQUASH_PROCESSING;
@@ -333,21 +346,6 @@ squash_zlib_process_stream_internal (SquashStream* stream, int operation) {
   }
 
   return res;
-}
-
-static SquashStatus
-squash_zlib_process_stream (SquashStream* stream) {
-  return squash_zlib_process_stream_internal (stream, Z_NO_FLUSH);
-}
-
-static SquashStatus
-squash_zlib_flush_stream (SquashStream* stream) {
-  return squash_zlib_process_stream_internal (stream, Z_SYNC_FLUSH);
-}
-
-static SquashStatus
-squash_zlib_finish_stream (SquashStream* stream) {
-  return squash_zlib_process_stream_internal (stream, Z_FINISH);
 }
 
 static size_t
@@ -397,8 +395,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_zlib_parse_option;
     funcs->create_stream = squash_zlib_create_stream;
     funcs->process_stream = squash_zlib_process_stream;
-    funcs->flush_stream = squash_zlib_flush_stream;
-    funcs->finish_stream = squash_zlib_finish_stream;
     funcs->get_max_compressed_size = squash_zlib_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;

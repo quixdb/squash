@@ -54,7 +54,7 @@ check_codec (SquashCodec* codec) {
   res = squash_codec_compress_with_options (codec, compressed, &compressed_length, (uint8_t*) LOREM_IPSUM, LOREM_IPSUM_LENGTH, NULL);
   SQUASH_ASSERT_OK(res);
 
-  if (squash_codec_get_features (codec) & SQUASH_CODEC_FEATURE_KNOWS_UNCOMPRESSED_SIZE) {
+  if (squash_codec_knows_uncompressed_size (codec)) {
     decompressed_length = squash_codec_get_uncompressed_size (codec, compressed, compressed_length);
     g_assert (decompressed_length == LOREM_IPSUM_LENGTH);
   } else {
