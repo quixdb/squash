@@ -4,7 +4,7 @@ void
 check_codec (SquashCodec* codec) {
   const size_t max_uncompressed_length = 4096;
   size_t uncompressed_length;
-  uint8_t* uncompressed_data = (uint8_t*) malloc (max_uncompressed_length);
+  uint8_t uncompressed_data[4096];
   size_t compressed_length;
   uint8_t* compressed_data = (uint8_t*) malloc (squash_codec_get_max_compressed_size (codec, max_uncompressed_length));
   size_t decompressed_length;
@@ -13,7 +13,10 @@ check_codec (SquashCodec* codec) {
   size_t uncompressed_data_filled = 0;
   SquashStatus res;
 
-  for ( uncompressed_length = 32 ;
+  // memset (uncompressed_data, 0, max_uncompressed_length);
+  memset (compressed_data, 0, squash_codec_get_max_compressed_size (codec, max_uncompressed_length));
+
+  for ( uncompressed_length = 1 ;
         uncompressed_length <= max_uncompressed_length ;
         uncompressed_length += g_test_quick () ? g_test_rand_int_range (32, 128) : 1 ) {
     for ( ; uncompressed_data_filled < uncompressed_length ; uncompressed_data_filled++ ) {
@@ -49,7 +52,6 @@ check_codec (SquashCodec* codec) {
     g_assert (memcmp (uncompressed_data, decompressed_data, uncompressed_length) == 0);
   }
 
-  free (uncompressed_data);
   free (compressed_data);
   free (decompressed_data);
 }

@@ -20,6 +20,7 @@ set (plugins_available
   snappy
   wflz
   zlib
+  zling
   zpaq)
 
 foreach (plugin ${plugins_available})

@@ -46,3 +46,6 @@
 [submodule "plugins/zpaq/zpaq"]
 	path = plugins/zpaq/zpaq
 	url = https://github.com/zpaq/zpaq.git
+[submodule "plugins/zling/libzling"]
+	path = plugins/zling/libzling
+	url = https://github.com/richox/libzling.git
