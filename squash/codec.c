@@ -1271,7 +1271,7 @@ bool squash_knows_uncompressed_size (const char* codec) {
 }
 
 /**
- * @brief Check whether a codec knows can flush
+ * @brief Check whether a codec can flush
  *
  * @param codec The codec to check
  * @return true if it can, false if it cannot
@@ -1282,7 +1282,7 @@ squash_codec_can_flush (SquashCodec* codec) {
 }
 
 /**
- * @brief Check whether a codec knows can flush
+ * @brief Check whether a codec can flush
  *
  * @param codec The codec to check
  * @return true if it can, false if it cannot
@@ -1292,6 +1292,41 @@ bool squash_can_flush (const char* codec) {
 
   if (codec_real != NULL)
     return squash_codec_can_flush (codec_real);
+  else
+    return false;
+}
+
+/**
+ * @brief Check whether a codec supports streaming natively
+ *
+ * Codecs which do not support streaming natively require the entire
+ * input and output space be addressable, so to provide a streaming
+ * interface Squash has to do a lot of buffering.  For some internal
+ * APIs (like ::squash_compress_file an ::squash_decompress_file) we
+ * use mmap when possible, but if you're using the stream API and have
+ * large sets of data you should be careful which codecs you allow.
+ *
+ * @param codec The codec to check
+ * @return true if it does, false if it cannot
+ * @see squash_has_native_streaming
+ */
+bool
+squash_codec_has_native_streaming (SquashCodec* codec) {
+  return codec->funcs.process_stream != NULL;
+}
+
+/**
+ * @brief Check whether a codec supports streaming natively
+ *
+ * @param codec The codec to check
+ * @return true if it does, false if it cannot
+ * @see squash_codec_has_native_streaming
+ */
+bool squash_has_native_streaming (const char* codec) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real != NULL)
+    return squash_codec_has_native_streaming (codec_real);
   else
     return false;
 }

@@ -121,6 +121,7 @@ SQUASH_API SquashStatus        squash_codec_decompress_file              (Squash
                                                                           ...);
 SQUASH_API bool                squash_codec_knows_uncompressed_size      (SquashCodec* codec);
 SQUASH_API bool                squash_codec_can_flush                    (SquashCodec* codec);
+SQUASH_API bool                squash_codec_has_native_streaming         (SquashCodec* codec);
 
 
 SQUASH_API size_t              squash_get_max_compressed_size            (const char* codec, size_t uncompressed_length);
@@ -152,6 +153,7 @@ SQUASH_API SquashStatus        squash_decompress_file                    (const 
                                                                           ...);
 SQUASH_API bool                squash_knows_uncompressed_size            (const char* codec);
 SQUASH_API bool                squash_can_flush                          (const char* codec);
+SQUASH_API bool                squash_has_native_streaming               (const char* codec);
 
 SQUASH_END_DECLS
 
