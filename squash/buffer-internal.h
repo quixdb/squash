@@ -44,7 +44,6 @@ struct _SquashBuffer {
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
 void          squash_buffer_append         (SquashBuffer* buffer, uint8_t* data, size_t data_length);
 void          squash_buffer_free           (SquashBuffer* buffer);
-void          squash_buffer_free_container (SquashBuffer* buffer);
 void          squash_buffer_set_size       (SquashBuffer* buffer, size_t length);
 
 SQUASH_END_DECLS

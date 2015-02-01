@@ -6,4 +6,8 @@
 
 #define SQUASH_SHARED_LIBRARY_SUFFIX "${CMAKE_SHARED_LIBRARY_SUFFIX}"
 
+#cmakedefine HAVE_FDOPEN
+#cmakedefine HAVE_MMAP
+#cmakedefine HAVE_MREMAP
+
 #endif /* _SQUASH_CONFIG_H_ */

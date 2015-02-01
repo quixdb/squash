@@ -6,6 +6,8 @@ enable_testing ()
 
 include (GNUInstallDirs)
 include (ExtraWarningFlags)
+include (CheckFunctionExists)
+include (CheckIncludeFile)
 
 set (PACKAGE_NAME Squash)
 set (SQUASH_TOP_SRCDIR "${PROJECT_SOURCE_DIR}")
@@ -20,6 +22,10 @@ include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}")
 
 set (SQUASH_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
+
+CHECK_FUNCTION_EXISTS(fdopen            HAVE_FDOPEN)
+CHECK_FUNCTION_EXISTS(mmap              HAVE_MMAP)
+CHECK_FUNCTION_EXISTS(mremap            HAVE_MREMAP)
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/squash/config.h.in"
