@@ -49,3 +49,6 @@
 [submodule "plugins/zling/libzling"]
 	path = plugins/zling/libzling
 	url = https://github.com/richox/libzling.git
+[submodule "plugins/zstd/zstd"]
+	path = plugins/zstd/zstd
+	url = https://github.com/Cyan4973/zstd.git

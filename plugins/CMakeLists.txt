@@ -22,7 +22,8 @@ set (plugins_available
   wflz
   zlib
   zling
-  zpaq)
+  zpaq
+  zstd)
 
 foreach (plugin ${plugins_available})
   string(TOUPPER ${plugin} plugin_uc_name)
