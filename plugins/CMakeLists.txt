@@ -2,6 +2,7 @@ set (plugins_available
   blosc
   brotli
   bzip2
+  crush
   doboz
   fari
   fastlz
