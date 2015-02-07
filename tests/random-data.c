@@ -4,7 +4,7 @@ void
 check_codec (SquashCodec* codec) {
   const size_t max_uncompressed_length = 4096;
   size_t uncompressed_length;
-  uint8_t uncompressed_data[4096];
+  uint8_t uncompressed_data[max_uncompressed_length];
   size_t compressed_length;
   uint8_t* compressed_data = (uint8_t*) malloc (squash_codec_get_max_compressed_size (codec, max_uncompressed_length));
   size_t decompressed_length;

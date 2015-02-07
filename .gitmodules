@@ -52,3 +52,6 @@
 [submodule "plugins/zstd/zstd"]
 	path = plugins/zstd/zstd
 	url = https://github.com/Cyan4973/zstd.git
+[submodule "plugins/ms-compress/ms-compress"]
+	path = plugins/ms-compress/ms-compress
+	url = https://github.com/coderforlife/ms-compress.git
