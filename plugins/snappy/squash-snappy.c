@@ -461,7 +461,7 @@ squash_snappy_framed_compress_chunk (SquashSnappyFramedStream* s) {
   if (uncompressed_length == 0)
     return;
 
-  compressed_length = snappy_max_compressed_length (uncompressed_length);
+  compressed_length = snappy_max_compressed_length (SQUASH_SNAPPY_FRAMED_UNCOMPRESSED_MAX);
 
   if (stream->avail_out >= (SQUASH_SNAPPY_FRAMED_UNCOMPRESSED_MAX + 8)) {
     compressed = stream->next_out;
@@ -539,7 +539,7 @@ squash_snappy_framed_compress_stream (SquashStream* stream, SquashOperation oper
         s->state = SQUASH_SNAPPY_FRAMED_STATE_IDLE;
       } else {
         if (s->output_buffer == NULL) {
-          s->output_buffer_size = SQUASH_SNAPPY_FRAMED_UNCOMPRESSED_MAX + 8;
+          s->output_buffer_size = snappy_max_compressed_length (SQUASH_SNAPPY_FRAMED_UNCOMPRESSED_MAX + 8);
           s->output_buffer = malloc (s->output_buffer_size);
         }
         memcpy (s->output_buffer, identifier, sizeof(identifier));
