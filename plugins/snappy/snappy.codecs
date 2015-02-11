@@ -1,1 +1,4 @@
 [snappy]
+[snappy-framed]
+extension=sz
+mime-type=application/x-snappy-framed
