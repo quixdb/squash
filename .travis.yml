@@ -7,9 +7,9 @@ before_install:
  # Remember to keep this synced with build-deps.catalog
  - sudo apt-get install -qq gcc g++ cmake make libglib2.0-dev libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev
 script: mkdir build && cd build && cmake -DDISABLE_BROTLI=yes .. && make VERBOSE=1 && make test
-notifications:
-  irc:
-    channels:
-      - "chat.freenode.net#squash"
-    on_success: change
-    on_failure: always
+# notifications:
+#   irc:
+#     channels:
+#       - "chat.freenode.net#squash"
+#     on_success: change
+#     on_failure: always
