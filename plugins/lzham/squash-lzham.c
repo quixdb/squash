@@ -289,10 +289,10 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
                               squash_operation_to_lzham (operation));
 
     switch (status) {
-      case LZHAM_COMP_STATUS_NOT_FINISHED:
       case LZHAM_COMP_STATUS_HAS_MORE_OUTPUT:
         res = SQUASH_PROCESSING;
         break;
+      case LZHAM_COMP_STATUS_NOT_FINISHED:
       case LZHAM_COMP_STATUS_NEEDS_MORE_INPUT:
       case LZHAM_COMP_STATUS_SUCCESS:
         res = SQUASH_OK;
@@ -386,6 +386,7 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("lzham", squash_codec_get_name (codec)) == 0) {
+    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     funcs->create_options = squash_lzham_create_options;
     funcs->parse_option = squash_lzham_parse_option;
     funcs->create_stream = squash_lzham_create_stream;
