@@ -1,6 +1,7 @@
 set (plugins_available
   blosc
   brotli
+  bsc
   bzip2
   crush
   doboz

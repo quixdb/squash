@@ -55,3 +55,6 @@
 [submodule "plugins/ms-compress/ms-compress"]
 	path = plugins/ms-compress/ms-compress
 	url = https://github.com/coderforlife/ms-compress.git
+[submodule "plugins/bsc/libbsc"]
+	path = plugins/bsc/libbsc
+	url = https://github.com/IlyaGrebnov/libbsc.git
