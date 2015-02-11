@@ -8,13 +8,24 @@ For information about libbsc, see http://libbsc.com/
 
 ## Options ##
 
+- **fast-mode** (boolean, deafault true): enable fast-mode
+- **multi-threading** (boolean, deafault true): enable multi-threading
+- **large-pages** (boolean, deafault false): enable large-page support
+- **cuda** (boolean, deafault false): enable CUDA support
+
 ### Encoder Only ###
 
-- **level** (integer, 1-9, default 5): Compression level.  1 will
-   result in the fastest compression while 9 will result in the
-   highest compression ratio.
-- **fast** (boolean, default true): increase speed and compression
-  ratio at the expense of memory.
+- **lzp-hash-size** (integer, 0 or 10-28, default 16): size of the LZP
+  hash table, or 0 for disabled
+- **lzp-min-len** (integer, 0 or 4-255, default 128): Minimum LZP match
+  length, or 0 for disabled
+- **block-sorter** (enumeration, default bwt): block sorting algorith
+  - *bwt*: Burrows–Wheeler transform
+  - *none*
+- **coder** (enumeration, default qlfc-static)
+  - *none*
+  - *qflc-static*
+  - *qflc-adaptive*
 
 ## License ##
 

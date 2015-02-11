@@ -89,6 +89,18 @@ squash_bsc_create_options (SquashCodec* codec) {
   return (SquashOptions*) squash_bsc_options_new (codec);
 }
 
+static bool
+string_to_bool (const char* value, bool* result) {
+  if (strcasecmp (value, "true") == 0) {
+    *result = true;
+  } else if (strcasecmp (value, "false")) {
+    *result = false;
+  } else {
+    return false;
+  }
+  return true;
+}
+
 static SquashStatus
 squash_bsc_parse_option (SquashOptions* options, const char* key, const char* value) {
   SquashBscOptions* opts = (SquashBscOptions*) options;
@@ -96,7 +108,66 @@ squash_bsc_parse_option (SquashOptions* options, const char* key, const char* va
 
   assert (opts != NULL);
 
-  if (strcasecmp (key, "level") == 0) {
+  if (strcasecmp (key, "lzp-hash-size") == 0) {
+    const int lzp_hash_size = (int) strtol (value, &endptr, 0);
+    if (*endptr == '\0' && (lzp_hash_size == 0 || (lzp_hash_size >= 10 && lzp_hash_size <= 28))) {
+      opts->lzp_hash_size = lzp_hash_size;
+    } else {
+      return SQUASH_BAD_VALUE;
+    }
+  } else if (strcasecmp (key, "lzp-min-len") == 0) {
+    const int lzp_min_len = (int) strtol (value, &endptr, 0);
+    if (*endptr == '\0' && (lzp_min_len == 0 || (lzp_min_len >= 4 && lzp_min_len <= 255))) {
+      opts->lzp_min_len = lzp_min_len;
+    } else {
+      return SQUASH_BAD_VALUE;
+    }
+  } else if (strcasecmp (key, "block-sorter") == 0) {
+    if (strcasecmp (value, "none") == 0) {
+      opts->block_sorter = LIBBSC_BLOCKSORTER_NONE;
+    } else if (strcasecmp (value, "bwt") == 0) {
+      opts->block_sorter = LIBBSC_BLOCKSORTER_BWT;
+    } else {
+      return SQUASH_BAD_VALUE;
+    }
+  } else if (strcasecmp (key, "coder") == 0) {
+    if (strcasecmp (value, "none") == 0) {
+      opts->coder = LIBBSC_CODER_NONE;
+    } else if (strcasecmp (value, "qflc-static") == 0) {
+      opts->coder = LIBBSC_CODER_QLFC_STATIC;
+    } else if (strcasecmp (value, "qflc-adaptive") == 0) {
+      opts->coder = LIBBSC_CODER_QLFC_ADAPTIVE;
+    } else {
+      return SQUASH_BAD_VALUE;
+    }
+  } else if (strcasecmp (key, "fast-mode") == 0) {
+    bool res;
+    bool valid = string_to_bool (value, &res);
+    if (valid)
+      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_FASTMODE) : (opts->feature & ~LIBBSC_FEATURE_FASTMODE);
+    else
+      return SQUASH_BAD_VALUE;
+  } else if (strcasecmp (key, "multi-threading") == 0) {
+    bool res;
+    bool valid = string_to_bool (value, &res);
+    if (valid)
+      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_MULTITHREADING) : (opts->feature & ~LIBBSC_FEATURE_MULTITHREADING);
+    else
+      return SQUASH_BAD_VALUE;
+  } else if (strcasecmp (key, "large-pages") == 0) {
+    bool res;
+    bool valid = string_to_bool (value, &res);
+    if (valid)
+      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_LARGEPAGES) : (opts->feature & ~LIBBSC_FEATURE_LARGEPAGES);
+    else
+      return SQUASH_BAD_VALUE;
+  } else if (strcasecmp (key, "cuda") == 0) {
+    bool res;
+    bool valid = string_to_bool (value, &res);
+    if (valid)
+      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_CUDA) : (opts->feature & ~LIBBSC_FEATURE_CUDA);
+    else
+      return SQUASH_BAD_VALUE;
   } else {
     return SQUASH_BAD_PARAM;
   }
