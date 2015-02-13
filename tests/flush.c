@@ -29,7 +29,7 @@ flush_test (SquashCodec* codec) {
   decompress->avail_in = compressed_bp;
 
   do {
-    status = squash_stream_flush (decompress);
+    status = squash_stream_process (decompress);
   } while (status == SQUASH_PROCESSING);
 
   g_assert (status == SQUASH_OK);
@@ -47,8 +47,17 @@ flush_test (SquashCodec* codec) {
   decompress->avail_in = compress->total_out - compressed_bp;
 
   do {
-    status = squash_stream_flush (decompress);
+    status = squash_stream_process (decompress);
   } while (status == SQUASH_PROCESSING);
+
+
+  if (status == SQUASH_END_OF_STREAM) {
+    status = SQUASH_OK;
+  } else if (status > 0) {
+    do {
+      status = squash_stream_finish (decompress);
+    } while (status == SQUASH_PROCESSING);
+  }
 
   g_assert (status == SQUASH_OK);
   g_assert (decompress->total_out == LOREM_IPSUM_LENGTH);
