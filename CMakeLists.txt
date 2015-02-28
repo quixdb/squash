@@ -157,7 +157,6 @@ add_subdirectory (docs)
 add_subdirectory (examples)
 add_subdirectory (bindings)
 add_subdirectory (tests)
-add_subdirectory (benchmark)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
