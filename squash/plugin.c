@@ -177,6 +177,20 @@ squash_plugin_get_name (SquashPlugin* plugin) {
 }
 
 /**
+ * @brief Get the licenses of the plugin.
+ *
+ * @param plugin The plugin.
+ * @return An array of the plugin's licenses terminated with @ref
+ *   SQUASH_LICENSE_UNKNOWN, or *NULL* if no licenses were specified.
+ */
+SquashLicense*
+squash_plugin_get_licenses (SquashPlugin* plugin) {
+  assert (plugin != NULL);
+
+  return plugin->license;
+}
+
+/**
  * @brief Get a codec from a plugin by name.
  *
  * @param plugin The plugin.
@@ -295,6 +309,7 @@ squash_plugin_new (char* name, char* directory, SquashContext* context) {
   SquashPlugin* plugin = (SquashPlugin*) malloc (sizeof (SquashPlugin));
 
   plugin->name = name;
+  plugin->license = NULL;
   plugin->context = context;
   plugin->directory = directory;
   plugin->plugin = NULL;

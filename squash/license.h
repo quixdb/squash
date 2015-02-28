@@ -1,0 +1,83 @@
+/* Copyright (c) 2015 The Squash Authors
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Authors:
+ *   Evan Nemerson <evan@nemerson.com>
+ */
+
+#ifndef SQUASH_LICENSE_H
+#define SQUASH_LICENSE_H
+
+#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
+#error "Only <squash/squash.h> can be included directly."
+#endif
+
+#include <stdio.h>
+
+SQUASH_BEGIN_DECLS
+
+typedef enum {
+  SQUASH_LICENSE_UNKNOWN       = 0,
+
+  SQUASH_LICENSE_PERMISSIVE      = 0x01 << 24,
+  SQUASH_LICENSE_STRONG_COPYLEFT = 0x02 << 24,
+  SQUASH_LICENSE_WEAK_COPYLEFT   = 0x04 << 24,
+  SQUASH_LICENSE_PROPRIETARY     = 0x08 << 24,
+  SQUASH_LICENSE_TYPE_MASK       = 0xff << 24,
+
+  SQUASH_LICENSE_COPYLEFT_INCOMPATIBLE = 0x01 << 16,
+  SQUASH_LICENSE_OR_GREATER            = 0x02 << 16,
+  SQUASH_LICENSE_FLAGS_MASK            = 0xff << 16,
+
+  SQUASH_LICENSE_PUBLIC_DOMAIN   = SQUASH_LICENSE_PERMISSIVE | 0x01,
+  SQUASH_LICENSE_BSD2            = SQUASH_LICENSE_PERMISSIVE | 0x02,
+  SQUASH_LICENSE_BSD3            = SQUASH_LICENSE_PERMISSIVE | 0x03,
+  SQUASH_LICENSE_BSD4            = SQUASH_LICENSE_PERMISSIVE | 0x04 | SQUASH_LICENSE_COPYLEFT_INCOMPATIBLE,
+  SQUASH_LICENSE_MIT             = SQUASH_LICENSE_PERMISSIVE | 0x05,
+  SQUASH_LICENSE_ZLIB            = SQUASH_LICENSE_PERMISSIVE | 0x06,
+  SQUASH_LICENSE_WTFPL           = SQUASH_LICENSE_PERMISSIVE | 0x07,
+  SQUASH_LICENSE_X11             = SQUASH_LICENSE_PERMISSIVE | 0x08,
+  SQUASH_LICENSE_APACHE          = SQUASH_LICENSE_PERMISSIVE | 0x09,
+  SQUASH_LICENSE_APACHE2         = SQUASH_LICENSE_PERMISSIVE | 0x0a,
+  SQUASH_LICENSE_CDDL            = SQUASH_LICENSE_PERMISSIVE | 0x0b | SQUASH_LICENSE_COPYLEFT_INCOMPATIBLE,
+  SQUASH_LICENSE_MSPL            = SQUASH_LICENSE_PERMISSIVE | 0x0c | SQUASH_LICENSE_COPYLEFT_INCOMPATIBLE,
+
+  SQUASH_LICENSE_MPL             = SQUASH_LICENSE_WEAK_COPYLEFT | 0x01,
+  SQUASH_LICENSE_LGPL2P1         = SQUASH_LICENSE_WEAK_COPYLEFT | 0x02,
+  SQUASH_LICENSE_LGPL2P1_PLUS    = SQUASH_LICENSE_LGPL2P1 | SQUASH_LICENSE_OR_GREATER,
+  SQUASH_LICENSE_LGPL3           = SQUASH_LICENSE_WEAK_COPYLEFT | 0x03,
+  SQUASH_LICENSE_LGPL3_PLUS      = SQUASH_LICENSE_LGPL3 | SQUASH_LICENSE_OR_GREATER,
+
+  SQUASH_LICENSE_GPL1            = SQUASH_LICENSE_STRONG_COPYLEFT | 0x01,
+  SQUASH_LICENSE_GPL1_PLUS       = SQUASH_LICENSE_GPL1 | SQUASH_LICENSE_OR_GREATER,
+  SQUASH_LICENSE_GPL2            = SQUASH_LICENSE_STRONG_COPYLEFT | 0x02,
+  SQUASH_LICENSE_GPL2_PLUS       = SQUASH_LICENSE_GPL2 | SQUASH_LICENSE_OR_GREATER,
+  SQUASH_LICENSE_GPL3            = SQUASH_LICENSE_STRONG_COPYLEFT | 0x03,
+  SQUASH_LICENSE_GPL3_PLUS       = SQUASH_LICENSE_GPL3 | SQUASH_LICENSE_OR_GREATER,
+} SquashLicense;
+
+SQUASH_API SquashLicense squash_license_from_string (const char* license);
+SQUASH_API const char*   squash_license_to_string   (SquashLicense license);
+
+SQUASH_END_DECLS
+
+#endif /* SQUASH_LICENSE_H */

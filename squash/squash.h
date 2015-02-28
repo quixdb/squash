@@ -51,6 +51,7 @@
 #include "object.h"
 #include "options.h"
 #include "stream.h"
+#include "license.h"
 #include "codec.h"
 #include "plugin.h"
 #include "context.h"

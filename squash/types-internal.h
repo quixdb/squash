@@ -52,6 +52,7 @@ struct _SquashPlugin {
 
   char* name;
   char* directory;
+  SquashLicense* license;
 
 #if !defined(_WIN32)
   void* plugin;

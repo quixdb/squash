@@ -31,55 +31,14 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-#include <stdio.h>
+typedef bool (* SquashIniParserCallback) (const char* section,
+                                          const char* key,
+                                          const char* value,
+                                          size_t value_length,
+                                          void* user_data);
 
-typedef struct _SquashIniParser SquashIniParser;
-
-typedef enum _SquashIniParserError {
-  SQUASH_INI_PARSER_OK = 0,
-  SQUASH_INI_PARSER_ERROR = -1,
-  SQUASH_INI_PARSER_INVALID_ESCAPE_SEQUENCE = -2,
-	SQUASH_INI_PARSER_UNEXPECTED_CHAR = -3,
-  SQUASH_INI_PARSER_UNEXPECTED_EOF = -4
-} SquashIniParserError;
-
-typedef int  (* SquashIniParserSectionBeginFunc) (SquashIniParser* parser, const char* name, void* user_data);
-typedef int  (* SquashIniParserSectionEndFunc)   (SquashIniParser* parser, const char* name, void* user_data);
-typedef int  (* SquashIniParserKeyFunc)          (SquashIniParser* parser,
-                                                  const char* section,
-                                                  const char* key,
-                                                  const char* detail,
-                                                  const char* value,
-                                                  void* user_data);
-typedef int  (* SquashIniParserErrorFunc)        (SquashIniParser* parser,
-                                                  SquashIniParserError error_code,
-                                                  int line_number,
-                                                  int offset,
-                                                  const char* line,
-                                                  void* user_data);
-typedef int  (* SquashIniParserFileEndFunc)      (SquashIniParser* parser);
-typedef void (* SquashIniParserDestroyNotify)    (void* user_data);
-
-const char* squash_ini_parser_error_to_string (SquashIniParserError e);
-
-struct _SquashIniParser {
-  SquashIniParserSectionBeginFunc   section_begin;
-  SquashIniParserSectionEndFunc     section_end;
-  SquashIniParserKeyFunc            key_read;
-	SquashIniParserErrorFunc          error_callback;
-
-  void*                             user_data;
-  void                            (*user_data_destroy) (void* user_data);
-};
-
-void squash_ini_parser_init    (SquashIniParser* parser,
-                                SquashIniParserSectionBeginFunc section_begin,
-                                SquashIniParserSectionEndFunc section_end,
-                                SquashIniParserKeyFunc key_read,
-                                SquashIniParserErrorFunc error_callback,
-                                void* user_data,
-                                SquashIniParserDestroyNotify user_data_destroy);
-void squash_ini_parser_destroy (SquashIniParser* parser);
-int  squash_ini_parser_parse   (SquashIniParser* parser, FILE* input);
+bool squash_ini_parse (FILE* input,
+                       SquashIniParserCallback callback,
+                       void* user_data);
 
 #endif /* SQUASH_INI_H */

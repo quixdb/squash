@@ -24,6 +24,7 @@
  *   Evan Nemerson <evan@coeus-group.com>
  */
 
+#define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _POSIX_SOURCE
 #define _POSIX_C_SOURCE 200809L
@@ -43,7 +44,7 @@
   #include <dirent.h>
 #else
   #include <windows.h>
-  #include <tchar.h> 
+  #include <tchar.h>
   #include <strsafe.h>
 #endif
 
@@ -294,77 +295,79 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
  * @private
  */
 typedef struct _SquashCodecsFileParser {
-  SquashIniParser parser;
   SquashPlugin* plugin;
   SquashCodec* codec;
 } SquashCodecsFileParser;
 
-static int
-squash_codecs_file_parser_section_begin_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
-  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
+static bool
+squash_codecs_file_parser_callback (const char* section,
+                                    const char* key,
+                                    const char* value,
+                                    size_t value_length,
+                                    void* user_data) {
+  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) user_data;
 
-  parser->codec = squash_codec_new (parser->plugin, name);
+  if (key == NULL) {
+    if (parser->codec != NULL)
+      squash_plugin_add_codec (parser->plugin, parser->codec);
+    parser->codec = squash_codec_new (parser->plugin, section);
+  } else {
+    if (strcasecmp (key, "license") == 0) {
+      size_t n = 0;
+      if (parser->plugin->license != NULL) {
+        free (parser->plugin->license);
+        parser->plugin->license = NULL;
+      }
 
-  return SQUASH_OK;
-}
+      char* licenses = strdup (value);
+      char* saveptr = NULL;
+      char* license = strtok_r (licenses, ";", &saveptr);
 
-static int
-squash_codecs_file_parser_section_end_cb (SquashIniParser* ini_parser, const char* name, void* user_data) {
-  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
+      while (license != NULL) {
+        SquashLicense license_value = squash_license_from_string (license);
+        if (license_value != SQUASH_LICENSE_UNKNOWN) {
+          parser->plugin->license = realloc (parser->plugin->license, sizeof (SquashLicense) * (n + 2));
+          parser->plugin->license[n++] = squash_license_from_string (license);
+          parser->plugin->license[n] = SQUASH_LICENSE_UNKNOWN;
 
-  squash_plugin_add_codec (parser->plugin, parser->codec);
+          n++;
+        }
 
-  return SQUASH_OK;
-}
+        license = strtok_r (NULL, ";", &saveptr);
+      };
 
-static int
-squash_codecs_file_parser_key_read_cb (SquashIniParser* ini_parser,
-                                       const char* section,
-                                       const char* key,
-                                       const char* detail,
-                                       const char* value,
-                                       void* user_data) {
-  SquashCodecsFileParser* parser = (SquashCodecsFileParser*) ini_parser;
-
-  if (strcasecmp (key, "priority") == 0 && detail == NULL) {
-    char* endptr = NULL;
-    long priority = strtol (value, &endptr, 0);
-    if (*endptr == '\0') {
-      squash_codec_set_priority (parser->codec, (unsigned int) priority);
+      free (licenses);
+    } else if (strcasecmp (key, "priority") == 0) {
+      char* endptr = NULL;
+      long priority = strtol (value, &endptr, 0);
+      if (*endptr == '\0') {
+        squash_codec_set_priority (parser->codec, (unsigned int) priority);
+      }
+    } else if (strcasecmp (key, "extension") == 0) {
+      squash_codec_set_extension (parser->codec, value);
     }
-  } else if (strcasecmp (key, "extension") == 0 && detail == NULL) {
-    squash_codec_set_extension (parser->codec, value);
   }
 
-  return SQUASH_OK;
-}
-
-static int
-squash_codecs_file_parser_error_cb (SquashIniParser* ini_parser,
-                                    SquashIniParserError e,
-                                    int line_number,
-                                    int position,
-                                    const char* line,
-                                    void* user_data) {
-  return SQUASH_OK;
+  return true;
 }
 
 static void
 squash_codecs_file_parser_init (SquashCodecsFileParser* parser, SquashPlugin* plugin) {
-  SquashCodecsFileParser _parser = { { 0, }, plugin, NULL };
+  SquashCodecsFileParser _parser = { plugin, NULL };
 
   *parser = _parser;
-  squash_ini_parser_init ((SquashIniParser*) parser,
-                          squash_codecs_file_parser_section_begin_cb,
-                          squash_codecs_file_parser_section_end_cb,
-                          squash_codecs_file_parser_key_read_cb,
-                          squash_codecs_file_parser_error_cb,
-                          plugin, NULL);
 }
 
 static SquashStatus
 squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
-  return (SquashStatus) squash_ini_parser_parse ((SquashIniParser*) parser, input);
+  bool res = squash_ini_parse (input, squash_codecs_file_parser_callback, parser);
+
+  if (res && parser->codec != NULL) {
+    squash_plugin_add_codec (parser->plugin, parser->codec);
+    return SQUASH_OK;
+  } else {
+    return SQUASH_FAILED;
+  }
 }
 
 #if defined(_WIN32)
@@ -387,8 +390,8 @@ squash_context_check_directory_for_plugin (SquashContext* context, const char* d
 
   size_t codecs_file_name_length = directory_name_length + (plugin_name_length * 2) + 10;
   char* codecs_file_name = (char*) malloc (codecs_file_name_length + 1);
-  snprintf (codecs_file_name, codecs_file_name_length, "%s/%s/%s.codecs",
-            directory_name, plugin_name, plugin_name);
+  snprintf (codecs_file_name, codecs_file_name_length, "%s/%s/squash.ini",
+            directory_name, plugin_name);
 
   FILE* codecs_file = fopen (codecs_file_name, "r");
 
@@ -467,7 +470,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 
   if (INVALID_HANDLE_VALUE == directory_handle) {
     return;
-  } 
+  }
 
   do {
     if (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {

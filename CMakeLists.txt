@@ -70,9 +70,9 @@ function (squash_plugin_add name sources)
   target_link_libraries (squash${SQUASH_VERSION_API}-plugin-${name} squash${SQUASH_VERSION_API})
 
   # Mostly so we can use the plugins uninstalled
-  configure_file (${name}.codecs ${name}.codecs)
+  configure_file (squash.ini squash.ini)
 
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}.codecs
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash.ini
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
 
   install(TARGETS squash${SQUASH_VERSION_API}-plugin-${name}

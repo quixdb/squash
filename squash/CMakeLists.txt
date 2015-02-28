@@ -2,10 +2,15 @@ add_definitions (-DSQUASH_COMPILATION)
 
 configure_file (version.h.in version.h)
 
+find_package(RAGEL 6.6 REQUIRED)
+
+RAGEL_TARGET(ini ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c)
+
 set (squash_SOURCES
+  ${RAGEL_ini_OUTPUTS}
   buffer.c
   codec.c
-  ini.c
+  license.c
   options.c
   status.c
   buffer-stream.c
@@ -18,6 +23,7 @@ set (squash_SOURCES
 set (squash_PUBLIC_HEADERS
   context.h
   codec.h
+  license.h
   object.h
   options.h
   plugin.h
