@@ -1,0 +1,129 @@
+#!/bin/sh
+
+CMAKE_CMD="cmake $(dirname $0)"
+CMAKE_ARGS=
+
+PREFIX=/usr/local
+LIBDIR=
+
+print_help() {
+    cat <<EOF >&2
+  -h, --help              display this help and exit
+
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+                          [/usr/local]
+  --bindir=DIR            user executables [PREFIX/bin]
+  --sbindir=DIR           system admin executables [PREFIX/sbin]
+  --libexecdir=DIR        program executables [PREFIX/libexec]
+  --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
+  --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
+  --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --libdir=DIR            object code libraries [PREFIX/lib]
+  --includedir=DIR        C header files [PREFIX/include]
+  --oldincludedir=DIR     C header files for non-gcc [/usr/include]
+  --datarootdir=DIR       read-only arch.-independent data root [PREFIX/share]
+  --datadir=DIR           read-only architecture-independent data [DATAROOTDIR]
+  --infodir=DIR           info documentation [DATAROOTDIR/info]
+  --localedir=DIR         locale-dependent data [DATAROOTDIR/locale]
+  --mandir=DIR            man documentation [DATAROOTDIR/man]
+  --docdir=DIR            documentation root [DATAROOTDIR/doc/PROJECT_NAME]
+EOF
+    exit 0
+}
+
+while [ $# != 0 ]; do
+      case "$1" in
+	  "--prefix="*)
+	      PREFIX="${1:$(expr length "--prefix=")}";;
+	  "--prefix")
+	      PREFIX="${2}"; shift;;
+	  "--bindir"*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_BINDIR=${1:$(expr length "--bindir=")}";;
+	  "--bindir=")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_BINDIR=${2}"; shift;;
+	  "--sbindir"*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SBINDIR=${1:$(expr length "--sbindir=")}";;
+	  "--sbindir=")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SBINDIR=${2}"; shift;;
+	  "--libexecdir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBEXECDIR=${1:$(expr length "--libexecdir=")}";;
+	  "--libexecdir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBEXECDIR=${2}"; shift;;
+	  "--sharedstatedir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SHAREDSTATEDIR=${1:$(expr length "--sharedstatedir=")}";;
+	  "--sharedstatedir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SHAREDSTATEDIR=${2}"; shift;;
+	  "--localstatedir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALSTATEDIR=${1:$(expr length "--localstatedir=")}";;
+	  "--localstatedir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALSTATEDIR=${2}"; shift;;
+	  "--libdir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBDIR=${1:$(expr length "--libdir=")}";;
+	  "--libdir")
+	      LIBDIR="${2}"; shift;;
+	  "--includedir="*)
+	      LIBDIR="${1:$(expr length "--includedir=")}";;
+	  "--includedir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INCLUDEDIR=${2}"; shift;;
+	  "--oldincludedir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_OLDINCLUDEDIR=${1:$(expr length "--oldincludedir=")}";;
+	  "--oldincludedir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_OLDINCLUDEDIR=${2}"; shift;;
+	  "--datarootdir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATAROOTDIR=${1:$(expr length "--datarootdir=")}";;
+	  "--datarootdir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATAROOTDIR=${2}"; shift;;
+	  "--datadir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATADIR=${1:$(expr length "--datadir=")}";;
+	  "--datadir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATADIR=${2}"; shift;;
+	  "--infodir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INFODIR=${1:$(expr length "--infodir=")}";;
+	  "--infodir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INFODIR=${2}"; shift;;
+	  "--localedir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALEDIR=${1:$(expr length "--localedir=")}";;
+	  "--localedir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALEDIR=${2}"; shift;;
+	  "--mandir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_MANDIR=${1:$(expr length "--mandir=")}";;
+	  "--mandir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_MANDIR=${2}"; shift;;
+	  "--docdir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DOCDIR=${1:$(expr length "--docdir=")}";;
+	  "--docdir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DOCDIR=${2}"; shift;;
+
+	  "CC="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_COMPILER=${1:$(expr length "CC=")}";;
+	  "CXX="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_COMPILER=${1:$(expr length "CXX=")}";;
+	  "CFLAGS="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_FLAGS=${1:$(expr length "CFLAGS=")}";;
+	  "CXXFLAGS="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${1:$(expr length "CXXFLAGS=")}";;
+
+	  "--help")
+	      print_help;;
+	  "-h")
+	      print_help;;
+
+	  *)
+	      echo "$0: error: unrecognized option: \`$1'" >&2
+	      echo "Try \`$0 --help' for more information" >&2
+	      exit -1
+      esac;
+      shift
+done
+
+CMAKE_CMD="${CMAKE_CMD} -DCMAKE_INSTALL_PREFIX=${PREFIX}"
+
+if [ "x${LIBDIR}" != "x" ]; then
+    CMAKE_ARGS="-DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}"
+else
+    CMAKE_ARGS="-DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib ${CMAKE_ARGS}"
+fi
+
+CMAKE_CMD="${CMAKE_CMD} ${CMAKE_ARGS}"
+
+${CMAKE_CMD}
