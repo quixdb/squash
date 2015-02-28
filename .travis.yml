@@ -6,7 +6,7 @@ before_install:
  - sudo apt-get update -qq
  # Remember to keep this synced with build-deps.catalog
  - sudo apt-get install -qq gcc g++ ragel cmake make libglib2.0-dev libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev
-script: mkdir build && cd build && cmake -DDISABLE_BROTLI=yes .. && make VERBOSE=1 && make test
+script: mkdir build && cd build && cmake -DDISABLE_BROTLI=yes .. && make VERBOSE=1 && CMAKE_OUTPUT_ON_FAILURE=TRUE make test
 # notifications:
 #   irc:
 #     channels:
