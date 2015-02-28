@@ -7,7 +7,6 @@ set (plugins_available
   fari
   fastlz
   gipfeli
-  ipp
   lz4
   lzf
   lzg

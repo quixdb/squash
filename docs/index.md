@@ -38,7 +38,6 @@ Squash currently contains plugins for the following libraries:
 - [FastARI](@ref md_plugins_fari_fari)
 - [FastLZ](@ref md_plugins_fastlz_fastlz)
 - [Gipfeli](@ref md_plugins_gipfeli_gipfeli)
-- [Intel® Performance Primitives](@ref md_plugins_ipp_ipp)
 - [LZ4](@ref md_plugins_lz4_lz4)
 - [LZF](@ref md_plugins_lzf_lzf)
 - [liblzg](@ref md_plugins_lzg_lzg)
