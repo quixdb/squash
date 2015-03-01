@@ -32,8 +32,8 @@ flush_test (SquashCodec* codec) {
     status = squash_stream_process (decompress);
   } while (status == SQUASH_PROCESSING);
 
-  g_assert (status == SQUASH_OK);
-  g_assert (decompress->total_out == uncompressed_bp);
+  g_assert_cmpint (status, ==, SQUASH_OK);
+  g_assert_cmpint (decompress->total_out, ==, uncompressed_bp);
   g_assert (memcmp (decompressed, LOREM_IPSUM, decompress->total_out) == 0);
 
   compress->avail_in = LOREM_IPSUM_LENGTH - compress->total_in;
@@ -59,8 +59,8 @@ flush_test (SquashCodec* codec) {
     } while (status == SQUASH_PROCESSING);
   }
 
-  g_assert (status == SQUASH_OK);
-  g_assert (decompress->total_out == LOREM_IPSUM_LENGTH);
+  g_assert_cmpint (status, ==, SQUASH_OK);
+  g_assert_cmpint (decompress->total_out, ==, LOREM_IPSUM_LENGTH);
   g_assert (memcmp (decompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
 
   squash_object_unref (decompress);

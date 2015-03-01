@@ -315,6 +315,8 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
         res = SQUASH_PROCESSING;
         break;
       case LZHAM_DECOMP_STATUS_NEEDS_MORE_INPUT:
+        res = (stream->avail_in > input_size) ? SQUASH_PROCESSING : SQUASH_OK;
+        break;
       case LZHAM_DECOMP_STATUS_SUCCESS:
         res = SQUASH_OK;
         break;
