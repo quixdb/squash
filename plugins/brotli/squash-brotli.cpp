@@ -149,19 +149,11 @@ squash_brotli_compress_buffer (SquashCodec* codec,
   return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
 }
 
-static size_t
-squash_brotli_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
-  size_t s;
-  int res = BrotliDecompressedSize (compressed_length, compressed, &s);
-  return (res == 1) ? s : 0;
-}
-
 extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brotli", name) == 0) {
-    funcs->get_uncompressed_size = squash_brotli_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_brotli_get_max_compressed_size;
     funcs->decompress_buffer = squash_brotli_decompress_buffer;
     funcs->compress_buffer = squash_brotli_compress_buffer;
