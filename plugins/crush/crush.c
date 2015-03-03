@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "crush.h"
 
@@ -54,6 +55,7 @@ void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, 
 	ctx->user_data_destroy = destroy_data;
 
 	ctx->buf = malloc(BUF_SIZE+MAX_MATCH);
+	memset(ctx->buf, 0, BUF_SIZE+MAX_MATCH);
 }
 
 struct CrushStdioData {
