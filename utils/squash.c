@@ -305,9 +305,21 @@ int main (int argc, char** argv) {
     }
   }
 
+  if (option_keys != NULL) {
+    for (opt = 0 ; option_keys[opt] != NULL ; opt++) {
+      free(option_keys[opt]);
+    }
+    free (option_keys);
+  }
+
+  if (option_values != NULL) {
+    for (opt = 0 ; option_values[opt] != NULL ; opt++) {
+      free(option_values[opt]);
+    }
+    free (option_values);
+  }
+
   free (output_name);
-  free (option_keys);
-  free (option_values);
 
   return 0;
 }
