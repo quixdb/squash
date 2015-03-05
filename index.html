@@ -1,337 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
     <title>Squash — Compression Abstraction Library</title>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-    <style type="text/css">
-      body {
-        padding: 0 10%;
-        background: white;
-        color: black;
-      }
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-      #header, h2 {
-        border-bottom: 1px black solid;
-      }
-
-      #header {
-        font-size: large;
-      }
-
-      #header > h1 {
-        margin: 0;
-      }
-
-      code {
-        background-color: #ddd;
-        padding: 0.5em;
-      }
-
-      th {
-        padding: 0 1em;
-        border-bottom: 1px black solid;
-      }
-
-      h2 > a {
-        color: inherit;
-        text-decoration: inherit;
-        display: block;
-      }
-
-      h2 > a:hover:after {
-        content: " #";
-        color: #999;
-      }
-
-      .benchmark-result-link {
-        font-weight: bolder;
-        font-style: italic;
-        text-align: center;
-        background-color: #9b9;
-      }
-
-      #contents-container {
-        display: inline-block;
-        border: 1px #ccc solid;
-        float: right;
-        padding: 0 1em;
-        margin: 1em;
-        background: #eee;
-      }
-    </style>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.2/sandstone/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   </head>
+
   <body>
-    <div id="header">
-      <h1>Squash</h1>
-      <div class="subtitle">Compression Abstraction Library</div>
+    <div class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="https://quixdb.github.io/squash" class="navbar-brand">Squash</a>
+        </div>
+
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="documentation-dropdown">Documentation <span class="caret"></span></a>
+              <ul class="dropdown-menu" aria-labelledby="documentation-dropdown">
+                <li><a href="https://quixdb.github.io/squash/man/squash.1.html"><code>squash</code> <abbr title="Command Line Interface">CLI</abbr></a></li>
+                <li class="divider"></li>
+                <li><a href="https://quixdb.github.io/squash/api/c/index.html">C API Reference</a></li>
+                <li><a href="https://quixdb.github.io/squash/api/c/md_docs_user-guide.html">C User Guide</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="support-dropdown">Support <span class="caret"></span></a>
+              <ul class="dropdown-menu" aria-labelledby="support-dropdown">
+                <li><a href="https://groups.google.com/forum/#!forum/squash-compression">Mailing List</a></li>
+                <li><a href="irc://chat.freenode.net/squash">IRC</a></li>
+                <li>
+		  <a href="https://stackoverflow.com/questions/tagged/squash-compression">Stack Overflow</a>
+		</li>
+                <li class="divider"></li>
+                <li><a href="https://github.com/quixdb/squash/issues">Issue Tracker</a></li>
+              </ul>
+            </li>
+            <li><a href="https://quixdb.github.io/squash-benchmark/">Benchmark</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/quixdb/squash"><i class="fa fa-lg fa-github"></i> GitHub</a></li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div id="contents-container">
-      <h3 id="contents">Contents</h3>
+    <div class="container">
+      <div class="page-header jumbotron">
+	<h1>Squash</h1>
+
+	<p>
+	  Squash is an abstraction library which provides a single API
+	  to access many compression libraries, allowing applications
+	  a great deal of flexibility in which choosing a compression
+	  algorithm, or allowing a choice between several of them.
+	</p>
+      </div>
+
+      <p>
+	Because Squash provides a single API, any algorithms which
+	Squash has a plugin to support will be useable from any
+	language for which Squash provides bindings.
+      </p>
+
+      <p>
+	The actual integration with individual compression libraries is
+	done through plugins which can be installed separately from
+	Squash itself and are not loaded until they are required.  This
+	allows Squash consumers to utilize a great many compression
+	algorithms without rewriting code or unnecessary bloat.
+      </p>
+
+      <p>
+	In addition to a permissively licensed library, Squash
+	provides some generic tools which use the library for common
+	tasks.  Currently, this includes a command-line interface
+	similar
+	to <var>gzip</var>, <var>bzip2</var>, <var>xz</var>, <abbr><i>etc.</i></abbr>
+	called <var>squash</var>.  There is
+	also <a href="https://github.com/quixdb/squash-benchmark">a
+	separate project</a> to generate
+	the <a href="https://quixdb.github.io/squash-benchmark/">
+	Squash Benchmark</a>.
+      </p>
+    </div>
+
+    <div class="container">
+      <h2 id="documentation"><a href="#documentation">Documentation</a></h2>
+
+      <p>
+	The <a href="api/c/index.html">C <abbr>API</abbr> Reference</a>
+	provides extensive documentation of the C <abbr>API</abbr>.  For
+	other languages, see the <a href="#bindings">Bindings</a>
+	section.
+      </p>
+
+      <p>
+	For the <var>squash</var> command line tool, see
+	the <a href="man/squash.1.html">squash(1) man page</a>
+      </p>
+    </div>
+
+    <div class="container">
+      <h2 id="plugins"><a href="#plugins">Plugins</a></h2>
+
+      <p>
+	Squash currently has plugins for the following libraries:
+      </p>
 
       <ul>
-        <li><a href="#documentation">Documentation</a></li>
-        <li><a href="#plugins">Plugins</a></li>
-        <li><a href="#bindings">Bindings</a></li>
-        <li>
-          <a href="#download">Downloads</a>
-          <ul>
-            <li><a href="#releases">Releases</a></li>
-            <li><a href="#git">Git</a></li>
-          </ul>
-        </li>
-        <li><a href="#benchmarks">Benchmarks</a></li>
-        <li>
-          <a href="#support">Support</a>
-          <ul>
-            <li><a href="#mailing-list">Mailing List</a></li>
-            <li><a href="#irc"><abbr title="Internet Relay Chat">IRC</abbr></a></li>
-            <li><a href="#issue-tracker">Issue Tracker</a></li>
-          </ul>
-        </li>
-        <li><a href="#licensing">Licensing</a></li>
+	<li><a href="http://www.blosc.org/">Blosc</a></li>
+	<li><a href="https://github.com/google/brotli">Brotli</a></li>
+	<li><a href="http://bzip.org/">bzip2</a></li>
+	<li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a></li>
+	<li><a href="https://github.com/davidcatt/FastARI">FastARI</a></li>
+	<li><a href="http://fastlz.org/">FastLZ</a></li>
+	<li><a href="https://github.com/google/gipfeli">Gipfeli</a></li>
+	<li><a href="http://fastcompression.blogspot.com/p/lz4.html">LZ4</a></li>
+	<li><a href="http://liblzf.plan9.de/">LZF</a></li>
+	<li><a href="http://liblzg.bitsnbites.eu/">liblzg</a></li>
+	<li><a href="https://github.com/richgel999/lzham_codec/">LZHAM</a></li>
+	<li><a href="https://en.wikipedia.org/wiki/LZJB">LZJB</a></li>
+	<li><a href="http://tukaani.org/xz/">liblzma</a></li>
+	<li><a href="http://www.matcode.com/lzmat.htm">LZMAT</a></li>
+	<li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
+	<li><a href="http://www.quicklz.com/">QuickLZ</a></li>
+	<li><a href="http://www.centaurean.com/sharc">SHARC</a></li>
+	<li><a href="https://code.google.com/p/snappy/">Snappy</a></li>
+	<li><a href="https://code.google.com/p/wflz/">wfLZ</a></li>
+	<li><a href="http://zlib.net/">zlib</a></li>
+	<li><a href="https://github.com/richox/libzling">zling</a></li>
+	<li><a href="http://mattmahoney.net/dc/zpaq.html">ZPAQ</a></li>
       </ul>
+
+      <p>
+	The number of codecs to choose from can be a bit overwhelming.
+	They all have different performance characteristics, and
+	Squash
+	provides <a href="https://github.com/quixdb/squash-benchmark">benchmarks</a>
+	to help you decide which codecs are appropriate for your
+	library, or you can do your own testing—swapping codecs is
+	typically just a matter of changing a string, so you can try
+	them all with minimal effort.
+      </p>
     </div>
 
-    <p>
-      Squash is primarily an abstraction layer which provides a single
-      API to access many compression libraries.  This allows
-      applications a great deal of flexibility in which choosing a
-      compression algorithm, or allowing a choice between several of
-      them.
-    </p>
+    <div class="container">
+      <h2 id="bindings"><a href="#bindings">Bindings</a></h2>
 
-    <p>
-      The actual integration with individual compression libraries is
-      done through plugins which can be installed separately from
-      Squash itself and are not loaded until they are required.  This
-      allows Squash consumers to utilize a great many compression
-      algorithms without rewriting code or unnecessary bloat.
-    </p>
-
-    <p>
-      In addition to a permissively licensed library, Squash provides
-      some generic tools which use the library for common tasks.
-      Currently, this includes a command-line interface similar
-      to <var>gzip</var>, <var>bzip2</var>, <var>xz</var>, <abbr><i>etc.</i></abbr>
-      called <var>squash</var> and
-      a <a href="#benchmarks">benchmarking tool</a>.
-    </p>
-
-    <a href="https://github.com/quixdb/squash"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-
-    <h2 id="documentation"><a href="#documentation">Documentation</a></h2>
-
-    <p>
-      The <a href="api/c/index.html">C <abbr>API</abbr> Reference</a>
-      provides extensive documentation of the C <abbr>API</abbr>.  For
-      other languages, see the <a href="#bindings">Bindings</a>
-      section.
-    </p>
-
-    <p>
-      For the <var>squash</var> command line tool, see
-      the <a href="man/squash.1.html">squash(1) man page</a>
-    </p>
-
-    <h2 id="plugins"><a href="#plugins">Plugins</a></h2>
-
-    <p>
-      Squash currently has plugins for the following libraries:
-    </p>
-
-    <ul>
-      <li><a href="http://www.blosc.org/">Blosc</a></li>
-      <li><a href="https://github.com/google/brotli">Brotli</a></li>
-      <li><a href="http://bzip.org/">bzip2</a></li>
-      <li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a></li>
-      <li><a href="https://github.com/davidcatt/FastARI">FastARI</a></li>
-      <li><a href="http://fastlz.org/">FastLZ</a></li>
-      <li><a href="https://github.com/google/gipfeli">Gipfeli</a></li>
-      <li><a href="http://software.intel.com/en-us/intel-ipp/">Intel® Performance Primitives</a></li>
-      <li><a href="http://fastcompression.blogspot.com/p/lz4.html">LZ4</a></li>
-      <li><a href="http://liblzf.plan9.de/">LZF</a></li>
-      <li><a href="http://liblzg.bitsnbites.eu/">liblzg</a></li>
-      <li><a href="https://github.com/richgel999/lzham_codec/">LZHAM</a></li>
-      <li><a href="https://en.wikipedia.org/wiki/LZJB">LZJB</a></li>
-      <li><a href="http://tukaani.org/xz/">liblzma</a></li>
-      <li><a href="http://www.matcode.com/lzmat.htm">LZMAT</a></li>
-      <li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
-      <li><a href="http://www.quicklz.com/">QuickLZ</a></li>
-      <li><a href="http://www.centaurean.com/sharc">SHARC</a></li>
-      <li><a href="https://code.google.com/p/snappy/">Snappy</a></li>
-      <li><a href="https://code.google.com/p/wflz/">wfLZ</a></li>
-      <li><a href="http://zlib.net/">zlib</a></li>
-      <li><a href="https://github.com/richox/libzling">zling</a></li>
-      <li><a href="http://mattmahoney.net/dc/zpaq.html">ZPAQ</a></li>
-    </ul>
-
-    <p>
-      Because Squash provides a single API, any algorithms which
-      Squash has a plugin to support will be useable from any language
-      for which Squash provides bindings.
-    </p>
-
-    <p>
-      Squash provides <a href="#benchmarks">benchmarks</a> to help you
-      decide which codecs are appropriate for your library.
-    </p>
-
-    <h2 id="bindings"><a href="#bindings">Bindings</a></h2>
-
-    <p>
-      Squash is written in C, so it should be possible to create
-      bindings for virtually any programming language.  Currently,
-      Squash has bindings for the following languages:
-    </p>
-
-    <ul>
-      <li>C — <a href="api/c/index.html">API Reference</a></li>
-      <li><a href="http://wiki.gnome.org/Vala">Vala</a></li>
-    </ul>
-
-    <p>
-      If you're interested in helping to add support for more
-      languages, please get in touch with us.
-    </p>
-
-    <h2 id="download"><a href="#download">Download</a></h2>
-
-    <h3 id="releases">Releases</h3>
-
-    <p>
-      Squash is a very new project and hasn't yet seen a release.
-    </p>
-
-    <h3 id="git">Git</h3>
-
-    <dl>
-      <dt>Repository</dt>
-      <dd><p><code>git clone <var>https://github.com/quixdb/squash.git</var></code></p></dd>
-
-      <dt>Web interface</dt>
-      <dd><p><a href="https://github.com/quixdb/squash">https://github.com/quixdb/squash</a></p></dd>
-    </dl>
-
-    <h2 id="benchmarks"><a href="#benchmarks">Benchmarks</a></h2>
-
-    <p>
-      Squash ships with a tool for automatically building benchmarks,
-      so you can easily create your own using whatever dataset is
-      appropriate for your work load.  To use it with the default
-      datasets, simply type <code>make benchmark.html</code> in
-      the <a href="https://github.com/quixdb/squash/tree/master/benchmark"><var>benchmark/</var>
-      directory</a> of Squash.
-    </p>
-
-    <p>
-      If you don't want to run them yourself results from a few
-      systems are posted here.  Currently, the these benchmarks are
-      run on two datasets:
-    </p>
-
-    <dl>
-      <dt>iliad (1308638 bytes)</dt>
-      <dd>
-        <p>
-          This is the <abbr>HTML</abbr> from a copy
-          of <a href="http://www.gutenberg.org/files/22382/22382-h/22382-h.htm">Homer's
-          Iliad</a> as downloaded
-          from <a href="http://www.gutenberg.org/">Project
-          Gutenberg</a>.
-        </p>
-      </dd>
-
-      <dt>enwik8 (100000000 bytes)</dt>
-      <dd>
-        <p>
-          The first 100,000,000 bytes of a dump of the English
-          language Wikipedia 2006-03-03.  This is one of
-          the <a href="https://cs.fit.edu/~mmahoney/compression/textdata.html">datasets
-          from Matt Mahoney's Large Text Compression Benchmark</a>.
-        </p>
+      <p>
+	Squash is written in C, so it should be possible to create
+	bindings for virtually any programming language.  Currently,
+	Squash has bindings for the following languages:
       </p>
-    </dl>
 
-    <table>
-      <thead>
-        <tr>
-          <th>CPU/SoC</th>
-          <th>Architecture</th>
-          <th>Platform</th>
-          <th>OS</th>
-          <th>Result</th>
-        </tr>
-      </thead>
+      <ul>
+	<li>C — <a href="api/c/index.html">API Reference</a></li>
+	<li><a href="http://wiki.gnome.org/Vala">Vala</a></li>
+      </ul>
 
-      <tbody>
-        <tr>
-          <td><a href="http://ark.intel.com/products/49490">Intel® Atom™ D525</a></td>
-          <td>x86_64</td>
-          <td><a href="http://www.asus.com/Motherboards/AT5NM10TI/">Asus AT5NM10T-I</a></td>
-          <td><a href="https://fedoraproject.org/">Fedora</a> 19</td>
-          <td class="benchmark-result-link"><a href="benchmarks/atom-d525.html">Result</a></td>
-        </tr>
+      <p>
+	If you're interested in helping to add support for more
+	languages, <em>please</em> get in touch with us.  This is an
+	area where we could really use help; it is best if bindings
+	are written by people familiar with the language (including
+	idioms and best practices) so we really can't just go about
+	adding bindings for languages we don't know.
+      </p>
+    </div>
 
-        <tr>
-          <td><a href="http://ark.intel.com/products/55448">Intel® Core™ i3-2105</a></td>
-          <td>x86_64</td>
-          <td><a href="http://www.asus.com/Motherboards/P8H61M/">Asus P8H61-H</a></td>
-          <td><a href="https://fedoraproject.org/">Fedora</a> 19</td>
-          <td class="benchmark-result-link"><a href="benchmarks/core-i3-2105.html">Result</a></td>
-        </tr>
+    <div id="download" class="container">
+      <h2><a href="#download">Download</a></h2>
 
-        <tr>
-          <td><a href="http://ark.intel.com/products/52207">Intel® Core™ i5-2400</a></td>
-          <td>x86_64</td>
-          <td><a href="http://www.asus.com/Motherboards/P8Z68V/">Asus P8Z68-V</a></td>
-          <td><a href="https://fedoraproject.org/">Fedora</a> 19</td>
-          <td class="benchmark-result-link"><a href="benchmarks/core-i5-2400.html">Result</a></td>
-        </tr>
+      <h3 id="releases">Releases</h3>
 
-        <tr>
-          <td><a href="http://ark.intel.com/products/52219">Intel® Core™ i7-2630QM</a></td>
-          <td>x86_64</td>
-          <td><a href="http://support.toshiba.com/support/modelHome?freeText=PSAW6U-02100C">Toshiba Satellite A660-X</a></td>
-          <td><a href="https://fedoraproject.org/">Fedora</a> 20</td>
-          <td class="benchmark-result-link"><a href="benchmarks/core-i7-2630qm.html">Result</a></td>
-        </tr>
+      <p>
+	Squash is a very new project and hasn't yet seen a release.
+      </p>
 
-        <tr>
-          <td><a href="http://www.broadcom.com/products/BCM2835">Broadcom BCM2835</a></td>
-          <td>armv6l</td>
-          <td><a href="http://www.raspberrypi.org">Raspberry Pi</a> Model B revision 1</td>
-          <td><a href="http://www.raspbian.org/">Rasbian</a> wheezy (2013-07-26)</td>
-          <td class="benchmark-result-link"><a href="benchmarks/raspberry-pi.html">Result</a></td>
-        </tr>
+      <h3 id="git">Git</h3>
 
-        <tr>
-          <td><a href="http://www.ti.com/product/omap4460">Texas Instruments OMAP4460</a></td>
-          <td>armv7l</td>
-          <td><a href="http://www.pandaboard.org">PandaBoard</a> ES revision B1</td>
-          <td><a href="https://fedoraproject.org/">Debian</a> wheezy</td>
-          <td class="benchmark-result-link"><a href="benchmarks/pandaboard-es.html">Result</a></td>
-        </tr>
+      <dl>
+	<dt>Repository</dt>
+	<dd><p><code>git clone <var>https://github.com/quixdb/squash.git</var></code></p></dd>
 
-        <tr>
-          <td><a href="http://www.ti.com/product/dm3730">Texas Instruments DM3730</a></td>
-          <td>armv7l</td>
-          <td><a href="http://beagleboard.org/Products/BeagleBoard-xM">BeagleBoard-xM</a> revision B</td>
-          <td><a href="http://www.ubuntu.com/">Ubuntu</a> 13.04</td>
-          <td class="benchmark-result-link"><a href="benchmarks/beagleboard-xm.html">Result</a></td>
-        </tr>
+	<dt>Web interface</dt>
+	<dd><p><a href="https://github.com/quixdb/squash">https://github.com/quixdb/squash</a></p></dd>
+      </dl>
+    </div>
 
-        <tr>
-          <td><a href="http://products.amd.com/pages/OpteronCPUDetail.aspx?id=688">AMD Opteron™ 4170 HE</a></td>
-          <td>x86_64</td>
-          <td><a href="http://www.rackspace.com/cloud/servers/">RackSpace VM</a> (512MB)</td>
-          <td><a href="https://fedoraproject.org/">Fedora</a> 19</td>
-          <td class="benchmark-result-link"><a href="benchmarks/opteron-4170-he.html">Result</a></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="support"><a href="#support">Support</a></h2>
+    <div id="support" class="container">
+          <h2><a href="#support">Support</a></h2>
 
     <dl>
       <dt id="mailing-list">Mailing List / Forum</dt>
@@ -355,41 +222,41 @@
         <p><a href="https://github.com/quixdb/squash/issues">GitHub</a></p>
       </dd>
     </dl>
+    </div>
 
-    <h2 id="licensing"><a href="#licensing">Licensing</a></h2>
+    <div id="licensing" class="container">
+      <h2><a href="#licensing">Licensing</a></h2>
 
-    <p>
-      Squash is licensed under
-      the <a href="https://en.wikipedia.org/wiki/MIT_License">MIT
-      License</a>, which is highly permissive and allows Squash to be
-      integrated into any application virtually without restriction.
-      That said, please keep in mind that some plugins use libraries
-      which are subject to more restrictive terms (such as
-      the <a href="https://gnu.org/licenses/gpl.html">GNU GPL</a>),
-      and using Squash as an intermediary does not release you from
-      the obligations of those licenses if you choose to actually use
-      plugins which use those libraries.  Each plugin's page in the C
-      documentation lists the license of the library, or libraries, it
-      uses.
-    </p>
+      <p>
+	Squash is licensed under
+	the <a href="https://en.wikipedia.org/wiki/MIT_License">MIT
+	License</a>, which is highly permissive and allows Squash to be
+	integrated into any application virtually without restriction.
+	That said, please keep in mind that some plugins use libraries
+	which are subject to more restrictive terms (such as
+	the <a href="https://gnu.org/licenses/gpl.html">GNU GPL</a>),
+	and using Squash as an intermediary does not release you from
+	the obligations of those licenses if you choose to actually use
+	plugins which use those libraries.  Each plugin's page in the C
+	documentation lists the license of the library, or libraries, it
+	uses.
+      </p>
 
-    <p>
-      Several of the GPL libraries used by Squash plugins are also
-      available for integration with proprietary software under
-      commercial licenses.
-    </p>
+      <p>
+	Several of the GPL libraries used by Squash plugins are also
+	available for integration with proprietary software under
+	commercial licenses.
+      </p>
+    </div>
 
-    <script type="text/javascript">
-      var pkBaseURL = (("https:" == document.location.protocol) ? "https://piwik.coeus-group.com/" : "http://piwik.coeus-group.com/");
-      document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-192022-14', 'auto');
+      ga('send', 'pageview');
     </script>
-    <script type="text/javascript">
-      try {
-        var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
-        piwikTracker.trackPageView();
-        piwikTracker.enableLinkTracking();
-      } catch (err) {}
-    </script>
-    <noscript><p><img src="http://piwik.coeus-group.com/piwik.php?idsite=1" style="border:0" alt="" /></p></noscript>
   </body>
 </html>
