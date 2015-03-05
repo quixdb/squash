@@ -21,7 +21,7 @@
  * SOFTWARE.
  *
  * Authors:
- *   Evan Nemerson <evan@coeus-group.com>
+ *   Evan Nemerson <evan@nemerson.com>
  */
 
 #ifndef SQUASH_SLIST_INTERNAL_H

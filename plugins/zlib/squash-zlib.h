@@ -21,7 +21,7 @@
  * SOFTWARE.
  *
  * Authors:
- *   Evan Nemerson <evan@coeus-group.com>
+ *   Evan Nemerson <evan@nemerson.com>
  */
 
 #ifndef __SQUASH_PLUGIN_ZLIB_H__

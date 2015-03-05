@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 Evan Nemerson <evan@coeus-group.com>
+/* Copyright (c) 2013 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

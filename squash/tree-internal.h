@@ -18,7 +18,7 @@
  *
  * Authors:
  *   Ian Piumarta
- *   Evan Nemerson <evan@coeus-group.com>
+ *   Evan Nemerson <evan@nemerson.com>
  */
 
 /* Copied from http://piumarta.com/software/tree/ and modified a bit,
