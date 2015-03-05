@@ -256,7 +256,7 @@ int main (int argc, char** argv) {
   if ( strcmp (input_name, "-") == 0 ) {
     input = stdin;
   } else {
-    input = fopen (input_name, "r");
+    input = fopen (input_name, "r+");
     if ( input == NULL ) {
       perror ("Unable to open input file");
       exit (-1);
@@ -267,7 +267,7 @@ int main (int argc, char** argv) {
     output = stdout;
   } else {
     int output_fd = open (output_name,
-                          O_WRONLY | O_CREAT | (force ? O_TRUNC : O_EXCL),
+                          O_RDWR | O_CREAT | (force ? O_TRUNC : O_EXCL),
                           S_IRUSR | S_IWUSR
 #if !defined(_WIN32)
                           | S_IRGRP | S_IROTH

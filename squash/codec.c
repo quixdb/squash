@@ -21,7 +21,7 @@
  * SOFTWARE.
  *
  * Authors:
- *   Evan Nemerson <evan@coeus-group.com>
+ *   Evan Nemerson <evan@nemerson.com>
  */
 
 #include <assert.h>
@@ -39,7 +39,7 @@
 #include "tinycthread/source/tinycthread.h"
 
 #ifndef SQUASH_CODEC_FILE_BUF_SIZE
-#  define SQUASH_CODEC_FILE_BUF_SIZE (1024 * 1024)
+#  define SQUASH_CODEC_FILE_BUF_SIZE ((size_t) (1024 * 1024))
 #endif
 
 /**
@@ -880,102 +880,75 @@ squash_codec_process_file_with_options (SquashCodec* codec,
                                         SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
   SquashStream* stream;
-  uint8_t* inbuf = NULL;
-  uint8_t* outbuf = NULL;
 
-#if !defined(_WIN32)
-  if (((stream_type == SQUASH_STREAM_COMPRESS) && codec->funcs.compress_buffer != NULL) ||
-      ((stream_type == SQUASH_STREAM_DECOMPRESS) && codec->funcs.decompress_buffer != NULL)) {
+  if (codec->funcs.process_stream == NULL) {
     /* Attempt to mmap the input and output.  This short circuits the
        whole SquashBufferStream hack when possible, which can be a
        huge performance boost (50-100% for several codecs). */
-    struct stat instat = { 0, };
-    size_t outsize_max = 0;
-    int infd = fileno (input);
-    int outfd = fileno (output);
+    SquashMappedFile* in_map;
 
-    if (infd > 0) {
-      if (fstat (infd, &instat) != -1) {
-        if ((inbuf = mmap (NULL, instat.st_size, PROT_READ, MAP_SHARED, infd, 0)) != MAP_FAILED) {
-          if (stream_type == SQUASH_STREAM_COMPRESS) {
-            outsize_max = squash_codec_get_max_compressed_size (codec, instat.st_size);
-          } else if (codec->funcs.get_uncompressed_size != NULL) {
-            outsize_max = squash_codec_get_uncompressed_size (codec, inbuf, instat.st_size);
-          } else {
-            outsize_max = instat.st_size - 1;
-            outsize_max |= outsize_max >> 1;
-            outsize_max |= outsize_max >> 2;
-            outsize_max |= outsize_max >> 4;
-            outsize_max |= outsize_max >> 8;
-            outsize_max |= outsize_max >> 16;
-            outsize_max++;
+    in_map = squash_mapped_file_new (input, false);
+    if (in_map != NULL) {
+      SquashMappedFile* out_map;
+      size_t max_output_size;
 
-            outsize_max <<= 2;
-          }
+      if (stream_type == SQUASH_STREAM_COMPRESS) {
+        max_output_size = squash_codec_get_max_compressed_size (codec, in_map->data_length);
+      } else if (codec->funcs.get_uncompressed_size != NULL) {
+        max_output_size = squash_codec_get_uncompressed_size (codec, in_map->data, in_map->data_length);
+      } else {
+        max_output_size = in_map->data_length - 1;
+        max_output_size |= max_output_size >> 1;
+        max_output_size |= max_output_size >> 2;
+        max_output_size |= max_output_size >> 4;
+        max_output_size |= max_output_size >> 8;
+        max_output_size |= max_output_size >> 16;
+        max_output_size++;
 
-          if (ftruncate(outfd, (off_t) outsize_max) != -1) {
-            if ((outbuf = mmap (NULL, outsize_max, PROT_WRITE | PROT_READ, MAP_SHARED, outfd, 0)) != MAP_FAILED) {
-              size_t outsize = outsize_max;
-
-              if (stream_type == SQUASH_STREAM_COMPRESS) {
-                res = squash_codec_compress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
-
-                if (res == SQUASH_OK) {
-                  if (ftruncate (outfd, (off_t) outsize) == -1) {
-                    res = SQUASH_FAILED;
-                  }
-                  if (fseek (output, outsize, SEEK_SET) == -1) {
-                    res = SQUASH_FAILED;
-                  }
-                }
-              } else {
-                res = squash_codec_decompress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
-                while (res == SQUASH_BUFFER_FULL) {
-                  munmap (outbuf, outsize_max);
-                  outsize_max <<= 1;
-                  if ((ftruncate (outfd, (off_t) outsize_max) == -1) ||
-                      (outbuf = mmap (NULL, outsize_max, PROT_WRITE | PROT_READ, MAP_SHARED, outfd, 0)) == MAP_FAILED) {
-                    break;
-                  } else {
-                    outsize = outsize_max;
-                    res = squash_codec_decompress_with_options (codec, outbuf, &outsize, inbuf, instat.st_size, options);
-                  }
-                }
-
-                if (res == SQUASH_OK) {
-                  if (ftruncate (outfd, (off_t) outsize) == -1) {
-                    res = SQUASH_FAILED;
-                  }
-                  if (fseek (output, outsize, SEEK_SET) == -1) {
-                    res = SQUASH_FAILED;
-                  }
-                }
-              }
-
-              if (outbuf != MAP_FAILED) {
-                munmap (outbuf, outsize_max);
-              }
-            }
-          }
-
-          munmap (inbuf, instat.st_size);
-        }
+        max_output_size <<= 3;
       }
-    }
-  }
 
-  if (res == SQUASH_OK) {
-    return res;
+      out_map = squash_mapped_file_new_full(output, false, 0, max_output_size);
+      if (out_map != NULL) {
+        size_t output_size = out_map->data_length;
+
+        if (stream_type == SQUASH_STREAM_COMPRESS) {
+          output_size = out_map->data_length;
+          res = squash_codec_compress_with_options (codec, out_map->data, &output_size, in_map->data, in_map->data_length, options);
+        } else {
+          do {
+            output_size = max_output_size;
+            res = squash_codec_decompress_with_options (codec, out_map->data, &output_size, in_map->data, in_map->data_length, options);
+            max_output_size <<= 1;
+          } while (SQUASH_UNLIKELY(res == SQUASH_BUFFER_FULL) && codec->funcs.get_uncompressed_size == NULL);
+        }
+
+        squash_mapped_file_free (out_map);
+        out_map = NULL;
+
+        /* We know that the mmap was successful, so not checking
+           fileno() should be safe. */
+        if (ftruncate (fileno (output), (off_t) output_size) == -1)
+          res = SQUASH_FAILED;
+        if (fseek (output, output_size, SEEK_SET) == -1)
+          res = SQUASH_FAILED;
+      }
+
+      squash_mapped_file_free (in_map);
+      in_map = NULL;
+    }
+
+    if (res == SQUASH_OK)
+      return res;
   }
-#endif /* !defined(_WIN32) */
 
   stream = squash_codec_create_stream_with_options (codec, stream_type, options);
-  if ( stream == NULL ) {
+  if (stream == NULL) {
     return SQUASH_FAILED;
   }
 
-  inbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
-  outbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+  uint8_t* inbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
+  uint8_t* outbuf = malloc (SQUASH_CODEC_FILE_BUF_SIZE);
 
   if (inbuf == NULL || outbuf == NULL) {
     squash_object_unref (stream);
