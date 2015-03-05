@@ -32,6 +32,13 @@
 #define SQUASH_INI_PARSER_MAX_KEY_LENGTH     1024
 #define SQUASH_INI_PARSER_MAX_VALUE_LENGTH   4096
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif /* defined(__GNUC__) */
+
 %%{
 
   machine SquashIniParser;
@@ -215,3 +222,7 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
 
   return result;
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif /* defined(__GNUC__) */

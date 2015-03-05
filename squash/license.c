@@ -63,6 +63,7 @@ squash_license_to_string (SquashLicense license) {
   for (i = 0 ; licenses[i].value != SQUASH_LICENSE_UNKNOWN ; i++)
     if (license == licenses[i].value)
       return licenses[i].name;
+  return NULL;
 }
 
 SquashLicense
