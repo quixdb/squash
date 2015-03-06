@@ -21,7 +21,7 @@
  * SOFTWARE.
  *
  * Authors:
- *   Evan Nemerson <evan@nemerson.com>
+ *   Evan Nemerson <evan@coeus-group.com>
  */
 
 #include <assert.h>
@@ -72,8 +72,6 @@ squash_ms_status_to_squash_status (MSCompStatus status) {
   switch (status) {
     case MSCOMP_OK:
       return SQUASH_OK;
-    case MSCOMP_STREAM_END:
-      return SQUASH_END_OF_STREAM;
     case MSCOMP_ERRNO:
       return SQUASH_FAILED;
     case MSCOMP_ARG_ERROR:
@@ -145,8 +143,22 @@ squash_ms_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squas
   return (SquashStream*) squash_ms_stream_new (codec, stream_type, (SquashOptions*) options);
 }
 
+static MSCompFlush
+squash_ms_comp_flush_from_operation (SquashOperation operation) {
+  switch (operation) {
+    case SQUASH_OPERATION_PROCESS:
+      return MSCOMP_NO_FLUSH;
+    case SQUASH_OPERATION_FLUSH:
+      return MSCOMP_FLUSH;
+    case SQUASH_OPERATION_FINISH:
+      return MSCOMP_FINISH;
+  }
+  assert (false);
+}
+
 static SquashStatus
 squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
+  SquashStatus status = SQUASH_FAILED;
   MSCompStatus res;
   SquashMSCompStream* s = (SquashMSCompStream*) stream;
 
@@ -156,9 +168,9 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
   s->mscomp.out_avail = stream->avail_out;
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    res = ms_deflate(&(s->mscomp), operation == SQUASH_OPERATION_FINISH);
+    res = ms_deflate(&(s->mscomp), squash_ms_comp_flush_from_operation (operation));
   } else {
-    res = ms_inflate(&(s->mscomp), operation == SQUASH_OPERATION_FINISH);
+    res = ms_inflate(&(s->mscomp));
   }
 
   stream->next_in = s->mscomp.in;
@@ -166,11 +178,64 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
   stream->next_out = s->mscomp.out;
   stream->avail_out = s->mscomp.out_avail;
 
-  if (res == MSCOMP_OK && operation == SQUASH_OPERATION_FINISH) {
-    return SQUASH_PROCESSING;
+  switch (stream->stream_type) {
+    case SQUASH_STREAM_COMPRESS:
+      switch (operation) {
+        case SQUASH_OPERATION_PROCESS:
+          switch (res) {
+            case MSCOMP_OK:
+              status = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+              break;
+            default:
+              status = squash_ms_status_to_squash_status (res);
+              break;
+          }
+          break;
+        case SQUASH_OPERATION_FLUSH:
+          switch (res) {
+            case MSCOMP_OK:
+              status = SQUASH_OK;
+              break;
+            default:
+              status = squash_ms_status_to_squash_status (res);
+              break;
+          }
+          break;
+        case SQUASH_OPERATION_FINISH:
+          switch (res) {
+            case MSCOMP_OK:
+              status = SQUASH_PROCESSING;
+              break;
+            case MSCOMP_STREAM_END:
+              status = SQUASH_OK;
+              break;
+            default:
+              status = squash_ms_status_to_squash_status (res);
+              break;
+          }
+          break;
+      }
+      break;
+    case SQUASH_STREAM_DECOMPRESS:
+      switch (operation) {
+        case SQUASH_OPERATION_PROCESS:
+        case SQUASH_OPERATION_FLUSH:
+        case SQUASH_OPERATION_FINISH:
+          switch (res) {
+            case MSCOMP_OK:
+            case MSCOMP_POSSIBLE_STREAM_END:
+              status = (stream->avail_in == 0 && stream->avail_out > 0) ? SQUASH_OK : SQUASH_PROCESSING;
+              break;
+            default:
+              status = squash_ms_status_to_squash_status (res);
+              break;
+          }
+          break;
+      }
+      break;
   }
 
-  return squash_ms_status_to_squash_status (res);
+  return status;
 }
 
 static size_t
@@ -180,9 +245,9 @@ squash_ms_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_lengt
 
 static SquashStatus
 squash_ms_compress_buffer (SquashCodec* codec,
-                                    uint8_t* compressed, size_t* compressed_length,
-                                    const uint8_t* uncompressed, size_t uncompressed_length,
-                                    SquashOptions* options) {
+                           uint8_t* compressed, size_t* compressed_length,
+                           const uint8_t* uncompressed, size_t uncompressed_length,
+                           SquashOptions* options) {
   MSCompStatus status = ms_compress (squash_ms_format_from_codec (codec),
                                      uncompressed, uncompressed_length, compressed, compressed_length);
   return squash_ms_status_to_squash_status (status);
@@ -190,9 +255,9 @@ squash_ms_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_ms_decompress_buffer (SquashCodec* codec,
-                                      uint8_t* decompressed, size_t* decompressed_length,
-                                      const uint8_t* compressed, size_t compressed_length,
-                                      SquashOptions* options) {
+                             uint8_t* decompressed, size_t* decompressed_length,
+                             const uint8_t* compressed, size_t compressed_length,
+                             SquashOptions* options) {
   MSCompStatus status = ms_decompress (squash_ms_format_from_codec (codec),
                                        compressed, compressed_length, decompressed, decompressed_length);
   return squash_ms_status_to_squash_status (status);
@@ -209,6 +274,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer       = squash_ms_decompress_buffer;
     funcs->compress_buffer         = squash_ms_compress_buffer;
     if (strcmp ("lznt1", name) == 0) {
+      funcs->info                    = SQUASH_CODEC_INFO_CAN_FLUSH;
       funcs->create_stream           = squash_ms_create_stream;
       funcs->process_stream          = squash_ms_process_stream;
     }
