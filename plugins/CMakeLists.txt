@@ -13,7 +13,6 @@ set (plugins_available
   lzham
   lzjb
   lzma
-  lzmat
   lzo
   ms-compress
   quicklz

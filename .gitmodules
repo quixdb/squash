@@ -10,9 +10,6 @@
 [submodule "plugins/doboz/doboz"]
 	path = plugins/doboz/doboz
 	url = https://github.com/nemequ/doboz.git
-[submodule "plugins/lzmat/lzmat"]
-	path = plugins/lzmat/lzmat
-	url = https://github.com/nemequ/lzmat.git
 [submodule "plugins/lzg/liblzg"]
 	path = plugins/lzg/liblzg
 	url = git://gitorious.org/liblzg/liblzg.git
