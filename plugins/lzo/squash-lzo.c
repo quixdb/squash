@@ -388,7 +388,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->parse_option = squash_lzo_parse_option;
     funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
     funcs->decompress_buffer = squash_lzo_decompress_buffer;
-    funcs->compress_buffer = squash_lzo_compress_buffer;
+    funcs->compress_buffer_unsafe = squash_lzo_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

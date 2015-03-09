@@ -1,5 +1,6 @@
 set (codec_tests
   buffer
+  bounds
   flush
   random-data
   stream-compress

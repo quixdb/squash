@@ -105,7 +105,7 @@ static inline void squash__assert (bool e, const char* expr, const char* file, i
   "sem euismod, non varius felis dictum. Aliquam tempus pharetra ante a " \
   "sagittis. Curabitur ut urna felis. Etiam sed vulputate nisi. Praesent " \
   "at libero eleifend, sagittis quam a, varius sapien."
-#define LOREM_IPSUM_LENGTH (sizeof (LOREM_IPSUM) - 1)
+#define LOREM_IPSUM_LENGTH ((size_t) 2725)
 
 void check_codec (SquashCodec* codec);
 

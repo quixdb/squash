@@ -85,7 +85,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("fari", name) == 0) {
     funcs->get_max_compressed_size = squash_fari_get_max_compressed_size;
     funcs->decompress_buffer = squash_fari_decompress_buffer;
-    funcs->compress_buffer = squash_fari_compress_buffer;
+    funcs->compress_buffer_unsafe = squash_fari_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

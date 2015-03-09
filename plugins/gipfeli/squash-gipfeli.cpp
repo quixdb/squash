@@ -88,8 +88,7 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
                                 uint8_t* compressed, size_t* compressed_length,
                                 const uint8_t* uncompressed, size_t uncompressed_length,
                                 SquashOptions* options) {
-  util::compression::Compressor* compressor =
-    util::compression::NewGipfeliCompressor();
+  util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) compressed);
   util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
 
@@ -106,7 +105,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->get_uncompressed_size = squash_gipfeli_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_gipfeli_get_max_compressed_size;
     funcs->decompress_buffer = squash_gipfeli_decompress_buffer;
-    funcs->compress_buffer = squash_gipfeli_compress_buffer;
+    funcs->compress_buffer_unsafe = squash_gipfeli_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

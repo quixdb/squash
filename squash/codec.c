@@ -505,11 +505,53 @@ squash_codec_compress_with_options (SquashCodec* codec,
   if (compressed == uncompressed)
     return SQUASH_INVALID_BUFFER;
 
-  if (funcs->compress_buffer != NULL) {
-    return funcs->compress_buffer (codec,
-                                   compressed, compressed_length,
-                                   uncompressed, uncompressed_length,
-                                   options);
+  if (funcs->compress_buffer ||
+      funcs->compress_buffer_unsafe) {
+    size_t max_compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
+
+    if (*compressed >= max_compressed_length) {
+      if (funcs->compress_buffer_unsafe != NULL) {
+        return funcs->compress_buffer_unsafe (codec,
+                                              compressed, compressed_length,
+                                              uncompressed, uncompressed_length,
+                                              options);
+      } else {
+        return funcs->compress_buffer (codec,
+                                       compressed, compressed_length,
+                                       uncompressed, uncompressed_length,
+                                       options);
+      }
+    } else if (funcs->compress_buffer != NULL) {
+      return funcs->compress_buffer (codec,
+                                     compressed, compressed_length,
+                                     uncompressed, uncompressed_length,
+                                     options);
+    } else {
+      SquashStatus status;
+      uint8_t* tmp_buf = malloc (max_compressed_length);
+      if (tmp_buf == NULL)
+        return SQUASH_MEMORY;
+
+      status = funcs->compress_buffer_unsafe (codec,
+                                              tmp_buf, &max_compressed_length,
+                                              uncompressed, uncompressed_length,
+                                              options);
+      if (status == SQUASH_OK) {
+        if (*compressed_length < max_compressed_length) {
+          *compressed_length = max_compressed_length;
+          free (tmp_buf);
+          return SQUASH_BUFFER_FULL;
+        } else {
+          *compressed_length = max_compressed_length;
+          memcpy (compressed, tmp_buf, max_compressed_length);
+          free (tmp_buf);
+          return SQUASH_OK;
+        }
+      } else {
+        free (tmp_buf);
+        return status;
+      }
+    }
   } else {
     SquashStatus status;
     SquashStream* stream;
