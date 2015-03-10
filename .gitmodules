@@ -10,9 +10,6 @@
 [submodule "plugins/doboz/doboz"]
 	path = plugins/doboz/doboz
 	url = https://github.com/nemequ/doboz.git
-[submodule "plugins/lzg/liblzg"]
-	path = plugins/lzg/liblzg
-	url = git://gitorious.org/liblzg/liblzg.git
 [submodule "plugins/fastlz/fastlz"]
 	path = plugins/fastlz/fastlz
 	url = https://github.com/svn2github/fastlz.git
@@ -52,3 +49,6 @@
 [submodule "plugins/bsc/libbsc"]
 	path = plugins/bsc/libbsc
 	url = https://github.com/IlyaGrebnov/libbsc.git
+[submodule "plugins/lzg/liblzg"]
+	path = plugins/lzg/liblzg
+	url = https://gitorious.org/liblzg/liblzg.git
