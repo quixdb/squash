@@ -15,6 +15,7 @@ set (plugins_available
   lzma
   lzo
   ms-compress
+  pithy
   quicklz
   sharc
   snappy
