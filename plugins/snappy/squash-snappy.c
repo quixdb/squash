@@ -418,12 +418,15 @@ squash_snappy_framed_handle_chunk (SquashSnappyFramedStream* s) {
       s->output_buffer_length = decompressed_length;
       s->output_buffer_pos = 0;
       s->state = SQUASH_SNAPPY_FRAMED_STATE_DRAINING;
-      return true;
+      goto success;
     }
   } else {
     return false;
   }
 
+  s->state = SQUASH_SNAPPY_FRAMED_STATE_IDLE;
+
+ success:
   if (compressed == stream->next_in) {
     stream->next_in += compressed_length + 4;
     stream->avail_in -= compressed_length + 4;
@@ -431,8 +434,6 @@ squash_snappy_framed_handle_chunk (SquashSnappyFramedStream* s) {
     s->input_buffer_length = 0;
     s->input_buffer_pos = 0;
   }
-
-  s->state = SQUASH_SNAPPY_FRAMED_STATE_IDLE;
 
   return true;
 }
