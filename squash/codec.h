@@ -115,13 +115,16 @@ SQUASH_API SquashStatus        squash_codec_compress_file_with_options   (Squash
                                                                           FILE* compressed, FILE* uncompressed,
                                                                           SquashOptions* options);
 SQUASH_API SquashStatus        squash_codec_decompress_file_with_options (SquashCodec* codec,
-                                                                          FILE* decompressed, FILE* compressed,
+                                                                          FILE* decompressed, size_t decompressed_length,
+                                                                          FILE* compressed,
                                                                           SquashOptions* options);
 SQUASH_API SquashStatus        squash_codec_compress_file                (SquashCodec* codec,
                                                                           FILE* compressed, FILE* uncompressed,
                                                                           ...);
 SQUASH_API SquashStatus        squash_codec_decompress_file              (SquashCodec* codec,
-                                                                          FILE* decompressed, FILE* compressed,
+                                                                          FILE* decompressed,
+                                                                          size_t decompressed_length,
+                                                                          FILE* compressed,
                                                                           ...);
 SQUASH_API bool                squash_codec_knows_uncompressed_size      (SquashCodec* codec);
 SQUASH_API bool                squash_codec_can_flush                    (SquashCodec* codec);
@@ -147,13 +150,17 @@ SQUASH_API SquashStatus        squash_compress_file_with_options         (const 
                                                                           FILE* compressed, FILE* uncompressed,
                                                                           SquashOptions* options);
 SQUASH_API SquashStatus        squash_decompress_file_with_options       (const char* codec,
-                                                                          FILE* decompressed, FILE* compressed,
+                                                                          FILE* decompressed,
+                                                                          size_t decompressed_length,
+                                                                          FILE* compressed,
                                                                           SquashOptions* options);
 SQUASH_API SquashStatus        squash_compress_file                      (const char* codec,
                                                                           FILE* compressed, FILE* uncompressed,
                                                                           ...);
 SQUASH_API SquashStatus        squash_decompress_file                    (const char* codec,
-                                                                          FILE* decompressed, FILE* compressed,
+                                                                          FILE* decompressed,
+                                                                          size_t decompressed_length,
+                                                                          FILE* compressed,
                                                                           ...);
 SQUASH_API bool                squash_knows_uncompressed_size            (const char* codec);
 SQUASH_API bool                squash_can_flush                          (const char* codec);

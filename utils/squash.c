@@ -289,7 +289,7 @@ int main (int argc, char** argv) {
   if ( direction == SQUASH_STREAM_COMPRESS ) {
     res = squash_codec_compress_file_with_options (codec, output, input, options);
   } else {
-    res = squash_codec_decompress_file_with_options (codec, output, input, options);
+    res = squash_codec_decompress_file_with_options (codec, output, 0, input, options);
   }
 
   if ( res != SQUASH_OK ) {

@@ -918,7 +918,9 @@ squash_codec_set_priority (SquashCodec* codec, unsigned int priority) {
 static SquashStatus
 squash_codec_process_file_with_options (SquashCodec* codec,
                                         SquashStreamType stream_type,
-                                        FILE* output, FILE* input,
+                                        FILE* output,
+                                        size_t output_length,
+                                        FILE* input,
                                         SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
   SquashStream* stream;
@@ -938,6 +940,8 @@ squash_codec_process_file_with_options (SquashCodec* codec,
         max_output_size = squash_codec_get_max_compressed_size (codec, in_map->data_length);
       } else if (codec->funcs.get_uncompressed_size != NULL) {
         max_output_size = squash_codec_get_uncompressed_size (codec, in_map->data, in_map->data_length);
+      } else if (output_length != 0) {
+        max_output_size = output_length;
       } else {
         max_output_size = in_map->data_length - 1;
         max_output_size |= max_output_size >> 1;
@@ -962,7 +966,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
             output_size = max_output_size;
             res = squash_codec_decompress_with_options (codec, out_map->data, &output_size, in_map->data, in_map->data_length, options);
             max_output_size <<= 1;
-          } while (SQUASH_UNLIKELY(res == SQUASH_BUFFER_FULL) && codec->funcs.get_uncompressed_size == NULL);
+          } while (SQUASH_UNLIKELY(res == SQUASH_BUFFER_FULL) && output_length == 0 && codec->funcs.get_uncompressed_size == NULL);
         }
 
         squash_mapped_file_free (out_map);
@@ -1057,7 +1061,7 @@ SquashStatus
 squash_codec_compress_file_with_options (SquashCodec* codec,
                                          FILE* compressed, FILE* uncompressed,
                                          SquashOptions* options) {
-  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, options);
+  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, 0, uncompressed, options);
 }
 
 /**
@@ -1076,9 +1080,11 @@ squash_codec_compress_file_with_options (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_decompress_file_with_options (SquashCodec* codec,
-                                           FILE* decompressed, FILE* compressed,
+                                           FILE* decompressed,
+                                           size_t decompressed_length,
+                                           FILE* compressed,
                                            SquashOptions* options) {
-  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, options);
+  return squash_codec_process_file_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, decompressed_length, compressed, options);
 }
 
 /**
@@ -1098,7 +1104,8 @@ squash_codec_decompress_file_with_options (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_compress_file (SquashCodec* codec,
-                            FILE* compressed, FILE* uncompressed,
+                            FILE* compressed,
+                            FILE* uncompressed,
                             ...) {
   SquashOptions* options;
   va_list ap;
@@ -1118,8 +1125,22 @@ squash_codec_compress_file (SquashCodec* codec,
  * stream will be closed when this function is finished—you must call
  * fclose yourself.
  *
+ * For codecs which only provide a buffer to buffer API natively and
+ * don't encode the size of the uncompressed content in the compressed
+ * data, providing the decompressed length can be important.  Without
+ * it Squash will have to make a guess as to how much memory to
+ * allocate, try to decompress and, if that fails, keep trying with
+ * progressively larger buffers.  Currently it starts with the next
+ * highest power of two after the compressed size left shifted 3 bits,
+ * and left shifts by one additional bit and tries again as long as
+ * the return value is @ref SQUASH_BUFFER_FULL.  For codecs which
+ * provide a native streaming API the @a decompressed_length is not
+ * used.
+ *
  * @param codec The codec to use
  * @param decompressed Stream to write decompressed data to
+ * @param decompressed_length The size of the decompressed data, or 0
+ *   if not known
  * @param compressed Stream to decompress
  * @param ... Variadic *NULL*-terminated list of key/value option
  *   pairs
@@ -1127,7 +1148,9 @@ squash_codec_compress_file (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_decompress_file (SquashCodec* codec,
-                              FILE* decompressed, FILE* compressed,
+                              FILE* decompressed,
+                              size_t decompressed_length,
+                              FILE* compressed,
                               ...) {
   SquashOptions* options;
   va_list ap;
@@ -1136,7 +1159,7 @@ squash_codec_decompress_file (SquashCodec* codec,
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_codec_decompress_file_with_options (codec, decompressed, compressed, options);
+  return squash_codec_decompress_file_with_options (codec, decompressed, decompressed_length, compressed, options);
 }
 
 /**
@@ -1181,14 +1204,16 @@ squash_compress_file_with_options (const char* codec,
  */
 SquashStatus
 squash_decompress_file_with_options (const char* codec,
-                                     FILE* decompressed, FILE* compressed,
+                                     FILE* decompressed,
+                                     size_t decompressed_length,
+                                     FILE* compressed,
                                      SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
   if (codec_real == NULL)
     return SQUASH_NOT_FOUND;
 
-  return squash_codec_decompress_file_with_options (codec_real, decompressed, compressed, options);
+  return squash_codec_decompress_file_with_options (codec_real, decompressed, decompressed_length, compressed, options);
 }
 
 /**
@@ -1241,7 +1266,9 @@ squash_compress_file (const char* codec,
  */
 SquashStatus
 squash_decompress_file (const char* codec,
-                        FILE* decompressed, FILE* compressed,
+                        FILE* decompressed,
+                        size_t decompressed_length,
+                        FILE* compressed,
                         ...) {
   SquashCodec* codec_real = squash_get_codec (codec);
   SquashOptions* options;
@@ -1254,7 +1281,7 @@ squash_decompress_file (const char* codec,
   options = squash_options_newv (codec_real, ap);
   va_end (ap);
 
-  return squash_decompress_file_with_options (codec, decompressed, compressed, options);
+  return squash_decompress_file_with_options (codec, decompressed, decompressed_length, compressed, options);
 }
 
 /**
