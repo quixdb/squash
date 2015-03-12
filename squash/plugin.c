@@ -269,6 +269,12 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
     SQUASH_MTX_LOCK(codec_init);
     res = init_codec_func (codec, funcs);
     codec->initialized = (res == SQUASH_OK);
+
+    assert ((codec->funcs.info & SQUASH_CODEC_INFO_AUTO_MASK) == 0);
+    if (codec->funcs.process_stream != NULL)
+      codec->funcs.info |= SQUASH_CODEC_INFO_NATIVE_STREAMING;
+    if (codec->funcs.get_uncompressed_size != NULL)
+      codec->funcs.info |= SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
     SQUASH_MTX_UNLOCK(codec_init);
   }
 

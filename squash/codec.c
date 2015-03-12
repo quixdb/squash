@@ -232,6 +232,60 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
  */
 
 /**
+ * @enum SquashCodecInfo
+ * @brief Information about the codec
+ *
+ * This is a bitmask describing characteristics and features of the
+ * codec.
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_CAN_FLUSH
+ * @brief Flushing is supported
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_RUN_IN_THREAD
+ * @brief The data is processed in a background thread
+ *
+ * This is an implementation detail for Squash—it should not be
+ * important for anyone but plugin authors or Squash maintainers.
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_DECOMPRESS_SAFE
+ * @brief The codec will not write outside of the buffer supplied to
+ *   it during decompression.
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_AUTO_MASK
+ * @brief Mask of flags which are automatically set based on which
+ *   callbacks are provided.
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_VALID
+ * @brief The codec is valid
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE
+ * @brief The compressed data encodes the length of the uncompressed
+ *   data without having to decompress it.
+ */
+
+/**
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_NATIVE_STREAMING
+ * @brief The codec natively supports a streaming interface.
+ */
+
+/**
+ * @def SQUASH_CODEC_INFO_INVALID
+ * @brief Invalid codec
+ */
+
+/**
  * @brief Get the name of a %SquashCodec
  *
  * @param codec The codec
@@ -312,8 +366,8 @@ squash_codec_get_funcs (SquashCodec* codec) {
 /**
  * @brief Get the uncompressed size of the compressed buffer
  *
- * This function is only useful for codecs where the return value of
- * ::squash_codec_knows_uncompressed_size is true.  For situations
+ * This function is only useful for codecs with the @ref
+ * SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE flag set.  For situations
  * where the codec does not know the uncompressed size, *0* will be
  * returned.
  *
@@ -1285,92 +1339,31 @@ squash_decompress_file (const char* codec,
 }
 
 /**
- * @brief Check whether a codec knows the size of the uncompressed
- *   data based on the compressed data
+ * @brief Get a bitmask of information about the codec
  *
- * @param codec The codec to check
- * @return true if it does, false if it doesn't
+ * @param codec The codec
+ * @return the codec info
  */
-bool
-squash_codec_knows_uncompressed_size (SquashCodec* codec) {
-  return codec->funcs.get_uncompressed_size != NULL;
+SquashCodecInfo
+squash_codec_get_info (SquashCodec* codec) {
+  return codec->funcs.info;
 }
 
 /**
- * @brief Check whether a codec knows the size of the uncompressed
- *   data based on the compressed data
+ * @brief Get a bitmask of information about the codec
  *
- * @param codec The codec to check
- * @return true if it does, false if it doesn't
+ * @param codec The codec
+ * @return the codec info, or @ref SQUASH_CODEC_INFO_INVALID if there
+ *   is no such codec
  */
-bool squash_knows_uncompressed_size (const char* codec) {
+SquashCodecInfo
+squash_get_info (const char* codec) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
   if (codec_real != NULL)
-    return squash_codec_knows_uncompressed_size (codec_real);
+    return squash_codec_get_info (codec_real);
   else
-    return false;
-}
-
-/**
- * @brief Check whether a codec can flush
- *
- * @param codec The codec to check
- * @return true if it can, false if it cannot
- */
-bool
-squash_codec_can_flush (SquashCodec* codec) {
-  return (codec->funcs.info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH;
-}
-
-/**
- * @brief Check whether a codec can flush
- *
- * @param codec The codec to check
- * @return true if it can, false if it cannot
- */
-bool squash_can_flush (const char* codec) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (codec_real != NULL)
-    return squash_codec_can_flush (codec_real);
-  else
-    return false;
-}
-
-/**
- * @brief Check whether a codec supports streaming natively
- *
- * Codecs which do not support streaming natively require the entire
- * input and output space be addressable, so to provide a streaming
- * interface Squash has to do a lot of buffering.  For some internal
- * APIs (like ::squash_compress_file an ::squash_decompress_file) we
- * use mmap when possible, but if you're using the stream API and have
- * large sets of data you should be careful which codecs you allow.
- *
- * @param codec The codec to check
- * @return true if it does, false if it cannot
- * @see squash_has_native_streaming
- */
-bool
-squash_codec_has_native_streaming (SquashCodec* codec) {
-  return codec->funcs.process_stream != NULL;
-}
-
-/**
- * @brief Check whether a codec supports streaming natively
- *
- * @param codec The codec to check
- * @return true if it does, false if it cannot
- * @see squash_codec_has_native_streaming
- */
-bool squash_has_native_streaming (const char* codec) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (codec_real != NULL)
-    return squash_codec_has_native_streaming (codec_real);
-  else
-    return false;
+    return SQUASH_CODEC_INFO_INVALID;
 }
 
 /**

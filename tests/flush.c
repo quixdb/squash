@@ -69,8 +69,6 @@ flush_test (SquashCodec* codec) {
 
 void
 check_codec (SquashCodec* codec) {
-  if (!squash_codec_can_flush (codec))
-    return;
-  else
+  if ((squash_codec_get_info (codec) & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH)
     flush_test (codec);
 }
