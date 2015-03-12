@@ -2,6 +2,11 @@
  * Written and placed in the public domain by Ilya Muravyov
  * Modified for use as a library and converted to C by Evan Nemerson */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_DISABLE_PERFCRIT_LOCKS
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +59,7 @@ void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, 
 	ctx->user_data = user_data;
 	ctx->user_data_destroy = destroy_data;
 
-	ctx->buf = malloc(BUF_SIZE+MAX_MATCH);
+	ctx->buf = (unsigned char*)malloc(BUF_SIZE+MAX_MATCH);
 	memset(ctx->buf, 0, BUF_SIZE+MAX_MATCH);
 }
 
@@ -65,11 +70,11 @@ struct CrushStdioData {
 
 static void crush_stdio_destroy (void* user_data)
 {
-  struct CrushStdioData* data = (struct CrushStdioData*) user_data;
+	struct CrushStdioData* data = (struct CrushStdioData*) user_data;
 
-  fclose(data->in);
-  fclose(data->out);
-  free(user_data);
+	fclose(data->in);
+	fclose(data->out);
+	free(user_data);
 }
 
 static size_t total_read = 0;
@@ -77,21 +82,21 @@ static size_t total_written = 0;
 
 static size_t crush_stdio_fread (void* ptr, size_t size, void* user_data)
 {
-  return fread(ptr, 1, size, ((struct CrushStdioData*) user_data)->in);
+	return fread(ptr, 1, size, ((struct CrushStdioData*) user_data)->in);
 }
 
 static size_t crush_stdio_fwrite (void* ptr, size_t size, void* user_data)
 {
-  return fwrite(ptr, 1, size, ((struct CrushStdioData*) user_data)->out);
+	return fwrite(ptr, 1, size, ((struct CrushStdioData*) user_data)->out);
 }
 
 void crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
 {
-  struct CrushStdioData* data = malloc(sizeof(struct CrushStdioData));
-  data->in = in;
-  data->out = out;
+	struct CrushStdioData* data = (struct CrushStdioData*)malloc(sizeof(struct CrushStdioData));
+	data->in = in;
+	data->out = out;
 
-  crush_init(ctx, crush_stdio_fread, crush_stdio_fwrite, data, crush_stdio_destroy);
+	crush_init(ctx, crush_stdio_fread, crush_stdio_fwrite, data, crush_stdio_destroy);
 }
 
 void crush_destroy(CrushContext* ctx)
@@ -101,6 +106,11 @@ void crush_destroy(CrushContext* ctx)
 		ctx->user_data_destroy(ctx->user_data);
 	}
 	free(ctx->buf);
+}
+
+static void init_bits(CrushContext* ctx)
+{
+	ctx->bit_count=ctx->bit_buf=0;
 }
 
 static void put_bits(CrushContext* ctx, int n, int x)
@@ -170,8 +180,8 @@ static int get_penalty(int a, int b)
 
 int crush_compress(CrushContext* ctx, int level)
 {
-  int* head = calloc(HASH1_SIZE+HASH2_SIZE, sizeof(int));
-  int* prev = calloc(W_SIZE, sizeof(int));
+	int* head = (int*)calloc(HASH1_SIZE+HASH2_SIZE, sizeof(int));
+	int* prev = (int*)calloc(W_SIZE, sizeof(int));
 
 	const int max_chain[]={4, 256, 1<<12};
 
@@ -340,8 +350,8 @@ int crush_compress(CrushContext* ctx, int level)
 
 		flush_bits(ctx);
 	}
-  free(head);
-  free(prev);
+	free(head);
+	free(prev);
 	return 0;
 }
 
@@ -356,6 +366,8 @@ int crush_decompress(CrushContext* ctx)
 		{
 			return -1;
 		}
+
+		init_bits(ctx);
 
 		while (p<size)
 		{
