@@ -33,7 +33,9 @@ with Squash, though it is preferred.
 Squash currently contains plugins for the following libraries:
 
 - [Brotli](@ref md_plugins_brotli_brotli)
+- [bsc](@ref md_plugins_bsc_bsc)
 - [bzip2](@ref md_plugins_bzip2_bzip2)
+- [CRUSH](@ref md_plugins_crush_crush)
 - [Doboz](@ref md_plugins_doboz_doboz)
 - [FastARI](@ref md_plugins_fari_fari)
 - [FastLZ](@ref md_plugins_fastlz_fastlz)
@@ -44,7 +46,6 @@ Squash currently contains plugins for the following libraries:
 - [LZHAM](@ref md_plugins_lzham_lzham)
 - [LZJB](@ref md_plugins_lzjb_lzjb)
 - [liblzma](@ref md_plugins_lzma_lzma)
-- [LZMAT](@ref md_plugins_lzmat_lzmat)
 - [LZO](@ref md_plugins_lzo_lzo)
 - [QuickLZ](@ref md_plugins_quicklz_quicklz)
 - [SHARC](@ref md_plugins_sharc_sharc)
@@ -53,6 +54,7 @@ Squash currently contains plugins for the following libraries:
 - [zlib](@ref md_plugins_zlib_zlib)
 - [zling](@ref md_plugins_zling_zling)
 - [ZPAQ](@ref md_plugins_zpaq_zpaq)
+- [Zstandard](@ref md_plugins_zstd_zstd)
 
 We hope to add more soon.  If you're interested in helping, please
 contact us!

@@ -39,68 +39,73 @@
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_OK
+ * @var SquashStatus::SQUASH_OK
  * @brief Operation completed successfully.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_PROCESSING
+ * @var SquashStatus::SQUASH_PROCESSING
  * @brief Operation partially completed.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_END_OF_STREAM
+ * @var SquashStatus::SQUASH_END_OF_STREAM
  * @brief Reached the end of the stream while decoding.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_FAILED
+ * @var SquashStatus::SQUASH_FAILED
  * @brief Operation failed.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_UNABLE_TO_LOAD
+ * @var SquashStatus::SQUASH_UNABLE_TO_LOAD
  * @brief Unable to load the requested resource.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_BAD_PARAM
+ * @var SquashStatus::SQUASH_BAD_PARAM
  * @brief One or more of the parameters were not valid.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_BAD_VALUE
+ * @var SquashStatus::SQUASH_BAD_VALUE
  * @brief One or more parameter values was not valid.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_MEMORY
+ * @var SquashStatus::SQUASH_MEMORY
  * @brief Not enough memory is available.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_BUFFER_FULL
+ * @var SquashStatus::SQUASH_BUFFER_FULL
  * @brief Insufficient space in buffer.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_STATE
+ * @var SquashStatus::SQUASH_BUFFER_EMPTY
+ * @brief Supplied buffer was empty.
+ */
+
+/**
+ * @var SquashStatus::SQUASH_STATE
  * @brief Performing the requested operation from the current state is
  *   not supported.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_INVALID_OPERATION
+ * @var SquashStatus::SQUASH_INVALID_OPERATION
  * @brief The requested operation is not available.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_NOT_FOUND
+ * @var SquashStatus::SQUASH_NOT_FOUND
  * @brief The requested codec could not be found.
  */
 
 /**
- * @var SquashStreamType_e::SQUASH_INVALID_BUFFER
+ * @var SquashStatus::SQUASH_INVALID_BUFFER
  * @brief A buffer passed to squash was invalid
  */
 

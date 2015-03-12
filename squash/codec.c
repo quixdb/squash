@@ -156,6 +156,25 @@
  */
 
 /**
+ * @var _SquashCodecFuncs::compress_buffer_unsafe
+ * @brief Compress a buffer.
+ *
+ * Plugins implementing this function can be sure that @a compressed
+ * is at least as long as the maximum compressed length for a buffer
+ * of @a uncompressed_length bytes.
+ *
+ * @param codec The codec.
+ * @param uncompressed The uncompressed data.
+ * @param uncompressed_length The length of the uncompressed data.
+ * @param compressed Buffer in which to store the compressed data.
+ * @param compressed_length Location of the buffer size on input,
+ *   used to store the length of the compressed data on output.
+ * @param options Compression options (or *NULL*)
+ *
+ * @see squash_codec_compress_with_options
+ */
+
+/**
  * @var _SquashCodecFuncs::_reserved1
  * @brief Reserved for future use.
  */
@@ -1128,6 +1147,8 @@ squash_codec_compress_file_with_options (SquashCodec* codec,
  *
  * @param codec The codec to use
  * @param decompressed Stream to write decompressed data to
+ * @param decompressed_length Length of the decompressed data, or 0 if
+ *   unknown
  * @param compressed Stream to decompress
  * @param options Options, or *NULL* to use the defaults
  * @return ::SQUASH_OK on success, or a negative error code on failure
@@ -1252,6 +1273,8 @@ squash_compress_file_with_options (const char* codec,
  *
  * @param codec The codec to use
  * @param decompressed Stream to write decompressed data to
+ * @param decompressed_length Length of the decompressed data, or 0 if
+ *   unknown
  * @param compressed Stream to decompress
  * @param options Options, or *NULL* to use the defaults
  * @return ::SQUASH_OK on success, or a negative error code on failure
@@ -1313,6 +1336,8 @@ squash_compress_file (const char* codec,
  *
  * @param codec The codec to use
  * @param decompressed Stream to write decompressed data to
+ * @param decompressed_length Length of the decompressed data, or 0 if
+ *   unknown
  * @param compressed Stream to decompress
  * @param ... Variadic *NULL*-terminated list of key/value option
  *   pairs

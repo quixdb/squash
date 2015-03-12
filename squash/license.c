@@ -28,6 +28,11 @@
 
 #include <strings.h>
 
+/**
+ * @def SQUASH_LICENSE_UNKNOWN
+ * @brief Unknown license
+ */
+
 const struct { SquashLicense value; const char* name; } licenses[] = {
   { SQUASH_LICENSE_PUBLIC_DOMAIN, "Public Domain" },
   { SQUASH_LICENSE_BSD2,          "BSD2" },
