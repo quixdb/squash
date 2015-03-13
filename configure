@@ -43,74 +43,78 @@ EOF
 while [ $# != 0 ]; do
       case "$1" in
 	  "--prefix="*)
-	      PREFIX="${1:$(expr length "--prefix=")}";;
+	      PREFIX="$(echo -n "${1}" | cut -b$(expr length "--prefix=" + 1)-)";;
 	  "--prefix")
 	      PREFIX="${2}"; shift;;
 	  "--bindir"*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_BINDIR=${1:$(expr length "--bindir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_BINDIR=$(echo -n "${1}" | cut -b$(expr length "--bindir=" + 1)-)";;
 	  "--bindir=")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_BINDIR=${2}"; shift;;
 	  "--sbindir"*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SBINDIR=${1:$(expr length "--sbindir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SBINDIR=$(echo -n "${1}" | cut -b$(expr length "--sbindir=" + 1)-)";;
 	  "--sbindir=")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SBINDIR=${2}"; shift;;
 	  "--libexecdir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBEXECDIR=${1:$(expr length "--libexecdir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBEXECDIR=$(echo -n "${1}" | cut -b$(expr length "--libexecdir=" + 1)-)";;
 	  "--libexecdir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBEXECDIR=${2}"; shift;;
+	  "--sysconfdir="*)
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SYSCONFDIR=$(echo -n "${1}" | cut -b$(expr length "--sysconfdir=" + 1)-)";;
+	  "--sysconfdir")
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SYSCONFDIR=${2}"; shift;;
 	  "--sharedstatedir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SHAREDSTATEDIR=${1:$(expr length "--sharedstatedir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SHAREDSTATEDIR=$(echo -n "${1}" | cut -b$(expr length "--sharedstatedir=" + 1)-)";;
 	  "--sharedstatedir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_SHAREDSTATEDIR=${2}"; shift;;
 	  "--localstatedir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALSTATEDIR=${1:$(expr length "--localstatedir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALSTATEDIR=$(echo -n "${1}" | cut -b$(expr length "--localstatedir=" + 1)-)";;
 	  "--localstatedir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALSTATEDIR=${2}"; shift;;
 	  "--libdir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBDIR=${1:$(expr length "--libdir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LIBDIR=$(echo -n "${1}" | cut -b$(expr length "--libdir=" + 1)-)";;
 	  "--libdir")
 	      LIBDIR="${2}"; shift;;
 	  "--includedir="*)
-	      LIBDIR="${1:$(expr length "--includedir=")}";;
+	      LIBDIR="$(echo -n "${1}" | cut -b$(expr length "--includedir=" + 1)-)";;
 	  "--includedir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INCLUDEDIR=${2}"; shift;;
 	  "--oldincludedir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_OLDINCLUDEDIR=${1:$(expr length "--oldincludedir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_OLDINCLUDEDIR=$(echo -n "${1}" | cut -b$(expr length "--oldincludedir=" + 1)-)";;
 	  "--oldincludedir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_OLDINCLUDEDIR=${2}"; shift;;
 	  "--datarootdir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATAROOTDIR=${1:$(expr length "--datarootdir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATAROOTDIR=$(echo -n "${1}" | cut -b$(expr length "--datarootdir=" + 1)-)";;
 	  "--datarootdir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATAROOTDIR=${2}"; shift;;
 	  "--datadir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATADIR=${1:$(expr length "--datadir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATADIR=$(echo -n "${1}" | cut -b$(expr length "--datadir=" + 1)-)";;
 	  "--datadir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DATADIR=${2}"; shift;;
 	  "--infodir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INFODIR=${1:$(expr length "--infodir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INFODIR=$(echo -n "${1}" | cut -b$(expr length "--infodir=" + 1)-)";;
 	  "--infodir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_INFODIR=${2}"; shift;;
 	  "--localedir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALEDIR=${1:$(expr length "--localedir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALEDIR=$(echo -n "${1}" | cut -b$(expr length "--localedir=" + 1)-)";;
 	  "--localedir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_LOCALEDIR=${2}"; shift;;
 	  "--mandir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_MANDIR=${1:$(expr length "--mandir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_MANDIR=$(echo -n "${1}" | cut -b$(expr length "--mandir=" + 1)-)";;
 	  "--mandir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_MANDIR=${2}"; shift;;
 	  "--docdir="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DOCDIR=${1:$(expr length "--docdir=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DOCDIR=$(echo -n "${1}" | cut -b$(expr length "--docdir=" + 1)-)";;
 	  "--docdir")
 	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_INSTALL_DOCDIR=${2}"; shift;;
 
 	  "CC="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_COMPILER=${1:$(expr length "CC=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_COMPILER=$(echo -n "${1}" | cut -b$(expr length "CC=" + 1)-)";;
 	  "CXX="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_COMPILER=${1:$(expr length "CXX=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_COMPILER=$(echo -n "${1}" | cut -b$(expr length "CXX=" + 1)-)";;
 	  "CFLAGS="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_FLAGS=${1:$(expr length "CFLAGS=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_C_FLAGS=$(echo -n "${1}" | cut -b$(expr length "CFLAGS=" + 1)-)";;
 	  "CXXFLAGS="*)
-	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_FLAGS=${1:$(expr length "CXXFLAGS=")}";;
+	      CMAKE_ARGS="${CMAKE_ARGS} -DCMAKE_CXX_FLAGS=$(echo -n "${1}" | cut -b$(expr length "CXXFLAGS=" + 1)-)";;
 
 	  "--help")
 	      print_help;;
