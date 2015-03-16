@@ -146,6 +146,26 @@ squash_lz4_compress_buffer (SquashCodec* codec,
   return (*compressed_length == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
 }
 
+static SquashStatus
+squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
+                                   uint8_t* compressed, size_t* compressed_length,
+                                   const uint8_t* uncompressed, size_t uncompressed_length,
+                                   SquashOptions* options) {
+  assert (*compressed_length >= LZ4_COMPRESSBOUND(uncompressed_length));
+
+  if (options == NULL || !((SquashLZ4Options*) options)->hc) {
+    *compressed_length = LZ4_compress ((char*) uncompressed,
+                                       (char*) compressed,
+                                       (int) uncompressed_length);
+  } else {
+    *compressed_length = LZ4_compressHC ((char*) uncompressed,
+                                         (char*) compressed,
+                                         (int) uncompressed_length);
+  }
+
+  return (*compressed_length == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
+}
+
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
@@ -156,6 +176,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->get_max_compressed_size = squash_lz4_get_max_compressed_size;
     funcs->decompress_buffer = squash_lz4_decompress_buffer;
     funcs->compress_buffer = squash_lz4_compress_buffer;
+    funcs->compress_buffer_unsafe = squash_lz4_compress_buffer_unsafe;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }
