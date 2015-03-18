@@ -33,6 +33,7 @@
 #include <squash/squash.h>
 
 #include "ms-compress/include/mscomp.h"
+#include "ms-compress/include/xpress_huff.h"
 
 typedef struct SquashMSCompStream_s {
   SquashStream base_object;
