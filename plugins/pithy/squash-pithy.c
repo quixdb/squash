@@ -96,7 +96,7 @@ squash_pithy_parse_option (SquashOptions* options, const char* key, const char* 
 
   if (strcasecmp (key, "level") == 0) {
     const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && (level >= 0 || level <= 9) ) {
+    if ( *endptr == '\0' && (level >= 0 && level <= 9) ) {
       opts->level = level == 9;
     } else {
       return SQUASH_BAD_VALUE;
@@ -147,7 +147,7 @@ squash_pithy_decompress_buffer (SquashCodec* codec,
   if (*decompressed_length < outlen)
     return SQUASH_BUFFER_FULL;
 
-  if (pithy_Decompress (compressed, compressed_length, decompressed, outlen)) {
+  if (pithy_Decompress ((const char*) compressed, compressed_length, (char*) decompressed, outlen)) {
     *decompressed_length = outlen;
     return SQUASH_OK;
   } else {
@@ -160,6 +160,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("pithy", name) == 0) {
+    funcs->create_options = squash_pithy_create_options;
+    funcs->parse_option = squash_pithy_parse_option;
     funcs->get_uncompressed_size = squash_pithy_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_pithy_get_max_compressed_size;
     funcs->decompress_buffer = squash_pithy_decompress_buffer;

@@ -85,16 +85,8 @@ typedef struct SquashSnappyFramedStream_s {
   size_t output_buffer_size;
 } SquashSnappyFramedStream;
 
-static void                      squash_snappy_stream_init      (SquashSnappyFramedStream* stream,
-                                                                 SquashCodec* codec,
-                                                                 SquashStreamType stream_type,
-                                                                 SquashOptions* options,
-                                                                 SquashDestroyNotify destroy_notify);
-static SquashSnappyFramedStream* squash_snappy_stream_new       (SquashCodec* codec,
-                                                                 SquashStreamType stream_type,
-                                                                 SquashOptions* options);
-static void                      squash_snappy_stream_destroy   (void* stream);
-static void                      squash_snappy_stream_free      (void* stream);
+SquashStatus                     squash_plugin_init_codec       (SquashCodec* codec,
+                                                                 SquashCodecFuncs* funcs);
 
 static size_t
 squash_snappy_framed_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -124,7 +116,7 @@ static SquashStatus
 squash_snappy_status (snappy_status status) {
   SquashStatus res;
 
-  switch (status) {
+  switch ((int) status) {
     case SNAPPY_OK:
       res = SQUASH_OK;
       break;
@@ -306,7 +298,6 @@ squash_snappy_framed_buffer (SquashSnappyFramedStream* s) {
     }
 
     const size_t remaining = (chunk_size + 4) - s->input_buffer_length;
-    const size_t cp_size = remaining;
 
     if (squash_snappy_framed_header_skippable (s->input_buffer)) {
       bytes_read += squash_snappy_framed_skip (s, remaining);
@@ -372,7 +363,7 @@ squash_snappy_framed_handle_chunk (SquashSnappyFramedStream* s) {
     size_t decompressed_length;
 
     if (compressed[0] == SQUASH_SNAPPY_FRAMED_CHUNK_TYPE_COMPRESSED) {
-      snappy_uncompressed_length (compressed + 8, compressed_length, &decompressed_length);
+      snappy_uncompressed_length ((const char*) compressed + 8, compressed_length, &decompressed_length);
     } else {
       decompressed_length = compressed_length - 4;
     }

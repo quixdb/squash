@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <limits.h>
 
 #include <squash/squash.h>
 
@@ -233,6 +234,9 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
                               uint8_t* decompressed, size_t* decompressed_length,
                               const uint8_t* compressed, size_t compressed_length,
                               SquashOptions* options) {
+  assert (compressed_length < (size_t) INT_MAX);
+  assert (*decompressed_length < (size_t) INT_MAX);
+
   int feature = LIBBSC_DEFAULT_FEATURES;
   if (options != NULL) {
     SquashBscOptions* opts = (SquashBscOptions*) options;
@@ -243,9 +247,9 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
 
   int res = bsc_block_info (compressed, (int) compressed_length, &p_block_size, &p_data_size, LIBBSC_DEFAULT_FEATURES);
 
-  if (p_block_size != compressed_length)
+  if (p_block_size != (int) compressed_length)
     return SQUASH_FAILED;
-  if (p_data_size < *decompressed_length)
+  if (p_data_size < (int) *decompressed_length)
     return SQUASH_BUFFER_FULL;
 
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, feature);

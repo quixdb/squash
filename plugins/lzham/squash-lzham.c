@@ -204,7 +204,6 @@ squash_lzham_parse_option (SquashOptions* options, const char* key, const char* 
 
 static SquashLZHAMStream*
 squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashLZHAMOptions* options) {
-  int lzham_e = 0;
   SquashLZHAMStream* stream;
 
   assert (codec != NULL);
@@ -262,14 +261,13 @@ squash_operation_to_lzham (SquashOperation operation) {
   switch (operation) {
     case SQUASH_OPERATION_PROCESS:
       return LZHAM_NO_FLUSH;
-      break;
     case SQUASH_OPERATION_FLUSH:
       return LZHAM_SYNC_FLUSH;
-      break;
     case SQUASH_OPERATION_FINISH:
       return LZHAM_FINISH;
-      break;
   }
+
+  assert (0);
 }
 
 static SquashStatus
@@ -288,7 +286,7 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
                               stream->next_out, &output_size,
                               squash_operation_to_lzham (operation));
 
-    switch (status) {
+    switch ((int) status) {
       case LZHAM_COMP_STATUS_HAS_MORE_OUTPUT:
         res = SQUASH_PROCESSING;
         break;
@@ -309,7 +307,7 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
                                stream->next_out, &output_size,
                                (operation == SQUASH_OPERATION_FINISH && input_size == 0));
 
-    switch (status) {
+    switch ((int) status) {
       case LZHAM_DECOMP_STATUS_NOT_FINISHED:
       case LZHAM_DECOMP_STATUS_HAS_MORE_OUTPUT:
         res = SQUASH_PROCESSING;
@@ -344,7 +342,6 @@ squash_lzham_compress_buffer (SquashCodec* codec,
                               uint8_t* compressed, size_t* compressed_length,
                               const uint8_t* uncompressed, size_t uncompressed_length,
                               SquashOptions* options) {
-  SquashStatus res;
   lzham_compress_status_t status;
   lzham_compress_params params;
 
@@ -367,7 +364,6 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
                                 uint8_t* decompressed, size_t* decompressed_length,
                                 const uint8_t* compressed, size_t compressed_length,
                                 SquashOptions* options) {
-  SquashStatus res;
   lzham_decompress_status_t status;
   lzham_decompress_params params;
 

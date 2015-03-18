@@ -34,8 +34,6 @@
 
 #include "ms-compress/include/mscomp.h"
 
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
-
 typedef struct SquashMSCompStream_s {
   SquashStream base_object;
 
@@ -69,7 +67,7 @@ squash_ms_format_from_codec (SquashCodec* codec) {
 
 static SquashStatus
 squash_ms_status_to_squash_status (MSCompStatus status) {
-  switch (status) {
+  switch ((int) status) {
     case MSCOMP_OK:
       return SQUASH_OK;
     case MSCOMP_ERRNO:
@@ -89,7 +87,6 @@ squash_ms_status_to_squash_status (MSCompStatus status) {
 
 static SquashMSCompStream*
 squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  int lzham_e = 0;
   SquashMSCompStream* stream;
 
   assert (codec != NULL);
@@ -182,7 +179,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
     case SQUASH_STREAM_COMPRESS:
       switch (operation) {
         case SQUASH_OPERATION_PROCESS:
-          switch (res) {
+          switch ((int) res) {
             case MSCOMP_OK:
               status = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
               break;
@@ -192,7 +189,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
           }
           break;
         case SQUASH_OPERATION_FLUSH:
-          switch (res) {
+          switch ((int) res) {
             case MSCOMP_OK:
               status = SQUASH_OK;
               break;
@@ -202,7 +199,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
           }
           break;
         case SQUASH_OPERATION_FINISH:
-          switch (res) {
+          switch ((int) res) {
             case MSCOMP_OK:
               status = SQUASH_PROCESSING;
               break;
@@ -221,7 +218,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
         case SQUASH_OPERATION_PROCESS:
         case SQUASH_OPERATION_FLUSH:
         case SQUASH_OPERATION_FINISH:
-          switch (res) {
+          switch ((int) res) {
             case MSCOMP_OK:
             case MSCOMP_POSSIBLE_STREAM_END:
               status = (stream->avail_in == 0 && stream->avail_out > 0) ? SQUASH_OK : SQUASH_PROCESSING;

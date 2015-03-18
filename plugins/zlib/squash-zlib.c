@@ -287,7 +287,7 @@ static SquashStatus
 squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
   z_stream* zlib_stream;
   int zlib_e;
-  SquashStatus res;
+  SquashStatus res = SQUASH_FAILED;
 
   assert (stream != NULL);
 

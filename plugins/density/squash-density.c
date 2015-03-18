@@ -33,7 +33,10 @@
 #include <squash/squash.h>
 
 #include "density/src/density_api.h"
-#include "density/src/stream.h"
+
+#if !defined(DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE)
+#define DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE  (1 << 9)
+#endif
 
 typedef enum {
   SQUASH_DENSITY_ACTION_INIT,
@@ -42,8 +45,6 @@ typedef enum {
   SQUASH_DENSITY_ACTION_FINISH,
   SQUASH_DENSITY_ACTION_FINISHED
 } SquashDensityAction;
-
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static size_t
 squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -72,12 +73,12 @@ typedef struct SquashDensityStream_s {
   bool output_invalid;
 } SquashDensityStream;
 
-SquashStatus                  squash_plugin_init_codec      (SquashCodec* codec,
-                                                             SquashCodecFuncs* funcs);
+SquashStatus                 squash_plugin_init_codec      (SquashCodec* codec,
+                                                            SquashCodecFuncs* funcs);
 
-static void                   squash_density_options_init   (SquashDensityOptions* options,
-                                                             SquashCodec* codec,
-                                                             SquashDestroyNotify destroy_notify);
+static void                  squash_density_options_init   (SquashDensityOptions* options,
+                                                            SquashCodec* codec,
+                                                            SquashDestroyNotify destroy_notify);
 static SquashDensityOptions* squash_density_options_new     (SquashCodec* codec);
 static void                  squash_density_options_destroy (void* options);
 static void                  squash_density_options_free    (void* options);
@@ -149,7 +150,7 @@ squash_density_parse_option (SquashOptions* options, const char* key, const char
   if (strcasecmp (key, "level") == 0) {
     const int level = (int) strtol (value, &endptr, 0);
     if ( *endptr == '\0' && (level == 1 || level == 9) ) {
-      opts->mode = (level == 9) ? DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM : DENSITY_COMPRESSION_MODE_MANDALA_ALGORITHM;
+      opts->mode = (level == 9) ? DENSITY_COMPRESSION_MODE_MANDALA_ALGORITHM : DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
     } else {
       return SQUASH_BAD_VALUE;
     }
@@ -169,7 +170,6 @@ squash_density_parse_option (SquashOptions* options, const char* key, const char
 
 static SquashDensityStream*
 squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashDensityOptions* options) {
-  int density_e = 0;
   SquashDensityStream* stream;
 
   assert (codec != NULL);
@@ -248,7 +248,6 @@ static size_t total_bytes_written = 0;
 static SquashStatus
 squash_density_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashDensityStream* s = (SquashDensityStream*) stream;
-  SquashStatus status = SQUASH_FAILED;
 
   if (s->buffer_length > 0) {
     squash_density_flush_internal_buffer (stream);
@@ -312,6 +311,12 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         }
       }
       break;
+    case DENSITY_STREAM_STATE_READY:
+      break;
+    case DENSITY_STREAM_STATE_ERROR_OUTPUT_BUFFER_TOO_SMALL:
+    case DENSITY_STREAM_STATE_ERROR_INVALID_INTERNAL_STATE:
+    case DENSITY_STREAM_STATE_ERROR_INTEGRITY_CHECK_FAIL:
+      return SQUASH_FAILED;
   }
 
   assert (s->output_invalid == false);
@@ -362,48 +367,46 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           s->next = SQUASH_DENSITY_ACTION_FINISHED;
         }
         break;
+      case SQUASH_DENSITY_ACTION_FINISHED:
       default:
         assert (0);
     }
   }
 
-  switch (s->state) {
-    case DENSITY_STREAM_STATE_STALL_ON_INPUT:
-      stream->next_in += stream->avail_in;
-      stream->avail_in = 0;
-      break;
-    case DENSITY_STREAM_STATE_STALL_ON_OUTPUT:
-      {
-        if (!s->output_invalid) {
-          const size_t written = density_stream_output_available_for_use (s->stream);
-          total_bytes_written += written;
+  if (s->state == DENSITY_STREAM_STATE_STALL_ON_INPUT) {
+    stream->next_in += stream->avail_in;
+    stream->avail_in = 0;
+  } else if (s->state == DENSITY_STREAM_STATE_STALL_ON_OUTPUT) {
+    {
+      if (!s->output_invalid) {
+        const size_t written = density_stream_output_available_for_use (s->stream);
+        total_bytes_written += written;
 
-          if (s->buffer_active) {
-            s->buffer_length = written;
+        if (s->buffer_active) {
+          s->buffer_length = written;
+          s->buffer_pos = 0;
+
+          const size_t cp_size = s->buffer_length < stream->avail_out ? s->buffer_length : stream->avail_out;
+          memcpy (stream->next_out, s->buffer, cp_size);
+          stream->next_out += cp_size;
+          stream->avail_out -= cp_size;
+          s->buffer_pos += cp_size;
+          if (s->buffer_pos == s->buffer_length) {
             s->buffer_pos = 0;
-
-            const size_t cp_size = s->buffer_length < stream->avail_out ? s->buffer_length : stream->avail_out;
-            memcpy (stream->next_out, s->buffer, cp_size);
-            stream->next_out += cp_size;
-            stream->avail_out -= cp_size;
-            s->buffer_pos += cp_size;
-            if (s->buffer_pos == s->buffer_length) {
-              s->buffer_pos = 0;
-              s->buffer_length = 0;
-            }
-          } else {
-            assert (written <= stream->avail_out);
-            stream->next_out += written;
-            stream->avail_out -= written;
+            s->buffer_length = 0;
           }
-
-          s->output_invalid = true;
-          return SQUASH_PROCESSING;
         } else {
-          assert (0);
+          assert (written <= stream->avail_out);
+          stream->next_out += written;
+          stream->avail_out -= written;
         }
+
+        s->output_invalid = true;
+        return SQUASH_PROCESSING;
+      } else {
+        assert (0);
       }
-      break;
+    }
   }
 
   if (operation == SQUASH_OPERATION_FINISH)

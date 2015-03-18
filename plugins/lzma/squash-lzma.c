@@ -322,7 +322,7 @@ squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 static SquashStatus
 squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
   lzma_stream* lzma_stream;
-  lzma_ret lzma_e;
+  lzma_ret lzma_e = LZMA_OK;
 
   assert (stream != NULL);
   lzma_stream = &(((SquashLZMAStream*) stream)->stream);

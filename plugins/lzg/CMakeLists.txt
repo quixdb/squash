@@ -6,4 +6,3 @@ set (lzg_sources
   liblzg/src/lib/version.c)
 
 squash_plugin_add (lzg lzg_sources)
-squash_plugin_add_include_directories (lzg lzg)

@@ -340,6 +340,8 @@ squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return squash_bz2_finish_stream (stream);
   }
+
+  assert (0);
 }
 
 static size_t

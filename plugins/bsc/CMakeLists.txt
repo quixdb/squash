@@ -14,4 +14,4 @@ set (bsc_sources
   libbsc/libbsc/st/st.cpp)
 
 squash_plugin_add (bsc bsc_sources)
-squash_plugin_add_include_directories (bsc bsc)
+squash_plugin_add_include_directories (bsc libbsc)

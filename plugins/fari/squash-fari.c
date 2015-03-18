@@ -46,8 +46,6 @@ squash_fari_decompress_buffer (SquashCodec* codec,
                                uint8_t* decompressed, size_t* decompressed_length,
                                const uint8_t* compressed, size_t compressed_length,
                                SquashOptions* options) {
-  size_t orig_decompressed_length = *decompressed_length;
-
   int fari_e = (size_t) fa_decompress ((const unsigned char*) compressed, (unsigned char*) decompressed,
                                        compressed_length, decompressed_length);
 
