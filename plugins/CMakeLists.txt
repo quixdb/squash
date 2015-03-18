@@ -3,6 +3,7 @@ set (plugins_available
   bsc
   bzip2
   crush
+  density
   doboz
   fari
   fastlz
@@ -17,7 +18,6 @@ set (plugins_available
   ms-compress
   pithy
   quicklz
-  sharc
   snappy
   wflz
   zlib
