@@ -332,6 +332,9 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
     case SQUASH_OPERATION_PROCESS:
       lzma_e = lzma_code (lzma_stream, LZMA_RUN);
       break;
+    case SQUASH_OPERATION_FLUSH:
+      lzma_e = lzma_code (lzma_stream, LZMA_SYNC_FLUSH);
+      break;
     case SQUASH_OPERATION_FINISH:
       lzma_e = lzma_code (lzma_stream, LZMA_FINISH);
       break;
@@ -343,6 +346,9 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
       case SQUASH_OPERATION_PROCESS:
         return (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
         break;
+      case SQUASH_OPERATION_FLUSH:
+        return SQUASH_OK;
+        break;
       case SQUASH_OPERATION_FINISH:
         return SQUASH_PROCESSING;
         break;
@@ -350,7 +356,7 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
         assert (false);
     }
   } else if (lzma_e == LZMA_STREAM_END) {
-    return SQUASH_END_OF_STREAM;
+    return SQUASH_OK;
   } else {
     return SQUASH_FAILED;
   }
@@ -369,6 +375,10 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
       strcmp ("lzma", name) == 0 ||
       strcmp ("lzma1", name) == 0 ||
       strcmp ("lzma2", name) == 0) {
+    if (strcmp ("xz", name) == 0 ||
+        strcmp ("lzma2", name) == 0) {
+      funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    }
     funcs->create_options = squash_lzma_create_options;
     funcs->parse_option = squash_lzma_parse_option;
     funcs->create_stream = squash_lzma_create_stream;
