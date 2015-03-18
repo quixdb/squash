@@ -271,14 +271,10 @@ squash_zpaq_process_stream (SquashStream* stream, SquashOperation operation) {
 
 static size_t
 squash_zpaq_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  /* 37 byte header + 10 byte footer + 101% data.  The header and
-     footer should be okay, but the extra 1% is just based on some
-     quick tests with random data.  If this isn't sufficient *please*
-     file a bug so we can bump it. */
   return
     uncompressed_length +
     ((uncompressed_length / 100) * 1) + ((uncompressed_length % 100) > 0 ? 1 : 0) +
-    47;
+    377;
 }
 
 extern "C" SquashStatus
