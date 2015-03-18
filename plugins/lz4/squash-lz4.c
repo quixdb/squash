@@ -34,13 +34,17 @@
 #include <lz4.h>
 #include <lz4hc.h>
 
+#define SQUASH_LZ4_DICT_SIZE ((size_t) 65536)
+
 typedef struct SquashLZ4Options_s {
   SquashOptions base_object;
 
   bool hc;
 } SquashLZ4Options;
 
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus             squash_plugin_init_lz4f    (SquashCodec* codec, SquashCodecFuncs* funcs);
+
+SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_lz4_options_init    (SquashLZ4Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
 static SquashLZ4Options* squash_lz4_options_new     (SquashCodec* codec);
@@ -178,7 +182,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->compress_buffer = squash_lz4_compress_buffer;
     funcs->compress_buffer_unsafe = squash_lz4_compress_buffer_unsafe;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_plugin_init_lz4f (codec, funcs);
   }
 
   return SQUASH_OK;

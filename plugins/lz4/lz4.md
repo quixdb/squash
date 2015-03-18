@@ -11,8 +11,22 @@ http://fastcompression.blogspot.com/p/lz4.html
 
 ## Options ##
 
+### lz4 ###
+
 - **level** (integer, 1 or 9) — 1 is the default, 9 will use the high
     compression derivative.
+
+### lz4f ###
+
+- **level** (integer, 0 - 16) — 0 is the default, higher = better
+  compression ratio but slower compression speed
+- **block-size** (enum) — input block size
+  - 4 — 64 KiB
+  - 5 — 256 KiB
+  - 6 — 1 MiB
+  - 7 — 4 MiB
+- **checksum** (boolean, default false) — whether or not to include a
+  checksum (xxHash) for verification
 
 ## License ##
 
