@@ -10,7 +10,7 @@ For more information about ZPAQ see http://mattmahoney.net/dc/zpaq.html
 
 ## Options ##
 
-- **level** (integer, 1-3, default 1): The compression level provided
+- **level** (integer, 1-5, default 1): The compression level provided
   to ZPAQ.  1 is fastest while 3 provides the highest compression
   ratio.
 
