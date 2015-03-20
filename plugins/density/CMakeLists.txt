@@ -23,5 +23,8 @@ set (density_sources
   density/src/spookyhash/src/spookyhash.c
   density/src/stream.c)
 
-squash_plugin_add (density density_sources)
 squash_source_file_set_c99 (density_sources)
+
+if ("${ENABLE_DENSITY}" STREQUAL "yes")
+  squash_plugin_add (density density_sources)
+endif ()
