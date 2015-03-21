@@ -137,6 +137,8 @@ squash_mapped_file_free (SquashMappedFile* mapped) {
 
   if (mapped->close_fp)
     fclose (mapped->fp);
+
+  free (mapped);
 }
 
 SquashMappedFile*
