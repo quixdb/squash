@@ -169,7 +169,7 @@ squash_lzham_parse_option (SquashOptions* options, const char* key, const char* 
 
   if (strcasecmp (key, "level") == 0) {
     const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= LZHAM_COMP_LEVEL_FASTEST && level <= LZHAM_COMP_LEVEL_UBER ) {
+    if ( *endptr == '\0' && level >= ((int) LZHAM_COMP_LEVEL_FASTEST) && level <= LZHAM_COMP_LEVEL_UBER ) {
       opts->level = (lzham_compress_level) level;
     } else {
       return SQUASH_BAD_VALUE;
