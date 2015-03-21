@@ -582,7 +582,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
       funcs->compress_buffer_unsafe) {
     size_t max_compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
 
-    if (*compressed >= max_compressed_length) {
+    if (*compressed_length >= max_compressed_length) {
       if (funcs->compress_buffer_unsafe != NULL) {
         return funcs->compress_buffer_unsafe (codec,
                                               compressed, compressed_length,
