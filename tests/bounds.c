@@ -33,31 +33,29 @@ malloc_protected (void** protected_space, size_t size) {
 
 void
 check_codec (SquashCodec* codec) {
-  static uint8_t* uncompressed_start = NULL;
-  static uint8_t* uncompressed_protected = NULL;
-  static uint8_t* uncompressed = NULL;
+  uint8_t* uncompressed_start = NULL;
+  uint8_t* uncompressed_protected = NULL;
+  uint8_t* uncompressed = NULL;
 
-  static uint8_t* compressed_start;
-  static uint8_t* compressed_protected;
-  static uint8_t* compressed;
+  uint8_t* compressed_start;
+  uint8_t* compressed_protected;
+  uint8_t* compressed;
 
-  static uint8_t* decompressed_protected;
-  static uint8_t* decompressed;
+  uint8_t* decompressed_protected;
+  uint8_t* decompressed;
 
   SquashStatus res;
   size_t tmp;
   size_t compressed_length;
   size_t decompressed_length;
 
-  if (uncompressed_start == NULL) {
-    uncompressed_start = malloc_protected ((void**) &uncompressed_protected, LOREM_IPSUM_LENGTH);
-    uncompressed = uncompressed_protected - LOREM_IPSUM_LENGTH;
-    memcpy (uncompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH);
+  uncompressed_start = malloc_protected ((void**) &uncompressed_protected, LOREM_IPSUM_LENGTH);
+  uncompressed = uncompressed_protected - LOREM_IPSUM_LENGTH;
+  memcpy (uncompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH);
 
-    compressed_start = malloc_protected ((void**) &compressed_protected, 8192);
+  compressed_start = malloc_protected ((void**) &compressed_protected, 8192);
 
-    malloc_protected ((void**) &decompressed_protected, LOREM_IPSUM_LENGTH);
-  }
+  malloc_protected ((void**) &decompressed_protected, LOREM_IPSUM_LENGTH);
 
   compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
   g_assert (compressed_length < 8192);
@@ -88,5 +86,8 @@ check_codec (SquashCodec* codec) {
   res = squash_codec_compress_with_options (codec, compressed, &tmp, uncompressed, LOREM_IPSUM_LENGTH, NULL);
   g_assert (res != SQUASH_OK);
 
-
+  mprotect (uncompressed_protected, page_size, PROT_READ | PROT_WRITE);
+  free (uncompressed_start);
+  mprotect (compressed_protected, page_size, PROT_READ | PROT_WRITE);
+  free (compressed_start);
 }
