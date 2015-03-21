@@ -119,7 +119,7 @@ int main (int argc, char** argv) {
   char** option_keys = NULL;
   char** option_values = NULL;
   bool keep = false;
-  bool force = true;
+  bool force = false;
   int opt;
   int optc = 0;
   char* tmp_string;
