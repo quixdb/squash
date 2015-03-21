@@ -522,6 +522,8 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
         if ((funcs->info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH) {
           if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
             res = squash_stream_send_to_thread (stream, current_operation);
+          } else if (funcs->process_stream == NULL) {
+            return SQUASH_INVALID_OPERATION;
           } else {
             res = funcs->process_stream (stream, current_operation);
           }
