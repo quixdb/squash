@@ -10,8 +10,10 @@ static size_t page_size = 0;
 
 static void*
 malloc_protected (void** protected_space, size_t size) {
-  if (page_size == 0)
-    page_size = (size_t) sysconf (_SC_PAGE_SIZE);
+  if (page_size == 0) {
+    long ps = sysconf (_SC_PAGE_SIZE);
+    page_size = (ps == -1) ? 8192 : ((size_t) ps);
+  }
 
   size_t alloc_size =
     ((size / page_size) * page_size) +

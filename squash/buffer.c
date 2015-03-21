@@ -47,8 +47,10 @@ squash_buffer_npot_page (size_t value) {
 #if defined(_POSIX_SOURCE)
   static size_t page_size = 0;
 
-  if (page_size == 0)
-    page_size = (size_t) sysconf (_SC_PAGE_SIZE);
+  if (page_size == 0) {
+    long ps = sysconf (_SC_PAGE_SIZE);
+    page_size = (ps == -1) ? 8192 : ((size_t) ps);
+  }
 
   if (value < page_size)
     value = page_size;
