@@ -250,16 +250,20 @@ squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
 
   s->operation = operation;
 
-  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    int level = SQUASH_ZLING_DEFAULT_LEVEL;
-    if (stream->options != NULL)
-      level = ((SquashZlingOptions*) stream->options)->level;
+  try {
+    if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+      int level = SQUASH_ZLING_DEFAULT_LEVEL;
+      if (stream->options != NULL)
+        level = ((SquashZlingOptions*) stream->options)->level;
 
-    res = baidu::zling::Encode(s->stream, s->stream, NULL, level) == 0 ?
-      SQUASH_OK : SQUASH_FAILED;
-  } else {
-    res = baidu::zling::Decode(s->stream, s->stream, NULL) == 0 ?
-      SQUASH_OK : SQUASH_FAILED;
+      res = baidu::zling::Encode(s->stream, s->stream, NULL, level) == 0 ?
+        SQUASH_OK : SQUASH_FAILED;
+    } else {
+      res = baidu::zling::Decode(s->stream, s->stream, NULL) == 0 ?
+        SQUASH_OK : SQUASH_FAILED;
+    }
+  } catch (std::bad_alloc& e) {
+    return SQUASH_MEMORY;
   }
 
   return res;
