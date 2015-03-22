@@ -5,7 +5,7 @@ set (zling_sources
   libzling/src/libzling_lz.cpp
   libzling/src/libzling_utils.cpp)
 
-if ("${ENABLE_SHARC}" STREQUAL "yes")
+if ("${ENABLE_ZLING}" STREQUAL "yes")
   squash_plugin_add (zling zling_sources)
   squash_plugin_add_include_directories (zling libzling/src)
 endif ()
