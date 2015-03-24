@@ -10,21 +10,22 @@ set (density_sources
   density/src/kernel_chameleon_decode.c
   density/src/kernel_chameleon_dictionary.c
   density/src/kernel_chameleon_encode.c
-  density/src/kernel_mandala_decode.c
-  density/src/kernel_mandala_dictionary.c
-  density/src/kernel_mandala_encode.c
+  density/src/kernel_cheetah_decode.c
+  density/src/kernel_cheetah_dictionary.c
+  density/src/kernel_cheetah_encode.c
+  density/src/kernel_lion_decode.c
+  density/src/kernel_lion_dictionary.c
+  density/src/kernel_lion_encode.c
+  density/src/kernel_lion_form_model.c
   density/src/main_decode.c
   density/src/main_encode.c
   density/src/main_footer.c
   density/src/main_header.c
   density/src/memory_location.c
   density/src/memory_teleport.c
+  density/src/stream.c
   density/src/spookyhash/src/context.c
-  density/src/spookyhash/src/spookyhash.c
-  density/src/stream.c)
+  density/src/spookyhash/src/spookyhash.c)
 
 squash_source_file_set_c99 (density_sources)
-
-if ("${ENABLE_DENSITY}" STREQUAL "yes")
-  squash_plugin_add (density density_sources)
-endif ()
+squash_plugin_add (density density_sources)

@@ -34,9 +34,9 @@
 
 #include "density/src/density_api.h"
 
-#if !defined(DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE)
-#define DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE  (1 << 9)
-#endif
+#define SQUASH_DENSITY_DEFAULT_ALGORITHM DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM
+
+#define SQUASH_DENSITY_INPUT_MULTIPLE 32
 
 typedef enum {
   SQUASH_DENSITY_ACTION_INIT,
@@ -48,7 +48,10 @@ typedef enum {
 
 static size_t
 squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE + uncompressed_length;
+  return uncompressed_length +
+    24 +
+    ((uncompressed_length / 256) * 8) +
+    (((uncompressed_length % 256) == 0) * 8);
 }
 
 typedef struct SquashDensityOptions_s {
@@ -65,10 +68,16 @@ typedef struct SquashDensityStream_s {
   SquashDensityAction next;
   DENSITY_STREAM_STATE state;
 
-  uint8_t buffer[DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE];
+  uint8_t buffer[DENSITY_MINIMUM_OUT_BUFFER_SIZE];
   size_t buffer_length;
   size_t buffer_pos;
   bool buffer_active;
+
+  uint8_t input_buffer[SQUASH_DENSITY_INPUT_MULTIPLE];
+  size_t input_buffer_length;
+  bool input_buffer_active;
+
+  size_t active_input_length;
 
   bool output_invalid;
 } SquashDensityStream;
@@ -149,8 +158,20 @@ squash_density_parse_option (SquashOptions* options, const char* key, const char
 
   if (strcasecmp (key, "level") == 0) {
     const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && (level == 1 || level == 9) ) {
-      opts->mode = (level == 9) ? DENSITY_COMPRESSION_MODE_MANDALA_ALGORITHM : DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
+    if (*endptr == '\0') {
+      switch (level) {
+        case 1:
+          opts->mode = DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
+          break;
+        case 7:
+          opts->mode = DENSITY_COMPRESSION_MODE_CHEETAH_ALGORITHM;
+          break;
+        case 9:
+          opts->mode = DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
+          break;
+        default:
+          return SQUASH_BAD_VALUE;
+      }
     } else {
       return SQUASH_BAD_VALUE;
     }
@@ -195,6 +216,11 @@ squash_density_stream_init (SquashDensityStream* stream,
   stream->buffer_length = 0;
   stream->buffer_pos = 0;
   stream->buffer_active = false;
+
+  stream->input_buffer_length = 0;
+  stream->input_buffer_active = false;
+
+  stream->active_input_length = 0;
 
   stream->output_invalid = false;
 }
@@ -255,12 +281,13 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
   }
 
   if (s->next == SQUASH_DENSITY_ACTION_INIT) {
-    if (stream->avail_out < DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE) {
+    s->active_input_length = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
+    if (stream->avail_out < DENSITY_MINIMUM_OUT_BUFFER_SIZE) {
       s->buffer_active = true;
-      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, stream->avail_in, s->buffer, DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE);
+      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, s->buffer, DENSITY_MINIMUM_OUT_BUFFER_SIZE);
     } else {
       s->buffer_active = false;
-      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, stream->avail_in, stream->next_out, stream->avail_out);
+      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, stream->next_out, stream->avail_out);
     }
     if (s->state != DENSITY_STREAM_STATE_READY)
       return SQUASH_FAILED;
@@ -268,8 +295,34 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
 
   switch (s->state) {
     case DENSITY_STREAM_STATE_STALL_ON_INPUT:
-      density_stream_update_input (s->stream, (uint8_t*) stream->next_in, stream->avail_in);
-      s->state = DENSITY_STREAM_STATE_READY;
+      if (s->input_buffer_length != 0 ||
+          (stream->avail_in < SQUASH_DENSITY_INPUT_MULTIPLE && stream->stream_type == SQUASH_STREAM_COMPRESS && operation == SQUASH_OPERATION_PROCESS)) {
+        const size_t remaining = SQUASH_DENSITY_INPUT_MULTIPLE - s->input_buffer_length;
+        const size_t cp_size = remaining < stream->avail_in ? remaining : stream->avail_in;
+        if (cp_size != 0) {
+          memcpy (s->input_buffer + s->input_buffer_length, stream->next_in, cp_size);
+          s->input_buffer_length += cp_size;
+          stream->next_in += cp_size;
+          stream->avail_in -= cp_size;
+          assert (cp_size != 0);
+        }
+      }
+
+      if (s->input_buffer_length != 0) {
+        if (s->input_buffer_length == SQUASH_DENSITY_INPUT_MULTIPLE || operation != SQUASH_OPERATION_PROCESS) {
+          s->active_input_length = s->input_buffer_length;
+          s->input_buffer_active = true;
+          density_stream_update_input (s->stream, s->input_buffer, s->input_buffer_length);
+          s->state = DENSITY_STREAM_STATE_READY;
+        } else {
+          assert (stream->avail_in == 0);
+          return SQUASH_OK;
+        }
+      } else {
+        s->active_input_length = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
+        density_stream_update_input (s->stream, stream->next_in, s->active_input_length);
+        s->state = DENSITY_STREAM_STATE_READY;
+      }
       break;
     case DENSITY_STREAM_STATE_STALL_ON_OUTPUT:
       {
@@ -299,9 +352,9 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           s->output_invalid = true;
           return SQUASH_PROCESSING;
         } else {
-          if (stream->avail_out < DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE) {
+          if (stream->avail_out < DENSITY_MINIMUM_OUT_BUFFER_SIZE) {
             s->buffer_active = true;
-            density_stream_update_output (s->stream, s->buffer, DENSITY_STREAM_MINIMUM_OUT_BUFFER_SIZE);
+            density_stream_update_output (s->stream, s->buffer, DENSITY_MINIMUM_OUT_BUFFER_SIZE);
           } else {
             s->buffer_active = false;
             density_stream_update_output (s->stream, stream->next_out, stream->avail_out);
@@ -325,7 +378,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
     switch (s->next) {
       case SQUASH_DENSITY_ACTION_INIT:
         if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-          DENSITY_COMPRESSION_MODE compression_mode =  DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
+          DENSITY_COMPRESSION_MODE compression_mode = SQUASH_DENSITY_DEFAULT_ALGORITHM;
           DENSITY_BLOCK_TYPE block_type = DENSITY_BLOCK_TYPE_DEFAULT;
           {
             SquashDensityOptions* opts = (SquashDensityOptions*) stream->options;
@@ -370,12 +423,21 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       case SQUASH_DENSITY_ACTION_FINISHED:
       default:
         assert (0);
+        break;
     }
   }
 
   if (s->state == DENSITY_STREAM_STATE_STALL_ON_INPUT) {
-    stream->next_in += stream->avail_in;
-    stream->avail_in = 0;
+    if (s->input_buffer_active) {
+      assert (s->active_input_length == s->input_buffer_length);
+      s->input_buffer_active = false;
+      s->input_buffer_length = 0;
+    } else {
+      assert (s->active_input_length <= stream->avail_in);
+      stream->next_in += s->active_input_length;
+      stream->avail_in -= s->active_input_length;
+    }
+    s->active_input_length = 0;
   } else if (s->state == DENSITY_STREAM_STATE_STALL_ON_OUTPUT) {
     {
       if (!s->output_invalid) {
