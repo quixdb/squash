@@ -12,7 +12,5 @@ https://github.com/davidcatt/FastARI
 
 ## License ##
 
-The fari plugin is licensed under the [MIT
-License](http://opensource.org/licenses/MIT), and FARI is licensed
-under the [GNU
-GPLv3+](https://www.gnu.org/licenses/gpl.html).
+The fari plugin and FARI itself are both licensed under the [MIT
+License](http://opensource.org/licenses/MIT) license.
