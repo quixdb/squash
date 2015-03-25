@@ -132,8 +132,11 @@ squash_mapped_file_free (SquashMappedFile* mapped) {
   if (mapped == NULL)
     return;
 
-  if (mapped->data != NULL)
+
+  if (mapped->data != NULL) {
+    munmap (mapped->data, mapped->data_length);
     mapped->data = NULL;
+  }
 
   if (mapped->close_fp)
     fclose (mapped->fp);
