@@ -37,8 +37,8 @@
                 <li><a href="https://groups.google.com/forum/#!forum/squash-compression">Mailing List</a></li>
                 <li><a href="irc://chat.freenode.net/squash">IRC</a></li>
                 <li>
-		  <a href="https://stackoverflow.com/questions/tagged/squash-compression">Stack Overflow</a>
-		</li>
+                  <a href="https://stackoverflow.com/questions/tagged/squash-compression">Stack Overflow</a>
+                </li>
                 <li class="divider"></li>
                 <li><a href="https://github.com/quixdb/squash/issues">Issue Tracker</a></li>
               </ul>
@@ -55,42 +55,42 @@
 
     <div class="container">
       <div class="page-header jumbotron">
-	<h1>Squash</h1>
+        <h1>Squash</h1>
 
-	<p>
-	  Squash is an abstraction library which provides a single API
-	  to access many compression libraries, allowing applications
-	  a great deal of flexibility in which choosing a compression
-	  algorithm, or allowing a choice between several of them.
-	</p>
+        <p>
+          Squash is an abstraction library which provides a single API
+          to access many compression libraries, allowing applications
+          a great deal of flexibility in which choosing a compression
+          algorithm, or allowing a choice between several of them.
+        </p>
       </div>
 
       <p>
-	Because Squash provides a single API, any algorithms which
-	Squash has a plugin to support will be useable from any
-	language for which Squash provides bindings.
+        Because Squash provides a single API, any algorithms which
+        Squash has a plugin to support will be useable from any
+        language for which Squash provides bindings.
       </p>
 
       <p>
-	The actual integration with individual compression libraries is
-	done through plugins which can be installed separately from
-	Squash itself and are not loaded until they are required.  This
-	allows Squash consumers to utilize a great many compression
-	algorithms without rewriting code or unnecessary bloat.
+        The actual integration with individual compression libraries is
+        done through plugins which can be installed separately from
+        Squash itself and are not loaded until they are required.  This
+        allows Squash consumers to utilize a great many compression
+        algorithms without rewriting code or unnecessary bloat.
       </p>
 
       <p>
-	In addition to a permissively licensed library, Squash
-	provides some generic tools which use the library for common
-	tasks.  Currently, this includes a command-line interface
-	similar
-	to <var>gzip</var>, <var>bzip2</var>, <var>xz</var>, <abbr><i>etc.</i></abbr>
-	called <var>squash</var>.
-	<!-- There is -->
-	<!-- also <a href="https://github.com/quixdb/squash-benchmark">a -->
-	<!-- separate project</a> to generate -->
-	<!-- the <a href="https://quixdb.github.io/squash-benchmark/"> -->
-	<!-- Squash Benchmark</a>. -->
+        In addition to a permissively licensed library, Squash
+        provides some generic tools which use the library for common
+        tasks.  Currently, this includes a command-line interface
+        similar
+        to <var>gzip</var>, <var>bzip2</var>, <var>xz</var>, <abbr><i>etc.</i></abbr>
+        called <var>squash</var>.
+        <!-- There is -->
+        <!-- also <a href="https://github.com/quixdb/squash-benchmark">a -->
+        <!-- separate project</a> to generate -->
+        <!-- the <a href="https://quixdb.github.io/squash-benchmark/"> -->
+        <!-- Squash Benchmark</a>. -->
       </p>
     </div>
 
@@ -98,15 +98,15 @@
       <h2 id="documentation"><a href="#documentation">Documentation</a></h2>
 
       <p>
-	The <a href="api/c/index.html">C <abbr>API</abbr> Reference</a>
-	provides extensive documentation of the C <abbr>API</abbr>.  For
-	other languages, see the <a href="#bindings">Bindings</a>
-	section.
+        The <a href="api/c/index.html">C <abbr>API</abbr> Reference</a>
+        provides extensive documentation of the C <abbr>API</abbr>.  For
+        other languages, see the <a href="#bindings">Bindings</a>
+        section.
       </p>
 
       <p>
-	For the <var>squash</var> command line tool, see
-	the <a href="man/squash.1.html">squash(1) man page</a>
+        For the <var>squash</var> command line tool, see
+        the <a href="man/squash.1.html">squash(1) man page</a>
       </p>
     </div>
 
@@ -114,43 +114,46 @@
       <h2 id="plugins"><a href="#plugins">Plugins</a></h2>
 
       <p>
-	Squash currently has plugins for the following libraries:
+        Squash currently has plugins for the following libraries:
       </p>
 
       <ul>
-	<li><a href="http://www.blosc.org/">Blosc</a></li>
-	<li><a href="https://github.com/google/brotli">Brotli</a></li>
-	<li><a href="http://bzip.org/">bzip2</a></li>
-	<li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a></li>
-	<li><a href="https://github.com/davidcatt/FastARI">FastARI</a></li>
-	<li><a href="http://fastlz.org/">FastLZ</a></li>
-	<li><a href="https://github.com/google/gipfeli">Gipfeli</a></li>
-	<li><a href="http://fastcompression.blogspot.com/p/lz4.html">LZ4</a></li>
-	<li><a href="http://liblzf.plan9.de/">LZF</a></li>
-	<li><a href="http://liblzg.bitsnbites.eu/">liblzg</a></li>
-	<li><a href="https://github.com/richgel999/lzham_codec/">LZHAM</a></li>
-	<li><a href="https://en.wikipedia.org/wiki/LZJB">LZJB</a></li>
-	<li><a href="http://tukaani.org/xz/">liblzma</a></li>
-	<li><a href="http://www.matcode.com/lzmat.htm">LZMAT</a></li>
-	<li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
-	<li><a href="http://www.quicklz.com/">QuickLZ</a></li>
-	<li><a href="http://www.centaurean.com/sharc">SHARC</a></li>
-	<li><a href="https://code.google.com/p/snappy/">Snappy</a></li>
-	<li><a href="https://code.google.com/p/wflz/">wfLZ</a></li>
-	<li><a href="http://zlib.net/">zlib</a></li>
-	<li><a href="https://github.com/richox/libzling">zling</a></li>
-	<li><a href="http://mattmahoney.net/dc/zpaq.html">ZPAQ</a></li>
+        <li><a href="https://github.com/google/brotli">Brotli</a></li>
+        <li><a href="http://libbsc.com/">libbsc</a></li>
+        <li><a href="http://bzip.org/">bzip2</a></li>
+        <li><a href="http://compressme.net/">CRUSH</a></li>
+        <li><a href="https://github.com/centaurean/density">DENSITY</a></li>
+        <li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a></li>
+        <li><a href="https://github.com/davidcatt/FastARI">FastARI</a></li>
+        <li><a href="http://fastlz.org/">FastLZ</a></li>
+        <li><a href="https://github.com/google/gipfeli">Gipfeli</a></li>
+        <li><a href="https://github.com/Cyan4973/lz4">LZ4</a></li>
+        <li><a href="http://liblzf.plan9.de/">LZF</a></li>
+        <li><a href="http://liblzg.bitsnbites.eu/">liblzg</a></li>
+        <li><a href="https://github.com/richgel999/lzham_codec/">LZHAM</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/LZJB">LZJB</a></li>
+        <li><a href="http://tukaani.org/xz/">liblzma</a></li>
+        <li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
+        <li><a href="https://github.com/coderforlife/ms-compress/">ms-compress</a></li>
+        <li><a href="https://github.com/johnezang/pithy">pithy</a></li>
+        <li><a href="http://www.quicklz.com/">QuickLZ</a></li>
+        <li><a href="https://code.google.com/p/snappy/">Snappy</a></li>
+        <li><a href="https://code.google.com/p/wflz/">wfLZ</a></li>
+        <li><a href="http://zlib.net/">zlib</a></li>
+        <li><a href="https://github.com/richox/libzling">zling</a></li>
+        <li><a href="http://mattmahoney.net/dc/zpaq.html">ZPAQ</a></li>
+        <li><a href="https://github.com/Cyan4973/zstd">Zstandard</a></li>
       </ul>
 
       <!-- <p> -->
-      <!-- 	The number of codecs to choose from can be a bit overwhelming. -->
-      <!-- 	They all have different performance characteristics, and -->
-      <!-- 	Squash -->
-      <!-- 	provides <a href="https://github.com/quixdb/squash-benchmark">benchmarks</a> -->
-      <!-- 	to help you decide which codecs are appropriate for your -->
-      <!-- 	library, or you can do your own testing—swapping codecs is -->
-      <!-- 	typically just a matter of changing a string, so you can try -->
-      <!-- 	them all with minimal effort. -->
+      <!--   The number of codecs to choose from can be a bit overwhelming. -->
+      <!--   They all have different performance characteristics, and -->
+      <!--   Squash -->
+      <!--   provides <a href="https://github.com/quixdb/squash-benchmark">benchmarks</a> -->
+      <!--   to help you decide which codecs are appropriate for your -->
+      <!--   library, or you can do your own testing—swapping codecs is -->
+      <!--   typically just a matter of changing a string, so you can try -->
+      <!--   them all with minimal effort. -->
       <!-- </p> -->
     </div>
 
@@ -158,23 +161,23 @@
       <h2 id="bindings"><a href="#bindings">Bindings</a></h2>
 
       <p>
-	Squash is written in C, so it should be possible to create
-	bindings for virtually any programming language.  Currently,
-	Squash has bindings for the following languages:
+        Squash is written in C, so it should be possible to create
+        bindings for virtually any programming language.  Currently,
+        Squash has bindings for the following languages:
       </p>
 
       <ul>
-	<li>C — <a href="api/c/index.html">API Reference</a></li>
-	<li><a href="http://wiki.gnome.org/Vala">Vala</a></li>
+        <li>C — <a href="api/c/index.html">API Reference</a></li>
+        <li><a href="http://wiki.gnome.org/Vala">Vala</a></li>
       </ul>
 
       <p>
-	If you're interested in helping to add support for more
-	languages, <em>please</em> get in touch with us.  This is an
-	area where we could really use help; it is best if bindings
-	are written by people familiar with the language (including
-	idioms and best practices) so we really can't just go about
-	adding bindings for languages we don't know.
+        If you're interested in helping to add support for more
+        languages, <em>please</em> get in touch with us.  This is an
+        area where we could really use help; it is best if bindings
+        are written by people familiar with the language (including
+        idioms and best practices) so we really can't just go about
+        adding bindings for languages we don't know.
       </p>
     </div>
 
@@ -184,69 +187,69 @@
       <h3 id="releases">Releases</h3>
 
       <p>
-	Squash is a very new project and hasn't yet seen a release.
+        Squash is a very new project and hasn't yet seen a release.
       </p>
 
       <h3 id="git">Git</h3>
 
       <dl>
-	<dt>Repository</dt>
-	<dd><p><code>git clone <var>https://github.com/quixdb/squash.git</var></code></p></dd>
+        <dt>Repository</dt>
+        <dd><p><code>git clone <var>https://github.com/quixdb/squash.git</var></code></p></dd>
 
-	<dt>Web interface</dt>
-	<dd><p><a href="https://github.com/quixdb/squash">https://github.com/quixdb/squash</a></p></dd>
+        <dt>Web interface</dt>
+        <dd><p><a href="https://github.com/quixdb/squash">https://github.com/quixdb/squash</a></p></dd>
       </dl>
     </div>
 
     <div id="support" class="container">
-          <h2><a href="#support">Support</a></h2>
+      <h2><a href="#support">Support</a></h2>
 
-    <dl>
-      <dt id="mailing-list">Mailing List / Forum</dt>
-      <dd>
-        <p>
-          <a href="mailto:squash-compression@googlegroups.com">squash-compression@googlegroups.com</a> —
-          <a href="https://groups.google.com/forum/#!forum/squash-compression">Web Interface</a>
-        </p>
-      </dd>
+      <dl>
+        <dt id="mailing-list">Mailing List / Forum</dt>
+        <dd>
+          <p>
+            <a href="mailto:squash-compression@googlegroups.com">squash-compression@googlegroups.com</a> —
+            <a href="https://groups.google.com/forum/#!forum/squash-compression">Web Interface</a>
+          </p>
+        </dd>
 
-      <dt id="irc"><abbr title="Internet Relay Chat">IRC</abbr></dt>
-      <dd>
-        <p>
-          <var>#squash</var> on <a href="http://www.freenode.net">freenode</a> (<a href="irc://chat.freenode.net">chat.freenode.net</a>) —
-          <a href="https://webchat.freenode.net/?channels=squash">Web Interface</a>
-        </p>
-      </dd>
+        <dt id="irc"><abbr title="Internet Relay Chat">IRC</abbr></dt>
+        <dd>
+          <p>
+            <var>#squash</var> on <a href="http://www.freenode.net">freenode</a> (<a href="irc://chat.freenode.net">chat.freenode.net</a>) —
+            <a href="https://webchat.freenode.net/?channels=squash">Web Interface</a>
+          </p>
+        </dd>
 
-      <dt id="issue-tracker">Issue Tracker</dt>
-      <dd>
-        <p><a href="https://github.com/quixdb/squash/issues">GitHub</a></p>
-      </dd>
-    </dl>
+        <dt id="issue-tracker">Issue Tracker</dt>
+        <dd>
+          <p><a href="https://github.com/quixdb/squash/issues">GitHub</a></p>
+        </dd>
+      </dl>
     </div>
 
     <div id="licensing" class="container">
       <h2><a href="#licensing">Licensing</a></h2>
 
       <p>
-	Squash is licensed under
-	the <a href="https://en.wikipedia.org/wiki/MIT_License">MIT
-	License</a>, which is highly permissive and allows Squash to be
-	integrated into any application virtually without restriction.
-	That said, please keep in mind that some plugins use libraries
-	which are subject to more restrictive terms (such as
-	the <a href="https://gnu.org/licenses/gpl.html">GNU GPL</a>),
-	and using Squash as an intermediary does not release you from
-	the obligations of those licenses if you choose to actually use
-	plugins which use those libraries.  Each plugin's page in the C
-	documentation lists the license of the library, or libraries, it
-	uses.
+        Squash is licensed under
+        the <a href="https://en.wikipedia.org/wiki/MIT_License">MIT
+        License</a>, which is highly permissive and allows Squash to be
+        integrated into any application virtually without restriction.
+        That said, please keep in mind that some plugins use libraries
+        which are subject to more restrictive terms (such as
+        the <a href="https://gnu.org/licenses/gpl.html">GNU GPL</a>),
+        and using Squash as an intermediary does not release you from
+        the obligations of those licenses if you choose to actually use
+        plugins which use those libraries.  Each plugin's page in the C
+        documentation lists the license of the library, or libraries, it
+        uses.
       </p>
 
       <p>
-	Several of the GPL libraries used by Squash plugins are also
-	available for integration with proprietary software under
-	commercial licenses.
+        Several of the GPL libraries used by Squash plugins are also
+        available for integration with proprietary software under
+        commercial licenses.
       </p>
     </div>
 
