@@ -35,18 +35,19 @@ SQUASH_BEGIN_DECLS
 
 struct _SquashStreamPrivate {
   thrd_t thread;
-  bool thread_active;
+  bool finished;
 
-  mtx_t input_mtx;
-  cnd_t input_cnd;
+  mtx_t io_mtx;
+
   SquashOperation request;
+  cnd_t request_cnd;
 
-  mtx_t output_mtx;
-  cnd_t output_cnd;
   SquashStatus result;
+  cnd_t result_cnd;
 };
 
 #define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
+#define SQUASH_OPERATION_TERMINATE ((SquashOperation) -1)
 #define SQUASH_STATUS_INVALID ((SquashStatus) 0)
 
 SQUASH_END_DECLS

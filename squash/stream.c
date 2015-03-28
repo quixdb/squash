@@ -154,22 +154,20 @@ static int
 squash_stream_thread_func (SquashStream* stream) {
   SquashStreamPrivate* priv = stream->priv;
   SquashOperation operation;
-  SquashStatus status;
 
-  mtx_lock (&(priv->input_mtx));
+  mtx_lock (&(priv->io_mtx));
+  priv->result = SQUASH_OK;
+  cnd_signal (&(priv->result_cnd));
+
   while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
-    cnd_wait (&(priv->input_cnd), &(priv->input_mtx));
+    cnd_wait (&(priv->request_cnd), &(priv->io_mtx));
   }
   priv->request = SQUASH_OPERATION_INVALID;
-  mtx_unlock (&(priv->input_mtx));
 
-  status = stream->codec->funcs.process_stream (stream, operation);
-
-  mtx_lock (&(priv->output_mtx));
-  priv->thread_active = false;
-  priv->result = status;
-  cnd_signal (&(priv->output_cnd));
-  mtx_unlock (&(priv->output_mtx));
+  priv->result = stream->codec->funcs.process_stream (stream, operation);
+  priv->finished = true;
+  cnd_signal (&(priv->result_cnd));
+  mtx_unlock (&(priv->io_mtx));
 
   return 0;
 }
@@ -190,18 +188,17 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
   SquashStreamPrivate* priv = stream->priv;
   SquashOperation operation;
 
-  mtx_lock (&(priv->output_mtx));
   priv->result = status;
-  cnd_signal (&(priv->output_cnd));
-  mtx_unlock (&(priv->output_mtx));
+  cnd_signal (&(priv->result_cnd));
+  mtx_unlock (&(priv->io_mtx));
+  if (status < 0)
+    thrd_exit (status);
 
-  mtx_lock (&(priv->input_mtx));
+  mtx_lock (&(priv->io_mtx));
   while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
-    cnd_wait (&(priv->input_cnd), &(priv->input_mtx));
+    cnd_wait (&(priv->request_cnd), &(priv->io_mtx));
   }
   priv->request = SQUASH_OPERATION_INVALID;
-  mtx_unlock (&(priv->input_mtx));
-
   return operation;
 }
 
@@ -210,18 +207,20 @@ squash_stream_send_to_thread (SquashStream* stream, SquashOperation operation) {
   SquashStreamPrivate* priv = stream->priv;
   SquashStatus result;
 
-  mtx_lock (&(priv->input_mtx));
-  mtx_lock (&(priv->output_mtx));
-
   priv->request = operation;
-  cnd_signal (&(priv->input_cnd));
-  mtx_unlock (&(priv->input_mtx));
+  cnd_signal (&(priv->request_cnd));
+  mtx_unlock (&(priv->io_mtx));
 
+  mtx_lock (&(priv->io_mtx));
   while ((result = priv->result) == SQUASH_STATUS_INVALID) {
-    cnd_wait (&(priv->output_cnd), &(priv->output_mtx));
+    cnd_wait (&(priv->result_cnd), &(priv->io_mtx));
   }
   priv->result = SQUASH_STATUS_INVALID;
-  mtx_unlock (&(priv->output_mtx));
+
+  if (priv->finished == true) {
+    mtx_unlock (&(priv->io_mtx));
+    thrd_join (priv->thread, NULL);
+  }
 
   return result;
 }
@@ -271,16 +270,22 @@ squash_stream_init (void* stream,
   if (SQUASH_UNLIKELY((codec->funcs.info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD)) {
     s->priv = malloc (sizeof (SquashStreamPrivate));
 
-    mtx_init (&(s->priv->input_mtx), mtx_plain);
-    cnd_init (&(s->priv->input_cnd));
-    mtx_init (&(s->priv->output_mtx), mtx_plain);
-    cnd_init (&(s->priv->output_cnd));
+    mtx_init (&(s->priv->io_mtx), mtx_plain);
+    mtx_lock (&(s->priv->io_mtx));
 
     s->priv->request = SQUASH_OPERATION_INVALID;
-    s->priv->result = SQUASH_STATUS_INVALID;
+    cnd_init (&(s->priv->request_cnd));
 
-    s->priv->thread_active = true;
-    thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
+    s->priv->result = SQUASH_STATUS_INVALID;
+    cnd_init (&(s->priv->result_cnd));
+
+    s->priv->finished = false;
+    int res = thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
+    assert (res == thrd_success);
+
+    while (s->priv->result == SQUASH_STATUS_INVALID)
+      cnd_wait (&(s->priv->result_cnd), &(s->priv->io_mtx));
+    s->priv->result = SQUASH_STATUS_INVALID;
   } else {
     s->priv = NULL;
   }
@@ -303,6 +308,15 @@ squash_stream_destroy (void* stream) {
   s = (SquashStream*) stream;
 
   if (SQUASH_UNLIKELY(s->priv != NULL)) {
+    SquashStreamPrivate* priv = (SquashStreamPrivate*) s->priv;
+
+    if (!priv->finished) {
+      thrd_exit (-1);
+    }
+    cnd_destroy (&(priv->request_cnd));
+    cnd_destroy (&(priv->result_cnd));
+    mtx_destroy (&(priv->io_mtx));
+
     free (s->priv);
   }
 
