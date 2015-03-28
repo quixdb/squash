@@ -97,7 +97,10 @@ static _Thread_local SquashStream* squash_zpaq_thread_stream = NULL;
 
 void
 libzpaq::error (const char* msg) {
+  SquashStatus status = SQUASH_FAILED;
   assert (squash_zpaq_thread_stream != NULL);
+  if (strcmp (msg, "Out of memory") == 0)
+    status = SQUASH_MEMORY;
   squash_stream_yield (squash_zpaq_thread_stream, SQUASH_FAILED);
 }
 
