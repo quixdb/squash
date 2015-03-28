@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['fari_20plugin',['fari Plugin',['../md_plugins_fari_fari.html',1,'']]],
-  ['fastlz_20plugin',['fastlz Plugin',['../md_plugins_fastlz_fastlz.html',1,'']]]
+  ['density_20plugin',['density Plugin',['../md_plugins_density_density.html',1,'']]],
+  ['doboz_20plugin',['doboz Plugin',['../md_plugins_doboz_doboz.html',1,'']]]
 ];

@@ -6,6 +6,5 @@ var searchData=
   ['lzham_20plugin',['lzham Plugin',['../md_plugins_lzham_lzham.html',1,'']]],
   ['lzjb_20plugin',['lzjb Plugin',['../md_plugins_lzjb_lzjb.html',1,'']]],
   ['lzma_20plugin',['lzma Plugin',['../md_plugins_lzma_lzma.html',1,'']]],
-  ['lzmat_20plugin',['lzmat Plugin',['../md_plugins_lzmat_lzmat.html',1,'']]],
   ['lzo_20plugin',['lzo Plugin',['../md_plugins_lzo_lzo.html',1,'']]]
 ];

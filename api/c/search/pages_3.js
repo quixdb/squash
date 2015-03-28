@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['gipfeli_20plugin',['gipfeli Plugin',['../md_plugins_gipfeli_gipfeli.html',1,'']]]
+  ['fari_20plugin',['fari Plugin',['../md_plugins_fari_fari.html',1,'']]],
+  ['fastlz_20plugin',['fastlz Plugin',['../md_plugins_fastlz_fastlz.html',1,'']]]
 ];

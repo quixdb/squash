@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['snappy_20plugin',['snappy Plugin',['../md_plugins_snappy_snappy.html',1,'']]]
+  ['ms_2dcompress_20plugin',['ms-compress Plugin',['../md_plugins_ms-compress_ms-compress.html',1,'']]]
 ];

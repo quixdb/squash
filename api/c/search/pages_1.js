@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['doboz_20plugin',['doboz Plugin',['../md_plugins_doboz_doboz.html',1,'']]]
+  ['crush_20plugin',['crush Plugin',['../md_plugins_crush_crush.html',1,'']]]
 ];

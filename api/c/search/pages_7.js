@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['user_20guide',['User Guide',['../md_docs_user-guide.html',1,'']]]
+  ['pithy_20plugin',['pithy Plugin',['../md_plugins_pithy_pithy.html',1,'']]]
 ];
