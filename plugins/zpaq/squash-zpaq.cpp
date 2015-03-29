@@ -256,17 +256,23 @@ squash_zpaq_process_stream (SquashStream* stream, SquashOperation operation) {
 
   s->operation = operation;
 
-  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    char level_s[2];
-    snprintf (level_s, sizeof(level_s), "%d", (stream->options != NULL) ? ((SquashZpaqOptions*) stream->options)->level : SQUASH_ZPAQ_DEFAULT_LEVEL);
+  try {
+    if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+      char level_s[2];
+      snprintf (level_s, sizeof(level_s), "%d", (stream->options != NULL) ? ((SquashZpaqOptions*) stream->options)->level : SQUASH_ZPAQ_DEFAULT_LEVEL);
 
-    squash_zpaq_thread_stream = stream;
-    compress (s->stream, s->stream, level_s);
-    squash_zpaq_thread_stream = NULL;
-  } else {
-    squash_zpaq_thread_stream = stream;
-    decompress (s->stream, s->stream);
-    squash_zpaq_thread_stream = NULL;
+      squash_zpaq_thread_stream = stream;
+      compress (s->stream, s->stream, level_s);
+      squash_zpaq_thread_stream = NULL;
+    } else {
+      squash_zpaq_thread_stream = stream;
+      decompress (s->stream, s->stream);
+      squash_zpaq_thread_stream = NULL;
+    }
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
   }
 
   return SQUASH_OK;

@@ -262,8 +262,10 @@ squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
       res = baidu::zling::Decode(s->stream, s->stream, NULL) == 0 ?
         SQUASH_OK : SQUASH_FAILED;
     }
-  } catch (std::bad_alloc& e) {
+  } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
   }
 
   return res;

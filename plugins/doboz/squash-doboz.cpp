@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <new>
 
 #include <squash/squash.h>
 
@@ -80,7 +81,14 @@ squash_doboz_compress_buffer (SquashCodec* codec,
   doboz::Compressor compressor;
   size_t compressed_size;
 
-  doboz_e = compressor.compress ((void*) uncompressed, uncompressed_length, (void*) compressed, *compressed_length, compressed_size);
+  try {
+    doboz_e = compressor.compress ((void*) uncompressed, uncompressed_length, (void*) compressed, *compressed_length, compressed_size);
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
+  }
+
   if (doboz_e != doboz::RESULT_OK) {
     return squash_doboz_status (doboz_e);
   }
@@ -98,7 +106,14 @@ squash_doboz_decompress_buffer (SquashCodec* codec,
   doboz::Decompressor decompressor;
   doboz::CompressionInfo compression_info;
 
-  doboz_e = decompressor.decompress ((void*) compressed, compressed_length, (void*) decompressed, *decompressed_length);
+  try {
+    doboz_e = decompressor.decompress ((void*) compressed, compressed_length, (void*) decompressed, *decompressed_length);
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
+  }
+
   if (doboz_e != doboz::RESULT_OK) {
     return squash_doboz_status (doboz_e);
   }

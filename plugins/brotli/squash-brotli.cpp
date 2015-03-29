@@ -123,10 +123,15 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
                                  uint8_t* decompressed, size_t* decompressed_length,
                                  const uint8_t* compressed, size_t compressed_length,
                                  SquashOptions* options) {
-  int res = BrotliDecompressBuffer (compressed_length, compressed,
-                                    decompressed_length, decompressed);
-
-  return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+  try {
+    int res = BrotliDecompressBuffer (compressed_length, compressed,
+                                      decompressed_length, decompressed);
+    return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
+  }
 }
 
 static SquashStatus
@@ -142,11 +147,16 @@ squash_brotli_compress_buffer (SquashCodec* codec,
     params.enable_transforms = opts->enable_transforms;
   }
 
-  int res = brotli::BrotliCompressBuffer (params,
-                                          uncompressed_length, uncompressed,
-                                          compressed_length, compressed);
-
-  return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+  try {
+    int res = brotli::BrotliCompressBuffer (params,
+                                            uncompressed_length, uncompressed,
+                                            compressed_length, compressed);
+    return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
+  }
 }
 
 extern "C" SquashStatus

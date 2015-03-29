@@ -92,7 +92,13 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
   util::compression::UncheckedByteArraySink sink((char*) compressed);
   util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
 
-  *compressed_length = compressor->CompressStream (&source, &sink);
+  try {
+    *compressed_length = compressor->CompressStream (&source, &sink);
+  } catch (const std::bad_alloc& e) {
+    return SQUASH_MEMORY;
+  } catch (...) {
+    return SQUASH_FAILED;
+  }
 
   return *compressed_length > 0 ? SQUASH_OK : SQUASH_FAILED;
 }
