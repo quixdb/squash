@@ -82,7 +82,7 @@ namespace Squash {
     public unowned Squash.Codec codec;
     public Squash.Options options;
     public Squash.StreamType stream_type;
-    pubilc Squash.StreamState state;
+    public Squash.StreamState state;
     public void* user_data;
     public Squash.DestroyNotify destroy_user_data;
 
@@ -99,7 +99,7 @@ namespace Squash {
 
     protected void init (Squash.Codec codec, Squash.StreamType stream_type, Squash.Options? options = null, Squash.DestroyNotify? destroy_notify = null);
     protected void destroy ();
-    protected Squash.Operation @yield (SquashStatus status);
+    protected Squash.Operation @yield (Squash.Status status);
   }
 
   [Flags, CCode (has_type_id = false)]
@@ -122,7 +122,7 @@ namespace Squash {
     [CCode (cname = "squash_get_codec")]
     public static unowned Codec? from_name (string plugin);
     [CCode (cname = "squash_get_codec_from_extension")]
-    pubilc static unowned Codec? from_extension (string extension);
+    public static unowned Codec? from_extension (string extension);
 
     public void init ();
 
