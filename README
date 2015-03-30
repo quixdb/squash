@@ -1,19 +1,21 @@
 Squash - Compresion Abstraction Library
+<https://quixdb.github.io/squash>
 ======================================================================
 
-Squash is an abstraction layer which provides a single API to access
-many compression libraries.
+Squash is an abstraction library which provides a single API to access
+many compression libraries, allowing applications a great deal of
+flexibility in which choosing a compression algorithm, or allowing a
+choice between several of them.
 
-The actual integration with individual compression libraries (such as
-zlib, snappy, libbzip2, etc.) is done through plugins which can be
-installed separately from Squash itself and are not loaded until they are
-required.  This allows Squash consumers to utilize a great many
-compression algorithms without rewriting code or unnecessary bloat.
-Plugins need not be distributed with Squash.
+Because Squash provides a single API, any algorithms which Squash has
+a plugin to support will be useable from any language for which Squash
+provides bindings.
 
-Squash is licensed under the MIT license. Although this license does
-not place many restrictions on using Squash itself, please keep in
-mind that some plugins use libraries which are subject to more
-restrictive terms (such as LZO).
+The actual integration with individual compression libraries is done
+through plugins which can be installed separately from Squash itself
+and are not loaded until they are required. This allows Squash
+consumers to utilize a great many compression algorithms without
+rewriting code or unnecessary bloat.
 
-Documentation is available at http://quixdb.github.io/squash/
+For documentation, support, and other details, please see
+<http://quixdb.github.io/squash/>.
