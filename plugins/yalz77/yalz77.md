@@ -10,9 +10,9 @@ For more information see http://bitbucket.org/tkatchev/yalz77
 
 ## Options ##
 
-- **searchlen** (unsigned integer, default 8): size of each hash table bucket.
+- **search-length** (unsigned integer, default 8): size of each hash table bucket.
   (A higher setting means more compression quality and slower compression.)
-- **blocksize** (unsigned integer, default 65536): number of hash table buckets.
+- **block-size** (unsigned integer, default 65536): number of hash table buckets.
   (Make this lower if you're only compressing short texts; a higher setting means
   higher memory consumption.)
 

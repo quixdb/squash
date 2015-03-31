@@ -83,14 +83,14 @@ squash_yalz77_parse_option (SquashOptions* options, const char* key, const char*
 
   assert (opts != NULL);
 
-  if (strcasecmp (key, "searchlen") == 0) {
+  if (strcasecmp (key, "search-length") == 0) {
     const size_t searchlen = (size_t) strtoul (value, &endptr, 0);
     if ( *endptr == '\0' && searchlen > 0) {
       opts->searchlen = searchlen;
     } else {
       return SQUASH_BAD_VALUE;
     }
-  } else if (strcasecmp (key, "blocksize") == 0) {
+  } else if (strcasecmp (key, "block-size") == 0) {
     const size_t blocksize = (size_t) strtoul (value, &endptr, 0);
     if ( *endptr == '\0' && blocksize > 0) {
       opts->blocksize = blocksize;
