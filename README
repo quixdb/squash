@@ -4,7 +4,7 @@ Squash - Compresion Abstraction Library
 
 Squash is an abstraction library which provides a single API to access
 many compression libraries, allowing applications a great deal of
-flexibility in which choosing a compression algorithm, or allowing a
+flexibility when choosing a compression algorithm, or allowing a
 choice between several of them.
 
 Because Squash provides a single API, any algorithms which Squash has
