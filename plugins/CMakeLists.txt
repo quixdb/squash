@@ -20,6 +20,7 @@ set (plugins_available
   quicklz
   snappy
   wflz
+  yalz77
   zlib
   zling
   zpaq

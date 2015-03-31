@@ -55,3 +55,6 @@
 [submodule "plugins/density/density"]
 	path = plugins/density/density
 	url = https://github.com/centaurean/density.git
+[submodule "plugins/yalz77/yalz77"]
+	path = plugins/yalz77/yalz77
+	url = https://bitbucket.org/tkatchev/yalz77

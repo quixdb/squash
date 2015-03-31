@@ -51,6 +51,7 @@ Squash currently contains plugins for the following libraries:
 - [QuickLZ](@ref md_plugins_quicklz_quicklz)
 - [Snappy](@ref md_plugins_snappy_snappy)
 - [wfLZ](@ref md_plugins_wflz_wflz)
+- [yalz77](@ref md_plugins_yalz77_yalz77)
 - [zlib](@ref md_plugins_zlib_zlib)
 - [zling](@ref md_plugins_zling_zling)
 - [ZPAQ](@ref md_plugins_zpaq_zpaq)
