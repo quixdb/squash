@@ -68,7 +68,7 @@ typedef struct SquashDensityStream_s {
   SquashDensityAction next;
   DENSITY_STREAM_STATE state;
 
-  uint8_t buffer[DENSITY_MINIMUM_OUT_BUFFER_SIZE];
+  uint8_t buffer[DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE];
   size_t buffer_length;
   size_t buffer_pos;
   bool buffer_active;
@@ -282,9 +282,9 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
 
   if (s->next == SQUASH_DENSITY_ACTION_INIT) {
     s->active_input_length = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
-    if (stream->avail_out < DENSITY_MINIMUM_OUT_BUFFER_SIZE) {
+    if (stream->avail_out < DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE) {
       s->buffer_active = true;
-      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, s->buffer, DENSITY_MINIMUM_OUT_BUFFER_SIZE);
+      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, s->buffer, DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE);
     } else {
       s->buffer_active = false;
       s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, stream->next_out, stream->avail_out);
@@ -352,9 +352,9 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           s->output_invalid = true;
           return SQUASH_PROCESSING;
         } else {
-          if (stream->avail_out < DENSITY_MINIMUM_OUT_BUFFER_SIZE) {
+          if (stream->avail_out < DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE) {
             s->buffer_active = true;
-            density_stream_update_output (s->stream, s->buffer, DENSITY_MINIMUM_OUT_BUFFER_SIZE);
+            density_stream_update_output (s->stream, s->buffer, DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE);
           } else {
             s->buffer_active = false;
             density_stream_update_output (s->stream, stream->next_out, stream->avail_out);
