@@ -31,7 +31,15 @@ From the [LZO documentation](http://www.oberhumer.com/opensource/lzo/lzodoc.php)
 
 ## Options ##
 
-* **level**
+* **level** — (integer, range varies by codec, default is the fastest)
+  * **lzo1** — 1, 99
+  * **lzo1a** — 1, 99
+  * **lzo1b** — 1-9, 99, 999
+  * **lzo1c** — 1-9, 99, 999
+  * **lzo1f** — 1, 999
+  * **lzo1x** — 1, 11-15, 999
+  * **lzo1y** — 1, 999
+  * **lzo1z** — 999
   > Range 1-9 indicates the fast standard levels using 64 KiB memory
   > for compression. Level 99 offers better compression at the cost of
   > more memory (256 KiB), and is still reasonably fast.  Level 999
