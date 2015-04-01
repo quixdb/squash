@@ -101,26 +101,26 @@ libzpaq::error (const char* msg) {
   assert (squash_zpaq_thread_stream != NULL);
   if (strcmp (msg, "Out of memory") == 0)
     status = SQUASH_MEMORY;
-  squash_stream_yield (squash_zpaq_thread_stream, SQUASH_FAILED);
+  squash_stream_yield (squash_zpaq_thread_stream, status);
 }
 
-SquashZpaqIO::SquashZpaqIO (SquashZpaqStream* stream) {
-  this->stream = stream;
+SquashZpaqIO::SquashZpaqIO (SquashZpaqStream* str) {
+  this->stream = str;
 }
 
 int SquashZpaqIO::get () {
-  SquashStream* stream = (SquashStream*) this->stream;
+  SquashStream* str = (SquashStream*) this->stream;
 
-  while (stream->avail_in == 0 && this->stream->operation == SQUASH_OPERATION_PROCESS) {
-    this->stream->operation = squash_stream_yield (stream, SQUASH_OK);
+  while (str->avail_in == 0 && this->stream->operation == SQUASH_OPERATION_PROCESS) {
+    this->stream->operation = squash_stream_yield (str, SQUASH_OK);
   }
 
-  if (stream->avail_in == 0) {
+  if (str->avail_in == 0) {
     return -1;
   } else {
-    int r = stream->next_in[0];
-    stream->next_in++;
-    stream->avail_in--;
+    int r = str->next_in[0];
+    str->next_in++;
+    str->avail_in--;
     return r;
   }
 }
@@ -131,22 +131,22 @@ void SquashZpaqIO::put (int c) {
 }
 
 void SquashZpaqIO::write (const char* buf, int n) {
-  SquashStream* stream = (SquashStream*) this->stream;
+  SquashStream* str = (SquashStream*) this->stream;
 
   size_t written = 0;
   size_t remaining = (size_t) n;
   while (remaining > 0) {
-    const size_t cp_size = (remaining < stream->avail_out) ? remaining : stream->avail_out;
+    const size_t cp_size = (remaining < str->avail_out) ? remaining : str->avail_out;
 
-    memcpy (stream->next_out, buf + written, cp_size);
+    memcpy (str->next_out, buf + written, cp_size);
 
     written += cp_size;
     remaining -= cp_size;
-    stream->next_out += cp_size;
-    stream->avail_out -= cp_size;
+    str->next_out += cp_size;
+    str->avail_out -= cp_size;
 
     if (remaining != 0)
-      this->stream->operation = squash_stream_yield (stream, SQUASH_PROCESSING);
+      this->stream->operation = squash_stream_yield (str, SQUASH_PROCESSING);
   }
 }
 

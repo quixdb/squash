@@ -164,6 +164,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brotli", name) == 0) {
+    funcs->create_options = squash_brotli_create_options;
+    funcs->parse_option = squash_brotli_parse_option;
     funcs->get_max_compressed_size = squash_brotli_get_max_compressed_size;
     funcs->decompress_buffer = squash_brotli_decompress_buffer;
     funcs->compress_buffer = squash_brotli_compress_buffer;

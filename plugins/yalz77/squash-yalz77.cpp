@@ -21,6 +21,7 @@
  * SOFTWARE.
  *
  * Authors:
+ *   Ivan Tkatchev <tkatchev@gmail.com>
  *   Evan Nemerson <evan@nemerson.com>
  */
 
@@ -39,6 +40,8 @@ typedef struct SquashYalz77Options_s {
   size_t searchlen;
   size_t blocksize;
 } SquashYalz77Options;
+
+extern "C" SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void
 squash_yalz77_options_init (SquashYalz77Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
@@ -117,7 +120,7 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
 
   size_t searchlen = lz77::DEFAULT_SEARCHLEN;
   size_t blocksize = lz77::DEFAULT_BLOCKSIZE;
-  
+
   if (options != NULL) {
     SquashYalz77Options* opts = (SquashYalz77Options*) options;
     searchlen = opts->searchlen;

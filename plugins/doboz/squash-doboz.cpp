@@ -55,7 +55,7 @@ squash_doboz_get_uncompressed_size (SquashCodec* codec, const uint8_t* compresse
 
 static SquashStatus
 squash_doboz_status (doboz::Result status) {
-  SquashStatus res;
+  SquashStatus res = SQUASH_FAILED;
 
   switch (status) {
     case doboz::RESULT_OK:
@@ -64,7 +64,10 @@ squash_doboz_status (doboz::Result status) {
     case doboz::RESULT_ERROR_BUFFER_TOO_SMALL:
       res = SQUASH_BUFFER_FULL;
       break;
-    default:
+    case doboz::RESULT_ERROR_CORRUPTED_DATA:
+      res = SQUASH_FAILED;
+      break;
+    case doboz::RESULT_ERROR_UNSUPPORTED_VERSION:
       res = SQUASH_FAILED;
       break;
   }

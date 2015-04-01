@@ -73,7 +73,6 @@ foreach (flag
     -Werror=format=2
     -Werror=missing-include-dirs
     -Wextra
-    -Waggregate-return
     -Wcast-align
     -Wno-uninitialized
     -Wclobbered
