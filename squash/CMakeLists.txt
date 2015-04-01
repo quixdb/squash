@@ -34,7 +34,7 @@ set (squash_PUBLIC_HEADERS
   types.h)
 
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
-add_extra_warning_flags (TARGET squash${SQUASH_VERSION_API})
+add_extra_warning_cflags (TARGET squash${SQUASH_VERSION_API})
 
 if (CFLAG__fvisibility_hidden)
   squash_target_add_cflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
