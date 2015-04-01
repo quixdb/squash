@@ -1053,7 +1053,13 @@ squash_codec_process_file_with_options (SquashCodec* codec,
           res = SQUASH_FAILED;
       }
 
-      squash_mapped_file_free (in_map);
+      if (res != SQUASH_OK) {
+        size_t ipos = in_map->data_offset;
+        squash_mapped_file_free (in_map);
+        fseek (input, ipos, SEEK_SET);
+      } else {
+        squash_mapped_file_free (in_map);
+      }
       in_map = NULL;
     }
 
