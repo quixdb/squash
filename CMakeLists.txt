@@ -56,6 +56,19 @@ set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
 check_c_compiler_flag (-fvisibility=hidden CFLAG__fvisibility_hidden)
 
+include (CheckCCompilerFlag)
+set (OPTIMIZE_CFLAGS)
+
+foreach (flag
+    -O3
+    -flto)
+  string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
+  CHECK_C_COMPILER_FLAG (${flag} ${test_name})
+  if (${test_name})
+    set (OPTIMIZE_CFLAGS "${OPTIMIZE_CFLAGS} ${flag}")
+  endif ()
+endforeach ()
+
 ####
 ## Compatibility with older CMake
 ##
@@ -101,7 +114,8 @@ function (squash_plugin_add name sources)
     elseif ("${file}" MATCHES "^squash-${name}.cc$")
       add_extra_warning_cxxflags (SOURCE "${file}")
     endif ()
-    squash_source_file_add_cflag (${file} "-O3")
+
+    squash_source_file_add_cflag (${file} "${OPTIMIZE_CFLAGS}")
   endforeach ()
 endfunction (squash_plugin_add)
 
