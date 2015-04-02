@@ -5,6 +5,7 @@ set (codec_tests
   random-data
   stream-compress
   stream-decompress
+  stream-single-byte
   single-byte
   threads)
 
