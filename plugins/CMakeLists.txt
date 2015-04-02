@@ -2,6 +2,7 @@ set (plugins_available
   brotli
   bsc
   bzip2
+  copy
   crush
   density
   doboz
