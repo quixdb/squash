@@ -249,7 +249,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
 
   if (p_block_size != (int) compressed_length)
     return SQUASH_FAILED;
-  if (p_data_size < (int) *decompressed_length)
+  if (p_data_size > (int) *decompressed_length)
     return SQUASH_BUFFER_FULL;
 
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, feature);
