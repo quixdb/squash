@@ -19,5 +19,7 @@ if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
   squash_plugin_add (brotli brotli_sources)
   squash_plugin_add_include_directories (brotli brotli)
 
-  list (APPEND CMAKE_CXX_FLAGS "-std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  # CMake 3.2
+  # set_target_properties("squash${SQUASH_VERSION_API}-plugin-${plugin}" PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
 endif ()

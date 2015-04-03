@@ -86,7 +86,6 @@ squash_brotli_create_options (SquashCodec* codec) {
 static SquashStatus
 squash_brotli_parse_option (SquashOptions* options, const char* key, const char* value) {
   SquashBrotliOptions* opts = (SquashBrotliOptions*) options;
-  char* endptr = NULL;
 
   assert (opts != NULL);
 
