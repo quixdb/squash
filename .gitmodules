@@ -64,3 +64,6 @@
 [submodule "plugins/bzip2/bzip2"]
 	path = plugins/bzip2/bzip2
 	url = https://github.com/nemequ/bzip2.git
+[submodule "plugins/lzo/lzo"]
+	path = plugins/lzo/lzo
+	url = https://github.com/nemequ/lzo.git
