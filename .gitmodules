@@ -67,3 +67,6 @@
 [submodule "plugins/lzo/lzo"]
 	path = plugins/lzo/lzo
 	url = https://github.com/nemequ/lzo.git
+[submodule "plugins/snappy/snappy"]
+	path = plugins/snappy/snappy
+	url = https://github.com/google/snappy.git
