@@ -1,138 +1,224 @@
-<HTML><HEAD><TITLE>Manpage of squash</TITLE>
-</HEAD><BODY>
-<H1>squash</H1>
-Section: Squash (1)<BR>Updated: 27 July 2013<BR><A HREF="#index">Index</A>
-<A HREF="/man/man2html">Return to Main Contents</A><HR>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Manpage of squash</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<A NAME="ixAAB"></A>
-<A NAME="lbAB">&nbsp;</A>
-<H2>NAME</H2>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.2/sandstone/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
-squash - compress and decompress files
-<A NAME="lbAC">&nbsp;</A>
-<H2>SYNOPSIS</H2>
+    <style type="text/css">
+      p.c3 {font-weight: bold}
+      dd.c2 {font-weight: bold}
+      dt.c1 {font-weight: bold}
+    </style>
+  </head>
 
-<B>squash [</B><I>OPTION</I>]... <I>INPUT</I> [<I>OUTPUT</I>]
+  <body>
+    <div class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/squash" class="navbar-brand">Squash</a>
+        </div>
 
-<A NAME="lbAD">&nbsp;</A>
-<H2>DESCRIPTION</H2>
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav">
+            <li class="dropdown active">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="documentation-dropdown">Documentation <span class="caret"></span></a>
+              <ul class="dropdown-menu" aria-labelledby="documentation-dropdown">
+                <li><a href="man/squash.1.html"><code>squash</code> <abbr title="Command Line Interface">CLI</abbr></a></li>
+                <li class="divider"></li>
+                <li><a href="api/c/index.html">C API Reference</a></li>
+                <li><a href="api/c/md_docs_user-guide.html">C User Guide</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="support-dropdown">Support <span class="caret"></span></a>
+              <ul class="dropdown-menu" aria-labelledby="support-dropdown">
+                <li><a href="https://groups.google.com/forum/#!forum/squash-compression">Mailing List</a></li>
+                <li><a href="irc://chat.freenode.net/squash">IRC</a></li>
+                <li>
+                  <a href="https://stackoverflow.com/questions/tagged/squash-compression">Stack Overflow</a>
+                <li><a href="http://encode.ru/threads/2160-Squash-and-the-Squash-Benchmark">Encode.ru Thread</a></li>
+                </li>
+                <li class="divider"></li>
+                <li><a href="https://github.com/quixdb/squash/issues">Issue Tracker</a></li>
+              </ul>
+            </li>
+            <li><a href="/squash-benchmark/">Benchmark</a></li>
+          </ul>
 
-<B>squash</B>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/quixdb/squash"><i class="fa fa-lg fa-github"></i> GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-is a command line utility which to compress and decompress data using
-any codec which libsquash supports.  For a list of codecs supported by
-this copy of libsquash, see the <I>-L</I> flag.
-<P>
-<A NAME="lbAE">&nbsp;</A>
-<H2>FILES</H2>
+    <div class="container">
+      <h1>squash</h1>
+      Section: Squash (1)<br />
+      Updated: 04 April 2015<br />
+      <a href="#index">Index</a>
+      <a href="/man/man2html">Return to Main Contents</a>
+    </div>
 
-<DL COMPACT>
-<DT><B>squash</B>
+    <div class="container" id="lbAB">
+      <h2>NAME</h2>
 
-<DD>
-An input file must be provided, although &quot;-&quot; can be used as an alias
-for stdin.
-<P>
-If an output file not provided then squash will attempt to guess an
-appropriate file name based on the requested codec and the name of the
-input file.
-<P>
-</DL>
-<A NAME="lbAF">&nbsp;</A>
-<H2>EXAMPLES</H2>
+      <p>
+        squash - compress and decompress files
+      </p>
+    </div>
 
-<DL COMPACT>
-<DT><DD>
-<B>squash foo.txt foo.txt.gz</B>
+    <div class="container" id="lbAC">
+      <h2>SYNOPSIS</h2>
 
-<DT>Compress the contents of <I>foo.txt</I> to <I>foo.txt.gz</I> using the &quot;gzip&quot; codec.<DD>
-<P>
-<B>squash -de lz4 - -</B>
+      <pre><code>squash</code> [<var>OPTION</var>]… <var>INPUT</var> [<var>OUTPUT</var>]</pre>
+    </div>
 
-<DT>Decompress from stdin to stdout using the lz4 codec.<DD>
-<P>
-</DL>
-<A NAME="lbAG">&nbsp;</A>
-<H2>OPTIONS</H2>
+    <div class="container" id="lbAD">
+      <h2>DESCRIPTION</h2>
 
-<DL COMPACT>
-<DT><B>-h</B>
+      <p>
+        <code>squash</code> is a command line utility which to compress and
+        decompress data using any codec which libsquash supports. For
+        a list of codecs supported by this copy of libsquash, see
+        the <code>-L</code> flag.
+      </p>
+    </div>
 
-<DD>
-Show help screen
-<DT><B>-k</B>
+    <div class="container" id="lbAE">
+      <h2>FILES</h2>
 
-<DD>
-Keep the input file.  By default, squash will try to remove it.
-<DT><B>-o </B><I>key</I>=<I>value</I>
+      <dl>
+        <dt class="c1">squash</dt>
 
-<DD>
-Pass the specified option to the codec.
-<DT><B>-1 .. -9</B>
+        <dd>
+          <p>
+            An input file must be provided, although "-" can be used as an alias for stdin.
+          </p>
 
-<DD>
-Pass the compression level to the encoder.  This is equivalent to
-<I>-o level=N</I>.
-<DT><B>-e </B><I>codec</I>
+          <p>
+            If an output file not provided then squash will attempt to
+            guess an appropriate file name based on the requested
+            codec and the name of the input file.
+          </p>
+        </dd>
+      </dl>
+    </div>
 
-<DD>
-Use <I>codec</I>.
-<DT><B>-L</B>
+    <div class="container" id="lbAF">
+      <h2>EXAMPLES</h2>
 
-<DD>
-List the available codecs and exit.
-<DT><B>-P</B>
+      <figure>
+        <pre>squash foo.txt foo.txt.gz</pre>
+        <figcaption>Compress the contents of <var>foo.txt</var> to <var>foo.txt.gz</var> using the &quot;gzip&quot; codec.</figcaption>
+      </figure>
 
-<DD>
-List the available plugins and exit.
-<DT><B>-f</B>
+      <figure>
+        <pre>squash -dc lz4 - -</pre>
+        <figcaption>Decompress from stdin to stdout using the lz4 codec.</figcaption>
+      </figure>
+    </div>
 
-<DD>
-Overwrite the output file if it exists.
-<DT><B>-d</B>
+    <div class="container" id="lbAG">
+      <h2>OPTIONS</h2>
 
-<DD>
-Decompress (the default is to compress).
-<P>
-</DL>
-<A NAME="lbAH">&nbsp;</A>
-<H2>HOMEPAGE</H2>
+      <dl compact="compact">
+        <dt class="c1"><code>-h</code></dt>
 
-<DL COMPACT>
-<DT><A HREF="http://quixdb.github.io/squash/">http://quixdb.github.io/squash/</A><DD>
-<P>
-</DL>
-<A NAME="lbAI">&nbsp;</A>
-<H2>BUG REPORTS</H2>
+        <dd>Show help screen</dd>
 
-<DL COMPACT>
-<DT><A HREF="https://github.com/quixdb/squash/issues">https://github.com/quixdb/squash/issues</A><DD>
-<P>
-</DL>
-<A NAME="lbAJ">&nbsp;</A>
-<H2>AUTHOR</H2>
+        <dt class="c1"><code>-k</code></dt>
 
-squash, and this manual page, was was written by Evan Nemerson
-&lt;<A HREF="mailto:evan@coeus-group.com">evan@coeus-group.com</A>&gt;.
-<P>
+        <dd>Keep the input file. By default, squash will try to remove it.</dd>
 
-<HR>
-<A NAME="index">&nbsp;</A><H2>Index</H2>
-<DL>
-<DT><A HREF="#lbAB">NAME</A><DD>
-<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
-<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
-<DT><A HREF="#lbAE">FILES</A><DD>
-<DT><A HREF="#lbAF">EXAMPLES</A><DD>
-<DT><A HREF="#lbAG">OPTIONS</A><DD>
-<DT><A HREF="#lbAH">HOMEPAGE</A><DD>
-<DT><A HREF="#lbAI">BUG REPORTS</A><DD>
-<DT><A HREF="#lbAJ">AUTHOR</A><DD>
-</DL>
-<HR>
-This document was created by
-<A HREF="/man/man2html">man2html</A>,
-using the manual pages.<BR>
-Time: 21:56:00 GMT, August 02, 2013
-</BODY>
-</HTML>
+        <dt><code><b>-o</b> <var>key</var>=<var>value</var></code></dt>
+
+        <dd>Pass the specified option to the codec.</dd>
+
+        <dt class="c1"><code>-1 … -9</code></dt>
+
+        <dd>Pass the compression level to the encoder. This is equivalent to <i>-o level=N</i>.</dd>
+
+        <dt><code><b>-c</b> <var>codec</var></code></dt>
+
+        <dd>Use <i>codec</i>.</dd>
+
+        <dt class="c1"><code>-L</code></dt>
+
+        <dd>List the available codecs and exit.</dd>
+
+        <dt class="c1"><code>-P</code></dt>
+
+        <dd>List the available plugins and exit.</dd>
+
+        <dt class="c1"><code>-f</code></dt>
+
+        <dd>Overwrite the output file if it exists.</dd>
+
+        <dt class="c1"><code>-d</code></dt>
+
+        <dd>Decompress (the default is to compress).</dd>
+      </dl>
+    </div>
+
+    <div class="container" id="lbAH">
+      <h2>HOMEPAGE</h2>
+
+      <p>
+        <a href="http://quixdb.github.io/squash/">http://quixdb.github.io/squash/</a>
+      </p>
+    </div>
+
+    <div class="container" id="lbAI">
+      <h2>BUG REPORTS</h2>
+
+      <p>
+        <a href="https://github.com/quixdb/squash/issues">https://github.com/quixdb/squash/issues</a>
+      </p>
+    </div>
+
+    <div class="container" id="lbAJ">
+      <h2>AUTHOR</h2>squash, and this manual page, was was written by Evan Nemerson &lt;<a href="mailto:evan@nemerson.com">evan@nemerson.com</a>&gt;.
+    </div>
+
+    <div class="container" id="index">
+      <h2>Index</h2>
+
+      <dl>
+        <dt><a href="#lbAB">NAME</a></dt>
+
+        <dt><a href="#lbAC">SYNOPSIS</a></dt>
+
+        <dt><a href="#lbAD">DESCRIPTION</a></dt>
+
+        <dt><a href="#lbAE">FILES</a></dt>
+
+        <dt><a href="#lbAF">EXAMPLES</a></dt>
+
+        <dt><a href="#lbAG">OPTIONS</a></dt>
+
+        <dt><a href="#lbAH">HOMEPAGE</a></dt>
+
+        <dt><a href="#lbAI">BUG REPORTS</a></dt>
+
+        <dt><a href="#lbAJ">AUTHOR</a></dt>
+      </dl>
+    </div>
+
+    <footer class="bg-primary" style="padding: 2em 0">
+      <div class="container">
+        This document was created
+        by <a href="/man/man2html">man2html</a>, using the manual
+        pages, then manually cleaned up.
+      </div>
+    </footer>
+  </body>
+</html>
