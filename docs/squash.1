@@ -1,4 +1,4 @@
-.TH squash 1 "27 July 2013" "squash" "Squash"
+.TH squash 1 "04 April 2015" "squash" "Squash"
 .IX squash
 .SH NAME
 squash \- compress and decompress files
@@ -27,7 +27,7 @@ input file.
 .TP
 Compress the contents of \fIfoo.txt\fP to \fIfoo.txt.gz\fP using the "gzip" codec.
 
-.B squash -de lz4 - -
+.B squash -dc lz4 - -
 .TP
 Decompress from stdin to stdout using the lz4 codec.
 
@@ -46,7 +46,7 @@ Pass the specified option to the codec.
 Pass the compression level to the encoder.  This is equivalent to
 \fI-o level=N\fP.
 .TP
-.B \-e \fIcodec\fP
+.B \-c \fIcodec\fP
 Use \fIcodec\fP.
 .TP
 .B \-L
@@ -71,4 +71,4 @@ https://github.com/quixdb/squash/issues
 
 .SH AUTHOR
 squash, and this manual page, was was written by Evan Nemerson
-<evan@coeus-group.com>.
+<evan@nemerson.com>.
