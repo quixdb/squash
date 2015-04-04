@@ -4,6 +4,7 @@ set (plugins_available
   bzip2
   copy
   crush
+  csc
   density
   doboz
   fari

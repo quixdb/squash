@@ -426,6 +426,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   SquashCodecFuncs* funcs = NULL;
   SquashStatus res;
   SquashOperation current_operation;
+  SquashStreamPrivate* priv = (SquashStreamPrivate*) stream->priv;
 
   assert (stream != NULL);
   codec = stream->codec;
@@ -554,7 +555,8 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       /* Finish */
       if (funcs->process_stream != NULL) {
         if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
-          res = squash_stream_send_to_thread (stream, current_operation);
+          if (!(priv->finished))
+            res = squash_stream_send_to_thread (stream, current_operation);
         } else {
           res = funcs->process_stream (stream, current_operation);
         }

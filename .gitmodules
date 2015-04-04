@@ -58,3 +58,6 @@
 [submodule "plugins/yalz77/yalz77"]
 	path = plugins/yalz77/yalz77
 	url = https://bitbucket.org/tkatchev/yalz77
+[submodule "plugins/csc/csc"]
+	path = plugins/csc/csc
+	url = https://github.com/fusiyuan2010/CSC.git
