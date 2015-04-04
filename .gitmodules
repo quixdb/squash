@@ -61,3 +61,6 @@
 [submodule "plugins/csc/csc"]
 	path = plugins/csc/csc
 	url = https://github.com/fusiyuan2010/CSC.git
+[submodule "plugins/bzip2/bzip2"]
+	path = plugins/bzip2/bzip2
+	url = https://github.com/nemequ/bzip2.git
