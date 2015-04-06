@@ -3,6 +3,7 @@ set (snappy_sources
   crc32.c)
 
 include (FindSnappy)
+find_package(Snappy)
 
 if ("${SNAPPY_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND snappy_sources
