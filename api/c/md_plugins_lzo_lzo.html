@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">0.5.0</span>
    </div>
   </td>
  </tr>
@@ -102,10 +102,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </blockquote>
 <h2>Options</h2>
 <ul>
-<li><b>level</b> <blockquote class="doxtable">
+<li><b>level</b> — (integer, range varies by codec, default is the fastest)<ul>
+<li><b>lzo1</b> — 1, 99</li>
+<li><b>lzo1a</b> — 1, 99</li>
+<li><b>lzo1b</b> — 1-9, 99, 999</li>
+<li><b>lzo1c</b> — 1-9, 99, 999</li>
+<li><b>lzo1f</b> — 1, 999</li>
+<li><b>lzo1x</b> — 1, 11-15, 999</li>
+<li><b>lzo1y</b> — 1, 999</li>
+<li><b>lzo1z</b> — 999 <blockquote class="doxtable">
 <p>Range 1-9 indicates the fast standard levels using 64 KiB memory for compression. Level 99 offers better compression at the cost of more memory (256 KiB), and is still reasonably fast. Level 999 achieves nearly optimal compression - but it is slow and uses much memory, and is mainly intended for generating pre-compressed data.</p>
 <p>— <a href="http://www.oberhumer.com/opensource/lzo/lzodoc.php">http://www.oberhumer.com/opensource/lzo/lzodoc.php</a> </p>
 </blockquote>
+</li>
+</ul>
 </li>
 </ul>
 <h2>License</h2>

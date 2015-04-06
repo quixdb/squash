@@ -5,5 +5,7 @@ var searchData=
   ['compress_5fbuffer_5funsafe',['compress_buffer_unsafe',['../struct__SquashCodecFuncs.html#ae1310f364548d1af7c2a90a73fe491c8',1,'_SquashCodecFuncs']]],
   ['create_5foptions',['create_options',['../struct__SquashCodecFuncs.html#a4f29d428335718378bc07b173e70dcfb',1,'_SquashCodecFuncs']]],
   ['create_5fstream',['create_stream',['../struct__SquashCodecFuncs.html#ad8f91440f2103a60b04dad21011b8e8f',1,'_SquashCodecFuncs']]],
-  ['crush_20plugin',['crush Plugin',['../md_plugins_crush_crush.html',1,'']]]
+  ['copy_20plugin',['copy Plugin',['../md_plugins_copy_copy.html',1,'']]],
+  ['crush_20plugin',['crush Plugin',['../md_plugins_crush_crush.html',1,'']]],
+  ['csc_20plugin',['csc Plugin',['../md_plugins_csc_csc.html',1,'']]]
 ];

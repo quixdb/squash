@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">0.5.0</span>
    </div>
   </td>
  </tr>
@@ -120,20 +120,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;## Options ##</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;* **level**</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  &gt; Range 1-9 indicates the fast standard levels using 64 KiB memory</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  &gt; for compression. Level 99 offers better compression at the cost of</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  &gt; more memory (256 KiB), and is still reasonably fast.  Level 999</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  &gt; achieves nearly optimal compression - but it is slow and uses much</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  &gt; memory, and is mainly intended for generating pre-compressed data.</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  &gt;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  &gt; — http://www.oberhumer.com/opensource/lzo/lzodoc.php</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;## License ##</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;The lzo plugin is licensed under the [MIT</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;License](http://opensource.org/licenses/MIT), and LZO is licensed</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;under the [GNU GPLv2+](https://gnu.org/licenses/old-licenses/gpl-2.0.html).</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;* **level** — (integer, range varies by codec, default is the fastest)</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  * **lzo1** — 1, 99</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  * **lzo1a** — 1, 99</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  * **lzo1b** — 1-9, 99, 999</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  * **lzo1c** — 1-9, 99, 999</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  * **lzo1f** — 1, 999</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  * **lzo1x** — 1, 11-15, 999</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  * **lzo1y** — 1, 999</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  * **lzo1z** — 999</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  &gt; Range 1-9 indicates the fast standard levels using 64 KiB memory</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  &gt; for compression. Level 99 offers better compression at the cost of</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  &gt; more memory (256 KiB), and is still reasonably fast.  Level 999</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  &gt; achieves nearly optimal compression - but it is slow and uses much</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  &gt; memory, and is mainly intended for generating pre-compressed data.</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  &gt;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  &gt; — http://www.oberhumer.com/opensource/lzo/lzodoc.php</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;## License ##</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;The lzo plugin is licensed under the [MIT</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;License](http://opensource.org/licenses/MIT), and LZO is licensed</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;under the [GNU GPLv2+](https://gnu.org/licenses/old-licenses/gpl-2.0.html).</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.9.1"/>
-<title>Squash: doboz.md Source File</title>
+<title>Squash: Building Squash</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">0.5.0</span>
    </div>
   </td>
  </tr>
@@ -39,10 +39,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li class="current"><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
-      <li class="current"><a href="files.html"><span>Files</span></a></li>
+      <li><a href="files.html"><span>Files</span></a></li>
       <li><a href="examples.html"><span>Examples</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -62,12 +62,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       </li>
     </ul>
   </div>
-  <div id="navrow2" class="tabs2">
-    <ul class="tablist">
-      <li><a href="files.html"><span>File&#160;List</span></a></li>
-    </ul>
-  </div>
-</div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -82,28 +76,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">doboz.md</div>  </div>
+<div class="title">Building Squash </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;# doboz Plugin #</div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;For information about Doboz, see</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;https://bitbucket.org/attila_afra/doboz</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;## Codecs ##</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;- **doboz** — Raw doboz data.</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;## License ##</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;The doboz plugin is licensed under the [MIT</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;License](http://opensource.org/licenses/MIT), and doboz is licensed</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;under the [zlib License](http://www.gzip.org/zlib/zlib_license.html),</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;a permissive [OSI-approved](http://opensource.org/licenses/Zlib)</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;license.</div>
-</div><!-- fragment --></div><!-- contents -->
+<div class="textblock"><p>Note: <a href="https://github.com/quixdb/squash/issues/86">Squash currently does not support Windows</a>.</p>
+<p>Squash currently requires a system copy of liblzma (from xz utils). We're working on removing this limitation, but in the meantime there is probably a package available for your system… xz-devel on Fedora, liblzma-dev on Debian/Ubuntu, liblzma on FreeBSD, etc.</p>
+<h2>Building from git</h2>
+<p>If you are building from a release, skip this section.</p>
+<p>Squash makes very heavy use of git submodules to pull in code from other projects, mostly for the libraries used by each plugin. When possible Squash will use system libraries instead of its own copy, but only a relatively small number of plugins use libraries which are typically packaged by distributions.</p>
+<p>If you are on a UNIX-like system with bash, you can simply call the <code>autogen.sh</code> script (located in the top level of the Squash sources) just as you would call the <code>configure</code> script. If not you can update the submodules manually—from the top level of the Squash sources:</p>
+<div class="fragment"><div class="line">git submodule update --init --recursive</div>
+</div><!-- fragment --><p><code>autogen.sh</code> simply invokes this command then calls <code>configure</code> with the arguments you passed to it.</p>
+<p>Once you have all the submodules your source tree should be in basically the same state as a release (except you still have all the git data), so proceed to the next section.</p>
+<h2>Building from a release</h2>
+<p>If you are on a UNIX-like system (basically non-Windows) with bash (basically non-BSD), simply run the <code>configure</code> script with the same arguments you would pass to the <code>configure</code> script of any autotools-based project:</p>
+<div class="fragment"><div class="line">./configure</div>
+</div><!-- fragment --><p>This will translate the arugments you pass to the CMake versions and invoke CMake.</p>
+<p>For a list of supported arguments, pass <code>--help</code>. If you don't have bash, you'll have to call CMake manually:</p>
+<div class="fragment"><div class="line">cmake .</div>
+</div><!-- fragment --><p>At this point, all you need to is call <code>make</code> likely <code>make install</code>, just as you would for any other project. </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
