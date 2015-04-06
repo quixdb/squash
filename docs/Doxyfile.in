@@ -756,6 +756,7 @@ WARN_LOGFILE           =
 INPUT                  = @SQUASH_TOP_SRCDIR@/squash \
                          @SQUASH_TOP_SRCDIR@/docs/index.md \
                          @SQUASH_TOP_SRCDIR@/docs/user-guide.md \
+                         @SQUASH_TOP_SRCDIR@/docs/building.md \
                          @SQUASH_DOXYGEN_PLUGIN_DOCS@
 
 # This tag can be used to specify the character encoding of the source files
