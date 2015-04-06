@@ -26,12 +26,14 @@
 
 #include <squash/config.h>
 
-#if defined(HAVE_MREMAP)
+#if defined(HAVE_MMAP)
 #  define _POSIX_SOURCE
 #  define _GNU_SOURCE
-#  include <sys/types.h>
 #  include <unistd.h>
-#  include <sys/mman.h>
+#  if defined(HAVE_MREMAP)
+#    include <sys/types.h>
+#    include <sys/mman.h>
+#endif
 #endif
 
 #include <assert.h>
@@ -119,7 +121,6 @@ squash_buffer_new (size_t preallocated_len) {
   buffer->data = preallocated_len > 0 ? (uint8_t*) malloc (preallocated_len) : NULL;
   buffer->length = 0;
   buffer->allocated = preallocated_len;
-  buffer->fd = -1;
 #endif
 
   return buffer;
