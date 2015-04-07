@@ -73,3 +73,6 @@
 [submodule "plugins/zlib/zlib"]
 	path = plugins/zlib/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "plugins/lzma/xz"]
+	path = plugins/lzma/xz
+	url = http://git.tukaani.org/xz.git

@@ -123,7 +123,9 @@ macro (squash_plugin_add_link_libraries plugin libs)
   target_link_libraries (squash${SQUASH_VERSION_API}-plugin-${plugin} ${libs})
 endmacro (squash_plugin_add_link_libraries)
 
-macro (squash_plugin_add_include_directories plugin dirs)
+macro (squash_plugin_add_include_directories plugin)
+  set (dirs ${ARGV})
+  list (REMOVE_AT dirs 0)
   target_include_directories (squash${SQUASH_VERSION_API}-plugin-${plugin} PRIVATE ${dirs})
 endmacro (squash_plugin_add_include_directories)
 
