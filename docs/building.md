@@ -3,11 +3,6 @@
 Note: [Squash currently does not support
 Windows](https://github.com/quixdb/squash/issues/86).
 
-Squash currently requires a system copy of liblzma (from xz utils).
-We're working on removing this limitation, but in the meantime there
-is probably a package available for your system… xz-devel on Fedora,
-liblzma-dev on Debian/Ubuntu, liblzma on FreeBSD, etc.
-
 ## Building from git
 
 If you are building from a release, skip this section.
