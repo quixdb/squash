@@ -13,12 +13,20 @@ http://fastcompression.blogspot.com/p/lz4.html
 
 ### lz4 ###
 
-- **level** (integer, 1 or 9) — 1 is the default, 9 will use the high
-    compression derivative.
+- **level** (integer, 7-14, default 7) — higher level corresponds to
+  better compression ratio but slower compression speed.
+  - **7** — The default algorithm (LZ4_compress)
+  - **8** — LZ4HC level 2
+  - **9** — LZ4HC level 4
+  - **10** — LZ4HC level 6
+  - **11** — LZ4HC level 9
+  - **12** — LZ4HC level 12
+  - **13** — LZ4HC level 14
+  - **14** — LZ4HC level 16
 
 ### lz4f ###
 
-- **level** (integer, 0 - 16) — 0 is the default, higher = better
+- **level** (integer, 0 - 16, default 0) — higher = better
   compression ratio but slower compression speed
 - **block-size** (enum) — input block size
   - 4 — 64 KiB
