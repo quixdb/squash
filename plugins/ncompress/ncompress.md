@@ -1,18 +1,17 @@
-# quicklz Plugin #
+# ncompress Plugin #
 
-QuickLZ is a fast GPL'd compression library.
+ncompress is a public domain implementation of LZW.  This plugin uses
+a modified version of ncompress which takes buffers instead of file
+descriptors.
 
-For more information about QuickLZ, see http://www.quicklz.com/
+For more information about ncompress, see http://ncompress.sourceforge.net/
 
 ## Codecs ##
 
-- **quicklz** — Raw QuickLZ data.
+- **compress** — compress data
 
 ## License ##
 
-The quicklz plugin is licensed under the [MIT
-License](http://opensource.org/licenses/MIT), and QuickLZ is licensed
-under the [GNU GPLv1](https://gnu.org/licenses/old-licenses/gpl-1.0.html),
-[GNU GPLv2](https://gnu.org/licenses/old-licenses/gpl-2.0.html),
-[GNU GPLv3](https://gnu.org/licenses/old-licenses/gpl-3.0.html), or a
-proprietary license.
+The ncompress plugin is licensed under the [MIT
+License](http://opensource.org/licenses/MIT), and ncompress (including
+the modifications for Squash) is public domain.
