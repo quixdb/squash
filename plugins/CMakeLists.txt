@@ -18,6 +18,7 @@ set (plugins_available
   lzma
   lzo
   ms-compress
+  ncompress
   pithy
   quicklz
   snappy
