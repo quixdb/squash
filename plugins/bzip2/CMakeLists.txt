@@ -12,6 +12,7 @@ if ("${BZIP2_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "ye
     bzip2/huffman.c
     bzip2/randtable.c)
   squash_plugin_add (bzip2 bzip2_sources)
+  squash_plugin_add_include_directories (bzip2 bzip2)
 else ()
   squash_plugin_add_for_package (bzip2 BZip2 bzip2_sources)
 endif ()
