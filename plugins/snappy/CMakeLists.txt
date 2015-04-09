@@ -11,8 +11,14 @@ if ("${SNAPPY_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "y
     snappy/snappy-sinksource.cc
     snappy/snappy-stubs-internal.cc
     snappy/snappy.cc)
+  CHECK_INCLUDE_FILE ("stdint.h"   HAVE_STDINT_H)
+  CHECK_INCLUDE_FILE ("stddef.h"   HAVE_STDDEF_H)
+  CHECK_INCLUDE_FILE ("sys/uio.h"  HAVE_SYS_UIO_H)
   squash_plugin_add (snappy snappy_sources)
-  squash_plugin_add_include_directories (snappy snappy)
+  configure_file (snappy-stubs-public.h.in ${CMAKE_CURRENT_BINARY_DIR}/snappy-stubs-public.h)
+  squash_plugin_add_include_directories (snappy
+    snappy
+    ${CMAKE_CURRENT_BINARY_DIR})
 else ()
   squash_plugin_add_for_package(snappy Snappy snappy_sources)
 endif ()
