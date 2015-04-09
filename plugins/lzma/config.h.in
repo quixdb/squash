@@ -1,16 +1,161 @@
 #ifndef SQUASH_XZ_CONFIG_H
 #define SQUASH_XZ_CONFIG_H
 
-#if !(defined(_WIN32) && !defined(__CYGWIN__))
-#define _POSIX_C_SOURCE 199506L
+/* #if !(defined(_WIN32) && !defined(__CYGWIN__)) */
+/* #define _POSIX_C_SOURCE 199506L */
+/* #endif */
+
+/* These are configurable in liblzma, but we always build with them. */
+#define HAVE_CHECK_CRC32 1
+#define HAVE_CHECK_CRC64 1
+#define HAVE_CHECK_SHA256 1
+#define HAVE_DECODER_ARM 1
+#define HAVE_DECODER_ARMTHUMB 1
+#define HAVE_DECODER_DELTA 1
+#define HAVE_DECODER_IA64 1
+#define HAVE_DECODER_LZMA1 1
+#define HAVE_DECODER_LZMA2 1
+#define HAVE_DECODER_POWERPC 1
+#define HAVE_DECODER_SPARC 1
+#define HAVE_DECODER_X86 1
+#define HAVE_ENCODER_ARM 1
+#define HAVE_ENCODER_ARMTHUMB 1
+#define HAVE_ENCODER_DELTA 1
+#define HAVE_ENCODER_IA64 1
+#define HAVE_ENCODER_LZMA1 1
+#define HAVE_ENCODER_LZMA2 1
+#define HAVE_ENCODER_POWERPC 1
+#define HAVE_ENCODER_SPARC 1
+#define HAVE_ENCODER_X86 1
+#define HAVE_MF_BT2 1
+#define HAVE_MF_BT3 1
+#define HAVE_MF_BT4 1
+#define HAVE_MF_HC3 1
+#define HAVE_MF_HC4 1
+
+#define ASSUME_RAM 128
+
+#cmakedefine HAVE_BSWAP_16 1
+#cmakedefine HAVE_BSWAP_32 1
+#cmakedefine HAVE_BSWAP_64 1
+#cmakedefine HAVE_BYTESWAP_H 1
+#cmakedefine HAVE_CLOCK_GETTIME 1
+#cmakedefine HAVE_DCGETTEXT 1
+#cmakedefine HAVE_DECL_CLOCK_MONOTONIC 1
+#cmakedefine HAVE_DECL_PROGRAM_INVOCATION_NAME 1
+#cmakedefine HAVE_DLFCN_H 1
+#cmakedefine HAVE_FCNTL_H 1
+#cmakedefine HAVE_FUTIMENS 1
+#cmakedefine HAVE_FUTIMES 1
+#cmakedefine HAVE_FUTIMESAT 1
+#cmakedefine HAVE_GETOPT_H 1
+#cmakedefine HAVE_GETOPT_LONG 1
+#cmakedefine HAVE_GETTEXT 1
+#cmakedefine HAVE_ICONV 1
+#cmakedefine HAVE_IMMINTRIN_H 1
+#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_LIMITS_H 1
+#cmakedefine HAVE_MBRTOWC 1
+#cmakedefine HAVE_MEMORY_H 1
+#cmakedefine HAVE_MINIX_SHA2_H 1
+#cmakedefine HAVE_OPTRESET 1
+#cmakedefine HAVE_PIPE2 1
+#cmakedefine HAVE_POSIX_FADVISE 1
+#cmakedefine HAVE_PTHREAD_CONDATTR_SETCLOCK 1
+#cmakedefine HAVE_PTHREAD_PRIO_INHERIT 1
+#cmakedefine HAVE_STDBOOL_H 1
+#cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_STDLIB_H 1
+#cmakedefine HAVE_STRINGS_H 1
+#cmakedefine HAVE_STRING_H 1
+#cmakedefine HAVE_STRUCT_STAT_ST_ATIMENSEC 1
+#cmakedefine HAVE_STRUCT_STAT_ST_ATIMESPEC_TV_NSEC 1
+#cmakedefine HAVE_STRUCT_STAT_ST_ATIM_ST__TIM_TV_NSEC 1
+#cmakedefine HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC 1
+#cmakedefine HAVE_STRUCT_STAT_ST_UATIME 1
+#cmakedefine HAVE_SYS_BYTEORDER_H 1
+#cmakedefine HAVE_SYS_ENDIAN_H 1
+#cmakedefine HAVE_SYS_PARAM_H 1
+#cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_TIME_H 1
+#cmakedefine HAVE_SYS_TYPES_H 1
+#cmakedefine HAVE_UINTPTR_T 1
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_UTIME
+#cmakedefine HAVE_UTIMES
+#define HAVE_VISIBILITY 0
+#cmakedefine HAVE_WCWIDTH 1
+#cmakedefine HAVE__BOOL 1
+#cmakedefine HAVE__MM_MOVEMASK_EPI8 1
+#define SIZEOF_SIZE_T ${SIZEOF_SIZE_T}
+#define STDC_HEADERS 1
+
+#if defined(_WIN32)
+#define MYTHREAD_VISTA 1
+#else
+#define MYTHREAD_POSX 1
 #endif
 
-#cmakedefine HAVE_INTTYPES_H
-#cmakedefine HAVE_STDINT_H
-#cmakedefine HAVE_LIMITS_H
-#cmakedefine HAVE_STDBOOL_H
-#cmakedefine HAVE_STRING_H
-#cmakedefine HAVE_STRINGS_H
-#cmakedefine HAVE_MEMORY_H
+#define PACKAGE "squash-xz"
+#define PACKAGE_BUGREPORT "https://github.com/quixdb/squash/issues"
+#define PACKAGE_NAME "Squash XZ Utils Plugin"
+#define PACKAGE_VERSION "${SQUASH_VERSION_MAJOR}.${SQUASH_VERSION_MINOR}.${SQUASH_VERSION_REVISION}"
+#define PACKAGE_STRING PACKAGE_NAME##" "##PACKAGE_VERSION
+#define PACKAGE_URL "https://quixdb.github.io/squash/"
+
+#cmakedefine HAVE__SC_NPROCESSORS_ONLN 1
+#cmakedefine HAVE__SC_NPROC_ONLN 1
+#if defined(HAVE__SC_NPROCESSORS_ONLN) || defined(HAVE__SC_NPROC_ONLN)
+#define TUKLIB_CPUCORES_SYSCONF 1
+#endif
+
+#if defined(__amd64__) || defined(M_X64) || defined(__i386__) || defined(_M_IX86) || defined(__ppc__) || defined(__ppc64__) || defined(_M_PPC)
+#define TUKLIB_FAST_UNALIGNED_ACCESS 1
+#endif
+
+#cmakedefine HAVE__SC_PHYS_PAGES
+#if defined(HAVE__SC_PHYS_PAGES)
+#define TUKLIB_PHYSMEM_SYSCONF 1
+#endif
+
+/* Enable extensions on AIX 3, Interix.  */
+#ifndef _ALL_SOURCE
+# define _ALL_SOURCE 1
+#endif
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE 1
+#endif
+/* Enable threading extensions on Solaris.  */
+#ifndef _POSIX_PTHREAD_SEMANTICS
+# define _POSIX_PTHREAD_SEMANTICS 1
+#endif
+/* Enable extensions on HP NonStop.  */
+#ifndef _TANDEM_SOURCE
+# define _TANDEM_SOURCE 1
+#endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__ 1
+#endif
+
+#define VERSION PACKAGE_VERSION
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+/* #  undef WORDS_BIGENDIAN */
+# endif
+#endif
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
 
 #endif /* SQUASH_XZ_CONFIG_H */
