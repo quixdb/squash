@@ -297,7 +297,6 @@ squash_csc_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squa
 static SquashStatus
 squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashCscStream* s = (SquashCscStream*) stream;
-  int res;
 
   s->operation = operation;
 

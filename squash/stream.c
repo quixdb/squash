@@ -428,7 +428,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   SquashCodec* codec;
   SquashCodecFuncs* funcs = NULL;
   SquashStatus res;
-  SquashOperation current_operation;
+  SquashOperation current_operation = SQUASH_OPERATION_PROCESS;
   SquashStreamPrivate* priv = (SquashStreamPrivate*) stream->priv;
 
   assert (stream != NULL);

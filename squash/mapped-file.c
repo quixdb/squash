@@ -104,7 +104,8 @@ squash_mapped_file_remap (SquashMappedFile* mapped, size_t offset, size_t length
     mapped->data = NULL;
 
   fseek (mapped->fp, old_pos, SEEK_SET);
-  ftruncate (fd, (off_t) old_pos);
+  int res = ftruncate (fd, (off_t) old_pos);
+  (void) res;
 
   return false;
 }

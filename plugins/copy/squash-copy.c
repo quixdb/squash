@@ -80,8 +80,6 @@ squash_copy_stream_init (SquashCopyStream* stream,
 
 static void
 squash_copy_stream_destroy (void* stream) {
-  SquashCopyStream* s = (SquashCopyStream*) stream;
-
   squash_stream_destroy (stream);
 }
 
@@ -98,8 +96,6 @@ squash_copy_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 
 static SquashStatus
 squash_copy_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashCopyStream* s = (SquashCopyStream*) stream;
-
   const size_t cp_size = stream->avail_in < stream->avail_out ? stream->avail_in : stream->avail_out;
 
   if (cp_size != 0) {
