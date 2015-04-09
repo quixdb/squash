@@ -610,6 +610,9 @@ squash_codec_compress_with_options (SquashCodec* codec,
     SquashStream* stream;
 
     stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_COMPRESS, options);
+    if (stream == NULL)
+      return SQUASH_FAILED;
+
     stream->next_in = uncompressed;
     stream->avail_in = uncompressed_length;
     stream->next_out = compressed;
