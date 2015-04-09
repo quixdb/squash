@@ -35,10 +35,16 @@
 
 SQUASH_BEGIN_DECLS
 
+#ifdef __GNUC__
+#  define SQUASH_POSSIBLY_UNUSED __attribute__((__unused__))
+#else
+#  define SQUASH_POSSIBLY_UNUSED
+#endif
+
 #define SQUASH_MTX_NAME(name,suffix) _squash_ ## name ## _ ## suffix
 #define SQUASH_MTX_DEFINE(name) \
   static once_flag SQUASH_MTX_NAME(name,init_flag) = ONCE_FLAG_INIT;            \
-  static mtx_t SQUASH_MTX_NAME(name,mtx);                                       \
+  SQUASH_POSSIBLY_UNUSED static mtx_t SQUASH_MTX_NAME(name,mtx);                                       \
   static void SQUASH_MTX_NAME(name,init) (void);                                \
     static void SQUASH_MTX_NAME(name,init) (void) {                             \
     assert (mtx_init (&(SQUASH_MTX_NAME(name,mtx)),mtx_plain) == thrd_success); \

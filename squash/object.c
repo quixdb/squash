@@ -323,9 +323,7 @@ squash_object_init (void* obj, bool is_floating, SquashDestroyNotify destroy_not
  */
 void
 squash_object_destroy (void* obj) {
-  SquashObject* object = (SquashObject*) obj;
-
-  assert (object != NULL);
+  assert (obj != NULL);
 }
 
 /**

@@ -398,13 +398,9 @@ squash_codec_get_funcs (SquashCodec* codec) {
 size_t
 squash_codec_get_uncompressed_size (SquashCodec* codec,
                                     const uint8_t* compressed, size_t compressed_length) {
-  SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
   if (funcs != NULL && funcs->get_uncompressed_size != NULL) {
@@ -433,13 +429,9 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
  */
 size_t
 squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
   if (funcs != NULL && funcs->get_max_compressed_size != NULL) {
@@ -489,14 +481,10 @@ squash_get_max_compressed_size (const char* codec, size_t uncompressed_length) {
  */
 SquashStream*
 squash_codec_create_stream_with_options (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
   if (funcs == NULL) {
@@ -525,15 +513,11 @@ squash_codec_create_stream_with_options (SquashCodec* codec, SquashStreamType st
  */
 SquashStream*
 squash_codec_create_stream (SquashCodec* codec, SquashStreamType stream_type, ...) {
-  SquashPlugin* plugin;
   va_list ap;
   SquashOptions* options;
 
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   va_start (ap, stream_type);
   options = squash_options_newv (codec, ap);
@@ -560,13 +544,9 @@ squash_codec_compress_with_options (SquashCodec* codec,
                                     uint8_t* compressed, size_t* compressed_length,
                                     const uint8_t* uncompressed, size_t uncompressed_length,
                                     SquashOptions* options) {
-  SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   assert (compressed != NULL);
   assert (uncompressed != NULL);
@@ -709,13 +689,9 @@ squash_codec_decompress_with_options (SquashCodec* codec,
                                       uint8_t* decompressed, size_t* decompressed_length,
                                       const uint8_t* compressed, size_t compressed_length,
                                       SquashOptions* options) {
-  SquashPlugin* plugin = NULL;
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
-
-  plugin = codec->plugin;
-  assert (plugin != NULL);
 
   funcs = squash_codec_get_funcs (codec);
   if (funcs == NULL)

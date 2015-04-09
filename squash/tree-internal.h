@@ -87,7 +87,11 @@
   (( (((self)->field.avl_left)  ? (self)->field.avl_left->field.avl_height  : 0)) \
    - (((self)->field.avl_right) ? (self)->field.avl_right->field.avl_height : 0))
 
-#define SQUASH_TREE_API static inline
+#ifdef __GNUC__
+#define SQUASH_TREE_API static __attribute__((__unused__))
+#else
+#define SQUASH_TREE_API static
+#endif
 
 /* Recursion prevents the following from being defined as macros. */
 

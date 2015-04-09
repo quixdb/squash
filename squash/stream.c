@@ -280,7 +280,10 @@ squash_stream_init (void* stream,
     cnd_init (&(s->priv->result_cnd));
 
     s->priv->finished = false;
-    int res = thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
+#if !defined(NDEBUG)
+    int res =
+#endif
+      thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
     assert (res == thrd_success);
 
     while (s->priv->result == SQUASH_STATUS_INVALID)
