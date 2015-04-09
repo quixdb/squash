@@ -321,25 +321,25 @@ squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 
 static SquashStatus
 squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
-  lzma_stream* lzma_stream;
+  lzma_stream* s;
   lzma_ret lzma_e = LZMA_OK;
 
   assert (stream != NULL);
-  lzma_stream = &(((SquashLZMAStream*) stream)->stream);
+  s = &(((SquashLZMAStream*) stream)->stream);
 
-  SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream, lzma_stream);
+  SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream, s);
   switch (operation) {
     case SQUASH_OPERATION_PROCESS:
-      lzma_e = lzma_code (lzma_stream, LZMA_RUN);
+      lzma_e = lzma_code (s, LZMA_RUN);
       break;
     case SQUASH_OPERATION_FLUSH:
-      lzma_e = lzma_code (lzma_stream, LZMA_SYNC_FLUSH);
+      lzma_e = lzma_code (s, LZMA_SYNC_FLUSH);
       break;
     case SQUASH_OPERATION_FINISH:
-      lzma_e = lzma_code (lzma_stream, LZMA_FINISH);
+      lzma_e = lzma_code (s, LZMA_FINISH);
       break;
   }
-  SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, lzma_stream);
+  SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, s);
 
   if (lzma_e == LZMA_OK) {
     switch (operation) {
@@ -360,6 +360,8 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
   } else {
     return SQUASH_FAILED;
   }
+
+  return SQUASH_OK;
 }
 
 static size_t

@@ -143,6 +143,8 @@ if (NOT ${LZMA_FOUND} OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
     xz/src/common
     xz/src/common)
 
+  squash_source_file_set_c99 (lzma_sources)
+
   CHECK_INCLUDE_FILE ("inttypes.h" HAVE_INTTYPES_H)
   CHECK_INCLUDE_FILE ("stdint.h"   HAVE_STDINT_H)
   CHECK_INCLUDE_FILE ("limits.h"   HAVE_LIMITS_H)
