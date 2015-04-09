@@ -57,17 +57,20 @@ set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 check_c_compiler_flag (-fvisibility=hidden CFLAG__fvisibility_hidden)
 
 include (CheckCCompilerFlag)
-set (OPTIMIZE_CFLAGS)
+set (OPTIMIZE_CFLAGS "")
 
-foreach (flag
-    -O3
-    -flto)
-  string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
-  CHECK_C_COMPILER_FLAG (${flag} ${test_name})
-  if (${test_name})
-    set (OPTIMIZE_CFLAGS "${OPTIMIZE_CFLAGS} ${flag}")
-  endif ()
-endforeach ()
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+  foreach (flag
+      -O3
+      -flto
+      -DNDEBUG)
+    string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
+    CHECK_C_COMPILER_FLAG (${flag} ${test_name})
+    if (${test_name})
+      set (OPTIMIZE_CFLAGS "${OPTIMIZE_CFLAGS} ${flag}")
+    endif ()
+  endforeach ()
+endif ()
 
 ####
 ## Compatibility with older CMake
@@ -106,17 +109,19 @@ function (squash_plugin_add name sources)
 
   set (squash_enabled_plugins "${squash_enabled_plugins};${name}" CACHE INTERNAL "enabled plugins" FORCE)
 
-  foreach (file ${${sources}})
-    if ("${file}" MATCHES "^squash-${name}.c$")
-      add_extra_warning_cflags (SOURCE "${file}")
-    elseif ("${file}" MATCHES "^squash-${name}.cpp$")
-      add_extra_warning_cxxflags (SOURCE "${file}")
-    elseif ("${file}" MATCHES "^squash-${name}.cc$")
-      add_extra_warning_cxxflags (SOURCE "${file}")
-    endif ()
+  if (NOT OPTIMIZE_CFLAGS STREQUAL "")
+    foreach (file ${${sources}})
+      if ("${file}" MATCHES "^squash-${name}.c$")
+        add_extra_warning_cflags (SOURCE "${file}")
+      elseif ("${file}" MATCHES "^squash-${name}.cpp$")
+        add_extra_warning_cxxflags (SOURCE "${file}")
+      elseif ("${file}" MATCHES "^squash-${name}.cc$")
+        add_extra_warning_cxxflags (SOURCE "${file}")
+      endif ()
 
-    squash_source_file_add_cflag (${file} "${OPTIMIZE_CFLAGS}")
-  endforeach ()
+      squash_source_file_add_cflag (${file} "${OPTIMIZE_CFLAGS}")
+    endforeach ()
+  endif ()
 endfunction (squash_plugin_add)
 
 macro (squash_plugin_add_link_libraries plugin libs)
