@@ -31,18 +31,27 @@ compress_buffer_thread_func (SquashCodec* codec) {
 
 void
 check_codec (SquashCodec* codec) {
-  GThread* threads[16] = { 0, };
-  int i = 0;
+  guint n_threads;
+  GThread** threads;
+
+#if defined(GLIB_VERSION_2_36)
+  n_threads = g_get_num_processors () * 2;
+#else
+  n_threads = 2;
+#endif
+  threads = (GThread**) calloc(n_threads, sizeof(GThread*));
+
+  guint i = 0;
   GError* inner_error = NULL;
 
-  for ( ; i < 16 ; i++ ) {
+  for ( ; i < n_threads ; i++ ) {
     threads[i] = g_thread_create ((GThreadFunc) compress_buffer_thread_func, codec, true, &inner_error);
     if (inner_error != NULL) {
       g_error ("Unable to create thread #%d: %s", i, inner_error->message);
     }
   }
 
-  for ( i = 0 ; i < 16 ; i++ ) {
+  for ( i = 0 ; i < n_threads ; i++ ) {
     g_assert (g_thread_join (threads[i]) == NULL);
   }
 }
