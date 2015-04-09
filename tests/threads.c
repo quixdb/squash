@@ -34,7 +34,7 @@ check_codec (SquashCodec* codec) {
   guint n_threads;
   GThread** threads;
 
-#if defined(GLIB_VERSION_2_36)
+#if GLIB_CHECK_VERSION(2, 36, 0)
   n_threads = g_get_num_processors () * 2;
 #else
   n_threads = 2;
