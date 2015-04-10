@@ -318,14 +318,18 @@ squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
     }
 
     CSCEnc_WriteProperties (&props, props_buf, 0);
-    assert (squash_csc_writer(&ostream, props_buf, CSC_PROP_SIZE) == CSC_PROP_SIZE);
+    size_t bytes_written = squash_csc_writer(&ostream, props_buf, CSC_PROP_SIZE);
+    if (bytes_written != CSC_PROP_SIZE)
+      return SQUASH_FAILED;
 
     s->ctx.comp = CSCEnc_Create (&props, (ISeqOutStream*) &ostream);
     CSCEnc_Encode (s->ctx.comp, (ISeqInStream*) &istream, NULL);
     CSCEnc_Encode_Flush (s->ctx.comp);
   } else {
     size_t prop_l = CSC_PROP_SIZE;
-    assert (squash_csc_reader (&istream, props_buf, &prop_l) == 0);
+    squash_csc_reader (&istream, props_buf, &prop_l);
+    if (prop_l != CSC_PROP_SIZE)
+      return SQUASH_FAILED;
 
     CSCDec_ReadProperties (&props, props_buf);
 
