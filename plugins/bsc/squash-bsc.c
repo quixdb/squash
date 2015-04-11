@@ -114,14 +114,14 @@ squash_bsc_parse_option (SquashOptions* options, const char* key, const char* va
     if (*endptr == '\0' && (lzp_hash_size == 0 || (lzp_hash_size >= 10 && lzp_hash_size <= 28))) {
       opts->lzp_hash_size = lzp_hash_size;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "lzp-min-len") == 0) {
     const int lzp_min_len = (int) strtol (value, &endptr, 0);
     if (*endptr == '\0' && (lzp_min_len == 0 || (lzp_min_len >= 4 && lzp_min_len <= 255))) {
       opts->lzp_min_len = lzp_min_len;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "block-sorter") == 0) {
     if (strcasecmp (value, "none") == 0) {
@@ -129,7 +129,7 @@ squash_bsc_parse_option (SquashOptions* options, const char* key, const char* va
     } else if (strcasecmp (value, "bwt") == 0) {
       opts->block_sorter = LIBBSC_BLOCKSORTER_BWT;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "coder") == 0) {
     if (strcasecmp (value, "none") == 0) {
@@ -139,7 +139,7 @@ squash_bsc_parse_option (SquashOptions* options, const char* key, const char* va
     } else if (strcasecmp (value, "qflc-adaptive") == 0) {
       opts->coder = LIBBSC_CODER_QLFC_ADAPTIVE;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "fast-mode") == 0) {
     bool res;
@@ -147,30 +147,30 @@ squash_bsc_parse_option (SquashOptions* options, const char* key, const char* va
     if (valid)
       opts->feature = res ? (opts->feature | LIBBSC_FEATURE_FASTMODE) : (opts->feature & ~LIBBSC_FEATURE_FASTMODE);
     else
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
   } else if (strcasecmp (key, "multi-threading") == 0) {
     bool res;
     bool valid = string_to_bool (value, &res);
     if (valid)
       opts->feature = res ? (opts->feature | LIBBSC_FEATURE_MULTITHREADING) : (opts->feature & ~LIBBSC_FEATURE_MULTITHREADING);
     else
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
   } else if (strcasecmp (key, "large-pages") == 0) {
     bool res;
     bool valid = string_to_bool (value, &res);
     if (valid)
       opts->feature = res ? (opts->feature | LIBBSC_FEATURE_LARGEPAGES) : (opts->feature & ~LIBBSC_FEATURE_LARGEPAGES);
     else
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
   } else if (strcasecmp (key, "cuda") == 0) {
     bool res;
     bool valid = string_to_bool (value, &res);
     if (valid)
       opts->feature = res ? (opts->feature | LIBBSC_FEATURE_CUDA) : (opts->feature & ~LIBBSC_FEATURE_CUDA);
     else
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -215,13 +215,13 @@ squash_bsc_compress_buffer (SquashCodec* codec,
   }
 
   if (*compressed_length < (uncompressed_length + LIBBSC_HEADER_SIZE))
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
 
   int res = bsc_compress (uncompressed, compressed, (int) uncompressed_length,
                           lzp_hash_size, lzp_min_len, block_sorter, coder, feature);
 
   if (res < 0) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
   *compressed_length = (size_t) res;
@@ -248,14 +248,14 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
   int res = bsc_block_info (compressed, (int) compressed_length, &p_block_size, &p_data_size, LIBBSC_DEFAULT_FEATURES);
 
   if (p_block_size != (int) compressed_length)
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   if (p_data_size > (int) *decompressed_length)
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
 
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, feature);
 
   if (res < 0)
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
 
   *decompressed_length = (size_t) p_data_size;
 
@@ -276,7 +276,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_bsc_decompress_buffer;
     funcs->compress_buffer = squash_bsc_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

@@ -74,10 +74,10 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
 
   std::string compressed_str((const char*) compressed, compressed_length);
   if (!compressor->GetUncompressedLength (compressed_str, decompressed_length))
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
 
   if (!compressor->UncompressStream (&source, &sink)) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
   return SQUASH_OK;
@@ -95,12 +95,12 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
   try {
     *compressed_length = compressor->CompressStream (&source, &sink);
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
-  return *compressed_length > 0 ? SQUASH_OK : SQUASH_FAILED;
+  return *compressed_length > 0 ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 extern "C" SquashStatus
@@ -113,7 +113,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_gipfeli_decompress_buffer;
     funcs->compress_buffer_unsafe = squash_gipfeli_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

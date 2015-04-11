@@ -94,10 +94,10 @@ squash_fastlz_parse_option (SquashOptions* options, const char* key, const char*
     if ( *endptr == '\0' && level >= 1 && level <= 2 ) {
       opts->level = level;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -122,7 +122,7 @@ squash_fastlz_decompress_buffer (SquashCodec* codec,
                                     (int) *decompressed_length);
 
   if (fastlz_e < 0) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   } else {
     *decompressed_length = (size_t) fastlz_e;
     return SQUASH_OK;
@@ -143,7 +143,7 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
                                               (int) uncompressed_length,
                                               (void*) compressed);
 
-  return (*compressed_length == 0) ? SQUASH_FAILED : SQUASH_OK;
+  return (*compressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
@@ -157,7 +157,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_fastlz_decompress_buffer;
     funcs->compress_buffer = squash_fastlz_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

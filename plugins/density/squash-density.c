@@ -170,20 +170,20 @@ squash_density_parse_option (SquashOptions* options, const char* key, const char
           opts->mode = DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
           break;
         default:
-          return SQUASH_BAD_VALUE;
+          return squash_error (SQUASH_BAD_VALUE);
       }
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "checksum") == 0) {
     bool checksum;
     if (string_to_bool (value, &checksum)) {
       opts->block_type = checksum ? DENSITY_BLOCK_TYPE_WITH_HASHSUM_INTEGRITY_CHECK : DENSITY_BLOCK_TYPE_DEFAULT;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -290,7 +290,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, stream->next_out, stream->avail_out);
     }
     if (s->state != DENSITY_STREAM_STATE_READY)
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
   }
 
   switch (s->state) {
@@ -369,7 +369,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
     case DENSITY_STREAM_STATE_ERROR_OUTPUT_BUFFER_TOO_SMALL:
     case DENSITY_STREAM_STATE_ERROR_INVALID_INTERNAL_STATE:
     case DENSITY_STREAM_STATE_ERROR_INTEGRITY_CHECK_FAIL:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
   }
 
   assert (s->output_invalid == false);
@@ -492,7 +492,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->process_stream = squash_density_process_stream;
     funcs->get_max_compressed_size = squash_density_get_max_compressed_size;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

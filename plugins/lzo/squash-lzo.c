@@ -191,22 +191,22 @@ squash_lzo_status_to_squash_status (int lzo_e) {
       res = SQUASH_OK;
       break;
     case LZO_E_OUT_OF_MEMORY:
-      res = SQUASH_MEMORY;
+      res = squash_error (SQUASH_MEMORY);
       break;
     case LZO_E_INPUT_OVERRUN:
     case LZO_E_INPUT_NOT_CONSUMED:
-      res = SQUASH_BUFFER_EMPTY;
+      res = squash_error (SQUASH_BUFFER_EMPTY);
       break;
     case LZO_E_OUTPUT_OVERRUN:
-      res = SQUASH_BUFFER_FULL;
+      res = squash_error (SQUASH_BUFFER_FULL);
       break;
     case LZO_E_INVALID_ARGUMENT:
-      res = SQUASH_BAD_VALUE;
+      res = squash_error (SQUASH_BAD_VALUE);
       break;
     case LZO_E_NOT_COMPRESSIBLE:
     case LZO_E_ERROR:
     default:
-      res = SQUASH_FAILED;
+      res = squash_error (SQUASH_FAILED);
       break;
   }
 
@@ -271,7 +271,7 @@ squash_lzo_parse_option (SquashOptions* options, const char* key, const char* va
     const int level = (int) strtol (value, &endptr, 0);
 
     if ( *endptr != '\0' ) {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
 
     lzo_codec = squash_lzo_codec_from_name (squash_codec_get_name (options->codec));
@@ -280,10 +280,10 @@ squash_lzo_parse_option (SquashOptions* options, const char* key, const char* va
     if ( compressor != NULL ) {
       opts->compressor = compressor;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -313,7 +313,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   if (lzo_codec->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (lzo_codec->work_mem);
     if (work_mem == NULL) {
-      return SQUASH_MEMORY;
+      return squash_error (SQUASH_MEMORY);
     }
   }
 
@@ -355,7 +355,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   if (compressor->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (compressor->work_mem);
     if (work_mem == NULL) {
-      return SQUASH_MEMORY;
+      return squash_error (SQUASH_MEMORY);
     }
   }
 
@@ -387,7 +387,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_lzo_decompress_buffer;
     funcs->compress_buffer_unsafe = squash_lzo_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

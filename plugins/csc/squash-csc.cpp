@@ -202,38 +202,38 @@ squash_csc_parse_option (SquashOptions* options, const char* key, const char* va
     if ( *endptr == '\0' && level >= 1 && level <= 5 ) {
       opts->level = level;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "dict-size") == 0) {
     const unsigned long dict_size = strtol (value, &endptr, 0);
     if ( *endptr == '\0' && dict_size >= 32768 && dict_size <= 1073741824 ) {
       opts->dict_size = (uint32_t) dict_size;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "delta-filter") == 0) {
     bool res;
     if (string_to_bool(value, &res)) {
       opts->enable_delta = res;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "exe-filter") == 0) {
     bool res;
     if (string_to_bool(value, &res)) {
       opts->enable_exe = res;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "txt-filter") == 0) {
     bool res;
     if (string_to_bool(value, &res)) {
       opts->enable_txt = res;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -320,7 +320,7 @@ squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
     CSCEnc_WriteProperties (&props, props_buf, 0);
     size_t bytes_written = squash_csc_writer(&ostream, props_buf, CSC_PROP_SIZE);
     if (bytes_written != CSC_PROP_SIZE)
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
 
     s->ctx.comp = CSCEnc_Create (&props, (ISeqOutStream*) &ostream);
     CSCEnc_Encode (s->ctx.comp, (ISeqInStream*) &istream, NULL);
@@ -329,7 +329,7 @@ squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
     size_t prop_l = CSC_PROP_SIZE;
     squash_csc_reader (&istream, props_buf, &prop_l);
     if (prop_l != CSC_PROP_SIZE)
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
 
     CSCDec_ReadProperties (&props, props_buf);
 
@@ -359,7 +359,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->process_stream = squash_csc_process_stream;
     funcs->get_max_compressed_size = squash_csc_get_max_compressed_size;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

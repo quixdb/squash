@@ -191,10 +191,10 @@ squash_zling_parse_option (SquashOptions* options, const char* key, const char* 
     if ( *endptr == '\0' && level >= 0 && level <= 4 ) {
       opts->level = level;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -257,15 +257,15 @@ squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
         level = ((SquashZlingOptions*) stream->options)->level;
 
       res = baidu::zling::Encode(s->stream, s->stream, NULL, level) == 0 ?
-        SQUASH_OK : SQUASH_FAILED;
+        SQUASH_OK : squash_error (SQUASH_FAILED);
     } else {
       res = baidu::zling::Decode(s->stream, s->stream, NULL) == 0 ?
-        SQUASH_OK : SQUASH_FAILED;
+        SQUASH_OK : squash_error (SQUASH_FAILED);
     }
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
   return res;
@@ -289,7 +289,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->process_stream = squash_zling_process_stream;
     funcs->get_max_compressed_size = squash_zling_get_max_compressed_size;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

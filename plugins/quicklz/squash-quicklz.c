@@ -72,7 +72,7 @@ squash_quicklz_decompress_buffer (SquashCodec* codec,
 
   free (qlz_s);
 
-  return (decompressed_size == *decompressed_length) ? SQUASH_OK : SQUASH_FAILED;
+  return (decompressed_size == *decompressed_length) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
@@ -83,7 +83,7 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
   qlz_state_compress* qlz_s;
 
   if (*compressed_length < squash_quicklz_get_max_compressed_size (codec, uncompressed_length)) {
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
   }
 
   qlz_s = (qlz_state_compress*) malloc (sizeof (qlz_state_compress));
@@ -95,7 +95,7 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
 
   free (qlz_s);
 
-  return (*compressed_length == 0) ? SQUASH_FAILED : SQUASH_OK;
+  return (*compressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
@@ -108,7 +108,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_quicklz_decompress_buffer;
     funcs->compress_buffer = squash_quicklz_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

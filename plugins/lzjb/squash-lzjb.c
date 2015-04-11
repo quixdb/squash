@@ -47,7 +47,7 @@ squash_lzjb_compress_buffer (SquashCodec* codec,
                              const uint8_t* uncompressed, size_t uncompressed_length,
                              SquashOptions* options) {
   *compressed_length = lzjb_compress (uncompressed, compressed, uncompressed_length, *compressed_length);
-  return (*compressed_length != uncompressed_length) ? SQUASH_OK : SQUASH_FAILED;
+  return (*compressed_length != uncompressed_length) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
@@ -56,7 +56,7 @@ squash_lzjb_decompress_buffer (SquashCodec* codec,
                                const uint8_t* compressed, size_t compressed_length,
                                SquashOptions* options) {
   *decompressed_length = lzjb_decompress (compressed, decompressed, compressed_length, *decompressed_length);
-  return (*decompressed_length == 0) ? SQUASH_FAILED : SQUASH_OK;
+  return (*decompressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
@@ -68,7 +68,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_lzjb_decompress_buffer;
     funcs->compress_buffer = squash_lzjb_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

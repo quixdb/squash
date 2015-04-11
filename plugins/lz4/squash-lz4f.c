@@ -153,12 +153,12 @@ squash_lz4f_parse_option (SquashOptions* options, const char* key, const char* v
     if ( *endptr == '\0' && level >= 0 && level <= 16) {
       opts->prefs.compressionLevel = (unsigned int) level;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "block-size") == 0) {
     const int bs = (int) strtol (value, &endptr, 0);
     if (*endptr != '\0')
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
 
     switch (bs) {
       case max64KB:
@@ -168,17 +168,17 @@ squash_lz4f_parse_option (SquashOptions* options, const char* key, const char* v
         opts->prefs.frameInfo.blockSizeID = (blockSizeID_t) bs;
         break;
       default:
-        return SQUASH_BAD_VALUE;
+        return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "checksum")) {
     bool res;
     if (string_to_bool(value, &res)) {
       opts->prefs.frameInfo.contentChecksumFlag = res;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -401,7 +401,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
 
       if (LZ4F_isError (olen)) {
         assert (0);
-        return SQUASH_FAILED;
+        return squash_error (SQUASH_FAILED);
       } else {
         if (olen != 0) {
           if (obuf == s->data.comp.output_buffer) {

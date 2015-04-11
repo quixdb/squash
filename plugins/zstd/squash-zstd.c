@@ -47,7 +47,7 @@ squash_zstd_decompress_buffer (SquashCodec* codec,
                                const uint8_t* compressed, size_t compressed_length,
                                SquashOptions* options) {
   *decompressed_length = ZSTD_decompress (decompressed, *decompressed_length, compressed, compressed_length);
-  return ZSTD_isError (*decompressed_length) ? SQUASH_FAILED : SQUASH_OK;
+  return ZSTD_isError (*decompressed_length) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 static SquashStatus
@@ -56,7 +56,7 @@ squash_zstd_compress_buffer (SquashCodec* codec,
                              const uint8_t* uncompressed, size_t uncompressed_length,
                              SquashOptions* options) {
   *compressed_length = ZSTD_compress (compressed, *compressed_length, uncompressed, uncompressed_length);
-  return ZSTD_isError (*compressed_length) ? SQUASH_FAILED : SQUASH_OK;
+  return ZSTD_isError (*compressed_length) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
@@ -68,7 +68,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_zstd_decompress_buffer;
     funcs->compress_buffer_unsafe = squash_zstd_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

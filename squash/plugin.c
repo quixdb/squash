@@ -138,7 +138,7 @@ squash_plugin_init (SquashPlugin* plugin) {
       }
       SQUASH_MTX_UNLOCK(plugin_init);
     } else {
-      return SQUASH_UNABLE_TO_LOAD;
+      return squash_error (SQUASH_UNABLE_TO_LOAD);
     }
 
     if (handle != NULL) {
@@ -160,7 +160,7 @@ squash_plugin_init (SquashPlugin* plugin) {
     }
   }
 
-  return (plugin->plugin != NULL) ? SQUASH_OK : SQUASH_UNABLE_TO_LOAD;
+  return (plugin->plugin != NULL) ? SQUASH_OK : squash_error (SQUASH_UNABLE_TO_LOAD);
 }
 
 /**

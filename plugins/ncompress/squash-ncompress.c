@@ -47,7 +47,7 @@ squash_ncompress_status_to_squash_status (enum CompressStatus status) {
     case COMPRESS_OK:
       return SQUASH_OK;
     case COMPRESS_WRITE_ERROR:
-      return SQUASH_BUFFER_FULL;
+      return squash_error (SQUASH_BUFFER_FULL);
     case COMPRESS_READ_ERROR:
     case COMPRESS_FAILED:
       return SQUASH_FAILED;
@@ -84,7 +84,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_ncompress_decompress_buffer;
     funcs->compress_buffer = squash_ncompress_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

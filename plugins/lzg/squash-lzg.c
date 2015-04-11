@@ -100,7 +100,7 @@ squash_lzg_parse_option (SquashOptions* options, const char* key, const char* va
     if ( *endptr == '\0' && level >= 1 && level <= 9 ) {
       opts->lzgcfg.level = level;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else if (strcasecmp (key, "fast") == 0) {
     if (strcasecmp (value, "true") == 0) {
@@ -108,10 +108,10 @@ squash_lzg_parse_option (SquashOptions* options, const char* key, const char* va
     } else if (strcasecmp (value, "false")) {
       opts->lzgcfg.fast = LZG_FALSE;
     } else {
-      return SQUASH_BAD_VALUE;
+      return squash_error (SQUASH_BAD_VALUE);
     }
   } else {
-    return SQUASH_BAD_PARAM;
+    return squash_error (SQUASH_BAD_PARAM);
   }
 
   return SQUASH_OK;
@@ -145,7 +145,7 @@ squash_lzg_compress_buffer (SquashCodec* codec,
                                  cfg);
 
   if (res == 0) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   } else {
     *compressed_length = (size_t) res;
     return SQUASH_OK;
@@ -161,7 +161,7 @@ squash_lzg_decompress_buffer (SquashCodec* codec,
                                  (unsigned char*) decompressed, (lzg_uint32_t) *decompressed_length);
 
   if (res == 0) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   } else {
     *decompressed_length = (size_t) res;
     return SQUASH_OK;
@@ -180,7 +180,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->decompress_buffer = squash_lzg_decompress_buffer;
     funcs->compress_buffer = squash_lzg_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

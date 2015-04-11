@@ -115,7 +115,7 @@ squash_copy_compress_buffer (SquashCodec* codec,
                              const uint8_t* uncompressed, size_t uncompressed_length,
                              SquashOptions* options) {
   if (*compressed_length < uncompressed_length)
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
 
   memcpy (compressed, uncompressed, uncompressed_length);
   *compressed_length = uncompressed_length;
@@ -129,7 +129,7 @@ squash_copy_decompress_buffer (SquashCodec* codec,
                                const uint8_t* compressed, size_t compressed_length,
                                SquashOptions* options) {
   if (*decompressed_length < compressed_length)
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
 
   memcpy (decompressed, compressed, compressed_length);
   *decompressed_length = compressed_length;
@@ -150,7 +150,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
     funcs->create_stream = squash_copy_create_stream;
     funcs->process_stream = squash_copy_process_stream;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;
