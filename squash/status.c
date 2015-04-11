@@ -26,6 +26,8 @@
 
 #include "internal.h"
 
+#include <assert.h>
+
 /**
  * @defgroup SquashStatus SquashStatus
  * @brief Response status codes.
@@ -167,6 +169,7 @@ squash_status_to_string (SquashStatus status) {
  */
 SquashStatus
 squash_error (SquashStatus status) {
+  assert (status < SQUASH_OK);
   return status;
 }
 
