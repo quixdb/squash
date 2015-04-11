@@ -53,6 +53,8 @@ typedef enum {
 
 SQUASH_API const char* squash_status_to_string (SquashStatus status);
 
+SQUASH_API SquashStatus squash_error (SquashStatus status);
+
 SQUASH_END_DECLS
 
 #endif /* SQUASH_STATUS_H */

@@ -366,7 +366,7 @@ squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
     squash_plugin_add_codec (parser->plugin, parser->codec);
     return SQUASH_OK;
   } else {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 }
 

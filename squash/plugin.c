@@ -263,7 +263,7 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
 #endif
 
     if (init_codec_func == NULL) {
-      return SQUASH_UNABLE_TO_LOAD;
+      return squash_error (SQUASH_UNABLE_TO_LOAD);
     }
 
     SQUASH_MTX_LOCK(codec_init);

@@ -440,7 +440,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
   if (operation == SQUASH_OPERATION_FLUSH && ((funcs->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0)) {
-    return SQUASH_INVALID_OPERATION;
+    return squash_error (SQUASH_INVALID_OPERATION);
   }
 
   /* In order to take some of the load off of the plugins, there is
@@ -464,7 +464,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   if ((operation == SQUASH_OPERATION_PROCESS && stream->state > SQUASH_STREAM_STATE_RUNNING) ||
       (operation == SQUASH_OPERATION_FLUSH   && stream->state > SQUASH_STREAM_STATE_FLUSHING) ||
       (operation == SQUASH_OPERATION_FINISH  && stream->state > SQUASH_STREAM_STATE_FINISHING)) {
-    return SQUASH_STATE;
+    return squash_error (SQUASH_STATE);
   }
 
   switch (stream->state) {
@@ -484,7 +484,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   }
 
   if (current_operation > operation) {
-    return SQUASH_STATE;
+    return squash_error (SQUASH_STATE);
   }
 
   const size_t avail_in = stream->avail_in;
@@ -541,7 +541,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
           if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
             res = squash_stream_send_to_thread (stream, current_operation);
           } else if (funcs->process_stream == NULL) {
-            return SQUASH_INVALID_OPERATION;
+            return squash_error (SQUASH_INVALID_OPERATION);
           } else {
             res = funcs->process_stream (stream, current_operation);
           }
@@ -578,7 +578,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
     /* Check our internal single byte buffer */
     if (next_out != 0) {
       if (stream->avail_out == 0) {
-        res = SQUASH_BUFFER_FULL;
+        res = squash_error (SQUASH_BUFFER_FULL);
       }
     }
 

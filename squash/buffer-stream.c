@@ -136,7 +136,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
   SquashStatus res;
 
   if (stream->base_object.avail_out == 0) {
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
   }
 
   if (stream->input == NULL) {
@@ -146,7 +146,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
     squash_buffer_stream_consolidate (stream);
   } else {
     if (stream->base_object.avail_in > 0) {
-      return SQUASH_STATE;
+      return squash_error (SQUASH_STATE);
     }
   }
 
