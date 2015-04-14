@@ -1,7 +1,0 @@
-#!/usr/bin/gpk-install-catalog
-
-[PackageKit Catalog]
-InstallPackages(fedora)=gcc;gcc-g++;ragel;cmake;make;glib2-devel;bzip2-devel;xz-devel;liblzf-devel;lzo-devel;snappy-devel;zlib-devel
-InstallPackages(debian)=gcc;g++;ragel;cmake;make;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
-# Remember to keep this synced with .travis.yml
-InstallPackages(ubuntu)=gcc;g++;cmake;make;ragel;libglib2.0-dev;libbz2-dev;liblzma-dev;liblzo2-dev;libsnappy-dev;zlib1g-dev
