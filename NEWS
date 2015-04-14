@@ -1,3 +1,16 @@
+Squash 0.5.1
+============
+
+ * New plugins:
+   * yalz77
+   * copy
+   * csc
+   * ncompress
+ * Disabled Doboz
+ * Create in-tree copies of all modules
+ * Updated many plugins
+ * Assorted bug fixes and enhancements
+
 Squash 0.5.0
 ============
 
