@@ -51,6 +51,7 @@ typedef struct SquashBZ2Stream_s {
 #define SQUASH_BZ2_DEFAULT_BLOCK_SIZE_100K 6
 #define SQUASH_BZ2_DEFAULT_SMALL false
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_bz2_options_init    (SquashBZ2Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

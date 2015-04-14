@@ -77,7 +77,8 @@ struct _SquashZpaqStream {
   SquashOperation operation;
 };
 
-extern "C" SquashStatus   squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void               squash_zpaq_options_init    (SquashZpaqOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
 static SquashZpaqOptions* squash_zpaq_options_new     (SquashCodec* codec);

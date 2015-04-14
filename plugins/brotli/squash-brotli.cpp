@@ -38,7 +38,8 @@ typedef struct SquashBrotliOptions_s {
   bool enable_transforms;
 } SquashBrotliOptions;
 
-extern "C" SquashStatus     squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                 squash_brotli_options_init    (SquashBrotliOptions* options,
                                                            SquashCodec* codec,

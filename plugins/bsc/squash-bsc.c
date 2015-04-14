@@ -43,7 +43,7 @@ typedef struct SquashBscOptions_s {
   int feature;
 } SquashBscOptions;
 
-
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_bsc_options_init    (SquashBscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

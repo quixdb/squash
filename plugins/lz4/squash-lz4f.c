@@ -71,6 +71,7 @@ typedef struct SquashLZ4FStream_s {
   } data;
 } SquashLZ4FStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void               squash_lz4f_options_init    (SquashLZ4FOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
@@ -87,8 +88,6 @@ static SquashLZ4FStream*  squash_lz4f_stream_new      (SquashCodec* codec, Squas
 static void               squash_lz4f_stream_destroy  (void* stream);
 static void               squash_lz4f_stream_free     (void* stream);
 
-SquashStatus              squash_plugin_init_codec   (SquashCodec* codec,
-                                                      SquashCodecFuncs* funcs);
 static const LZ4F_preferences_t squash_lz4f_default_preferences = {
   { max64KB, blockLinked, noContentChecksum, },
   0, 0,

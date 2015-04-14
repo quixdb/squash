@@ -60,6 +60,7 @@ typedef struct SquashZlibStream_s {
 #define SQUASH_ZLIB_DEFAULT_MEM_LEVEL 8
 #define SQUASH_ZLIB_DEFAULT_STRATEGY Z_DEFAULT_STRATEGY
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static SquashZlibType     squash_zlib_codec_to_type   (SquashCodec* codec);

@@ -46,6 +46,7 @@ typedef struct SquashCrushStream_s {
   CrushContext ctx;
 } SquashCrushStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                squash_crush_options_init    (SquashCrushOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

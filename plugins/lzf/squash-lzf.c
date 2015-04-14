@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static size_t

@@ -46,6 +46,7 @@ typedef struct SquashLZ4Options_s {
 
 SquashStatus             squash_plugin_init_lz4f    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_lz4_options_init    (SquashLZ4Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

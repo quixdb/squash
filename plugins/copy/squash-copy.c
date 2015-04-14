@@ -34,6 +34,7 @@ typedef struct SquashCopyStream_s {
   SquashStream base_object;
 } SquashCopyStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_copy_stream_init     (SquashCopyStream* stream,

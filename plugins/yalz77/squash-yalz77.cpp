@@ -41,7 +41,8 @@ typedef struct SquashYalz77Options_s {
   size_t blocksize;
 } SquashYalz77Options;
 
-extern "C" SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void
 squash_yalz77_options_init (SquashYalz77Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {

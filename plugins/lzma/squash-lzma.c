@@ -56,6 +56,7 @@ typedef struct SquashLZMAStream_s {
   lzma_stream stream;
 } SquashLZMAStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static SquashLZMAType     squash_lzma_codec_to_type   (SquashCodec* codec);

@@ -57,6 +57,7 @@ typedef struct SquashLZHAMStream_s {
   } lzham;
 } SquashLZHAMStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                squash_lzham_options_init    (SquashLZHAMOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

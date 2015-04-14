@@ -46,6 +46,7 @@ const lzg_encoder_config_t squash_lzg_default_config = {
   NULL
 };
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_lzg_options_init    (SquashLzgOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

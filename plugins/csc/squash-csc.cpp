@@ -61,7 +61,8 @@ typedef struct SquashCscStream_s {
   } ctx;
 } SquashCscStream;
 
-extern "C" SquashStatus  squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void              squash_csc_options_init    (SquashCscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
 static SquashCscOptions* squash_csc_options_new     (SquashCodec* codec);

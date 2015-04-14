@@ -33,7 +33,8 @@
 
 #include "gipfeli/gipfeli.h"
 
-extern "C" SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static size_t
 squash_gipfeli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {

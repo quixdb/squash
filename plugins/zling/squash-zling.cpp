@@ -68,7 +68,8 @@ struct _SquashZlingStream {
   SquashOperation operation;
 };
 
-extern "C" SquashStatus    squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                squash_zling_options_init    (SquashZlingOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
 static SquashZlingOptions* squash_zling_options_new     (SquashCodec* codec);

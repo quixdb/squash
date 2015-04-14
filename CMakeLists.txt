@@ -55,6 +55,9 @@ configure_file (
 set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
 check_c_compiler_flag (-fvisibility=hidden CFLAG__fvisibility_hidden)
+check_cxx_compiler_flag (-fvisibility=hidden CXXFLAG__fvisibility_hidden)
+check_c_compiler_flag (-fvisibility-inlines-hidden CFLAG__fvisibility_inlines_hidden)
+check_cxx_compiler_flag (-fvisibility-inlines-hidden CXXFLAG__fvisibility_inlines_hidden)
 
 include (CheckCCompilerFlag)
 set (OPTIMIZE_CFLAGS "")
@@ -108,6 +111,11 @@ function (squash_plugin_add name sources)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
 
   set (squash_enabled_plugins "${squash_enabled_plugins};${name}" CACHE INTERNAL "enabled plugins" FORCE)
+
+  if (CFLAG__fvisibility_hidden)
+    set_property (TARGET squash${SQUASH_VERSION_API}-plugin-${name} APPEND PROPERTY COMPILE_FLAGS -fvisibility=hidden)
+    set_property (TARGET squash${SQUASH_VERSION_API}-plugin-${name} APPEND PROPERTY LINK_FLAGS -fvisibility=hidden)
+  endif ()
 
   if (NOT OPTIMIZE_CFLAGS STREQUAL "")
     foreach (file ${${sources}})

@@ -41,6 +41,7 @@ typedef struct SquashMSCompStream_s {
   mscomp_stream mscomp;
 } SquashMSCompStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec  (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                 squash_ms_stream_init     (SquashMSCompStream* stream,

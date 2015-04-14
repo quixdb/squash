@@ -85,6 +85,7 @@ typedef struct SquashSnappyFramedStream_s {
   size_t output_buffer_size;
 } SquashSnappyFramedStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus                     squash_plugin_init_codec       (SquashCodec* codec,
                                                                  SquashCodecFuncs* funcs);
 

@@ -43,6 +43,20 @@ typedef void (*SquashPluginForeachFunc) (SquashPlugin* plugin, void* data);
 
 SQUASH_API void           squash_plugin_foreach_codec  (SquashPlugin* plugin, SquashCodecForeachFunc func, void* data);
 
+#if defined _WIN32 || defined __CYGWIN__
+#  ifdef __GNUC__
+#    define SQUASH_PLUGIN_EXPORT __attribute__ ((dllexport))
+#  else
+#    define SQUASH_PLUGIN_EXPORT __declspec(dllexport)
+#  endif
+#else
+#  if __GNUC__ >= 4
+#    define SQUASH_PLUGIN_EXPORT __attribute__ ((visibility ("default")))
+#  else
+#    define SQUASH_PLUGIN_EXPORT
+#  endif
+#endif
+
 SQUASH_END_DECLS
 
 #endif /* SQUASH_PLUGIN_H */

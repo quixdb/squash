@@ -58,6 +58,7 @@ typedef struct SquashWflzOptions_s {
 #define SQUASH_WFLZ_MIN_CHUNK_SIZE (1024 * 4)
 #define SQUASH_WFLZ_DEFAULT_CHUNK_SIZE (1024 * 32)
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void               squash_wflz_options_init    (SquashWflzOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

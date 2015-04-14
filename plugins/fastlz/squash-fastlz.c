@@ -40,6 +40,7 @@ typedef struct SquashFastLZOptions_s {
   int level;
 } SquashFastLZOptions;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void                 squash_fastlz_options_init    (SquashFastLZOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);

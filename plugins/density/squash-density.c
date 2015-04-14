@@ -82,6 +82,7 @@ typedef struct SquashDensityStream_s {
   bool output_invalid;
 } SquashDensityStream;
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus                 squash_plugin_init_codec      (SquashCodec* codec,
                                                             SquashCodecFuncs* funcs);
 
