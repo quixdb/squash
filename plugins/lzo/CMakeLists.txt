@@ -3,7 +3,7 @@ set (lzo_sources
 
 include (FindLZO)
 
-if (NOT "${LZO_FOUND}" STREQUAL "LZO_FOUND" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
+if (NOT LZO_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND lzo_sources
     lzo/src/lzo1.c
     lzo/src/lzo1_99.c

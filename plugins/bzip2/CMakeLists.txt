@@ -2,7 +2,7 @@ set (bzip2_sources squash-bzip2.c)
 
 include (FindBZip2)
 
-if ("${BZIP2_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
+if (NOT BZIP2_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND bzip2_sources
     bzip2/blocksort.c
     bzip2/bzlib.c

@@ -10,7 +10,7 @@ function (define_have_include_file file name)
   endif ()
 endfunction (define_have_include_file)
 
-if (NOT ${LZMA_FOUND} OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
+if (NOT LZMA_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND lzma_sources
     xz/src/common/tuklib_physmem.c
     xz/src/common/tuklib_cpucores.c

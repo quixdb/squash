@@ -2,7 +2,7 @@ set (zlib_sources squash-zlib.c)
 
 include (FindZLIB)
 
-if ("${ZLIB_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
+if (NOT ZLIB_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND zlib_sources
     zlib/adler32.c
     zlib/compress.c

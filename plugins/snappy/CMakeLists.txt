@@ -5,7 +5,7 @@ set (snappy_sources
 include (FindSnappy)
 find_package(Snappy)
 
-if ("${SNAPPY_FOUND}" STREQUAL "" OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
+if (NOT SNAPPY_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
   list (APPEND snappy_sources
     snappy/snappy-c.cc
     snappy/snappy-sinksource.cc
