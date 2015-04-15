@@ -213,12 +213,12 @@ squash_lzo_status_to_squash_status (int lzo_e) {
   return res;
 }
 
-SQUASH_PLUGIN_EXPORT
 static void              squash_lzo_options_init    (SquashLZOOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
 static SquashLZOOptions* squash_lzo_options_new     (SquashCodec* codec);
 static void              squash_lzo_options_destroy (void* options);
 static void              squash_lzo_options_free    (void* options);
 
+SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 static void
