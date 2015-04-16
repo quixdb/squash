@@ -1,11 +1,13 @@
 /build
-/CMakeCache.txt
-/install_manifest.txt
-/squash-0.1.pc
-/Testing
 
-*~
-CMakeFiles/
-CTestTestfile.cmake
+/CMakeCache.txt
+/CPackConfig.cmake
+/CPackSourceConfig.cmake
+
+/bindings/vala/squash-*.vapi
+/squash-*.pc
+
+CMakeFiles
 Makefile
+CTestTestfile.cmake
 cmake_install.cmake

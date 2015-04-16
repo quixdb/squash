@@ -1,5 +1,9 @@
+/bounds
+/bounds.exe
 /buffer
 /buffer.exe
+/flush
+/flush.exe
 /random-data
 /random-data.exe
 /single-byte
@@ -8,7 +12,7 @@
 /stream-compress.exe
 /stream-decompress
 /stream-decompress.exe
+/stream-single-byte
+/stream-single-byte.exe
 /threads
 /threads.exe
-/in-place
-/in-place.exe

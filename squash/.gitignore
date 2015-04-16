@@ -1,3 +1,4 @@
 /config.h
-/libsquash0.1.so
 /version.h
+/ini.c
+/libsquash*.so
