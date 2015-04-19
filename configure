@@ -21,13 +21,47 @@
 # copyright and related or neighboring rights to this work.  For
 # details, see <https://creativecommons.org/publicdomain/zero/1.0/>
 
-CMAKE_CMD="cmake $(dirname $0)"
+TOP_SRCDIR="$(dirname $0)"
+CMAKE_CMD="cmake ${TOP_SRCDIR}"
 
 BUILD_TYPE="Debug"
 PREFIX=/usr/local
 LIBDIR=
 
-print_help() {
+if [ -e "${TOP_SRCDIR}/.configure-custom.sh" ]; then
+    source "${TOP_SRCDIR}/.configure-custom.sh"
+fi
+
+function parse_var_decl() {
+    components=($(echo "${var}" | tr '|' ' '))
+    if [ "x${components[1]}" = "x" ]; then
+        components[1]=yes
+    fi
+    if [ "x${components[2]}" = 'x' ]; then
+        components[2]=$(echo -n "${components[0]}" | \
+          tr '[:lower:]' '[:upper:]' | \
+          tr -c '[:alnum:]' '_')
+    fi
+}
+
+function find_var_decl() {
+    found=n
+    for var in ${2}; do
+        parse_var_decl "${var}"
+        if [ "${1}" = "${components[0]}" ]; then
+            found=y
+            break;
+        fi
+    done
+
+    if [ $found = 'n' ]; then
+        echo "$3: error: unrecognized option: \`$4'" >&2
+        echo "Try \`$3 --help' for more information" >&2
+        exit -1
+    fi
+}
+
+function print_help() {
     cat <<EOF >&2
   -h, --help              display this help and exit
   --disable-debug         disable debugging mode
@@ -51,6 +85,58 @@ print_help() {
   --mandir=DIR            man documentation [DATAROOTDIR/man]
   --docdir=DIR            documentation root [DATAROOTDIR/doc/PROJECT_NAME]
 EOF
+
+    first=y
+    for var in ${ENABLE_VARS}; do
+        if [ $first = 'y' ]; then
+            echo ""
+            first=n
+        fi
+
+        parse_var_decl "${var}"
+
+        var_doc_name="ENABLE_${components[2]}_DOC"
+        if [ "x${!var_doc_name}" = 'x' ]; then
+            # printf "  --enable-%-14s pass -D%s=%s to CMake\n" "${components[0]}" "${components[2]}" "${components[1]}"
+            printf "  --enable-%-14s enable %s support\n" "${components[0]}" "$(echo -n "${components[0]}" | tr '-' ' ')"
+        else
+            printf "  --enable-%-14s %s\n" "${components[0]}" "${!var_doc_name}"
+        fi
+    done
+
+    for var in ${DISABLE_VARS}; do
+        if [ $first = 'y' ]; then
+            echo ""
+            first=n
+        fi
+
+        parse_var_decl "${var}"
+
+        var_doc_name="DISABLE_${components[2]}_DOC"
+        if [ "x${!var_doc_name}" = 'x' ]; then
+            printf "  --disable-%-13s disable %s support\n" "${components[0]}" "$(echo -n "${components[0]}" | tr '-' ' ')"
+        else
+            printf "  --disable-%-13s %s\n" "${components[0]}" "${!var_doc_name}"
+        fi
+    done
+
+    for var in ${WITH_VARS}; do
+        if [ $first = 'y' ]; then
+            echo ""
+            first=n
+        fi
+
+        parse_var_decl "${var}"
+
+        var_doc_name="WITH_${components[2]}_DOC"
+        param=$(printf "%s[=%s]" "${components[0]}" "${components[1]}")
+        if [ "x${!var_doc_name}" = 'x' ]; then
+            printf "  --with-%-16s enable %s support\n" "${param}" "${components[0]}"
+        else
+            printf "  --with-%-16s %s\n" "${components[0]}" "${!var_doc_name}"
+        fi
+    done
+
     exit 0
 }
 
@@ -148,17 +234,39 @@ while [ $# != 0 ]; do
             BUILD_TYPE="Release";;
 
         "--passthrough")
-            ;&
+        ;&
         "--pass-through")
-            ;&
+        ;&
         "--passthru")
-            ;&
+        ;&
         "--pass-thru")
             shift;
             while [ $# != 0 ]; do
                 CMAKE_ARGS=("${CMAKE_ARGS[@]}" "${1}");
                 shift;
             done;;
+
+        "--enable-"*)
+            find_var_decl $(echo -n "${1}" | cut -b$(expr length "--enable-" + 1)-) "${ENABLE_VARS}" "${0}" "${1}"
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-D${components[2]}=${components[1]}")
+            ;;
+
+        "--disable-"*)
+            find_var_decl $(echo -n "${1}" | cut -b$(expr length "--disable-" + 1)-) "${DISABLE_VARS}" "${0}" "${1}"
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-D${components[2]}=${components[1]}")
+            ;;
+
+        "--with-"*)
+            IFS="=" read -ra WITHARGS <<< "${1}"
+            find_var_decl $(echo -n "${WITHARGS[0]}" | cut -b$(expr length "--with-" + 1)-) "${WITH_VARS}" "${0}" "${WITHARGS[0]}"
+            if [ "x${WITHARGS[1]}" = 'x' ]; then
+                withval="${components[1]}"
+            else
+                unset WITHARGS[0]
+                withval="${WITHARGS[@]}"
+            fi
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-D${components[2]}=${withval}")
+            ;;
 
         *)
             echo "$0: error: unrecognized option: \`$1'" >&2
