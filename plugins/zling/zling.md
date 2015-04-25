@@ -4,6 +4,12 @@ The zling plugin provides an interface for the libzling library.
 
 For more information about libzling see https://github.com/richox/libzling
 
+## Security ##
+
+The libzling decoder contains [security
+vulnerabilities](https://github.com/richox/libzling/issues/5), it is
+not currently safe to use with untrusted input.
+
 ## Codecs ##
 
 - **zling** — raw zling data
