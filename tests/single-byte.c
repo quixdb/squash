@@ -9,10 +9,10 @@ check_codec (SquashCodec* codec) {
   size_t decompressed_length = 1;
   SquashStatus res;
 
-  res = squash_codec_compress_with_options (codec, compressed, &compressed_length, &uncompressed, 1, NULL);
+  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, 1, &uncompressed, NULL);
   SQUASH_ASSERT_OK(res);
 
-  res = squash_codec_decompress_with_options (codec, &decompressed, &decompressed_length, compressed, compressed_length, NULL);
+  res = squash_codec_decompress_with_options (codec, &decompressed_length, &decompressed, compressed_length, compressed, NULL);
   SQUASH_ASSERT_OK(res);
   g_assert (decompressed_length == 1);
 

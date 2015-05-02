@@ -50,7 +50,9 @@ squash_gipfeli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
 }
 
 static size_t
-squash_gipfeli_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
+squash_gipfeli_get_uncompressed_size (SquashCodec* codec,
+                                      size_t compressed_length,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
   std::string compressed_str((const char*) compressed, compressed_length);
@@ -65,8 +67,10 @@ squash_gipfeli_get_uncompressed_size (SquashCodec* codec, const uint8_t* compres
 
 static SquashStatus
 squash_gipfeli_decompress_buffer (SquashCodec* codec,
-                                  uint8_t* decompressed, size_t* decompressed_length,
-                                  const uint8_t* compressed, size_t compressed_length,
+                                  size_t* decompressed_length,
+                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                  size_t compressed_length,
+                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                   SquashOptions* options) {
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
@@ -86,8 +90,10 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_gipfeli_compress_buffer (SquashCodec* codec,
-                                uint8_t* compressed, size_t* compressed_length,
-                                const uint8_t* uncompressed, size_t uncompressed_length,
+                                size_t* compressed_length,
+                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                size_t uncompressed_length,
+                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                 SquashOptions* options) {
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) compressed);

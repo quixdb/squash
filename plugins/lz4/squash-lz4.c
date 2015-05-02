@@ -117,8 +117,10 @@ squash_lz4_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 
 static SquashStatus
 squash_lz4_decompress_buffer (SquashCodec* codec,
-                              uint8_t* decompressed, size_t* decompressed_length,
-                              const uint8_t* compressed, size_t compressed_length,
+                              size_t* decompressed_length,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                              size_t compressed_length,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                               SquashOptions* options) {
   int lz4_e = LZ4_decompress_safe ((char*) compressed,
                                    (char*) decompressed,
@@ -177,8 +179,10 @@ squash_lz4_level_to_hc_level (const int level) {
 
 static SquashStatus
 squash_lz4_compress_buffer (SquashCodec* codec,
-                            uint8_t* compressed, size_t* compressed_length,
-                            const uint8_t* uncompressed, size_t uncompressed_length,
+                            size_t* compressed_length,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                            size_t uncompressed_length,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
   int level = SQUASH_LZ4_DEFAULT_LEVEL;
 
@@ -212,8 +216,10 @@ squash_lz4_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
-                                   uint8_t* compressed, size_t* compressed_length,
-                                   const uint8_t* uncompressed, size_t uncompressed_length,
+                                   size_t* compressed_length,
+                                   uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                   size_t uncompressed_length,
+                                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                    SquashOptions* options) {
   int level = SQUASH_LZ4_DEFAULT_LEVEL;
 

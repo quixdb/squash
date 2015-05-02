@@ -49,14 +49,18 @@ squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
 }
 
 static size_t
-squash_quicklz_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
+squash_quicklz_get_uncompressed_size (SquashCodec* codec,
+                                      size_t compressed_length,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   return qlz_size_decompressed ((const char*) compressed);
 }
 
 static SquashStatus
 squash_quicklz_decompress_buffer (SquashCodec* codec,
-                                  uint8_t* decompressed, size_t* decompressed_length,
-                                  const uint8_t* compressed, size_t compressed_length,
+                                  size_t* decompressed_length,
+                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                  size_t compressed_length,
+                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                   SquashOptions* options) {
   qlz_state_decompress* qlz_s;
   const size_t decompressed_size = qlz_size_decompressed ((const char*) compressed);
@@ -78,8 +82,10 @@ squash_quicklz_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_quicklz_compress_buffer (SquashCodec* codec,
-                                uint8_t* compressed, size_t* compressed_length,
-                                const uint8_t* uncompressed, size_t uncompressed_length,
+                                size_t* compressed_length,
+                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                size_t uncompressed_length,
+                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                 SquashOptions* options) {
   qlz_state_compress* qlz_s;
 

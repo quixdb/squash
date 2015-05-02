@@ -157,8 +157,8 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
       size_t compressed_size = squash_codec_get_max_compressed_size (stream->base_object.codec, stream->input->length);
       stream->output = squash_buffer_new (compressed_size);
       res = squash_codec_compress_with_options (stream->base_object.codec,
-                                                stream->output->data, &compressed_size,
-                                                stream->input->data, stream->input->length,
+                                                &compressed_size, stream->output->data,
+                                                stream->input->length, stream->input->data,
                                                 stream->base_object.options);
 
       if (res != SQUASH_OK) {
@@ -168,12 +168,12 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
       stream->output->length = compressed_size;
     } else if (stream->base_object.stream_type == SQUASH_STREAM_DECOMPRESS) {
       if (stream->base_object.codec->funcs.get_uncompressed_size != NULL) {
-        decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->data, stream->input->length);
+        decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->length, stream->input->data);
         stream->output = squash_buffer_new (decompressed_size);
         squash_buffer_set_size (stream->output, decompressed_size);
         res = squash_codec_decompress_with_options (stream->base_object.codec,
-                                                    stream->output->data, &decompressed_size,
-                                                    stream->input->data, stream->input->length, NULL);
+                                                    &decompressed_size, stream->output->data,
+                                                    stream->input->length, stream->input->data, NULL);
 
         if (res != SQUASH_OK) {
           return res;
@@ -205,8 +205,8 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         while ( res == SQUASH_BUFFER_FULL ) {
           squash_buffer_set_size (stream->output, decompressed_size);
           res = squash_codec_decompress_with_options (stream->base_object.codec,
-                                                      stream->output->data, &(stream->output->length),
-                                                      stream->input->data, stream->input->length, NULL);
+                                                      &(stream->output->length), stream->output->data,
+                                                      stream->input->length, stream->input->data, NULL);
           decompressed_size <<= 1;
         }
       }

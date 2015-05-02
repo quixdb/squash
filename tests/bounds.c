@@ -62,20 +62,20 @@ check_codec (SquashCodec* codec) {
 
   /* Determine the true size of the compressed data. */
   compressed = compressed_start;
-  res = squash_codec_compress_with_options (codec, compressed, &compressed_length, uncompressed, LOREM_IPSUM_LENGTH, NULL);
+  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, uncompressed, NULL);
   g_assert (res == SQUASH_OK);
 
   /* Decompress to a buffer which is exactly the right size */
   decompressed = decompressed_protected - LOREM_IPSUM_LENGTH;
   decompressed_length = LOREM_IPSUM_LENGTH;
-  res = squash_codec_decompress_with_options (codec, decompressed, &decompressed_length, compressed, compressed_length, NULL);
+  res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
   g_assert (res == SQUASH_OK);
 
 
   /* Compress to a buffer which is exactly the right size */
   compressed = compressed_protected - compressed_length;
   tmp = compressed_length;
-  res = squash_codec_compress_with_options (codec, compressed, &tmp, uncompressed, LOREM_IPSUM_LENGTH, NULL);
+  res = squash_codec_compress_with_options (codec, &tmp, compressed, LOREM_IPSUM_LENGTH, uncompressed, NULL);
   /* It's okay if some codecs require a few extra bytes to *compress*,
      as long as they don't write outside the buffer they were provided
      (which we're checking for with mprotect here. */
@@ -83,7 +83,7 @@ check_codec (SquashCodec* codec) {
   /* Compress to a buffer which is too small */
   compressed = compressed_protected - (compressed_length - 1);
   tmp = compressed_length - 1;
-  res = squash_codec_compress_with_options (codec, compressed, &tmp, uncompressed, LOREM_IPSUM_LENGTH, NULL);
+  res = squash_codec_compress_with_options (codec, &tmp, compressed, LOREM_IPSUM_LENGTH, uncompressed, NULL);
   g_assert (res != SQUASH_OK);
 
   mprotect (uncompressed_protected, page_size, PROT_READ | PROT_WRITE);

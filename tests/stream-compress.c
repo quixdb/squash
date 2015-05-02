@@ -2,8 +2,10 @@
 
 static SquashStatus
 buffer_to_buffer_compress_with_stream (SquashCodec* codec,
-                                       uint8_t* compressed, size_t* compressed_length,
-                                       uint8_t* uncompressed, size_t uncompressed_length) {
+                                       size_t* compressed_length,
+                                       uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                       size_t uncompressed_length,
+                                       const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
   size_t step_size = g_test_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_COMPRESS, NULL);
   SquashStatus res;
@@ -49,10 +51,10 @@ check_codec (SquashCodec* codec) {
   uint8_t* uncompressed = (uint8_t*) malloc (LOREM_IPSUM_LENGTH);
   SquashStatus res;
 
-  res = buffer_to_buffer_compress_with_stream (codec, compressed, &compressed_length, (uint8_t*) LOREM_IPSUM, LOREM_IPSUM_LENGTH);
+  res = buffer_to_buffer_compress_with_stream (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
   SQUASH_ASSERT_OK(res);
 
-  res = squash_codec_decompress_with_options (codec, uncompressed, &uncompressed_length, compressed, compressed_length, NULL);
+  res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
   SQUASH_ASSERT_OK(res);
   g_assert (uncompressed_length == LOREM_IPSUM_LENGTH);
 
@@ -61,4 +63,3 @@ check_codec (SquashCodec* codec) {
   free (compressed);
   free (uncompressed);
 }
-

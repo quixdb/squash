@@ -355,18 +355,20 @@ squash_bz2_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 
 static SquashStatus
 squash_bz2_decompress_buffer (SquashCodec* codec,
-                              uint8_t* uncompressed, size_t* uncompressed_length,
-                              const uint8_t* compressed, size_t compressed_length,
+                              size_t* decompressed_length,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                              size_t compressed_length,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                               SquashOptions* options) {
   int small = (options != NULL) ? ((SquashBZ2Options*) options)->small : SQUASH_BZ2_DEFAULT_SMALL;
-  unsigned int uncompressed_length_ui = (unsigned int) *uncompressed_length;
+  unsigned int decompressed_length_ui = (unsigned int) *decompressed_length;
   int bz2_res;
 
-  bz2_res = BZ2_bzBuffToBuffDecompress ((char*) uncompressed, &uncompressed_length_ui,
+  bz2_res = BZ2_bzBuffToBuffDecompress ((char*) decompressed, &decompressed_length_ui,
                                         (char*) compressed, (unsigned int) compressed_length,
                                         small, 0);
   if (bz2_res == BZ_OK) {
-    *uncompressed_length = uncompressed_length_ui;
+    *decompressed_length = decompressed_length_ui;
   }
 
   return squash_bz2_status_to_squash_status (bz2_res);
@@ -374,8 +376,10 @@ squash_bz2_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_bz2_compress_buffer (SquashCodec* codec,
-                            uint8_t* compressed, size_t* compressed_length,
-                            const uint8_t* uncompressed, size_t uncompressed_length,
+                            size_t* compressed_length,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                            size_t uncompressed_length,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
   int block_size_100k;
   int work_factor;

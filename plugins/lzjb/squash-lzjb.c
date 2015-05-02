@@ -44,8 +44,10 @@ squash_lzjb_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 
 static SquashStatus
 squash_lzjb_compress_buffer (SquashCodec* codec,
-                             uint8_t* compressed, size_t* compressed_length,
-                             const uint8_t* uncompressed, size_t uncompressed_length,
+                             size_t* compressed_length,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                             size_t uncompressed_length,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                              SquashOptions* options) {
   *compressed_length = lzjb_compress (uncompressed, compressed, uncompressed_length, *compressed_length);
   return (*compressed_length != uncompressed_length) ? SQUASH_OK : squash_error (SQUASH_FAILED);
@@ -53,8 +55,10 @@ squash_lzjb_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_lzjb_decompress_buffer (SquashCodec* codec,
-                               uint8_t* decompressed, size_t* decompressed_length,
-                               const uint8_t* compressed, size_t compressed_length,
+                               size_t* decompressed_length,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                               size_t compressed_length,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                SquashOptions* options) {
   *decompressed_length = lzjb_decompress (compressed, decompressed, compressed_length, *decompressed_length);
   return (*decompressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;

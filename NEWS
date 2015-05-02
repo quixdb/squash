@@ -1,4 +1,4 @@
-Squash 0.5.1
+Squash 0.6.0
 ============
 
  * New plugins:
@@ -8,6 +8,7 @@ Squash 0.5.1
    * ncompress
  * Disabled Doboz
  * Create in-tree copies of all modules
+ * Use conformant array parameters for buffers
  * Updated many plugins
  * Assorted bug fixes and enhancements
 

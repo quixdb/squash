@@ -9,10 +9,10 @@ check_codec (SquashCodec* codec) {
   SquashStatus res;
   size_t pos = 0;
 
-  res = squash_codec_compress_with_options (codec, compressed, &compressed_length, (uint8_t*) LOREM_IPSUM, LOREM_IPSUM_LENGTH, NULL);
+  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK(res);
 
-  res = squash_codec_decompress_with_options (codec, uncompressed, &uncompressed_length, compressed, compressed_length, NULL);
+  res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
   SQUASH_ASSERT_OK(res);
 
   if (uncompressed_length != LOREM_IPSUM_LENGTH) {

@@ -44,6 +44,12 @@
 #  define SQUASH_API extern
 #endif
 
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#  define SQUASH_ARRAY_PARAM(name) name
+#else
+#  define SQUASH_ARRAY_PARAM(name)
+#endif
+
 #include <squash/version.h>
 
 #include "status.h"

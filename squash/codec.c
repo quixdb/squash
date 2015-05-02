@@ -397,14 +397,15 @@ squash_codec_get_funcs (SquashCodec* codec) {
  */
 size_t
 squash_codec_get_uncompressed_size (SquashCodec* codec,
-                                    const uint8_t* compressed, size_t compressed_length) {
+                                    size_t compressed_length,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   SquashCodecFuncs* funcs = NULL;
 
   assert (codec != NULL);
 
   funcs = squash_codec_get_funcs (codec);
   if (funcs != NULL && funcs->get_uncompressed_size != NULL) {
-    return funcs->get_uncompressed_size (codec, compressed, compressed_length);
+    return funcs->get_uncompressed_size (codec, compressed_length, compressed);
   } else {
     return 0;
   }
@@ -541,8 +542,10 @@ squash_codec_create_stream (SquashCodec* codec, SquashStreamType stream_type, ..
  */
 SquashStatus
 squash_codec_compress_with_options (SquashCodec* codec,
-                                    uint8_t* compressed, size_t* compressed_length,
-                                    const uint8_t* uncompressed, size_t uncompressed_length,
+                                    size_t* compressed_length,
+                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                    size_t uncompressed_length,
+                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                     SquashOptions* options) {
   SquashCodecFuncs* funcs = NULL;
 
@@ -565,19 +568,19 @@ squash_codec_compress_with_options (SquashCodec* codec,
     if (*compressed_length >= max_compressed_length) {
       if (funcs->compress_buffer_unsafe != NULL) {
         return funcs->compress_buffer_unsafe (codec,
-                                              compressed, compressed_length,
-                                              uncompressed, uncompressed_length,
+                                              compressed_length, compressed,
+                                              uncompressed_length, uncompressed,
                                               options);
       } else {
         return funcs->compress_buffer (codec,
-                                       compressed, compressed_length,
-                                       uncompressed, uncompressed_length,
+                                       compressed_length, compressed,
+                                       uncompressed_length, uncompressed,
                                        options);
       }
     } else if (funcs->compress_buffer != NULL) {
       return funcs->compress_buffer (codec,
-                                     compressed, compressed_length,
-                                     uncompressed, uncompressed_length,
+                                     compressed_length, compressed,
+                                     uncompressed_length, uncompressed,
                                      options);
     } else {
       SquashStatus status;
@@ -586,8 +589,8 @@ squash_codec_compress_with_options (SquashCodec* codec,
         return squash_error (SQUASH_MEMORY);
 
       status = funcs->compress_buffer_unsafe (codec,
-                                              tmp_buf, &max_compressed_length,
-                                              uncompressed, uncompressed_length,
+                                              &max_compressed_length, tmp_buf,
+                                              uncompressed_length, uncompressed,
                                               options);
       if (status == SQUASH_OK) {
         if (*compressed_length < max_compressed_length) {
@@ -657,20 +660,23 @@ squash_codec_compress_with_options (SquashCodec* codec,
  * @return A status code
  */
 SquashStatus squash_codec_compress (SquashCodec* codec,
-                                    uint8_t* compressed, size_t* compressed_length,
-                                    const uint8_t* uncompressed, size_t uncompressed_length, ...) {
+                                    size_t* compressed_length,
+                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                    size_t uncompressed_length,
+                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                    ...) {
   SquashOptions* options;
   va_list ap;
 
   assert (codec != NULL);
 
-  va_start (ap, uncompressed_length);
+  va_start (ap, uncompressed);
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
   return squash_codec_compress_with_options (codec,
-                                             compressed, compressed_length,
-                                             uncompressed, uncompressed_length,
+                                             compressed_length, compressed,
+                                             uncompressed_length, uncompressed,
                                              options);
 }
 
@@ -689,8 +695,10 @@ SquashStatus squash_codec_compress (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_decompress_with_options (SquashCodec* codec,
-                                      uint8_t* decompressed, size_t* decompressed_length,
-                                      const uint8_t* compressed, size_t compressed_length,
+                                      size_t* decompressed_length,
+                                      uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                      size_t compressed_length,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                       SquashOptions* options) {
   SquashCodecFuncs* funcs = NULL;
 
@@ -705,8 +713,8 @@ squash_codec_decompress_with_options (SquashCodec* codec,
 
   if (funcs->decompress_buffer != NULL) {
     return funcs->decompress_buffer (codec,
-                                     decompressed, decompressed_length,
-                                     compressed, compressed_length,
+                                     decompressed_length, decompressed,
+                                     compressed_length, compressed,
                                      options);
   } else {
     SquashStatus status;
@@ -758,21 +766,24 @@ squash_codec_decompress_with_options (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_decompress (SquashCodec* codec,
-                         uint8_t* decompressed, size_t* decompressed_length,
-                         const uint8_t* compressed, size_t compressed_length, ...) {
+                         size_t* decompressed_length,
+                         uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                         size_t compressed_length,
+                         const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                         ...) {
   SquashOptions* options;
   va_list ap;
   SquashStatus res;
 
   assert (codec != NULL);
 
-  va_start (ap, compressed_length);
+  va_start (ap, compressed);
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
   res = squash_codec_decompress_with_options (codec,
-                                              decompressed, decompressed_length,
-                                              compressed, compressed_length,
+                                              decompressed_length, decompressed,
+                                              compressed_length, compressed,
                                               options);
 
   return res;
@@ -794,8 +805,11 @@ squash_codec_decompress (SquashCodec* codec,
  */
 SquashStatus
 squash_compress (const char* codec,
-                 uint8_t* compressed, size_t* compressed_length,
-                 const uint8_t* uncompressed, size_t uncompressed_length, ...) {
+                 size_t* compressed_length,
+                 uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                 size_t uncompressed_length,
+                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                 ...) {
   SquashOptions* options;
   va_list ap;
   SquashCodec* codec_real = squash_get_codec (codec);
@@ -803,13 +817,13 @@ squash_compress (const char* codec,
   if (codec_real == NULL)
     return squash_error (SQUASH_NOT_FOUND);
 
-  va_start (ap, uncompressed_length);
+  va_start (ap, uncompressed);
   options = squash_options_newv (codec_real, ap);
   va_end (ap);
 
   return squash_codec_compress_with_options (codec_real,
-                                             compressed, compressed_length,
-                                             uncompressed, uncompressed_length,
+                                             compressed_length, compressed,
+                                             uncompressed_length, uncompressed,
                                              options);
 }
 
@@ -828,8 +842,10 @@ squash_compress (const char* codec,
  */
 SquashStatus
 squash_compress_with_options (const char* codec,
-                              uint8_t* compressed, size_t* compressed_length,
-                              const uint8_t* uncompressed, size_t uncompressed_length,
+                              size_t* compressed_length,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                              size_t uncompressed_length,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                               SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
@@ -837,8 +853,8 @@ squash_compress_with_options (const char* codec,
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_compress_with_options (codec_real,
-                                             compressed, compressed_length,
-                                             uncompressed, uncompressed_length,
+                                             compressed_length, compressed,
+                                             uncompressed_length, uncompressed,
                                              options);
 }
 
@@ -858,8 +874,11 @@ squash_compress_with_options (const char* codec,
  */
 SquashStatus
 squash_decompress (const char* codec,
-                   uint8_t* decompressed, size_t* decompressed_length,
-                   const uint8_t* compressed, size_t compressed_length, ...) {
+                   size_t* decompressed_length,
+                   uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                   size_t compressed_length,
+                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                   ...) {
   SquashOptions* options;
   va_list ap;
   SquashCodec* codec_real = squash_get_codec (codec);
@@ -867,13 +886,13 @@ squash_decompress (const char* codec,
   if (codec_real == NULL)
     return squash_error (SQUASH_NOT_FOUND);
 
-  va_start (ap, compressed_length);
+  va_start (ap, compressed);
   options = squash_options_newv (codec_real, ap);
   va_end (ap);
 
   return squash_codec_decompress_with_options (codec_real,
-                                            decompressed, decompressed_length,
-                                            compressed, compressed_length,
+                                            decompressed_length, decompressed,
+                                            compressed_length, compressed,
                                             options);
 }
 
@@ -891,8 +910,10 @@ squash_decompress (const char* codec,
  * @return A status code
  */
 SquashStatus squash_decompress_with_options (const char* codec,
-                                             uint8_t* decompressed, size_t* decompressed_length,
-                                             const uint8_t* compressed, size_t compressed_length,
+                                             size_t* decompressed_length,
+                                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                             size_t compressed_length,
+                                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                              SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
@@ -900,8 +921,8 @@ SquashStatus squash_decompress_with_options (const char* codec,
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_decompress_with_options (codec_real,
-                                               decompressed, decompressed_length,
-                                               compressed, compressed_length,
+                                               decompressed_length, decompressed,
+                                               compressed_length, compressed,
                                                options);
 }
 
@@ -991,7 +1012,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
       if (stream_type == SQUASH_STREAM_COMPRESS) {
         max_output_size = squash_codec_get_max_compressed_size (codec, in_map->data_length);
       } else if (codec->funcs.get_uncompressed_size != NULL) {
-        max_output_size = squash_codec_get_uncompressed_size (codec, in_map->data, in_map->data_length);
+        max_output_size = squash_codec_get_uncompressed_size (codec, in_map->data_length, in_map->data);
       } else if (output_length != 0) {
         max_output_size = output_length;
       } else {
@@ -1012,11 +1033,11 @@ squash_codec_process_file_with_options (SquashCodec* codec,
 
         if (stream_type == SQUASH_STREAM_COMPRESS) {
           output_size = out_map->data_length;
-          res = squash_codec_compress_with_options (codec, out_map->data, &output_size, in_map->data, in_map->data_length, options);
+          res = squash_codec_compress_with_options (codec, &output_size, out_map->data, in_map->data_length, in_map->data, options);
         } else {
           do {
             output_size = max_output_size;
-            res = squash_codec_decompress_with_options (codec, out_map->data, &output_size, in_map->data, in_map->data_length, options);
+            res = squash_codec_decompress_with_options (codec, &output_size, out_map->data, in_map->data_length, in_map->data, options);
             max_output_size <<= 1;
           } while (SQUASH_UNLIKELY(res == SQUASH_BUFFER_FULL) && output_length == 0 && codec->funcs.get_uncompressed_size == NULL);
         }

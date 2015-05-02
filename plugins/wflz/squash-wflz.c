@@ -148,7 +148,9 @@ squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 static size_t
-squash_wflz_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
+squash_wflz_get_uncompressed_size (SquashCodec* codec,
+                                   size_t compressed_length,
+                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   if (compressed_length < 12)
     return 0;
 
@@ -157,8 +159,10 @@ squash_wflz_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed
 
 static SquashStatus
 squash_wflz_compress_buffer (SquashCodec* codec,
-                             uint8_t* compressed, size_t* compressed_length,
-                             const uint8_t* uncompressed, size_t uncompressed_length,
+                             size_t* compressed_length,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                             size_t uncompressed_length,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                              SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
   const uint32_t swap = ((options == NULL) ? SQUASH_WFLZ_DEFAULT_ENDIAN : ((SquashWflzOptions*) options)->endianness) != SQUASH_WFLZ_HOST_ORDER;
@@ -192,8 +196,10 @@ squash_wflz_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_wflz_decompress_buffer (SquashCodec* codec,
-                               uint8_t* decompressed, size_t* decompressed_length,
-                               const uint8_t* compressed, size_t compressed_length,
+                               size_t* decompressed_length,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                               size_t compressed_length,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
   uint32_t decompressed_size;

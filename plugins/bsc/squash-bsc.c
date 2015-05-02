@@ -182,7 +182,9 @@ squash_bsc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 }
 
 static size_t
-squash_lzg_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
+squash_lzg_get_uncompressed_size (SquashCodec* codec,
+                                  size_t compressed_length,
+                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   int p_block_size, p_data_size;
 
   int res = bsc_block_info (compressed, (int) compressed_length, &p_block_size, &p_data_size, LIBBSC_DEFAULT_FEATURES);
@@ -196,8 +198,10 @@ squash_lzg_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed,
 
 static SquashStatus
 squash_bsc_compress_buffer (SquashCodec* codec,
-                            uint8_t* compressed, size_t* compressed_length,
-                            const uint8_t* uncompressed, size_t uncompressed_length,
+                            size_t* compressed_length,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                            size_t uncompressed_length,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
   int lzp_hash_size = LIBBSC_DEFAULT_LZPHASHSIZE;
   int lzp_min_len = LIBBSC_DEFAULT_LZPMINLEN;
@@ -231,8 +235,10 @@ squash_bsc_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_bsc_decompress_buffer (SquashCodec* codec,
-                              uint8_t* decompressed, size_t* decompressed_length,
-                              const uint8_t* compressed, size_t compressed_length,
+                              size_t* decompressed_length,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                              size_t compressed_length,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                               SquashOptions* options) {
   assert (compressed_length < (size_t) INT_MAX);
   assert (*decompressed_length < (size_t) INT_MAX);

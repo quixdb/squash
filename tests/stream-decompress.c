@@ -2,8 +2,10 @@
 
 static SquashStatus
 buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
-                                         uint8_t* decompressed, size_t* decompressed_length,
-                                         uint8_t* compressed, size_t compressed_length) {
+                                         size_t* decompressed_length,
+                                         uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                         size_t compressed_length,
+                                         const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   size_t step_size = g_test_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_DECOMPRESS, NULL);
   SquashStatus res = SQUASH_OK;
@@ -51,18 +53,18 @@ check_codec (SquashCodec* codec) {
   uint8_t* compressed = (uint8_t*) malloc (compressed_length);
   SquashStatus res;
 
-  res = squash_codec_compress_with_options (codec, compressed, &compressed_length, (uint8_t*) LOREM_IPSUM, LOREM_IPSUM_LENGTH, NULL);
+  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK(res);
 
   if ((squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) {
-    decompressed_length = squash_codec_get_uncompressed_size (codec, compressed, compressed_length);
+    decompressed_length = squash_codec_get_uncompressed_size (codec, compressed_length, compressed);
     g_assert (decompressed_length == LOREM_IPSUM_LENGTH);
   } else {
     decompressed_length = LOREM_IPSUM_LENGTH;
   }
   decompressed = (uint8_t*) malloc (decompressed_length);
 
-  res = buffer_to_buffer_decompress_with_stream (codec, decompressed, &decompressed_length, compressed, compressed_length);
+  res = buffer_to_buffer_decompress_with_stream (codec, &decompressed_length, decompressed, compressed_length, compressed);
   SQUASH_ASSERT_OK(res);
 
   g_assert (decompressed_length == LOREM_IPSUM_LENGTH);

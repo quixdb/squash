@@ -27,9 +27,9 @@ int main (int argc, char** argv) {
   decompressed = (char*) malloc (uncompressed_length + 1);
 
   SquashStatus res =
-    squash_compress (codec_name, 
-                     compressed, &compressed_length,
-                     (const uint8_t*) uncompressed, uncompressed_length,
+    squash_compress (codec_name,
+                     &compressed_length, compressed,
+                     uncompressed_length, (const uint8_t*) uncompressed,
                      NULL);
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to compress data [%d]: %s\n",
@@ -41,8 +41,8 @@ int main (int argc, char** argv) {
            (unsigned int) uncompressed_length, (unsigned int) compressed_length);
 
   res = squash_decompress (codec_name,
-                           (uint8_t*) decompressed, &decompressed_length,
-                           compressed, compressed_length, NULL);
+                           &decompressed_length, (uint8_t*) decompressed,
+                           compressed_length, compressed, NULL);
 
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to decompress data [%d]: %s\n",
