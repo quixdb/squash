@@ -405,6 +405,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
         if (olen != 0) {
           if (obuf == s->data.comp.output_buffer) {
             s->data.comp.output_buffer_length = olen;
+            break;
           } else {
             stream->next_out += olen;
             stream->avail_out -= olen;
