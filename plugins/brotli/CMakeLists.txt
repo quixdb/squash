@@ -14,7 +14,8 @@ set (brotli_sources
   brotli/enc/entropy_encode.cc
   brotli/enc/histogram.cc
   brotli/enc/literal_cost.cc
-  brotli/enc/metablock.cc)
+  brotli/enc/metablock.cc
+  brotli/enc/streams.cc)
 
 if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
   squash_plugin_add (brotli brotli_sources)

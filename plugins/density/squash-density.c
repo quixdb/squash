@@ -49,7 +49,7 @@ typedef enum {
 static size_t
 squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
   return uncompressed_length +
-    24 +
+    32 +
     ((uncompressed_length / 256) * 8) +
     (((uncompressed_length % 256) == 0) * 8);
 }
