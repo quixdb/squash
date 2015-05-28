@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -36,7 +36,7 @@ SQUASH_BEGIN_DECLS
 SquashPlugin*   squash_plugin_new        (char* name, char* directory, SquashContext* context);
 void            squash_plugin_add_codec  (SquashPlugin* plugin, SquashCodec* codec);
 SquashStatus    squash_plugin_load       (SquashPlugin* plugin);
-SquashStatus    squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus    squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecImpl* impl);
 int             squash_plugin_compare    (SquashPlugin* a, SquashPlugin* b);
 
 SQUASH_TREE_PROTOTYPES(_SquashPlugin, tree)

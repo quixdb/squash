@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -234,11 +234,11 @@ SQUASH_MTX_DEFINE(codec_init)
  *
  * @param plugin The plugin.
  * @param codec The codec to initialize.
- * @param funcs The function table to fill.
+ * @param impl The function table to fill.
  * @returns A status code.
  */
 SquashStatus
-squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecImpl* impl) {
   SquashStatus res = SQUASH_OK;
 
   assert (plugin != NULL);
@@ -251,7 +251,7 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
   }
 
   if (codec->initialized == 0) {
-    SquashStatus (*init_codec_func) (SquashCodec*, SquashCodecFuncs*);
+    SquashStatus (*init_codec_func) (SquashCodec*, SquashCodecImpl*);
 
 #if !defined(_WIN32)
     *(void **) (&init_codec_func) = dlsym (plugin->plugin, "squash_plugin_init_codec");
@@ -264,14 +264,14 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecF
     }
 
     SQUASH_MTX_LOCK(codec_init);
-    res = init_codec_func (codec, funcs);
+    res = init_codec_func (codec, impl);
     codec->initialized = (res == SQUASH_OK);
 
-    assert ((codec->funcs.info & SQUASH_CODEC_INFO_AUTO_MASK) == 0);
-    if (codec->funcs.process_stream != NULL)
-      codec->funcs.info |= SQUASH_CODEC_INFO_NATIVE_STREAMING;
-    if (codec->funcs.get_uncompressed_size != NULL)
-      codec->funcs.info |= SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
+    assert ((codec->impl.info & SQUASH_CODEC_INFO_AUTO_MASK) == 0);
+    if (codec->impl.process_stream != NULL)
+      codec->impl.info |= SQUASH_CODEC_INFO_NATIVE_STREAMING;
+    if (codec->impl.get_uncompressed_size != NULL)
+      codec->impl.info |= SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
     SQUASH_MTX_UNLOCK(codec_init);
   }
 

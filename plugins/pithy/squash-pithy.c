@@ -52,7 +52,7 @@ static SquashOptionInfo squash_pithy_options[] = {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec,
-                                                         SquashCodecFuncs* funcs);
+                                                         SquashCodecImpl* impl);
 
 static size_t
 squash_pithy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -102,15 +102,15 @@ squash_pithy_decompress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("pithy", name) == 0) {
-    funcs->options = squash_pithy_options;
-    funcs->get_uncompressed_size = squash_pithy_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_pithy_get_max_compressed_size;
-    funcs->decompress_buffer = squash_pithy_decompress_buffer;
-    funcs->compress_buffer = squash_pithy_compress_buffer;
+    impl->options = squash_pithy_options;
+    impl->get_uncompressed_size = squash_pithy_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_pithy_get_max_compressed_size;
+    impl->decompress_buffer = squash_pithy_decompress_buffer;
+    impl->compress_buffer = squash_pithy_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

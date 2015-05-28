@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -41,7 +41,7 @@ typedef struct SquashQuickLZOptions_s {
 } SquashQuickLZOptions;
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -106,14 +106,14 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("quicklz", name) == 0) {
-    funcs->get_uncompressed_size = squash_quicklz_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_quicklz_get_max_compressed_size;
-    funcs->decompress_buffer = squash_quicklz_decompress_buffer;
-    funcs->compress_buffer = squash_quicklz_compress_buffer;
+    impl->get_uncompressed_size = squash_quicklz_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_quicklz_get_max_compressed_size;
+    impl->decompress_buffer = squash_quicklz_decompress_buffer;
+    impl->compress_buffer = squash_quicklz_compress_buffer;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

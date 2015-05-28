@@ -182,7 +182,7 @@ static SquashOptionInfo squash_lzma_xz_options[] = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
 
 static SquashLZMAType     squash_lzma_codec_to_type   (SquashCodec* codec);
 
@@ -377,29 +377,29 @@ squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
-  funcs->options = squash_lzma_options;
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
+  impl->options = squash_lzma_options;
 
   switch (squash_lzma_codec_to_type (codec)) {
     case SQUASH_LZMA_TYPE_XZ:
-      funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-      funcs->options = squash_lzma_xz_options;
+      impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+      impl->options = squash_lzma_xz_options;
       break;
     case SQUASH_LZMA_TYPE_LZMA2:
-      funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-      funcs->options = squash_lzma12_options;
+      impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+      impl->options = squash_lzma12_options;
       break;
     case SQUASH_LZMA_TYPE_LZMA:
-      funcs->options = squash_lzma_options;
+      impl->options = squash_lzma_options;
       break;
     case SQUASH_LZMA_TYPE_LZMA1:
-      funcs->options = squash_lzma12_options;
+      impl->options = squash_lzma12_options;
       break;
   }
 
-  funcs->create_stream = squash_lzma_create_stream;
-  funcs->process_stream = squash_lzma_process_stream;
-  funcs->get_max_compressed_size = squash_lzma_get_max_compressed_size;
+  impl->create_stream = squash_lzma_create_stream;
+  impl->process_stream = squash_lzma_process_stream;
+  impl->get_max_compressed_size = squash_lzma_get_max_compressed_size;
 
   return SQUASH_OK;
 }

@@ -273,7 +273,7 @@ static void              squash_lzo_options_destroy (void* options);
 static void              squash_lzo_options_free    (void* options);
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -368,7 +368,7 @@ squash_plugin_init (SquashPlugin* plugin) {
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* codec_name = squash_codec_get_name (codec);
 
   if (strncmp ("lzo1", codec_name, 3) != 0)
@@ -376,36 +376,36 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
 
   switch (codec_name[4]) {
     case '\0':
-      funcs->options = squash_lzo1_options;
+      impl->options = squash_lzo1_options;
       break;
     case 'a':
-      funcs->options = squash_lzo1a_options;
+      impl->options = squash_lzo1a_options;
       break;
     case 'b':
-      funcs->options = squash_lzo1b_options;
+      impl->options = squash_lzo1b_options;
       break;
     case 'c':
-      funcs->options = squash_lzo1c_options;
+      impl->options = squash_lzo1c_options;
       break;
     case 'f':
-      funcs->options = squash_lzo1f_options;
+      impl->options = squash_lzo1f_options;
       break;
     case 'x':
-      funcs->options = squash_lzo1x_options;
+      impl->options = squash_lzo1x_options;
       break;
     case 'y':
-      funcs->options = squash_lzo1y_options;
+      impl->options = squash_lzo1y_options;
       break;
     case 'z':
-      funcs->options = squash_lzo1z_options;
+      impl->options = squash_lzo1z_options;
       break;
     default:
       return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
-  funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
-  funcs->decompress_buffer = squash_lzo_decompress_buffer;
-  funcs->compress_buffer_unsafe = squash_lzo_compress_buffer;
+  impl->get_max_compressed_size = squash_lzo_get_max_compressed_size;
+  impl->decompress_buffer = squash_lzo_decompress_buffer;
+  impl->compress_buffer_unsafe = squash_lzo_compress_buffer;
 
   return SQUASH_OK;
 }

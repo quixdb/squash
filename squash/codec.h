@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -50,7 +50,7 @@ typedef enum {
 
 #define SQUASH_CODEC_INFO_INVALID ((SquashCodecInfo) 0)
 
-struct _SquashCodecFuncs {
+struct _SquashCodecImpl {
   SquashCodecInfo           info;
 
   const SquashOptionInfo*   options;

@@ -35,7 +35,7 @@
 #include "compress.h"
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_ncompress_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -81,13 +81,13 @@ squash_ncompress_compress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("compress", name) == 0) {
-    funcs->get_max_compressed_size = squash_ncompress_get_max_compressed_size;
-    funcs->decompress_buffer = squash_ncompress_decompress_buffer;
-    funcs->compress_buffer = squash_ncompress_compress_buffer;
+    impl->get_max_compressed_size = squash_ncompress_get_max_compressed_size;
+    impl->decompress_buffer = squash_ncompress_decompress_buffer;
+    impl->compress_buffer = squash_ncompress_compress_buffer;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

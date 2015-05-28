@@ -48,7 +48,7 @@ static SquashOptionInfo squash_yalz77_options[] = {
 };
 
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init       (SquashPlugin* plugin);
 
@@ -118,14 +118,14 @@ squash_plugin_init (SquashPlugin* plugin) {
 }
 
 extern "C" SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("yalz77", name) == 0) {
-    funcs->options = squash_yalz77_options;
-    funcs->get_max_compressed_size = squash_yalz77_get_max_compressed_size;
-    funcs->decompress_buffer = squash_yalz77_decompress_buffer;
-    funcs->compress_buffer = squash_yalz77_compress_buffer;
+    impl->options = squash_yalz77_options;
+    impl->get_max_compressed_size = squash_yalz77_get_max_compressed_size;
+    impl->decompress_buffer = squash_yalz77_decompress_buffer;
+    impl->compress_buffer = squash_yalz77_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

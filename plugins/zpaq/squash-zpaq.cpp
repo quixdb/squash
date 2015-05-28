@@ -82,7 +82,7 @@ struct _SquashZpaqStream {
 };
 
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init          (SquashPlugin* plugin);
 
@@ -241,15 +241,15 @@ squash_plugin_init (SquashPlugin* plugin) {
 }
 
 extern "C" SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zpaq", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->options = squash_zpaq_options;
-    funcs->create_stream = squash_zpaq_create_stream;
-    funcs->process_stream = squash_zpaq_process_stream;
-    funcs->get_max_compressed_size = squash_zpaq_get_max_compressed_size;
+    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
+    impl->options = squash_zpaq_options;
+    impl->create_stream = squash_zpaq_create_stream;
+    impl->process_stream = squash_zpaq_process_stream;
+    impl->get_max_compressed_size = squash_zpaq_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

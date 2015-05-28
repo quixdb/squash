@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -167,7 +167,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
 
       stream->output->length = compressed_size;
     } else if (stream->base_object.stream_type == SQUASH_STREAM_DECOMPRESS) {
-      if (stream->base_object.codec->funcs.get_uncompressed_size != NULL) {
+      if (stream->base_object.codec->impl.get_uncompressed_size != NULL) {
         decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->length, stream->input->data);
         stream->output = squash_buffer_new (decompressed_size);
         squash_buffer_set_size (stream->output, decompressed_size);

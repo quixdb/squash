@@ -35,7 +35,7 @@
 #include "FastARI/FastAri.h"
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_fari_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -82,13 +82,13 @@ squash_fari_compress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("fari", name) == 0) {
-    funcs->get_max_compressed_size = squash_fari_get_max_compressed_size;
-    funcs->decompress_buffer = squash_fari_decompress_buffer;
-    funcs->compress_buffer_unsafe = squash_fari_compress_buffer;
+    impl->get_max_compressed_size = squash_fari_get_max_compressed_size;
+    impl->decompress_buffer = squash_fari_decompress_buffer;
+    impl->compress_buffer_unsafe = squash_fari_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

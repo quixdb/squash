@@ -36,7 +36,7 @@
 #include "doboz/Source/Doboz/Decompressor.h"
 
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_doboz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -137,14 +137,14 @@ squash_doboz_decompress_buffer (SquashCodec* codec,
 }
 
 extern "C" SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("doboz", name) == 0) {
-    funcs->get_uncompressed_size = squash_doboz_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_doboz_get_max_compressed_size;
-    funcs->decompress_buffer = squash_doboz_decompress_buffer;
-    funcs->compress_buffer = squash_doboz_compress_buffer;
+    impl->get_uncompressed_size = squash_doboz_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_doboz_get_max_compressed_size;
+    impl->decompress_buffer = squash_doboz_decompress_buffer;
+    impl->compress_buffer = squash_doboz_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

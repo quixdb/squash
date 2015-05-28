@@ -54,7 +54,7 @@ typedef struct SquashCrushStream_s {
 } SquashCrushStream;
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void                squash_crush_stream_init     (SquashCrushStream* stream,
                                                          SquashCodec* codec,
@@ -176,15 +176,15 @@ squash_crush_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("crush", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->options = squash_crush_options;
-    funcs->create_stream = squash_crush_create_stream;
-    funcs->process_stream = squash_crush_process_stream;
-    funcs->get_max_compressed_size = squash_crush_get_max_compressed_size;
+    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
+    impl->options = squash_crush_options;
+    impl->create_stream = squash_crush_create_stream;
+    impl->process_stream = squash_crush_process_stream;
+    impl->get_max_compressed_size = squash_crush_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

@@ -92,7 +92,7 @@ typedef struct SquashDensityStream_s {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus                 squash_plugin_init_codec      (SquashCodec* codec,
-                                                            SquashCodecFuncs* funcs);
+                                                            SquashCodecImpl* impl);
 
 static void                  squash_density_stream_init     (SquashDensityStream* stream,
                                                              SquashCodec* codec,
@@ -406,14 +406,14 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("density", name) == 0) {
-    funcs->options = squash_density_options;
-    funcs->create_stream = squash_density_create_stream;
-    funcs->process_stream = squash_density_process_stream;
-    funcs->get_max_compressed_size = squash_density_get_max_compressed_size;
+    impl->options = squash_density_options;
+    impl->create_stream = squash_density_create_stream;
+    impl->process_stream = squash_density_process_stream;
+    impl->get_max_compressed_size = squash_density_get_max_compressed_size;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

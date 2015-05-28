@@ -49,7 +49,7 @@ static SquashOptionInfo squash_fastlz_options[] = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_fastlz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -99,14 +99,14 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("fastlz", name) == 0) {
-    funcs->options = squash_fastlz_options;
-    funcs->get_max_compressed_size = squash_fastlz_get_max_compressed_size;
-    funcs->decompress_buffer = squash_fastlz_decompress_buffer;
-    funcs->compress_buffer = squash_fastlz_compress_buffer;
+    impl->options = squash_fastlz_options;
+    impl->get_max_compressed_size = squash_fastlz_get_max_compressed_size;
+    impl->decompress_buffer = squash_fastlz_decompress_buffer;
+    impl->compress_buffer = squash_fastlz_compress_buffer;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

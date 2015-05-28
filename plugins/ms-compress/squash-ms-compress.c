@@ -42,7 +42,7 @@ typedef struct SquashMSCompStream_s {
 } SquashMSCompStream;
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init_codec  (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus                squash_plugin_init_codec  (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void                 squash_ms_stream_init     (SquashMSCompStream* stream,
                                                        SquashCodec* codec,
@@ -267,19 +267,19 @@ squash_ms_decompress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("lznt1", name) == 0 ||
       strcmp ("xpress", name) == 0 ||
       strcmp ("xpress-huffman", name) == 0) {
-    funcs->get_max_compressed_size = squash_ms_get_max_compressed_size;
-    funcs->decompress_buffer       = squash_ms_decompress_buffer;
-    funcs->compress_buffer         = squash_ms_compress_buffer;
+    impl->get_max_compressed_size = squash_ms_get_max_compressed_size;
+    impl->decompress_buffer       = squash_ms_decompress_buffer;
+    impl->compress_buffer         = squash_ms_compress_buffer;
     if (strcmp ("lznt1", name) == 0) {
-      funcs->info                    = SQUASH_CODEC_INFO_CAN_FLUSH;
-      funcs->create_stream           = squash_ms_create_stream;
-      funcs->process_stream          = squash_ms_process_stream;
+      impl->info                    = SQUASH_CODEC_INFO_CAN_FLUSH;
+      impl->create_stream           = squash_ms_create_stream;
+      impl->process_stream          = squash_ms_process_stream;
     }
   } else {
     return SQUASH_UNABLE_TO_LOAD;

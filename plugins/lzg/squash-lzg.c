@@ -59,7 +59,7 @@ const lzg_encoder_config_t squash_lzg_default_config = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_lzg_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -118,15 +118,15 @@ squash_lzg_decompress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("lzg", name) == 0) {
-    funcs->options = squash_lzg_options;
-    funcs->get_uncompressed_size = squash_lzg_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_lzg_get_max_compressed_size;
-    funcs->decompress_buffer = squash_lzg_decompress_buffer;
-    funcs->compress_buffer = squash_lzg_compress_buffer;
+    impl->options = squash_lzg_options;
+    impl->get_uncompressed_size = squash_lzg_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_lzg_get_max_compressed_size;
+    impl->decompress_buffer = squash_lzg_decompress_buffer;
+    impl->compress_buffer = squash_lzg_compress_buffer;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

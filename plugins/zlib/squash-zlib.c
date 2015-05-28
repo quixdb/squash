@@ -92,7 +92,7 @@ static SquashOptionInfo squash_zlib_options[] = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus              squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 
 static SquashZlibType     squash_zlib_codec_to_type  (SquashCodec* codec);
 
@@ -324,17 +324,17 @@ squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("gzip", name) == 0 ||
       strcmp ("zlib", name) == 0 ||
       strcmp ("deflate", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->options = squash_zlib_options;
-    funcs->create_stream = squash_zlib_create_stream;
-    funcs->process_stream = squash_zlib_process_stream;
-    funcs->get_max_compressed_size = squash_zlib_get_max_compressed_size;
+    impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    impl->options = squash_zlib_options;
+    impl->create_stream = squash_zlib_create_stream;
+    impl->process_stream = squash_zlib_process_stream;
+    impl->get_max_compressed_size = squash_zlib_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

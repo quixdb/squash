@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -164,7 +164,7 @@ squash_stream_thread_func (SquashStream* stream) {
   }
   priv->request = SQUASH_OPERATION_INVALID;
 
-  priv->result = stream->codec->funcs.process_stream (stream, operation);
+  priv->result = stream->codec->impl.process_stream (stream, operation);
   priv->finished = true;
   cnd_signal (&(priv->result_cnd));
   mtx_unlock (&(priv->io_mtx));
@@ -267,7 +267,7 @@ squash_stream_init (void* stream,
   s->user_data = NULL;
   s->destroy_user_data = NULL;
 
-  if (SQUASH_UNLIKELY((codec->funcs.info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD)) {
+  if (SQUASH_UNLIKELY((codec->impl.info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD)) {
     s->priv = malloc (sizeof (SquashStreamPrivate));
 
     mtx_init (&(s->priv->io_mtx), mtx_plain);
@@ -426,7 +426,7 @@ squash_stream_new_with_options (const char* codec,
 static SquashStatus
 squash_stream_process_internal (SquashStream* stream, SquashOperation operation) {
   SquashCodec* codec;
-  SquashCodecFuncs* funcs = NULL;
+  SquashCodecImpl* impl = NULL;
   SquashStatus res;
   SquashOperation current_operation = SQUASH_OPERATION_PROCESS;
   SquashStreamPrivate* priv = (SquashStreamPrivate*) stream->priv;
@@ -434,12 +434,12 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   assert (stream != NULL);
   codec = stream->codec;
   assert (codec != NULL);
-  funcs = squash_codec_get_funcs (codec);
-  assert (funcs != NULL);
+  impl = squash_codec_get_impl (codec);
+  assert (impl != NULL);
 
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
-  if (operation == SQUASH_OPERATION_FLUSH && ((funcs->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0)) {
+  if (operation == SQUASH_OPERATION_FLUSH && ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0)) {
     return squash_error (SQUASH_INVALID_OPERATION);
   }
 
@@ -527,23 +527,23 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       /* Process */
       if (stream->avail_in == 0 && stream->state == SQUASH_STREAM_STATE_IDLE) {
         res = SQUASH_OK;
-      } else if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
+      } else if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
         res = squash_stream_send_to_thread (stream, current_operation);
-      } else if (funcs->process_stream != NULL) {
-        res = funcs->process_stream (stream, current_operation);
+      } else if (impl->process_stream != NULL) {
+        res = impl->process_stream (stream, current_operation);
       } else {
         res = squash_buffer_stream_process ((SquashBufferStream*) stream);
       }
     } else if (current_operation == SQUASH_OPERATION_FLUSH) {
       /* Flush */
       if (current_operation == operation) {
-        if ((funcs->info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH) {
-          if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
+        if ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH) {
+          if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
             res = squash_stream_send_to_thread (stream, current_operation);
-          } else if (funcs->process_stream == NULL) {
+          } else if (impl->process_stream == NULL) {
             return squash_error (SQUASH_INVALID_OPERATION);
           } else {
-            res = funcs->process_stream (stream, current_operation);
+            res = impl->process_stream (stream, current_operation);
           }
         } else {
           /* We aready checked to make sure the stream is flushable if
@@ -556,12 +556,12 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       }
     } else if (current_operation == SQUASH_OPERATION_FINISH) {
       /* Finish */
-      if (funcs->process_stream != NULL) {
-        if ((funcs->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
+      if (impl->process_stream != NULL) {
+        if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
           if (!(priv->finished))
             res = squash_stream_send_to_thread (stream, current_operation);
         } else {
-          res = funcs->process_stream (stream, current_operation);
+          res = impl->process_stream (stream, current_operation);
         }
       } else {
         res = squash_buffer_stream_finish ((SquashBufferStream*) stream);

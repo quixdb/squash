@@ -67,7 +67,7 @@ typedef struct SquashBrotliStream_s {
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init            (SquashPlugin* plugin);
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void                 squash_brotli_stream_init     (SquashBrotliStream* stream,
                                                            SquashCodec* codec,
@@ -299,17 +299,17 @@ squash_plugin_init (SquashPlugin* plugin) {
 }
 
 extern "C" SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brotli", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->options = squash_brotli_options;
-    funcs->get_max_compressed_size = squash_brotli_get_max_compressed_size;
-    funcs->create_stream = squash_brotli_create_stream;
-    funcs->process_stream = squash_brotli_process_stream;
-    funcs->decompress_buffer = squash_brotli_decompress_buffer;
-    funcs->compress_buffer = squash_brotli_compress_buffer;
+    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
+    impl->options = squash_brotli_options;
+    impl->get_max_compressed_size = squash_brotli_get_max_compressed_size;
+    impl->create_stream = squash_brotli_create_stream;
+    impl->process_stream = squash_brotli_process_stream;
+    impl->decompress_buffer = squash_brotli_decompress_buffer;
+    impl->compress_buffer = squash_brotli_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

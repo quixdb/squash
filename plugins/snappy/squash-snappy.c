@@ -87,7 +87,7 @@ typedef struct SquashSnappyFramedStream_s {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus                     squash_plugin_init_codec       (SquashCodec* codec,
-                                                                 SquashCodecFuncs* funcs);
+                                                                 SquashCodecImpl* impl);
 
 static size_t
 squash_snappy_framed_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -625,19 +625,19 @@ squash_snappy_framed_process_stream (SquashStream* stream, SquashOperation opera
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("snappy", name) == 0) {
-    funcs->get_uncompressed_size = squash_snappy_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_snappy_get_max_compressed_size;
-    funcs->decompress_buffer = squash_snappy_decompress_buffer;
-    funcs->compress_buffer = squash_snappy_compress_buffer;
+    impl->get_uncompressed_size = squash_snappy_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_snappy_get_max_compressed_size;
+    impl->decompress_buffer = squash_snappy_decompress_buffer;
+    impl->compress_buffer = squash_snappy_compress_buffer;
   } else if (strcmp ("snappy-framed", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->get_max_compressed_size = squash_snappy_framed_get_max_compressed_size;
-    funcs->create_stream = squash_snappy_framed_create_stream;
-    funcs->process_stream = squash_snappy_framed_process_stream;
+    impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    impl->get_max_compressed_size = squash_snappy_framed_get_max_compressed_size;
+    impl->create_stream = squash_snappy_framed_create_stream;
+    impl->process_stream = squash_snappy_framed_process_stream;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

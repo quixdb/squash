@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -38,7 +38,7 @@ void                    squash_codec_set_extension           (SquashCodec* codec
 void                    squash_codec_set_priority            (SquashCodec* codec, unsigned int priority);
 int                     squash_codec_compare                 (SquashCodec* a, SquashCodec* b);
 int                     squash_codec_extension_compare       (SquashCodec* a, SquashCodec* b);
-SquashCodecFuncs*       squash_codec_get_funcs               (SquashCodec* codec);
+SquashCodecImpl*        squash_codec_get_impl                (SquashCodec* codec);
 const SquashOptionInfo* squash_codec_get_option_info_by_name (SquashCodec* codec, const char* key);
 
 SQUASH_TREE_PROTOTYPES(_SquashCodec, tree)

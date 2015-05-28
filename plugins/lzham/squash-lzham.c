@@ -84,7 +84,7 @@ static SquashOptionInfo squash_lzham_options[] = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void                squash_lzham_stream_init     (SquashLZHAMStream* stream,
                                                          SquashCodec* codec,
@@ -342,15 +342,15 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   if (strcmp ("lzham", squash_codec_get_name (codec)) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->options = squash_lzham_options;
-    funcs->create_stream = squash_lzham_create_stream;
-    funcs->process_stream = squash_lzham_process_stream;
-    funcs->get_max_compressed_size = squash_lzham_get_max_compressed_size;
-    funcs->decompress_buffer = squash_lzham_decompress_buffer;
-    funcs->compress_buffer = squash_lzham_compress_buffer;
+    impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    impl->options = squash_lzham_options;
+    impl->create_stream = squash_lzham_create_stream;
+    impl->process_stream = squash_lzham_process_stream;
+    impl->get_max_compressed_size = squash_lzham_get_max_compressed_size;
+    impl->decompress_buffer = squash_lzham_decompress_buffer;
+    impl->compress_buffer = squash_lzham_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }

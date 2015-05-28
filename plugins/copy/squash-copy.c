@@ -35,7 +35,7 @@ typedef struct SquashCopyStream_s {
 } SquashCopyStream;
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus             squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus             squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void              squash_copy_stream_init     (SquashCopyStream* stream,
                                                       SquashCodec* codec,
@@ -145,17 +145,17 @@ squash_copy_decompress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
+squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("copy", name) == 0) {
-    funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->get_uncompressed_size = squash_copy_get_uncompressed_size;
-    funcs->get_max_compressed_size = squash_copy_get_max_compressed_size;
-    funcs->decompress_buffer = squash_copy_decompress_buffer;
-    funcs->compress_buffer = squash_copy_compress_buffer;
-    funcs->create_stream = squash_copy_create_stream;
-    funcs->process_stream = squash_copy_process_stream;
+    impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    impl->get_uncompressed_size = squash_copy_get_uncompressed_size;
+    impl->get_max_compressed_size = squash_copy_get_max_compressed_size;
+    impl->decompress_buffer = squash_copy_decompress_buffer;
+    impl->compress_buffer = squash_copy_compress_buffer;
+    impl->create_stream = squash_copy_create_stream;
+    impl->process_stream = squash_copy_process_stream;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

@@ -40,7 +40,7 @@ typedef struct _SquashOptions    SquashOptions;
 typedef struct _SquashStream     SquashStream;
 typedef struct _SquashContext    SquashContext;
 typedef struct _SquashCodec      SquashCodec;
-typedef struct _SquashCodecFuncs SquashCodecFuncs;
+typedef struct _SquashCodecImpl  SquashCodecImpl;
 typedef struct _SquashPlugin     SquashPlugin;
 
 SQUASH_END_DECLS
