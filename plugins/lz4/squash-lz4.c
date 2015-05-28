@@ -34,81 +34,24 @@
 #include <lz4.h>
 #include <lz4hc.h>
 
-#define SQUASH_LZ4_DICT_SIZE ((size_t) 65536)
+enum SquashLZ4OptIndex {
+  SQUASH_LZ4_OPT_LEVEL = 0
+};
 
-#define SQUASH_LZ4_DEFAULT_LEVEL 7
-
-typedef struct SquashLZ4Options_s {
-  SquashOptions base_object;
-
-  int level;
-} SquashLZ4Options;
+static SquashOptionInfo squash_lz4_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 7,
+      .max = 14 },
+    .default_value.int_value = 7 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 SquashStatus             squash_plugin_init_lz4f    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void              squash_lz4_options_init    (SquashLZ4Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashLZ4Options* squash_lz4_options_new     (SquashCodec* codec);
-static void              squash_lz4_options_destroy (void* options);
-static void              squash_lz4_options_free    (void* options);
-
-static void
-squash_lz4_options_init (SquashLZ4Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = SQUASH_LZ4_DEFAULT_LEVEL;
-}
-
-static SquashLZ4Options*
-squash_lz4_options_new (SquashCodec* codec) {
-  SquashLZ4Options* options;
-
-  options = (SquashLZ4Options*) malloc (sizeof (SquashLZ4Options));
-  squash_lz4_options_init (options, codec, squash_lz4_options_free);
-
-  return options;
-}
-
-static void
-squash_lz4_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_lz4_options_free (void* options) {
-  squash_lz4_options_destroy ((SquashLZ4Options*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_lz4_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_lz4_options_new (codec);
-}
-
-static SquashStatus
-squash_lz4_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashLZ4Options* opts = (SquashLZ4Options*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if (*endptr == '\0' && level > 6 && level < 15) {
-      opts->level = level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_lz4_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -184,10 +127,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                             size_t uncompressed_length,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
-  int level = SQUASH_LZ4_DEFAULT_LEVEL;
-
-  if (options != NULL)
-    level = ((SquashLZ4Options*) options)->level;
+  int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
 
   if (level == 7) {
     *compressed_length = LZ4_compress_limitedOutput ((char*) uncompressed,
@@ -221,12 +161,9 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                    size_t uncompressed_length,
                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                    SquashOptions* options) {
-  int level = SQUASH_LZ4_DEFAULT_LEVEL;
+  int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
 
   assert (*compressed_length >= LZ4_COMPRESSBOUND(uncompressed_length));
-
-  if (options != NULL)
-    level = ((SquashLZ4Options*) options)->level;
 
   if (level == 7) {
     *compressed_length = LZ4_compress ((char*) uncompressed,
@@ -255,8 +192,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("lz4", name) == 0) {
-    funcs->create_options = squash_lz4_create_options;
-    funcs->parse_option = squash_lz4_parse_option;
+    funcs->options = squash_lz4_options;
     funcs->get_max_compressed_size = squash_lz4_get_max_compressed_size;
     funcs->decompress_buffer = squash_lz4_decompress_buffer;
     funcs->compress_buffer = squash_lz4_compress_buffer;

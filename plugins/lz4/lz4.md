@@ -28,7 +28,7 @@ http://fastcompression.blogspot.com/p/lz4.html
 
 - **level** (integer, 0 - 16, default 0) — higher = better
   compression ratio but slower compression speed
-- **block-size** (enum) — input block size
+- **block-size** (enum, default 4) — input block size
   - 4 — 64 KiB
   - 5 — 256 KiB
   - 6 — 1 MiB

@@ -39,11 +39,15 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-typedef struct _SquashZlingOptions {
-  SquashOptions base_object;
+enum SquashZlingOptIndex {
+  SQUASH_ZLING_OPT_LEVEL = 0
+};
 
-  int level;
-} SquashZlingOptions;
+static SquashOptionInfo squash_zling_options[] = {
+  { (char*) "level",
+    SQUASH_OPTION_TYPE_RANGE_INT, },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 typedef struct _SquashZlingStream SquashZlingStream;
 
@@ -70,18 +74,15 @@ struct _SquashZlingStream {
 
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void                squash_zling_options_init    (SquashZlingOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashZlingOptions* squash_zling_options_new     (SquashCodec* codec);
-static void                squash_zling_options_destroy (void* options);
-static void                squash_zling_options_free    (void* options);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus               squash_plugin_init           (SquashPlugin* plugin);
 
 static void                squash_zling_stream_init     (SquashZlingStream* stream,
                                                          SquashCodec* codec,
                                                          SquashStreamType stream_type,
-                                                         SquashZlingOptions* options,
+                                                         SquashOptions* options,
                                                          SquashDestroyNotify destroy_notify);
-static SquashZlingStream*  squash_zling_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashZlingOptions* options);
+static SquashZlingStream*  squash_zling_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                squash_zling_stream_destroy  (void* stream);
 static void                squash_zling_stream_free     (void* stream);
 
@@ -145,65 +146,9 @@ SquashZlingIO::IsErr() {
   return false;
 }
 
-static void
-squash_zling_options_init (SquashZlingOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-	options->level = SQUASH_ZLING_DEFAULT_LEVEL;
-}
-
-static SquashZlingOptions*
-squash_zling_options_new (SquashCodec* codec) {
-  SquashZlingOptions* options;
-
-  options = (SquashZlingOptions*) malloc (sizeof (SquashZlingOptions));
-  squash_zling_options_init (options, codec, squash_zling_options_free);
-
-  return options;
-}
-
-static void
-squash_zling_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_zling_options_free (void* options) {
-  squash_zling_options_destroy ((SquashZlingOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_zling_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_zling_options_new (codec);
-}
-
-static SquashStatus
-squash_zling_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashZlingOptions* opts = (SquashZlingOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 0 && level <= 4 ) {
-      opts->level = level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashZlingStream* squash_zling_stream_new (SquashCodec* codec,
-                                                 SquashStreamType stream_type,
-                                                 SquashZlingOptions* options) {
+                                                   SquashStreamType stream_type,
+                                                   SquashOptions* options) {
   SquashZlingStream* stream;
 
   assert (codec != NULL);
@@ -217,11 +162,11 @@ static SquashZlingStream* squash_zling_stream_new (SquashCodec* codec,
 
 static void
 squash_zling_stream_init (SquashZlingStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashZlingOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+                          SquashCodec* codec,
+                          SquashStreamType stream_type,
+                          SquashOptions* options,
+                          SquashDestroyNotify destroy_notify) {
+  squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
 
   stream->stream = new SquashZlingIO(stream);
 }
@@ -241,7 +186,7 @@ squash_zling_stream_free (void* stream) {
 
 static SquashStream*
 squash_zling_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zling_stream_new (codec, stream_type, (SquashZlingOptions*) options);
+  return (SquashStream*) squash_zling_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -255,7 +200,7 @@ squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
     if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
       int level = SQUASH_ZLING_DEFAULT_LEVEL;
       if (stream->options != NULL)
-        level = ((SquashZlingOptions*) stream->options)->level;
+        level = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_ZLING_OPT_LEVEL);
 
       res = baidu::zling::Encode(s->stream, s->stream, NULL, level) == 0 ?
         SQUASH_OK : squash_error (SQUASH_FAILED);
@@ -279,13 +224,20 @@ squash_zling_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
 }
 
 extern "C" SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  const SquashOptionInfoRangeInt level_range = { 0, 4, 0, false };
+
+  squash_zling_options[SQUASH_ZLING_OPT_LEVEL].default_value.int_value = 0;
+  squash_zling_options[SQUASH_ZLING_OPT_LEVEL].info.range_int = level_range;
+}
+
+extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zling", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->create_options = squash_zling_create_options;
-    funcs->parse_option = squash_zling_parse_option;
+    funcs->options = squash_zling_options;
     funcs->create_stream = squash_zling_create_stream;
     funcs->process_stream = squash_zling_process_stream;
     funcs->get_max_compressed_size = squash_zling_get_max_compressed_size;

@@ -33,12 +33,13 @@
 
 SQUASH_BEGIN_DECLS
 
-SquashCodec*      squash_codec_new               (SquashPlugin* plugin, const char* name);
-void              squash_codec_set_extension     (SquashCodec* codec, const char* extension);
-void              squash_codec_set_priority      (SquashCodec* codec, unsigned int priority);
-int               squash_codec_compare           (SquashCodec* a, SquashCodec* b);
-int               squash_codec_extension_compare (SquashCodec* a, SquashCodec* b);
-SquashCodecFuncs* squash_codec_get_funcs         (SquashCodec* codec);
+SquashCodec*            squash_codec_new                     (SquashPlugin* plugin, const char* name);
+void                    squash_codec_set_extension           (SquashCodec* codec, const char* extension);
+void                    squash_codec_set_priority            (SquashCodec* codec, unsigned int priority);
+int                     squash_codec_compare                 (SquashCodec* a, SquashCodec* b);
+int                     squash_codec_extension_compare       (SquashCodec* a, SquashCodec* b);
+SquashCodecFuncs*       squash_codec_get_funcs               (SquashCodec* codec);
+const SquashOptionInfo* squash_codec_get_option_info_by_name (SquashCodec* codec, const char* key);
 
 SQUASH_TREE_PROTOTYPES(_SquashCodec, tree)
 SQUASH_TREE_DEFINE(_SquashCodec, tree)

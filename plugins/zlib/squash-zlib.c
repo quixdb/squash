@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -39,15 +39,6 @@ typedef enum SquashZlibType_e {
   SQUASH_ZLIB_TYPE_DEFLATE
 } SquashZlibType;
 
-typedef struct SquashZlibOptions_s {
-  SquashOptions base_object;
-
-  int level;
-  int window_bits;
-  int mem_level;
-  int strategy;
-} SquashZlibOptions;
-
 typedef struct SquashZlibStream_s {
   SquashStream base_object;
 
@@ -60,22 +51,57 @@ typedef struct SquashZlibStream_s {
 #define SQUASH_ZLIB_DEFAULT_MEM_LEVEL 8
 #define SQUASH_ZLIB_DEFAULT_STRATEGY Z_DEFAULT_STRATEGY
 
+enum SquashZlibOptIndex {
+  SQUASH_ZLIB_OPT_LEVEL = 0,
+  SQUASH_ZLIB_OPT_WINDOW_BITS,
+  SQUASH_ZLIB_OPT_MEM_LEVEL,
+  SQUASH_ZLIB_OPT_STRATEGY
+};
+
+static SquashOptionInfo squash_zlib_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 9 },
+    .default_value.int_value = SQUASH_ZLIB_DEFAULT_LEVEL },
+  { "window-bits",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 8,
+      .max = 15 },
+    .default_value.int_value = SQUASH_ZLIB_DEFAULT_WINDOW_BITS },
+  { "mem-level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 9 },
+    .default_value.int_value = SQUASH_ZLIB_DEFAULT_MEM_LEVEL },
+  { "strategy",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "default", Z_DEFAULT_STRATEGY },
+        { "filtered", Z_FILTERED },
+        { "huffman", Z_HUFFMAN_ONLY },
+        { "rle", Z_RLE },
+        { "fixed", Z_FIXED },
+        { NULL, 0 } } },
+    .default_value.int_value = SQUASH_ZLIB_DEFAULT_STRATEGY },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
+
 SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
+SquashStatus              squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
 
-static SquashZlibType     squash_zlib_codec_to_type   (SquashCodec* codec);
+static SquashZlibType     squash_zlib_codec_to_type  (SquashCodec* codec);
 
-static void               squash_zlib_options_init    (SquashZlibOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashZlibOptions* squash_zlib_options_new     (SquashCodec* codec);
-static void               squash_zlib_options_destroy (void* options);
-static void               squash_zlib_options_free    (void* options);
-
-static void               squash_zlib_stream_init     (SquashZlibStream* stream,
-                                                       SquashCodec* codec,
-                                                       SquashStreamType stream_type,
-                                                       SquashZlibOptions* options,
-                                                       SquashDestroyNotify destroy_notify);
-static SquashZlibStream*  squash_zlib_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashZlibOptions* options);
+static void               squash_zlib_stream_init    (SquashZlibStream* stream,
+                                                      SquashCodec* codec,
+                                                      SquashStreamType stream_type,
+                                                      SquashOptions* options,
+                                                      SquashDestroyNotify destroy_notify);
+static SquashZlibStream*  squash_zlib_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_zlib_stream_destroy (void* stream);
 static void               squash_zlib_stream_free    (void* stream);
 
@@ -93,98 +119,10 @@ static SquashZlibType squash_zlib_codec_to_type (SquashCodec* codec) {
 }
 
 static void
-squash_zlib_options_init (SquashZlibOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = SQUASH_ZLIB_DEFAULT_LEVEL;
-  options->window_bits = SQUASH_ZLIB_DEFAULT_WINDOW_BITS;
-  options->mem_level = SQUASH_ZLIB_DEFAULT_MEM_LEVEL;
-  options->strategy = SQUASH_ZLIB_DEFAULT_STRATEGY;
-}
-
-static SquashZlibOptions*
-squash_zlib_options_new (SquashCodec* codec) {
-  SquashZlibOptions* options;
-
-  options = (SquashZlibOptions*) malloc (sizeof (SquashZlibOptions));
-  squash_zlib_options_init (options, codec, squash_zlib_options_free);
-
-  return options;
-}
-
-static void
-squash_zlib_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_zlib_options_free (void* options) {
-  squash_zlib_options_destroy ((SquashZlibOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_zlib_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_zlib_options_new (codec);
-}
-
-static SquashStatus
-squash_zlib_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashZlibOptions* opts = (SquashZlibOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 9 ) {
-      opts->level = level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "window-bits") == 0) {
-    const int window_bits = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && window_bits >= 8 && window_bits <= 15 ) {
-      opts->window_bits = window_bits;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "mem-level") == 0) {
-    const int mem_level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && mem_level >= 1 && mem_level <= 9 ) {
-      opts->mem_level = mem_level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "strategy") == 0) {
-    if (strcasecmp (value, "default") == 0) {
-      opts->strategy = Z_DEFAULT_STRATEGY;
-    } else if (strcasecmp (value, "filtered") == 0) {
-      opts->strategy = Z_FILTERED;
-    } else if (strcasecmp (value, "huffman") == 0 ||
-               strcasecmp (value, "huffman-only") == 0) {
-      opts->strategy = Z_HUFFMAN_ONLY;
-    } else if (strcasecmp (value, "rle") == 0) {
-      opts->strategy = Z_RLE;
-    } else if (strcasecmp (value, "fixed") == 0) {
-      opts->strategy = Z_FIXED;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
-
-static void
 squash_zlib_stream_init (SquashZlibStream* stream,
                          SquashCodec* codec,
                          SquashStreamType stream_type,
-                         SquashZlibOptions* options,
+                         SquashOptions* options,
                          SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
@@ -213,7 +151,7 @@ squash_zlib_stream_free (void* stream) {
 }
 
 static SquashZlibStream*
-squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashZlibOptions* options) {
+squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   int zlib_e = 0;
   SquashZlibStream* stream;
   int window_bits;
@@ -226,7 +164,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   stream->type = squash_zlib_codec_to_type (codec);
 
-  window_bits = (options != NULL) ? options->window_bits : SQUASH_ZLIB_DEFAULT_WINDOW_BITS;
+  window_bits = squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_WINDOW_BITS);
   if (stream->type == SQUASH_ZLIB_TYPE_DEFLATE) {
     window_bits = -window_bits;
   } else if (stream->type == SQUASH_ZLIB_TYPE_GZIP) {
@@ -235,11 +173,11 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     zlib_e = deflateInit2 (&(stream->stream),
-                           (options != NULL) ? options->level : SQUASH_ZLIB_DEFAULT_LEVEL,
+                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_LEVEL),
                            Z_DEFLATED,
                            window_bits,
-                           (options != NULL) ? options->mem_level : SQUASH_ZLIB_DEFAULT_MEM_LEVEL,
-                           (options != NULL) ? options->strategy : SQUASH_ZLIB_DEFAULT_STRATEGY);
+                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_MEM_LEVEL),
+                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_STRATEGY));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     zlib_e = inflateInit2 (&(stream->stream), window_bits);
   } else {
@@ -255,7 +193,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
 static SquashStream*
 squash_zlib_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zlib_stream_new (codec, stream_type, (SquashZlibOptions*) options);
+  return (SquashStream*) squash_zlib_stream_new (codec, stream_type, options);
 }
 
 #define SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream,zlib_stream) \
@@ -393,8 +331,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
       strcmp ("zlib", name) == 0 ||
       strcmp ("deflate", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->create_options = squash_zlib_create_options;
-    funcs->parse_option = squash_zlib_parse_option;
+    funcs->options = squash_zlib_options;
     funcs->create_stream = squash_zlib_create_stream;
     funcs->process_stream = squash_zlib_process_stream;
     funcs->get_max_compressed_size = squash_zlib_get_max_compressed_size;

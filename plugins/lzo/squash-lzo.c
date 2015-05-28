@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -58,12 +58,6 @@ typedef struct _SquashLZOCodec {
   const SquashLZOCompressor* compressors;
 } SquashLZOCodec;
 
-typedef struct _SquashLZOOptions {
-  SquashOptions base_object;
-
-  const SquashLZOCompressor* compressor;
-} SquashLZOOptions;
-
 typedef struct _SquashLZOStream {
   SquashStream base_object;
 
@@ -71,16 +65,34 @@ typedef struct _SquashLZOStream {
   SquashLZOCompressor* compressor;
 } SquashLZOStream;
 
+enum SquashLZMAOptIndex {
+  SQUASH_LZO_OPT_LEVEL = 0,
+};
+
 static const SquashLZOCompressor squash_lzo1_compressors[] = {
   { 1, LZO1_MEM_COMPRESS, lzo1_compress },
   { 99, LZO1_99_MEM_COMPRESS, lzo1_99_compress },
   { 0, }
 };
 
+static SquashOptionInfo squash_lzo1_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 2, (const int[]) { 1, 99 } },
+    .default_value.int_value = 1 }
+};
+
 static const SquashLZOCompressor squash_lzo1a_compressors[] = {
   { 1, LZO1A_MEM_COMPRESS, lzo1a_compress },
   { 99, LZO1A_99_MEM_COMPRESS, lzo1a_99_compress },
   { 0, }
+};
+
+static SquashOptionInfo squash_lzo1a_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 2, (const int[]) { 1, 99 } },
+    .default_value.int_value = 1 }
 };
 
 static const SquashLZOCompressor squash_lzo1b_compressors[] = {
@@ -98,6 +110,13 @@ static const SquashLZOCompressor squash_lzo1b_compressors[] = {
   { 0, }
 };
 
+static SquashOptionInfo squash_lzo1b_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 11, (const int[]) { 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 999 } },
+    .default_value.int_value = 1 }
+};
+
 static const SquashLZOCompressor squash_lzo1c_compressors[] = {
   { 1, LZO1C_MEM_COMPRESS, lzo1c_1_compress },
   { 2, LZO1C_MEM_COMPRESS, lzo1c_2_compress },
@@ -113,10 +132,24 @@ static const SquashLZOCompressor squash_lzo1c_compressors[] = {
   { 0, }
 };
 
+static SquashOptionInfo squash_lzo1c_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 11, (const int[]) { 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 999 } },
+    .default_value.int_value = 1 }
+};
+
 static const SquashLZOCompressor squash_lzo1f_compressors[] = {
   { 1, LZO1F_MEM_COMPRESS, lzo1f_1_compress },
   { 999, LZO1F_999_MEM_COMPRESS, lzo1f_999_compress },
   { 0, }
+};
+
+static SquashOptionInfo squash_lzo1f_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 2, (const int[]) { 1, 999 } },
+    .default_value.int_value = 1 }
 };
 
 static const SquashLZOCompressor squash_lzo1x_compressors[] = {
@@ -128,16 +161,37 @@ static const SquashLZOCompressor squash_lzo1x_compressors[] = {
   { 0, }
 };
 
+static SquashOptionInfo squash_lzo1x_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 5, (const int[]) { 1, 11, 12, 15, 999 } },
+    .default_value.int_value = 1 }
+};
+
 static const SquashLZOCompressor squash_lzo1y_compressors[] = {
   { 1, LZO1Y_MEM_COMPRESS, lzo1y_1_compress },
   { 999, LZO1Y_999_MEM_COMPRESS, lzo1y_999_compress },
   { 0, }
 };
 
+static SquashOptionInfo squash_lzo1y_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 2, (const int[]) { 1, 999 } },
+    .default_value.int_value = 1 }
+};
+
 static const SquashLZOCompressor squash_lzo1z_compressors[] = {
   /* { 1, LZO1Z_MEM_COMPRESS, lzo1z_1_compress }, */
   { 999, LZO1Z_999_MEM_COMPRESS, lzo1z_999_compress },
   { 0, }
+};
+
+static SquashOptionInfo squash_lzo1z_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = { 1, (const int[]) { 999 } },
+    .default_value.int_value = 999 }
 };
 
 static const SquashLZOCodec squash_lzo_codecs[] = {
@@ -213,82 +267,13 @@ squash_lzo_status_to_squash_status (int lzo_e) {
   return res;
 }
 
-static void              squash_lzo_options_init    (SquashLZOOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashLZOOptions* squash_lzo_options_new     (SquashCodec* codec);
+static void              squash_lzo_options_init    (SquashOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
+static SquashOptions*    squash_lzo_options_new     (SquashCodec* codec);
 static void              squash_lzo_options_destroy (void* options);
 static void              squash_lzo_options_free    (void* options);
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void
-squash_lzo_options_init (SquashLZOOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  const SquashLZOCodec* lzo_codec;
-
-  assert (options != NULL);
-
-  lzo_codec = squash_lzo_codec_from_name (squash_codec_get_name (codec));
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-  options->compressor = &(lzo_codec->compressors[0]);
-}
-
-static SquashLZOOptions*
-squash_lzo_options_new (SquashCodec* codec) {
-  SquashLZOOptions* options;
-
-  options = (SquashLZOOptions*) malloc (sizeof (SquashLZOOptions));
-  squash_lzo_options_init (options, codec, squash_lzo_options_free);
-
-  return options;
-}
-
-static void
-squash_lzo_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_lzo_options_free (void* options) {
-  squash_lzo_options_destroy ((SquashLZOOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_lzo_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_lzo_options_new (codec);
-}
-
-static SquashStatus
-squash_lzo_parse_option (SquashOptions* options, const char* key, const char* value) {
-  const SquashLZOCodec* lzo_codec;
-  const SquashLZOCompressor* compressor;
-  SquashLZOOptions* opts = (SquashLZOOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-
-    if ( *endptr != '\0' ) {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-
-    lzo_codec = squash_lzo_codec_from_name (squash_codec_get_name (options->codec));
-    compressor = squash_lzo_codec_get_compressor (lzo_codec, level);
-
-    if ( compressor != NULL ) {
-      opts->compressor = compressor;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -343,7 +328,6 @@ squash_lzo_compress_buffer (SquashCodec* codec,
                             SquashOptions* options) {
   const SquashLZOCodec* lzo_codec;
   const SquashLZOCompressor* compressor;
-  SquashLZOOptions* opts = (SquashLZOOptions*) options;
   const char* codec_name;
   lzo_voidp work_mem = NULL;
   int lzo_e;
@@ -355,7 +339,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   lzo_codec = squash_lzo_codec_from_name (codec_name);
   assert (lzo_codec != NULL);
 
-  compressor = (opts == NULL) ? &(lzo_codec->compressors[0]) : opts->compressor;
+  compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_codec_get_option_int_index (codec, options, SQUASH_LZO_OPT_LEVEL));
 
   if (compressor->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (compressor->work_mem);
@@ -385,15 +369,43 @@ squash_plugin_init (SquashPlugin* plugin) {
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
-  if (squash_lzo_codec_from_name (squash_codec_get_name (codec)) != NULL) {
-    funcs->create_options = squash_lzo_create_options;
-    funcs->parse_option = squash_lzo_parse_option;
-    funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
-    funcs->decompress_buffer = squash_lzo_decompress_buffer;
-    funcs->compress_buffer_unsafe = squash_lzo_compress_buffer;
-  } else {
+  const char* codec_name = squash_codec_get_name (codec);
+
+  if (strncmp ("lzo1", codec_name, 3) != 0)
     return squash_error (SQUASH_UNABLE_TO_LOAD);
+
+  switch (codec_name[4]) {
+    case '\0':
+      funcs->options = squash_lzo1_options;
+      break;
+    case 'a':
+      funcs->options = squash_lzo1a_options;
+      break;
+    case 'b':
+      funcs->options = squash_lzo1b_options;
+      break;
+    case 'c':
+      funcs->options = squash_lzo1c_options;
+      break;
+    case 'f':
+      funcs->options = squash_lzo1f_options;
+      break;
+    case 'x':
+      funcs->options = squash_lzo1x_options;
+      break;
+    case 'y':
+      funcs->options = squash_lzo1y_options;
+      break;
+    case 'z':
+      funcs->options = squash_lzo1z_options;
+      break;
+    default:
+      return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
+
+  funcs->get_max_compressed_size = squash_lzo_get_max_compressed_size;
+  funcs->decompress_buffer = squash_lzo_decompress_buffer;
+  funcs->compress_buffer_unsafe = squash_lzo_compress_buffer;
 
   return SQUASH_OK;
 }

@@ -36,78 +36,23 @@
 
 #define SQUASH_PITHY_DEFAULT_LEVEL 3
 
-typedef struct SquashPithyOptions_s {
-  SquashOptions base_object;
+enum SquashPithyOptIndex {
+  SQUASH_PITHY_OPT_LEVEL = 0,
+};
 
-  int level;
-} SquashPithyOptions;
+static SquashOptionInfo squash_pithy_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 0,
+      .max = 9 },
+    .default_value.int_value = 3 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec,
                                                          SquashCodecFuncs* funcs);
-
-static void                squash_pithy_options_init    (SquashPithyOptions* options,
-                                                         SquashCodec* codec,
-                                                         SquashDestroyNotify destroy_notify);
-static SquashPithyOptions* squash_pithy_options_new     (SquashCodec* codec);
-static void                squash_pithy_options_destroy (void* options);
-static void                squash_pithy_options_free    (void* options);
-
-static void
-squash_pithy_options_init (SquashPithyOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = SQUASH_PITHY_DEFAULT_LEVEL;
-}
-
-static SquashPithyOptions*
-squash_pithy_options_new (SquashCodec* codec) {
-  SquashPithyOptions* options;
-
-  options = (SquashPithyOptions*) malloc (sizeof (SquashPithyOptions));
-  squash_pithy_options_init (options, codec, squash_pithy_options_free);
-
-  return options;
-}
-
-static void
-squash_pithy_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_pithy_options_free (void* options) {
-  squash_pithy_options_destroy ((SquashPithyOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_pithy_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_pithy_options_new (codec);
-}
-
-static SquashStatus
-squash_pithy_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashPithyOptions* opts = (SquashPithyOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && (level >= 0 && level <= 9) ) {
-      opts->level = level == 9;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_pithy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -132,13 +77,7 @@ squash_pithy_compress_buffer (SquashCodec* codec,
                               size_t uncompressed_length,
                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                               SquashOptions* options) {
-  int level;
-  if (options != 0) {
-    SquashPithyOptions* opts = (SquashPithyOptions*) options;
-    level = opts->level;
-  } else {
-    level = SQUASH_PITHY_DEFAULT_LEVEL;
-  }
+  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_PITHY_OPT_LEVEL);
   *compressed_length = pithy_Compress ((const char*) uncompressed, uncompressed_length, (char*) compressed, *compressed_length, level);
   return (*compressed_length != 0) ? SQUASH_OK : SQUASH_FAILED;
 }
@@ -167,8 +106,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("pithy", name) == 0) {
-    funcs->create_options = squash_pithy_create_options;
-    funcs->parse_option = squash_pithy_parse_option;
+    funcs->options = squash_pithy_options;
     funcs->get_uncompressed_size = squash_pithy_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_pithy_get_max_compressed_size;
     funcs->decompress_buffer = squash_pithy_decompress_buffer;

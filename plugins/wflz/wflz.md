@@ -9,7 +9,7 @@ For information about wfLZ, see https://code.google.com/p/wflz/
 
 ## Options ##
 
-- **level** (integer, 1-2, default 2) — compression level.  Lower is
+- **level** (integer, 1-2, default 1) — compression level.  Lower is
   faster, higher has a better compression ratio.  2 is currently
   *very* slow.
 - **chunk-size** (*wflz-chunked*-only, integer, 4096 - UINT32_MAX,

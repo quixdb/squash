@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,75 +34,22 @@
 
 #include "fastlz/fastlz.h"
 
-typedef struct SquashFastLZOptions_s {
-  SquashOptions base_object;
+enum SquashFastLZOptIndex {
+  SQUASH_FASTLZ_OPT_LEVEL = 0
+};
 
-  int level;
-} SquashFastLZOptions;
+static SquashOptionInfo squash_fastlz_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 2 },
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void                 squash_fastlz_options_init    (SquashFastLZOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashFastLZOptions* squash_fastlz_options_new     (SquashCodec* codec);
-static void                 squash_fastlz_options_destroy (void* options);
-static void                 squash_fastlz_options_free    (void* options);
-
-static void
-squash_fastlz_options_init (SquashFastLZOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = 1;
-}
-
-static SquashFastLZOptions*
-squash_fastlz_options_new (SquashCodec* codec) {
-  SquashFastLZOptions* options;
-
-  options = (SquashFastLZOptions*) malloc (sizeof (SquashFastLZOptions));
-  squash_fastlz_options_init (options, codec, squash_fastlz_options_free);
-
-  return options;
-}
-
-static void
-squash_fastlz_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_fastlz_options_free (void* options) {
-  squash_fastlz_options_destroy ((SquashFastLZOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_fastlz_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_fastlz_options_new (codec);
-}
-
-static SquashStatus
-squash_fastlz_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashFastLZOptions* opts = (SquashFastLZOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 2 ) {
-      opts->level = level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_fastlz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -143,7 +90,7 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
     return SQUASH_BUFFER_FULL;
   }
 
-  *compressed_length = fastlz_compress_level ((options == NULL) ? 1 : ((SquashFastLZOptions*) options)->level,
+  *compressed_length = fastlz_compress_level (squash_codec_get_option_int_index (codec, options, SQUASH_FASTLZ_OPT_LEVEL),
                                               (const void*) uncompressed,
                                               (int) uncompressed_length,
                                               (void*) compressed);
@@ -156,8 +103,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("fastlz", name) == 0) {
-    funcs->create_options = squash_fastlz_create_options;
-    funcs->parse_option = squash_fastlz_parse_option;
+    funcs->options = squash_fastlz_options;
     funcs->get_max_compressed_size = squash_fastlz_get_max_compressed_size;
     funcs->decompress_buffer = squash_fastlz_decompress_buffer;
     funcs->compress_buffer = squash_fastlz_compress_buffer;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -45,13 +45,37 @@ static const union {
 
 #define SQUASH_WFLZ_HOST_ORDER (squash_wflz_host_order.value)
 
-typedef struct SquashWflzOptions_s {
-  SquashOptions base_object;
+enum SquashWflzOptIndex {
+  SQUASH_WFLZ_OPT_LEVEL = 0,
+  SQUASH_WFLZ_OPT_CHUNK_SIZE,
+  SQUASH_WFLZ_OPT_ENDIANNESS
+};
 
-  int level;
-  uint32_t endianness;
-  uint32_t chunk_size;
-} SquashWflzOptions;
+static SquashOptionInfo squash_wflz_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 2 },
+    .default_value.int_value = 1 },
+  { "chunk-size",
+    SQUASH_OPTION_TYPE_RANGE_SIZE,
+    .info.range_size = {
+      .min = 4096,
+      .max = UINT32_MAX,
+      .modulus = 16,
+      .allow_zero = false },
+    .default_value.int_value = 16384 },
+  { "endianness",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "little", SQUASH_WFLZ_LITTLE_ENDIAN },
+        { "big", SQUASH_WFLZ_BIG_ENDIAN },
+        { NULL, 0 } } },
+    .default_value.int_value = SQUASH_WFLZ_LITTLE_ENDIAN },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 #define SQUASH_WFLZ_DEFAULT_LEVEL 1
 #define SQUASH_WFLZ_DEFAULT_ENDIAN SQUASH_WFLZ_LITTLE_ENDIAN
@@ -60,84 +84,6 @@ typedef struct SquashWflzOptions_s {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void               squash_wflz_options_init    (SquashWflzOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashWflzOptions* squash_wflz_options_new     (SquashCodec* codec);
-static void               squash_wflz_options_destroy (void* options);
-static void               squash_wflz_options_free    (void* options);
-
-static void
-squash_wflz_options_init (SquashWflzOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = SQUASH_WFLZ_DEFAULT_LEVEL;
-  options->endianness = SQUASH_WFLZ_LITTLE_ENDIAN;
-  options->chunk_size = SQUASH_WFLZ_DEFAULT_CHUNK_SIZE;
-}
-
-static SquashWflzOptions*
-squash_wflz_options_new (SquashCodec* codec) {
-  SquashWflzOptions* options;
-
-  options = (SquashWflzOptions*) malloc (sizeof (SquashWflzOptions));
-  squash_wflz_options_init (options, codec, squash_wflz_options_free);
-
-  return options;
-}
-
-static void
-squash_wflz_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_wflz_options_free (void* options) {
-  squash_wflz_options_destroy ((SquashWflzOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_wflz_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_wflz_options_new (codec);
-}
-
-static SquashStatus
-squash_wflz_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashWflzOptions* opts = (SquashWflzOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const long level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 2 ) {
-      opts->level = (int) level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "endianness") == 0) {
-    if (strcasecmp (value, "little") == 0) {
-      opts->endianness = SQUASH_WFLZ_LITTLE_ENDIAN;
-    } else if (strcasecmp (value, "big")) {
-      opts->endianness = SQUASH_WFLZ_BIG_ENDIAN;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcmp (squash_codec_get_name (options->codec), "wflz-chunked") == 0 && strcasecmp (key, "chunk-size") == 0) {
-    const long level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= SQUASH_WFLZ_MIN_CHUNK_SIZE && (level % 16) == 0 ) {
-      opts->chunk_size = (uint32_t) level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -165,8 +111,8 @@ squash_wflz_compress_buffer (SquashCodec* codec,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                              SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
-  const uint32_t swap = ((options == NULL) ? SQUASH_WFLZ_DEFAULT_ENDIAN : ((SquashWflzOptions*) options)->endianness) != SQUASH_WFLZ_HOST_ORDER;
-  const int level = (options == NULL) ? SQUASH_WFLZ_DEFAULT_LEVEL : ((SquashWflzOptions*) options)->level;
+  const uint32_t swap = (squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
+  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_LEVEL);
 
   if (*compressed_length < wfLZ_GetMaxCompressedSize ((uint32_t) uncompressed_length)) {
     return squash_error (SQUASH_BUFFER_FULL);
@@ -185,7 +131,7 @@ squash_wflz_compress_buffer (SquashCodec* codec,
   } else {
     *compressed_length = (size_t)
       wfLZ_ChunkCompress ((uint8_t*) uncompressed, (uint32_t) uncompressed_length,
-                          (options == NULL) ? SQUASH_WFLZ_DEFAULT_CHUNK_SIZE : ((SquashWflzOptions*) options)->chunk_size,
+                          squash_codec_get_option_size_index (codec, options, SQUASH_WFLZ_OPT_CHUNK_SIZE),
                           compressed, work_mem, swap, level == 1 ? 1 : 0);
   }
 
@@ -237,8 +183,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
 
   if (strcmp ("wflz", name) == 0 ||
       strcmp ("wflz-chunked", name) == 0) {
-    funcs->create_options = squash_wflz_create_options;
-    funcs->parse_option = squash_wflz_parse_option;
+    funcs->options = squash_wflz_options;
     funcs->get_uncompressed_size = squash_wflz_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_wflz_get_max_compressed_size;
     funcs->decompress_buffer = squash_wflz_decompress_buffer;

@@ -36,11 +36,30 @@
 
 #define SQUASH_LZ4F_DICT_SIZE ((size_t) 65536)
 
-typedef struct SquashLZ4FOptions_s {
-  SquashOptions base_object;
+enum SquashLZ4FOptIndex {
+  SQUASH_LZ4F_OPT_LEVEL = 0,
+  SQUASH_LZ4F_OPT_BLOCK_SIZE,
+  SQUASH_LZ4F_OPT_CHECKSUM,
+};
 
-  LZ4F_preferences_t prefs;
-} SquashLZ4FOptions;
+static SquashOptionInfo squash_lz4f_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 0,
+      .max = 16 },
+    .default_value.int_value = 0 },
+  { "block-size",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 4,
+      .max = 7 },
+    .default_value.int_value = 4 },
+  { "checksum",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 enum SquashLZ4FState {
   SQUASH_LZ4F_STATE_INIT,
@@ -55,6 +74,7 @@ typedef struct SquashLZ4FStream_s {
   union {
     struct {
       LZ4F_compressionContext_t ctx;
+      LZ4F_preferences_t prefs;
 
       enum SquashLZ4FState state;
 
@@ -74,117 +94,17 @@ typedef struct SquashLZ4FStream_s {
 SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
 
-static void               squash_lz4f_options_init    (SquashLZ4FOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashLZ4FOptions* squash_lz4f_options_new     (SquashCodec* codec);
-static void               squash_lz4f_options_destroy (void* options);
-static void               squash_lz4f_options_free    (void* options);
-
 static void               squash_lz4f_stream_init     (SquashLZ4FStream* stream,
                                                        SquashCodec* codec,
                                                        SquashStreamType stream_type,
-                                                       SquashLZ4FOptions* options,
+                                                       SquashOptions* options,
                                                        SquashDestroyNotify destroy_notify);
-static SquashLZ4FStream*  squash_lz4f_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashLZ4FOptions* options);
+static SquashLZ4FStream*  squash_lz4f_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_lz4f_stream_destroy  (void* stream);
 static void               squash_lz4f_stream_free     (void* stream);
 
-static const LZ4F_preferences_t squash_lz4f_default_preferences = {
-  { max64KB, blockLinked, noContentChecksum, },
-  0, 0,
-};
-
-static void
-squash_lz4f_options_init (SquashLZ4FOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->prefs = squash_lz4f_default_preferences;
-}
-
-static SquashLZ4FOptions*
-squash_lz4f_options_new (SquashCodec* codec) {
-  SquashLZ4FOptions* options;
-
-  options = (SquashLZ4FOptions*) malloc (sizeof (SquashLZ4FOptions));
-  squash_lz4f_options_init (options, codec, squash_lz4f_options_free);
-
-  return options;
-}
-
-static void
-squash_lz4f_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_lz4f_options_free (void* options) {
-  squash_lz4f_options_destroy ((SquashLZ4FOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_lz4f_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_lz4f_options_new (codec);
-}
-
-static bool
-string_to_bool (const char* value, bool* result) {
-  if (strcasecmp (value, "true") == 0) {
-    *result = true;
-  } else if (strcasecmp (value, "false")) {
-    *result = false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
-static SquashStatus
-squash_lz4f_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashLZ4FOptions* opts = (SquashLZ4FOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 0 && level <= 16) {
-      opts->prefs.compressionLevel = (unsigned int) level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "block-size") == 0) {
-    const int bs = (int) strtol (value, &endptr, 0);
-    if (*endptr != '\0')
-      return squash_error (SQUASH_BAD_VALUE);
-
-    switch (bs) {
-      case max64KB:
-      case max256KB:
-      case max1MB:
-      case max4MB:
-        opts->prefs.frameInfo.blockSizeID = (blockSizeID_t) bs;
-        break;
-      default:
-        return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "checksum")) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      opts->prefs.frameInfo.contentChecksumFlag = res;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashLZ4FStream*
-squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashLZ4FOptions* options) {
+squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashLZ4FStream* stream;
 
   assert (codec != NULL);
@@ -196,13 +116,13 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 }
 
 #define SQUASH_LZ4F_STREAM_IS_HC(s) \
-  (((((SquashStream*) s)->options) != NULL) && (((SquashLZ4FOptions*) (((SquashStream*) s)->options))->hc))
+  (((((SquashStream*) s)->options) != NULL) && (((SquashOptions*) (((SquashStream*) s)->options))->hc))
 
 static void
 squash_lz4f_stream_init (SquashLZ4FStream* stream,
                          SquashCodec* codec,
                          SquashStreamType stream_type,
-                         SquashLZ4FOptions* options,
+                         SquashOptions* options,
                          SquashDestroyNotify destroy_notify) {
   LZ4F_errorCode_t ec;
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
@@ -217,6 +137,17 @@ squash_lz4f_stream_init (SquashLZ4FStream* stream,
     stream->data.comp.output_buffer_length = 0;
 
     stream->data.comp.input_buffer_length = 0;
+
+    stream->data.comp.prefs = (LZ4F_preferences_t) {
+      {
+        squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_BLOCK_SIZE),
+        blockLinked,
+        squash_codec_get_option_bool_index (codec, options, SQUASH_LZ4F_OPT_CHECKSUM) ?
+          contentChecksumEnabled :
+          noContentChecksum,
+      },
+      squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_LEVEL)
+    };
   } else {
     ec = LZ4F_createDecompressionContext(&(stream->data.decomp.ctx), LZ4F_VERSION);
   }
@@ -251,7 +182,7 @@ squash_lz4f_stream_free (void* stream) {
 
 static SquashStream*
 squash_lz4f_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_lz4f_stream_new (codec, stream_type, (SquashLZ4FOptions*) options);
+  return (SquashStream*) squash_lz4f_stream_new (codec, stream_type, options);
 }
 
 static size_t
@@ -275,18 +206,7 @@ static size_t
 squash_lz4f_get_input_buffer_size (SquashStream* stream) {
   SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
 
-  if (stream->options != NULL)
-    return squash_lz4f_block_size_id_to_size (((SquashLZ4FOptions*) stream->options)->prefs.frameInfo.blockSizeID);
-
-  return 64 * 1024;
-}
-
-static const LZ4F_preferences_t*
-squash_lz4f_stream_get_prefs (SquashStream* stream) {
-  SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
-  SquashLZ4FOptions* opts = (SquashLZ4FOptions*) stream->options;
-
-  return (opts == NULL) ? &squash_lz4f_default_preferences : &(opts->prefs);
+  return squash_lz4f_block_size_id_to_size (squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_LZ4F_OPT_BLOCK_SIZE));
 }
 
 static size_t
@@ -296,7 +216,8 @@ squash_lz4f_stream_get_output_buffer_size (SquashStream* stream) {
      do about it here.  It just means LZ4F will do some extra
      memcpy()ing (for output buffers up to a bit over double the block
      size). */
-  return LZ4F_compressFrameBound(squash_lz4f_get_input_buffer_size (stream) * 2, squash_lz4f_stream_get_prefs (stream));
+  return LZ4F_compressFrameBound(squash_lz4f_get_input_buffer_size (stream) * 2,
+                                 &(((SquashLZ4FStream*) stream)->data.comp.prefs));
 }
 
 static uint8_t*
@@ -341,10 +262,10 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
           LZ4F_compressBegin (s->data.comp.ctx,
                               squash_lz4f_stream_get_output_buffer (stream),
                               squash_lz4f_stream_get_output_buffer_size (stream),
-                              squash_lz4f_stream_get_prefs (stream));
+                              &(s->data.comp.prefs));
         break;
       } else {
-        size_t written = LZ4F_compressBegin (s->data.comp.ctx, stream->next_out, stream->avail_out, squash_lz4f_stream_get_prefs (stream));
+        size_t written = LZ4F_compressBegin (s->data.comp.ctx, stream->next_out, stream->avail_out, &(s->data.comp.prefs));
         stream->next_out += written;
         stream->avail_out -= written;
         progress = true;
@@ -501,8 +422,7 @@ squash_plugin_init_lz4f (SquashCodec* codec, SquashCodecFuncs* funcs) {
 
   if (strcmp ("lz4f", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->create_options = squash_lz4f_create_options;
-    funcs->parse_option = squash_lz4f_parse_option;
+    funcs->options = squash_lz4f_options;
     funcs->get_max_compressed_size = squash_lz4f_get_max_compressed_size;
     funcs->create_stream = squash_lz4f_create_stream;
     funcs->process_stream = squash_lz4f_process_stream;

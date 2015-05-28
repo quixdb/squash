@@ -57,93 +57,93 @@ typedef struct SquashLZHAMStream_s {
   } lzham;
 } SquashLZHAMStream;
 
+enum SquashLZHAMOptIndex {
+  SQUASH_LZHAM_OPT_LEVEL = 0,
+  SQUASH_LZHAM_OPT_EXTREME_PARSING,
+  SQUASH_LZHAM_OPT_DETERMINISTIC_PARSING,
+  SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO
+};
+
+static SquashOptionInfo squash_lzham_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 0,
+      .max = 4 },
+    .default_value.int_value = 2 },
+  { "extreme-parsing",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { "deterministic-parsing",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { "decompression-rate-for-ratio",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
+
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void                squash_lzham_options_init    (SquashLZHAMOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashLZHAMOptions* squash_lzham_options_new     (SquashCodec* codec);
-static void                squash_lzham_options_destroy (void* options);
-static void                squash_lzham_options_free    (void* options);
 
 static void                squash_lzham_stream_init     (SquashLZHAMStream* stream,
                                                          SquashCodec* codec,
                                                          SquashStreamType stream_type,
-                                                         SquashLZHAMOptions* options,
+                                                         SquashOptions* options,
                                                          SquashDestroyNotify destroy_notify);
-static SquashLZHAMStream*  squash_lzham_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashLZHAMOptions* options);
+static SquashLZHAMStream*  squash_lzham_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                squash_lzham_stream_destroy  (void* stream);
 static void                squash_lzham_stream_free     (void* stream);
 
-static void                squash_lzham_compress_apply_options   (lzham_compress_params* params, SquashLZHAMOptions* options);
-static void                squash_lzham_decompress_apply_options (lzham_decompress_params* params, SquashLZHAMOptions* options);
+static void                squash_lzham_compress_apply_options   (SquashCodec* codec,
+                                                                  lzham_compress_params* params,
+                                                                  SquashOptions* options);
+static void                squash_lzham_decompress_apply_options (SquashCodec* codec,
+                                                                  lzham_decompress_params* params,
+                                                                  SquashOptions* options);
 
 static void
-squash_lzham_compress_apply_options (lzham_compress_params* params, SquashLZHAMOptions* options) {
-  static const lzham_compress_params defaults = {
-    sizeof(lzham_compress_params),
-    LZHAM_MAX_DICT_SIZE_LOG2_X86,
-    LZHAM_COMP_LEVEL_DEFAULT,
-    LZHAM_DEFAULT_TABLE_UPDATE_RATE,
-    -1, 0, 0, NULL, 0, 0 };
+squash_lzham_compress_apply_options (SquashCodec* codec,
+                                     lzham_compress_params* params,
+                                     SquashOptions* options) {
+  lzham_compress_params opts = {
+    .m_struct_size                     = sizeof(lzham_compress_params),
+    .m_dict_size_log2                  = LZHAM_MAX_DICT_SIZE_LOG2_X86,
+    .m_level                           = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_LEVEL),
+    .m_table_update_rate               = LZHAM_DEFAULT_TABLE_UPDATE_RATE,
+    .m_max_helper_threads              = -1,
+    .m_compress_flags                  =
+      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_EXTREME_PARSING) ?
+        LZHAM_COMP_FLAG_EXTREME_PARSING : 0 |
+      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DETERMINISTIC_PARSING) ?
+        LZHAM_COMP_FLAG_DETERMINISTIC_PARSING : 0 |
+      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO) ?
+        LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO : 0,
+    .m_num_seed_bytes                  = 0,
+    .m_pSeed_bytes                     = NULL,
+    .m_table_max_update_interval       = 0,
+    .m_table_update_interval_slow_rate = 0
+  };
 
-  *params = defaults;
-
-  if (options != NULL) {
-    params->m_level = options->level;
-    params->m_compress_flags = options->comp_flags;
-  }
-}
-
-static void
-squash_lzham_decompress_apply_options (lzham_decompress_params* params, SquashLZHAMOptions* options) {
-  static const lzham_decompress_params defaults = {
-    sizeof(lzham_decompress_params),
-    LZHAM_MAX_DICT_SIZE_LOG2_X86,
-    LZHAM_DEFAULT_TABLE_UPDATE_RATE,
-    0, 0, NULL, 0, 0 };
-
-  *params = defaults;
-
-  if (options != NULL) {
-    params->m_decompress_flags = options->decomp_flags;
-  }
+  *params = opts;
 }
 
 static void
-squash_lzham_options_init (SquashLZHAMOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
+squash_lzham_decompress_apply_options (SquashCodec* codec,
+                                       lzham_decompress_params* params,
+                                       SquashOptions* options) {
+  const lzham_decompress_params opts = {
+    .m_struct_size                     = sizeof (lzham_decompress_params),
+    .m_dict_size_log2                  = LZHAM_MAX_DICT_SIZE_LOG2_X86,
+    .m_table_update_rate               = LZHAM_DEFAULT_TABLE_UPDATE_RATE,
+    .m_decompress_flags                = 0,
+    .m_num_seed_bytes                  = 0,
+    .m_pSeed_bytes                     = NULL,
+    .m_table_max_update_interval       = 0,
+    .m_table_update_interval_slow_rate = 0
+  };
 
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->level = LZHAM_COMP_LEVEL_DEFAULT;
-  options->comp_flags = 0;
-  options->decomp_flags = 0;
-}
-
-static SquashLZHAMOptions*
-squash_lzham_options_new (SquashCodec* codec) {
-  SquashLZHAMOptions* options;
-
-  options = (SquashLZHAMOptions*) malloc (sizeof (SquashLZHAMOptions));
-  squash_lzham_options_init (options, codec, squash_lzham_options_free);
-
-  return options;
-}
-
-static void
-squash_lzham_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_lzham_options_free (void* options) {
-  squash_lzham_options_destroy ((SquashLZHAMOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_lzham_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_lzham_options_new (codec);
+  *params = opts;
 }
 
 static bool
@@ -158,53 +158,8 @@ string_to_bool (const char* value, bool* result) {
   return true;
 }
 
-#define SQUASH_LZHAM_SET_FLAG(location, flag, value)          \
-  (location = value ? (location | flag) : (location & ~flag))
-
-static SquashStatus
-squash_lzham_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashLZHAMOptions* opts = (SquashLZHAMOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= ((int) LZHAM_COMP_LEVEL_FASTEST) && level <= LZHAM_COMP_LEVEL_UBER ) {
-      opts->level = (lzham_compress_level) level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "extreme-parsing")) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      SQUASH_LZHAM_SET_FLAG(opts->comp_flags, LZHAM_COMP_FLAG_EXTREME_PARSING, res);
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "deterministic-parsing")) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      SQUASH_LZHAM_SET_FLAG(opts->comp_flags, LZHAM_COMP_FLAG_DETERMINISTIC_PARSING, res);
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "decompression-rate-for-ratio")) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      SQUASH_LZHAM_SET_FLAG(opts->comp_flags, LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO, res);
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashLZHAMStream*
-squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashLZHAMOptions* options) {
+squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashLZHAMStream* stream;
 
   assert (codec != NULL);
@@ -220,15 +175,15 @@ static void
 squash_lzham_stream_init (SquashLZHAMStream* stream,
                           SquashCodec* codec,
                           SquashStreamType stream_type,
-                          SquashLZHAMOptions* options,
+                          SquashOptions* options,
                           SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    squash_lzham_compress_apply_options (&(stream->lzham.comp.params), options);
+    squash_lzham_compress_apply_options (codec, &(stream->lzham.comp.params), options);
     stream->lzham.comp.ctx = lzham_compress_init (&(stream->lzham.comp.params));
   } else {
-    squash_lzham_decompress_apply_options (&(stream->lzham.decomp.params), options);
+    squash_lzham_decompress_apply_options (codec, &(stream->lzham.decomp.params), options);
     stream->lzham.decomp.ctx = lzham_decompress_init (&(stream->lzham.decomp.params));
   }
 }
@@ -254,7 +209,7 @@ squash_lzham_stream_free (void* stream) {
 
 static SquashStream*
 squash_lzham_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_lzham_stream_new (codec, stream_type, (SquashLZHAMOptions*) options);
+  return (SquashStream*) squash_lzham_stream_new (codec, stream_type, options);
 }
 
 static lzham_flush_t
@@ -348,7 +303,7 @@ squash_lzham_compress_buffer (SquashCodec* codec,
   lzham_compress_status_t status;
   lzham_compress_params params;
 
-  squash_lzham_compress_apply_options (&params, (SquashLZHAMOptions*) options);
+  squash_lzham_compress_apply_options (codec, &params, options);
 
   status = lzham_compress_memory (&params,
                                   compressed, compressed_length,
@@ -372,7 +327,7 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
   lzham_decompress_status_t status;
   lzham_decompress_params params;
 
-  squash_lzham_decompress_apply_options (&params, (SquashLZHAMOptions*) options);
+  squash_lzham_decompress_apply_options (codec, &params, options);
 
   status = lzham_decompress_memory (&params,
                                     decompressed, decompressed_length,
@@ -390,8 +345,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   if (strcmp ("lzham", squash_codec_get_name (codec)) == 0) {
     funcs->info = SQUASH_CODEC_INFO_CAN_FLUSH;
-    funcs->create_options = squash_lzham_create_options;
-    funcs->parse_option = squash_lzham_parse_option;
+    funcs->options = squash_lzham_options;
     funcs->create_stream = squash_lzham_create_stream;
     funcs->process_stream = squash_lzham_process_stream;
     funcs->get_max_compressed_size = squash_lzham_get_max_compressed_size;

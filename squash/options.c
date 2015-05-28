@@ -24,10 +24,16 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
+/* For strdup */
+#define _POSIX_C_SOURCE 200809L
+
 #include <assert.h>
 #include <strings.h>
+#include <string.h>
 
 #include "internal.h"
+
+static void squash_options_free (void* options);
 
 /**
  * @var _SquashOptions::base_object
@@ -65,23 +71,149 @@
  */
 SquashStatus
 squash_options_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashCodecFuncs* funcs;
-
   assert (options != NULL);
+  assert (key != NULL);
   assert (options->codec != NULL);
 
-  if (key == NULL) {
-    return SQUASH_OK;
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+
+  if (info == NULL)
+    return SQUASH_BAD_PARAM;
+  else
+    assert (options->values != NULL);
+
+  SquashOptionValue* val = NULL;
+  {
+    size_t option_n = 0;
+    while (info->name != NULL) {
+      if (strcasecmp (key, info->name) == 0) {
+        val = &(options->values[option_n]);
+        break;
+      }
+
+      option_n++;
+      info++;
+    }
   }
 
-  funcs = squash_codec_get_funcs (options->codec);
-  assert (funcs != NULL);
+  if (val == NULL)
+    return SQUASH_BAD_PARAM;
 
-  if (funcs->parse_option != NULL) {
-    return funcs->parse_option (options, key, value);
-  } else {
-    return (strcasecmp (key, "level") == 0) ? SQUASH_OK : SQUASH_BAD_PARAM;
+  switch (info->type) {
+    case SQUASH_OPTION_TYPE_RANGE_INT:
+    case SQUASH_OPTION_TYPE_INT: {
+        int res = atoi (value);
+        if (info->type == SQUASH_OPTION_TYPE_RANGE_INT) {
+          if (!((res == 0 && info->info.range_int.allow_zero) ||
+                (res >= info->info.range_int.min && res <= info->info.range_int.max)))
+            return squash_error (SQUASH_BAD_VALUE);
+        }
+        val->int_value = res;
+        return SQUASH_OK;
+      }
+      break;
+
+    case SQUASH_OPTION_TYPE_RANGE_SIZE:
+    case SQUASH_OPTION_TYPE_SIZE: {
+        char* endptr = NULL;
+        unsigned long long int res = strtoull (value, &endptr, 10);
+
+        /* Parse X(KMG)[i[B]] into a size in bytes. */
+        if (*endptr != '\0') {
+          switch (*endptr++) {
+            case 'g':
+            case 'G':
+              res *= 1024;
+            case 'm':
+            case 'M':
+              res *= 1024;
+            case 'k':
+            case 'K':
+              res *= 1024;
+              break;
+            default:
+              return squash_error (SQUASH_BAD_VALUE);
+          }
+
+          if (*endptr != '\0') {
+            if (*endptr == 'i' || *endptr == 'I')
+              endptr++;
+
+            if (*endptr == 'b' || *endptr == 'B')
+              endptr++;
+            else
+              return squash_error (SQUASH_BAD_VALUE);
+
+            if (*endptr != '\0')
+              return squash_error (SQUASH_BAD_VALUE);
+          }
+        }
+
+        if (info->type == SQUASH_OPTION_TYPE_RANGE_SIZE) {
+          if (!((res == 0 && info->info.range_size.allow_zero) ||
+                (res >= info->info.range_size.min && res <= info->info.range_size.max)))
+            return squash_error (SQUASH_BAD_VALUE);
+        }
+        val->size_value = (size_t) res;
+        return SQUASH_OK;
+      }
+      break;
+
+    case SQUASH_OPTION_TYPE_ENUM_STRING: {
+        for (unsigned int i = 0 ; info->info.enum_string.values[i].name != NULL ; i++) {
+          if (strcasecmp (value, info->info.enum_string.values[i].name) == 0) {
+            val->int_value = info->info.enum_string.values[i].value;
+            return SQUASH_OK;
+          }
+        }
+        return squash_error (SQUASH_BAD_VALUE);
+      }
+      break;
+
+    case SQUASH_OPTION_TYPE_BOOL: {
+        if (strcasecmp (value, "true") == 0 ||
+            strcasecmp (value, "yes") == 0 ||
+            strcasecmp (value, "on") == 0 ||
+            strcasecmp (value, "t") == 0 ||
+            strcasecmp (value, "y") == 0 ||
+            strcasecmp (value, "1") == 0) {
+          val->bool_value = true;
+        } else if (strcasecmp (value, "false") == 0 ||
+            strcasecmp (value, "no") == 0 ||
+            strcasecmp (value, "off") == 0 ||
+            strcasecmp (value, "f") == 0 ||
+            strcasecmp (value, "n") == 0 ||
+            strcasecmp (value, "0") == 0) {
+          val->bool_value = false;
+        } else {
+          return squash_error (SQUASH_BAD_VALUE);
+        }
+        return SQUASH_OK;
+      }
+      break;
+
+    case SQUASH_OPTION_TYPE_ENUM_INT: {
+        int res = atoi (value);
+        for (unsigned int i = 0 ; i < info->info.enum_int.values_length ; i++) {
+          if (res == info->info.enum_int.values[i]) {
+            val->int_value = res;
+            return SQUASH_OK;
+          }
+        }
+        return squash_error (SQUASH_BAD_VALUE);
+      }
+      break;
+
+    case SQUASH_OPTION_TYPE_STRING:
+      val->string_value = strdup (value);
+      break;
+
+    case SQUASH_OPTION_TYPE_NONE:
+    default:
+      assert (false);
   }
+
+  return squash_error (SQUASH_FAILED);
 }
 
 /**
@@ -179,6 +311,13 @@ squash_options_new (SquashCodec* codec, ...) {
   return options;
 }
 
+static SquashOptions*
+squash_options_create (SquashCodec* codec) {
+  SquashOptions* options = malloc (sizeof (SquashOptions));
+  squash_options_init (options, codec, squash_options_free);
+  return options;
+}
+
 /**
  * @brief Create a new group of options from a variadic list.
  *
@@ -190,17 +329,11 @@ squash_options_new (SquashCodec* codec, ...) {
 SquashOptions*
 squash_options_newv (SquashCodec* codec, va_list options) {
   SquashOptions* opts = NULL;
-  SquashCodecFuncs* funcs;
 
   assert (codec != NULL);
 
-  funcs = squash_codec_get_funcs (codec);
-
-  if (funcs != NULL && funcs->create_options != NULL) {
-    opts = funcs->create_options (codec);
-  }
-
-  if (opts != NULL) {
+  if (squash_codec_get_option_info (codec) != NULL) {
+    opts = squash_options_create (codec);
     squash_options_parsev (opts, options);
   }
 
@@ -218,17 +351,11 @@ squash_options_newv (SquashCodec* codec, va_list options) {
 SquashOptions*
 squash_options_newa (SquashCodec* codec, const char* const* keys, const char* const* values) {
   SquashOptions* opts = NULL;
-  SquashCodecFuncs* funcs;
 
   assert (codec != NULL);
 
-  funcs = squash_codec_get_funcs (codec);
-
-  if (funcs != NULL && funcs->create_options != NULL) {
-    opts = funcs->create_options (codec);
-  }
-
-  if (opts != NULL) {
+  if (squash_codec_get_option_info (codec) != NULL) {
+    opts = squash_options_create (codec);
     squash_options_parsea (opts, keys, values);
   }
 
@@ -248,8 +375,8 @@ squash_options_newa (SquashCodec* codec, const char* const* keys, const char* co
  */
 void
 squash_options_init (void* options,
-                  SquashCodec* codec,
-                  SquashDestroyNotify destroy_notify) {
+                     SquashCodec* codec,
+                     SquashDestroyNotify destroy_notify) {
   SquashOptions* o;
 
   assert (options != NULL);
@@ -259,6 +386,38 @@ squash_options_init (void* options,
 
   squash_object_init (o, true, destroy_notify);
   o->codec = codec;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
+  if (info != NULL) {
+    size_t n_options;
+    for (n_options = 0 ; info[n_options].name != NULL ; n_options++) { }
+
+    o->values = calloc (n_options, sizeof (SquashOptionValue));
+    for (size_t c_option = 0 ; c_option < n_options ; c_option++) {
+      switch (info[c_option].type) {
+        case SQUASH_OPTION_TYPE_ENUM_STRING:
+        case SQUASH_OPTION_TYPE_RANGE_INT:
+        case SQUASH_OPTION_TYPE_INT:
+        case SQUASH_OPTION_TYPE_ENUM_INT:
+          o->values[c_option].int_value = info[c_option].default_value.int_value;
+          break;
+        case SQUASH_OPTION_TYPE_BOOL:
+          o->values[c_option].bool_value = info[c_option].default_value.bool_value;
+          break;
+        case SQUASH_OPTION_TYPE_SIZE:
+        case SQUASH_OPTION_TYPE_RANGE_SIZE:
+          o->values[c_option].size_value = info[c_option].default_value.size_value;
+          break;
+        case SQUASH_OPTION_TYPE_STRING:
+          o->values[c_option].string_value = strdup (info[c_option].default_value.string_value);
+          break;
+        case SQUASH_OPTION_TYPE_NONE:
+        default:
+          assert (false);
+          break;
+      }
+    }
+  }
 }
 
 /**
@@ -277,9 +436,25 @@ squash_options_destroy (void* options) {
 
   o = (SquashOptions*) options;
 
-  o->codec = NULL;
+  SquashOptionValue* values = o->values;
+  if (values != NULL) {
+    const SquashOptionInfo* info = squash_codec_get_option_info (o->codec);
+    assert (info != NULL);
+
+    for (int i = 0 ; info[i].name != NULL ; i++)
+      if (info[i].type == SQUASH_OPTION_TYPE_STRING)
+        free (values[i].string_value);
+
+    free (values);
+  }
 
   squash_object_destroy (o);
+}
+
+static void
+squash_options_free (void* options) {
+  squash_options_destroy ((SquashOptions*) options);
+  free (options);
 }
 
 /**

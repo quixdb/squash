@@ -34,18 +34,30 @@
 #include <csc_dec.h>
 #include <Types.h>
 
-typedef struct _SquashCscOptions {
-  SquashOptions base_object;
+enum SquashCscOptionIndex {
+  SQUASH_CSC_OPT_LEVEL = 0,
+  SQUASH_CSC_OPT_DICT_SIZE,
+  SQUASH_CSC_OPT_DELTA_FILTER,
+  SQUASH_CSC_OPT_EXE_FILTER,
+  SQUASH_CSC_OPT_TXT_FILTER,
+};
 
-  int level;
-  uint32_t dict_size;
-  bool enable_delta;
-  bool enable_exe;
-  bool enable_txt;
-} SquashCscOptions;
-
-#define SQUASH_CSC_DEFAULT_DICT_SIZE (1024 * 1024 * 64)
-#define SQUASH_CSC_DEFAULT_LEVEL 2
+/* C++ doesn't allow us to initialize this correctly here (or, at
+   least, I can't figure out how to do it), so there is some extra
+   code in the init_plugin func to finish it off. */
+static SquashOptionInfo squash_csc_options[] = {
+  { .name = (char*) "level",
+    .type = SQUASH_OPTION_TYPE_BOOL },
+  { .name = (char*) "dict-size",
+    .type = SQUASH_OPTION_TYPE_RANGE_SIZE },
+  { .name = (char*) "delta-filter",
+    .type = SQUASH_OPTION_TYPE_BOOL },
+  { .name = (char*) "exe-filter",
+    .type = SQUASH_OPTION_TYPE_BOOL },
+  { .name = (char*) "txt-filter",
+    .type = SQUASH_OPTION_TYPE_BOOL },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 typedef size_t (*SquashCscISeqOutStreamFunc)(void *p, const void *buf, size_t size);
 typedef SRes (*SquashCscISeqInStreamFunc)(void *p, void *buf, size_t *size);
@@ -63,18 +75,15 @@ typedef struct SquashCscStream_s {
 
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void              squash_csc_options_init    (SquashCscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashCscOptions* squash_csc_options_new     (SquashCodec* codec);
-static void              squash_csc_options_destroy (void* options);
-static void              squash_csc_options_free    (void* options);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus             squash_plugin_init         (SquashPlugin* plugin);
 
 static void              squash_csc_stream_init     (SquashCscStream* stream,
                                                      SquashCodec* codec,
                                                      SquashStreamType stream_type,
-                                                     SquashCscOptions* options,
+                                                     SquashOptions* options,
                                                      SquashDestroyNotify destroy_notify);
-static SquashCscStream*  squash_csc_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashCscOptions* options);
+static SquashCscStream*  squash_csc_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void              squash_csc_stream_destroy  (void* stream);
 static void              squash_csc_stream_free     (void* stream);
 
@@ -144,107 +153,10 @@ squash_csc_writer (void* ostream, const void* buf, size_t size) {
 }
 
 static void
-squash_csc_options_init (SquashCscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-	options->level = SQUASH_CSC_DEFAULT_LEVEL;
-  options->dict_size = SQUASH_CSC_DEFAULT_DICT_SIZE;
-}
-
-static SquashCscOptions*
-squash_csc_options_new (SquashCodec* codec) {
-  SquashCscOptions* options;
-
-  options = (SquashCscOptions*) malloc (sizeof (SquashCscOptions));
-  squash_csc_options_init (options, codec, squash_csc_options_free);
-
-  return options;
-}
-
-static void
-squash_csc_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_csc_options_free (void* options) {
-  squash_csc_options_destroy ((SquashCscOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_csc_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_csc_options_new (codec);
-}
-
-static bool
-string_to_bool (const char* value, bool* result) {
-  if (strcasecmp (value, "true") == 0) {
-    *result = true;
-  } else if (strcasecmp (value, "false")) {
-    *result = false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
-static SquashStatus
-squash_csc_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashCscOptions* opts = (SquashCscOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 5 ) {
-      opts->level = level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "dict-size") == 0) {
-    const unsigned long dict_size = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && dict_size >= 32768 && dict_size <= 1073741824 ) {
-      opts->dict_size = (uint32_t) dict_size;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "delta-filter") == 0) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      opts->enable_delta = res;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "exe-filter") == 0) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      opts->enable_exe = res;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "txt-filter") == 0) {
-    bool res;
-    if (string_to_bool(value, &res)) {
-      opts->enable_txt = res;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
-
-static void
 squash_csc_stream_init (SquashCscStream* s,
                         SquashCodec* codec,
                         SquashStreamType stream_type,
-                        SquashCscOptions* options,
+                        SquashOptions* options,
                         SquashDestroyNotify destroy_notify) {
   SquashStream* stream = (SquashStream*) s;
 
@@ -257,9 +169,10 @@ squash_csc_stream_init (SquashCscStream* s,
   }
 }
 
-static SquashCscStream* squash_csc_stream_new (SquashCodec* codec,
-                                               SquashStreamType stream_type,
-                                               SquashCscOptions* options) {
+static SquashCscStream*
+squash_csc_stream_new (SquashCodec* codec,
+                       SquashStreamType stream_type,
+                       SquashOptions* options) {
   SquashCscStream* stream;
 
   stream = (SquashCscStream*) malloc (sizeof (SquashCscStream));
@@ -292,7 +205,7 @@ squash_csc_stream_free (void* stream) {
 
 static SquashStream*
 squash_csc_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_csc_stream_new (codec, stream_type, (SquashCscOptions*) options);
+  return (SquashStream*) squash_csc_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -308,15 +221,12 @@ squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
   struct SquashCscOutStream ostream = { squash_csc_writer, s };
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    if (stream->options != NULL) {
-      SquashCscOptions* opts = (SquashCscOptions*) stream->options;
-      CSCEncProps_Init (&props, opts->dict_size, opts->level);
-      props.DLTFilter = opts->enable_delta;
-      props.EXEFilter = opts->enable_exe;
-      props.TXTFilter = opts->enable_txt;
-    } else {
-      CSCEncProps_Init (&props, SQUASH_CSC_DEFAULT_DICT_SIZE, SQUASH_CSC_DEFAULT_LEVEL);
-    }
+    CSCEncProps_Init (&props,
+                      squash_codec_get_option_size_index (stream->codec, stream->options, SQUASH_CSC_OPT_DICT_SIZE),
+                      squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_CSC_OPT_LEVEL));
+    props.DLTFilter = squash_codec_get_option_bool_index (stream->codec, stream->options, SQUASH_CSC_OPT_DELTA_FILTER);
+    props.EXEFilter = squash_codec_get_option_bool_index (stream->codec, stream->options, SQUASH_CSC_OPT_EXE_FILTER);
+    props.TXTFilter = squash_codec_get_option_bool_index (stream->codec, stream->options, SQUASH_CSC_OPT_TXT_FILTER);
 
     CSCEnc_WriteProperties (&props, props_buf, 0);
     size_t bytes_written = squash_csc_writer(&ostream, props_buf, CSC_PROP_SIZE);
@@ -349,13 +259,24 @@ squash_csc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 }
 
 extern "C" SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  const SquashOptionInfoRangeSize dict_size_range = { 32768, 1073741824, 0, false };
+
+  squash_csc_options[SQUASH_CSC_OPT_LEVEL].default_value.int_value = 2;
+  squash_csc_options[SQUASH_CSC_OPT_DICT_SIZE].default_value.size_value = (1024 * 1024 * 64);
+  squash_csc_options[SQUASH_CSC_OPT_DICT_SIZE].info.range_size = dict_size_range;
+  squash_csc_options[SQUASH_CSC_OPT_DELTA_FILTER].default_value.bool_value = false;
+  squash_csc_options[SQUASH_CSC_OPT_EXE_FILTER].default_value.bool_value = true;
+  squash_csc_options[SQUASH_CSC_OPT_TXT_FILTER].default_value.bool_value = true;
+}
+
+extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("csc", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->create_options = squash_csc_create_options;
-    funcs->parse_option = squash_csc_parse_option;
+    funcs->options = squash_csc_options;
     funcs->create_stream = squash_csc_create_stream;
     funcs->process_stream = squash_csc_process_stream;
     funcs->get_max_compressed_size = squash_csc_get_max_compressed_size;

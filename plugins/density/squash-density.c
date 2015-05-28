@@ -34,8 +34,6 @@
 
 #include "density/src/density_api.h"
 
-#define SQUASH_DENSITY_DEFAULT_ALGORITHM DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM
-
 #define SQUASH_DENSITY_INPUT_MULTIPLE 32
 
 typedef enum {
@@ -54,12 +52,22 @@ squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
     (((uncompressed_length % 256) == 0) * 8);
 }
 
-typedef struct SquashDensityOptions_s {
-  SquashOptions base_object;
+enum SquashDensityOptIndex {
+  SQUASH_DENSITY_OPT_LEVEL = 0,
+  SQUASH_DENSITY_OPT_CHECKSUM
+};
 
-  DENSITY_COMPRESSION_MODE mode;
-  DENSITY_BLOCK_TYPE block_type;
-} SquashDensityOptions;
+static SquashOptionInfo squash_density_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = {
+      3, (const int []) { 1, 7, 9 } },
+    .default_value.int_value = 1 },
+  { "checksum",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 typedef struct SquashDensityStream_s {
   SquashStream base_object;
@@ -86,112 +94,17 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus                 squash_plugin_init_codec      (SquashCodec* codec,
                                                             SquashCodecFuncs* funcs);
 
-static void                  squash_density_options_init   (SquashDensityOptions* options,
-                                                            SquashCodec* codec,
-                                                            SquashDestroyNotify destroy_notify);
-static SquashDensityOptions* squash_density_options_new     (SquashCodec* codec);
-static void                  squash_density_options_destroy (void* options);
-static void                  squash_density_options_free    (void* options);
-
 static void                  squash_density_stream_init     (SquashDensityStream* stream,
                                                              SquashCodec* codec,
                                                              SquashStreamType stream_type,
-                                                             SquashDensityOptions* options,
+                                                             SquashOptions* options,
                                                              SquashDestroyNotify destroy_notify);
-static SquashDensityStream*  squash_density_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashDensityOptions* options);
+static SquashDensityStream*  squash_density_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                  squash_density_stream_destroy  (void* stream);
 static void                  squash_density_stream_free     (void* stream);
 
-static void
-squash_density_options_init (SquashDensityOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->mode = DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
-  options->block_type = DENSITY_BLOCK_TYPE_DEFAULT;
-}
-
-static SquashDensityOptions*
-squash_density_options_new (SquashCodec* codec) {
-  SquashDensityOptions* options;
-
-  options = (SquashDensityOptions*) malloc (sizeof (SquashDensityOptions));
-  squash_density_options_init (options, codec, squash_density_options_free);
-
-  return options;
-}
-
-static void
-squash_density_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_density_options_free (void* options) {
-  squash_density_options_destroy ((SquashDensityOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_density_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_density_options_new (codec);
-}
-
-static bool
-string_to_bool (const char* value, bool* result) {
-  if (strcasecmp (value, "true") == 0) {
-    *result = true;
-  } else if (strcasecmp (value, "false")) {
-    *result = false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
-static SquashStatus
-squash_density_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashDensityOptions* opts = (SquashDensityOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = (int) strtol (value, &endptr, 0);
-    if (*endptr == '\0') {
-      switch (level) {
-        case 1:
-          opts->mode = DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
-          break;
-        case 7:
-          opts->mode = DENSITY_COMPRESSION_MODE_CHEETAH_ALGORITHM;
-          break;
-        case 9:
-          opts->mode = DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
-          break;
-        default:
-          return squash_error (SQUASH_BAD_VALUE);
-      }
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "checksum") == 0) {
-    bool checksum;
-    if (string_to_bool (value, &checksum)) {
-      opts->block_type = checksum ? DENSITY_BLOCK_TYPE_WITH_HASHSUM_INTEGRITY_CHECK : DENSITY_BLOCK_TYPE_DEFAULT;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashDensityStream*
-squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashDensityOptions* options) {
+squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashDensityStream* stream;
 
   assert (codec != NULL);
@@ -207,7 +120,7 @@ static void
 squash_density_stream_init (SquashDensityStream* stream,
                             SquashCodec* codec,
                             SquashStreamType stream_type,
-                            SquashDensityOptions* options,
+                            SquashOptions* options,
                             SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
@@ -243,7 +156,19 @@ squash_density_stream_free (void* stream) {
 
 static SquashStream*
 squash_density_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_density_stream_new (codec, stream_type, (SquashDensityOptions*) options);
+  return (SquashStream*) squash_density_stream_new (codec, stream_type, options);
+}
+
+static DENSITY_COMPRESSION_MODE
+squash_density_level_to_mode (int level) {
+  switch (level) {
+    case 1:
+      return DENSITY_COMPRESSION_MODE_CHAMELEON_ALGORITHM;
+    case 7:
+      return DENSITY_COMPRESSION_MODE_CHEETAH_ALGORITHM;
+    case 9:
+      return DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
+  }
 }
 
 static bool
@@ -379,15 +304,13 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
     switch (s->next) {
       case SQUASH_DENSITY_ACTION_INIT:
         if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-          DENSITY_COMPRESSION_MODE compression_mode = SQUASH_DENSITY_DEFAULT_ALGORITHM;
-          DENSITY_BLOCK_TYPE block_type = DENSITY_BLOCK_TYPE_DEFAULT;
-          {
-            SquashDensityOptions* opts = (SquashDensityOptions*) stream->options;
-            if (opts != NULL) {
-              compression_mode = opts->mode;
-              block_type = opts->block_type;
-            }
-          }
+          DENSITY_COMPRESSION_MODE compression_mode =
+            squash_density_level_to_mode (squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_DENSITY_OPT_LEVEL));
+          DENSITY_BLOCK_TYPE block_type =
+            squash_codec_get_option_bool_index (stream->codec, stream->options, SQUASH_DENSITY_OPT_CHECKSUM) ?
+              DENSITY_BLOCK_TYPE_WITH_HASHSUM_INTEGRITY_CHECK :
+              DENSITY_BLOCK_TYPE_DEFAULT;
+
           s->state = density_stream_compress_init (s->stream, compression_mode, block_type);
         } else {
           s->state = density_stream_decompress_init (s->stream, NULL);
@@ -487,8 +410,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("density", name) == 0) {
-    funcs->create_options = squash_density_create_options;
-    funcs->parse_option = squash_density_parse_option;
+    funcs->options = squash_density_options;
     funcs->create_stream = squash_density_create_stream;
     funcs->process_stream = squash_density_process_stream;
     funcs->get_max_compressed_size = squash_density_get_max_compressed_size;

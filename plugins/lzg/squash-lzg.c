@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,11 +33,23 @@
 
 #include "liblzg/src/include/lzg.h"
 
-typedef struct SquashLzgOptions_s {
-  SquashOptions base_object;
+enum SquashLzgOptIndex {
+  SQUASH_LZG_OPT_LEVEL = 0,
+  SQUASH_LZG_OPT_FAST
+};
 
-  lzg_encoder_config_t lzgcfg;
-} SquashLzgOptions;
+static SquashOptionInfo squash_lzg_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 9 },
+    .default_value.int_value = 5 },
+  { "fast",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = true },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 const lzg_encoder_config_t squash_lzg_default_config = {
   LZG_LEVEL_DEFAULT,
@@ -48,75 +60,6 @@ const lzg_encoder_config_t squash_lzg_default_config = {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void              squash_lzg_options_init    (SquashLzgOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashLzgOptions* squash_lzg_options_new     (SquashCodec* codec);
-static void              squash_lzg_options_destroy (void* options);
-static void              squash_lzg_options_free    (void* options);
-
-static void
-squash_lzg_options_init (SquashLzgOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->lzgcfg = squash_lzg_default_config;
-}
-
-static SquashLzgOptions*
-squash_lzg_options_new (SquashCodec* codec) {
-  SquashLzgOptions* options;
-
-  options = (SquashLzgOptions*) malloc (sizeof (SquashLzgOptions));
-  squash_lzg_options_init (options, codec, squash_lzg_options_free);
-
-  return options;
-}
-
-static void
-squash_lzg_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_lzg_options_free (void* options) {
-  squash_lzg_options_destroy ((SquashLzgOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_lzg_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_lzg_options_new (codec);
-}
-
-static SquashStatus
-squash_lzg_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashLzgOptions* opts = (SquashLzgOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const lzg_int32_t level = (lzg_int32_t) strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 9 ) {
-      opts->lzgcfg.level = level;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "fast") == 0) {
-    if (strcasecmp (value, "true") == 0) {
-      opts->lzgcfg.fast = LZG_TRUE;
-    } else if (strcasecmp (value, "false")) {
-      opts->lzgcfg.fast = LZG_FALSE;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_lzg_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -137,17 +80,16 @@ squash_lzg_compress_buffer (SquashCodec* codec,
                             size_t uncompressed_length,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
-  lzg_encoder_config_t* cfg;
-
-  if (options != NULL) {
-    cfg = &(((SquashLzgOptions*) options)->lzgcfg);
-  } else {
-    cfg = (lzg_encoder_config_t*) (&squash_lzg_default_config);
-  }
+  lzg_encoder_config_t cfg = {
+    squash_codec_get_option_int_index (codec, options, SQUASH_LZG_OPT_LEVEL),
+    squash_codec_get_option_bool_index (codec, options, SQUASH_LZG_OPT_FAST),
+    NULL,
+    NULL
+  };
 
   lzg_uint32_t res = LZG_Encode ((const unsigned char*) uncompressed, (lzg_uint32_t) uncompressed_length,
                                  (unsigned char*) compressed, (lzg_uint32_t) *compressed_length,
-                                 cfg);
+                                 &cfg);
 
   if (res == 0) {
     return squash_error (SQUASH_FAILED);
@@ -180,8 +122,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("lzg", name) == 0) {
-    funcs->create_options = squash_lzg_create_options;
-    funcs->parse_option = squash_lzg_parse_option;
+    funcs->options = squash_lzg_options;
     funcs->get_uncompressed_size = squash_lzg_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_lzg_get_max_compressed_size;
     funcs->decompress_buffer = squash_lzg_decompress_buffer;

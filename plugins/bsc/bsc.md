@@ -19,7 +19,7 @@ For information about libbsc, see http://libbsc.com/
   hash table, or 0 for disabled
 - **lzp-min-len** (integer, 0 or 4-255, default 128): Minimum LZP match
   length, or 0 for disabled
-- **block-sorter** (enumeration, default bwt): block sorting algorith
+- **block-sorter** (enumeration, default bwt): block sorting algorithm
   - *bwt*: Burrows–Wheeler transform
   - *none*
 - **coder** (enumeration, default qlfc-static)

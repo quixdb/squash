@@ -1398,5 +1398,161 @@ squash_get_info (const char* codec) {
 }
 
 /**
+ * @brief Get a list of options applicable to the codec
+ *
+ * @param codec The codec
+ * @return a list of options, terminated by an option with a NULL name
+ */
+const SquashOptionInfo*
+squash_codec_get_option_info (SquashCodec* codec) {
+  SquashCodecFuncs* funcs = squash_codec_get_funcs (codec);
+  return funcs->options;
+}
+
+
+/**
+ * @brief Get a list of options applicable to the codec
+ *
+ * @param codec name of the codec
+ * @return a list of options, terminated by an option with a NULL name
+ */
+const SquashOptionInfo*
+squash_get_option_info (const char* codec) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+
+  if (codec_real != NULL)
+    return squash_codec_get_option_info (codec_real);
+  else
+    return NULL;
+}
+
+static const SquashOptionValue*
+squash_codec_get_option_value_by_name (SquashCodec* codec,
+                                       SquashOptions* options,
+                                       const char* key,
+                                       SquashOptionType* type) {
+  assert (codec != NULL);
+  assert (key != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
+  for (size_t c_option = 0 ; info[c_option].name != NULL ; c_option++) {
+    if (strcasecmp (key, info[c_option].name) == 0) {
+      if (type != NULL)
+        *type = info[c_option].type;
+      return (options != NULL) ?
+        &(options->values[c_option]) :
+        &(info[c_option].default_value);
+    }
+  }
+
+  if (type != NULL)
+    *type = SQUASH_OPTION_TYPE_NONE;
+  return NULL;
+}
+
+const char*
+squash_codec_get_option_string (SquashCodec* codec,
+                                SquashOptions* options,
+                                const char* key) {
+  SquashOptionType type;
+  const SquashOptionValue* value = squash_codec_get_option_value_by_name (codec, options, key, &type);
+  switch ((int) type) {
+    case SQUASH_OPTION_TYPE_STRING:
+      return value->string_value;
+    default:
+      assert (false);
+      return NULL;
+  }
+}
+
+const char*
+squash_codec_get_option_string_index (SquashCodec* codec,
+                                      SquashOptions* options,
+                                      size_t index) {
+  if (options != NULL)
+    return options->values[index].string_value;
+  else
+    return codec->funcs.options[index].default_value.string_value;
+}
+
+bool
+squash_codec_get_option_bool (SquashCodec* codec,
+                              SquashOptions* options,
+                              const char* key) {
+  SquashOptionType type;
+  const SquashOptionValue* value = squash_codec_get_option_value_by_name (codec, options, key, &type);
+  switch ((int) type) {
+    case SQUASH_OPTION_TYPE_BOOL:
+      return value->bool_value;
+    default:
+      assert (false);
+      return false;
+  }
+}
+
+bool
+squash_codec_get_option_bool_index (SquashCodec* codec,
+                                    SquashOptions* options,
+                                    size_t index) {
+  if (options != NULL)
+    return options->values[index].bool_value;
+  else
+    return codec->funcs.options[index].default_value.bool_value;
+}
+
+int
+squash_codec_get_option_int (SquashCodec* codec,
+                             SquashOptions* options,
+                             const char* key) {
+  SquashOptionType type;
+  const SquashOptionValue* value = squash_codec_get_option_value_by_name (codec, options, key, &type);
+  switch ((int) type) {
+    case SQUASH_OPTION_TYPE_INT:
+    case SQUASH_OPTION_TYPE_RANGE_INT:
+    case SQUASH_OPTION_TYPE_ENUM_STRING:
+      return value->int_value;
+    default:
+      assert (false);
+      return 0;
+  }
+}
+
+int
+squash_codec_get_option_int_index (SquashCodec* codec,
+                                   SquashOptions* options,
+                                   size_t index) {
+  if (options != NULL)
+    return options->values[index].int_value;
+  else
+    return codec->funcs.options[index].default_value.int_value;
+}
+
+size_t
+squash_codec_get_option_size (SquashCodec* codec,
+                              SquashOptions* options,
+                              const char* key) {
+  SquashOptionType type;
+  const SquashOptionValue* value = squash_codec_get_option_value_by_name (codec, options, key, &type);
+  switch ((int) type) {
+    case SQUASH_OPTION_TYPE_SIZE:
+    case SQUASH_OPTION_TYPE_RANGE_SIZE:
+      return value->size_value;
+    default:
+      assert (false);
+      return 0;
+  }
+}
+
+size_t
+squash_codec_get_option_size_index (SquashCodec* codec,
+                                    SquashOptions* options,
+                                    size_t index) {
+  if (options != NULL)
+    return options->values[index].size_value;
+  else
+    return codec->funcs.options[index].default_value.size_value;
+}
+
+/**
  * @}
  */

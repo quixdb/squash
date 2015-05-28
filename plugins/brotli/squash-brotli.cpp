@@ -31,12 +31,21 @@
 #include "brotli/enc/encode.h"
 #include "brotli/dec/decode.h"
 
-typedef struct SquashBrotliOptions_s {
-  SquashOptions base_object;
+enum SquashBrotliOptionIndex {
+  SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS = 0,
+  SQUASH_BROTLI_OPT_MODE
+};
 
-  brotli::BrotliParams::Mode mode;
-  bool enable_transforms;
-} SquashBrotliOptions;
+/* C++ doesn't allow us to initialize this correctly here (or, at
+   least, I can't figure out how to do it), so there is some extra
+   code in the init_plugin func to finish it off. */
+static SquashOptionInfo squash_brotli_options[] = {
+  { .name = (char*) "enable-transforms",
+    .type = SQUASH_OPTION_TYPE_BOOL },
+  { .name = (char*) "mode",
+    .type = SQUASH_OPTION_TYPE_ENUM_STRING },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 #define SQUASH_BROTLI_MAX_BLOCK_SIZE (1 << 21)
 #define SQUASH_BROTLI_MAX_OUT_SIZE (1 << 22)
@@ -56,23 +65,18 @@ typedef struct SquashBrotliStream_s {
 } SquashBrotliStream;
 
 extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus                squash_plugin_init            (SquashPlugin* plugin);
+extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void                 squash_brotli_options_init    (SquashBrotliOptions* options,
-                                                           SquashCodec* codec,
-                                                           SquashDestroyNotify destroy_notify);
-static SquashBrotliOptions* squash_brotli_options_new     (SquashCodec* codec);
-static void                 squash_brotli_options_destroy (void* options);
-static void                 squash_brotli_options_free    (void* options);
 
 static void                 squash_brotli_stream_init     (SquashBrotliStream* stream,
                                                            SquashCodec* codec,
                                                            SquashStreamType stream_type,
-                                                           SquashBrotliOptions* options,
+                                                           SquashOptions* options,
                                                            SquashDestroyNotify destroy_notify);
 static SquashBrotliStream*  squash_brotli_stream_new      (SquashCodec* codec,
                                                            SquashStreamType stream_type,
-                                                           SquashBrotliOptions* options);
+                                                           SquashOptions* options);
 static void                 squash_brotli_stream_destroy  (void* stream);
 static void                 squash_brotli_stream_free     (void* stream);
 
@@ -120,73 +124,8 @@ squash_brotli_writer (void* user_data, const uint8_t* buf, size_t size) {
   return (size - remaining);
 }
 
-static void
-squash_brotli_options_init (SquashBrotliOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->mode = brotli::BrotliParams::MODE_TEXT;
-  options->enable_transforms = false;
-}
-
-static SquashBrotliOptions*
-squash_brotli_options_new (SquashCodec* codec) {
-  SquashBrotliOptions* options;
-
-  options = (SquashBrotliOptions*) malloc (sizeof (SquashBrotliOptions));
-  squash_brotli_options_init (options, codec, squash_brotli_options_free);
-
-  return options;
-}
-
-static void
-squash_brotli_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_brotli_options_free (void* options) {
-  squash_brotli_options_destroy ((SquashBrotliOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_brotli_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_brotli_options_new (codec);
-}
-
-static SquashStatus
-squash_brotli_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashBrotliOptions* opts = (SquashBrotliOptions*) options;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "mode") == 0) {
-    if (strcasecmp (key, "text") == 0) {
-      opts->mode = brotli::BrotliParams::MODE_TEXT;
-    } else if (strcasecmp (key, "font")) {
-      opts->mode = brotli::BrotliParams::MODE_FONT;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "enable-transforms") == 0) {
-    if (strcasecmp (value, "true") == 0) {
-      opts->enable_transforms = true;
-    } else if (strcasecmp (value, "false")) {
-      opts->enable_transforms = false;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashBrotliStream*
-squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashBrotliOptions* options) {
+squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashBrotliStream* stream;
 
   assert (codec != NULL);
@@ -202,7 +141,7 @@ static void
 squash_brotli_stream_init (SquashBrotliStream* s,
                            SquashCodec* codec,
                            SquashStreamType stream_type,
-                           SquashBrotliOptions* options,
+                           SquashOptions* options,
                            SquashDestroyNotify destroy_notify) {
   SquashStream* stream = (SquashStream*) s;
 
@@ -210,6 +149,7 @@ squash_brotli_stream_init (SquashBrotliStream* s,
   s->in.data_ = (void*) stream;
   s->out.cb_ = squash_brotli_writer;
   s->out.data_ = (void*) stream;
+  s->operation = SQUASH_OPERATION_PROCESS;
 
   squash_stream_init (stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 }
@@ -229,7 +169,7 @@ squash_brotli_stream_free (void* stream) {
 
 static SquashStream*
 squash_brotli_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_brotli_stream_new (codec, stream_type, (SquashBrotliOptions*) options);
+  return (SquashStream*) squash_brotli_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -238,12 +178,8 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
   SquashBrotliStream* s = (SquashBrotliStream*) stream;
 
   brotli::BrotliParams params;
-
-  if (stream->options != NULL) {
-    SquashBrotliOptions* opts = (SquashBrotliOptions*) stream->options;
-    params.mode = opts->mode;
-    params.enable_transforms = opts->enable_transforms;
-  }
+  params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
+  params.enable_transforms = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
 
   s->ctx.comp = new brotli::BrotliCompressor (params);
   s->ctx.comp->WriteStreamHeader ();
@@ -335,12 +271,8 @@ squash_brotli_compress_buffer (SquashCodec* codec,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                SquashOptions* options) {
   brotli::BrotliParams params;
-
-  if (options != NULL) {
-    SquashBrotliOptions* opts = (SquashBrotliOptions*) options;
-    params.mode = opts->mode;
-    params.enable_transforms = opts->enable_transforms;
-  }
+  params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
+  params.enable_transforms = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
 
   try {
     int res = brotli::BrotliCompressBuffer (params,
@@ -355,16 +287,25 @@ squash_brotli_compress_buffer (SquashCodec* codec,
 }
 
 extern "C" SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  squash_brotli_options[SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS].default_value.bool_value = false;
+  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_TEXT;
+  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {
+    (const SquashOptionInfoEnumStringMap []) {
+      { "text", brotli::BrotliParams::MODE_TEXT },
+      { "font", brotli::BrotliParams::MODE_FONT },
+      { NULL, 0 } }
+  };
+}
+
+extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brotli", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->create_options = squash_brotli_create_options;
-    funcs->parse_option = squash_brotli_parse_option;
+    funcs->options = squash_brotli_options;
     funcs->get_max_compressed_size = squash_brotli_get_max_compressed_size;
-    funcs->create_options = squash_brotli_create_options;
-    funcs->parse_option = squash_brotli_parse_option;
     funcs->create_stream = squash_brotli_create_stream;
     funcs->process_stream = squash_brotli_process_stream;
     funcs->decompress_buffer = squash_brotli_decompress_buffer;

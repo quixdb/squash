@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,147 +34,64 @@
 
 #include "libbsc/libbsc/libbsc.h"
 
-typedef struct SquashBscOptions_s {
-  SquashOptions base_object;
-  int lzp_hash_size;
-  int lzp_min_len;
-  int block_sorter;
-  int coder;
-  int feature;
-} SquashBscOptions;
+enum SquashBscOptIndex {
+  SQUASH_BSC_OPT_FAST_MODE = 0,
+  SQUASH_BSC_OPT_MULTI_THREADING,
+  SQUASH_BSC_OPT_LARGE_PAGES,
+  SQUASH_BSC_OPT_CUDA,
+  SQUASH_BSC_OPT_LZP_HASH_SIZE,
+  SQUASH_BSC_OPT_LZP_MIN_LEN,
+  SQUASH_BSC_OPT_BLOCK_SORTER,
+  SQUASH_BSC_OPT_CODER
+};
+
+static SquashOptionInfo squash_bsc_options[] = {
+  { "fast-mode",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = true },
+  { "multi-threading",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = true },
+  { "large-pages",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { "cuda",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { "lzp-hash-size",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 10,
+      .max = 28 },
+    .default_value.int_value = 16 },
+  { "lzp-min-len",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 4,
+      .max = 255 },
+    .default_value.int_value = 128 },
+  { "block-sorter",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "none", LIBBSC_BLOCKSORTER_NONE },
+        { "bwt", LIBBSC_BLOCKSORTER_BWT },
+        { NULL, 0 } } },
+    .default_value.int_value = LIBBSC_BLOCKSORTER_BWT },
+  { "coder",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "none", LIBBSC_CODER_NONE },
+        { "qflc-static", LIBBSC_CODER_QLFC_STATIC },
+        { "qflc-adaptive", LIBBSC_CODER_QLFC_ADAPTIVE },
+        { NULL, 0 } } },
+    .default_value.int_value = LIBBSC_CODER_QLFC_STATIC },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void              squash_bsc_options_init    (SquashBscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashBscOptions* squash_bsc_options_new     (SquashCodec* codec);
-static void              squash_bsc_options_destroy (void* options);
-static void              squash_bsc_options_free    (void* options);
-
-static void
-squash_bsc_options_init (SquashBscOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->lzp_hash_size = LIBBSC_DEFAULT_LZPHASHSIZE;
-  options->lzp_min_len = LIBBSC_DEFAULT_LZPMINLEN;
-  options->block_sorter = LIBBSC_DEFAULT_BLOCKSORTER;
-  options->coder = LIBBSC_DEFAULT_CODER;
-  options->feature = LIBBSC_DEFAULT_FEATURES;
-}
-
-static SquashBscOptions*
-squash_bsc_options_new (SquashCodec* codec) {
-  SquashBscOptions* options;
-
-  options = (SquashBscOptions*) malloc (sizeof (SquashBscOptions));
-  squash_bsc_options_init (options, codec, squash_bsc_options_free);
-
-  return options;
-}
-
-static void
-squash_bsc_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_bsc_options_free (void* options) {
-  squash_bsc_options_destroy ((SquashBscOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_bsc_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_bsc_options_new (codec);
-}
-
-static bool
-string_to_bool (const char* value, bool* result) {
-  if (strcasecmp (value, "true") == 0) {
-    *result = true;
-  } else if (strcasecmp (value, "false")) {
-    *result = false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
-static SquashStatus
-squash_bsc_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashBscOptions* opts = (SquashBscOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "lzp-hash-size") == 0) {
-    const int lzp_hash_size = (int) strtol (value, &endptr, 0);
-    if (*endptr == '\0' && (lzp_hash_size == 0 || (lzp_hash_size >= 10 && lzp_hash_size <= 28))) {
-      opts->lzp_hash_size = lzp_hash_size;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "lzp-min-len") == 0) {
-    const int lzp_min_len = (int) strtol (value, &endptr, 0);
-    if (*endptr == '\0' && (lzp_min_len == 0 || (lzp_min_len >= 4 && lzp_min_len <= 255))) {
-      opts->lzp_min_len = lzp_min_len;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "block-sorter") == 0) {
-    if (strcasecmp (value, "none") == 0) {
-      opts->block_sorter = LIBBSC_BLOCKSORTER_NONE;
-    } else if (strcasecmp (value, "bwt") == 0) {
-      opts->block_sorter = LIBBSC_BLOCKSORTER_BWT;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "coder") == 0) {
-    if (strcasecmp (value, "none") == 0) {
-      opts->coder = LIBBSC_CODER_NONE;
-    } else if (strcasecmp (value, "qflc-static") == 0) {
-      opts->coder = LIBBSC_CODER_QLFC_STATIC;
-    } else if (strcasecmp (value, "qflc-adaptive") == 0) {
-      opts->coder = LIBBSC_CODER_QLFC_ADAPTIVE;
-    } else {
-      return squash_error (SQUASH_BAD_VALUE);
-    }
-  } else if (strcasecmp (key, "fast-mode") == 0) {
-    bool res;
-    bool valid = string_to_bool (value, &res);
-    if (valid)
-      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_FASTMODE) : (opts->feature & ~LIBBSC_FEATURE_FASTMODE);
-    else
-      return squash_error (SQUASH_BAD_VALUE);
-  } else if (strcasecmp (key, "multi-threading") == 0) {
-    bool res;
-    bool valid = string_to_bool (value, &res);
-    if (valid)
-      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_MULTITHREADING) : (opts->feature & ~LIBBSC_FEATURE_MULTITHREADING);
-    else
-      return squash_error (SQUASH_BAD_VALUE);
-  } else if (strcasecmp (key, "large-pages") == 0) {
-    bool res;
-    bool valid = string_to_bool (value, &res);
-    if (valid)
-      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_LARGEPAGES) : (opts->feature & ~LIBBSC_FEATURE_LARGEPAGES);
-    else
-      return squash_error (SQUASH_BAD_VALUE);
-  } else if (strcasecmp (key, "cuda") == 0) {
-    bool res;
-    bool valid = string_to_bool (value, &res);
-    if (valid)
-      opts->feature = res ? (opts->feature | LIBBSC_FEATURE_CUDA) : (opts->feature & ~LIBBSC_FEATURE_CUDA);
-    else
-      return squash_error (SQUASH_BAD_VALUE);
-  } else {
-    return squash_error (SQUASH_BAD_PARAM);
-  }
-
-  return SQUASH_OK;
-}
 
 static size_t
 squash_bsc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -196,6 +113,16 @@ squash_lzg_get_uncompressed_size (SquashCodec* codec,
   }
 }
 
+static int
+squash_bsc_options_get_features (SquashCodec* codec,
+                                 SquashOptions* options) {
+  return
+    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_FAST_MODE) ? LIBBSC_FEATURE_FASTMODE : 0) |
+    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_MULTI_THREADING) ? LIBBSC_FEATURE_MULTITHREADING : 0) |
+    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_LARGE_PAGES) ? LIBBSC_FEATURE_LARGEPAGES : 0) |
+    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_CUDA) ? LIBBSC_FEATURE_CUDA : 0);
+}
+
 static SquashStatus
 squash_bsc_compress_buffer (SquashCodec* codec,
                             size_t* compressed_length,
@@ -203,26 +130,17 @@ squash_bsc_compress_buffer (SquashCodec* codec,
                             size_t uncompressed_length,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
-  int lzp_hash_size = LIBBSC_DEFAULT_LZPHASHSIZE;
-  int lzp_min_len = LIBBSC_DEFAULT_LZPMINLEN;
-  int block_sorter = LIBBSC_DEFAULT_BLOCKSORTER;
-  int coder = LIBBSC_DEFAULT_CODER;
-  int feature = LIBBSC_DEFAULT_FEATURES;
-
-  if (options != NULL) {
-    SquashBscOptions* opts = (SquashBscOptions*) options;
-    lzp_hash_size = opts->lzp_hash_size;
-    lzp_min_len = opts->lzp_min_len;
-    block_sorter = opts->block_sorter;
-    coder = opts->coder;
-    feature = opts->feature;
-  }
+  int lzp_hash_size = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_HASH_SIZE);
+  int lzp_min_len = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_MIN_LEN);
+  int block_sorter = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_BLOCK_SORTER);
+  int coder = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_CODER);
+  int features = squash_bsc_options_get_features (codec, options);
 
   if (*compressed_length < (uncompressed_length + LIBBSC_HEADER_SIZE))
     return squash_error (SQUASH_BUFFER_FULL);
 
   int res = bsc_compress (uncompressed, compressed, (int) uncompressed_length,
-                          lzp_hash_size, lzp_min_len, block_sorter, coder, feature);
+                          lzp_hash_size, lzp_min_len, block_sorter, coder, features);
 
   if (res < 0) {
     return squash_error (SQUASH_FAILED);
@@ -243,11 +161,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
   assert (compressed_length < (size_t) INT_MAX);
   assert (*decompressed_length < (size_t) INT_MAX);
 
-  int feature = LIBBSC_DEFAULT_FEATURES;
-  if (options != NULL) {
-    SquashBscOptions* opts = (SquashBscOptions*) options;
-    feature = opts->feature;
-  }
+  int features = squash_bsc_options_get_features (codec, options);
 
   int p_block_size, p_data_size;
 
@@ -258,7 +172,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
   if (p_data_size > (int) *decompressed_length)
     return squash_error (SQUASH_BUFFER_FULL);
 
-  res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, feature);
+  res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, features);
 
   if (res < 0)
     return squash_error (SQUASH_FAILED);
@@ -275,8 +189,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("bsc", name) == 0) {
-    funcs->create_options = squash_bsc_create_options;
-    funcs->parse_option = squash_bsc_parse_option;
+    funcs->options = squash_bsc_options;
     funcs->get_uncompressed_size = squash_lzg_get_uncompressed_size;
     funcs->get_max_compressed_size = squash_bsc_get_max_compressed_size;
     funcs->decompress_buffer = squash_bsc_decompress_buffer;

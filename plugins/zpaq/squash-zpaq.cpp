@@ -49,11 +49,15 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-typedef struct _SquashZpaqOptions {
-  SquashOptions base_object;
+enum SquashZpaqOptIndex {
+  SQUASH_ZPAQ_OPT_LEVEL = 0
+};
 
-  int level;
-} SquashZpaqOptions;
+static SquashOptionInfo squash_zpaq_options[] = {
+  { (char*) "level",
+    SQUASH_OPTION_TYPE_RANGE_INT, },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 typedef struct _SquashZpaqStream SquashZpaqStream;
 
@@ -79,18 +83,15 @@ struct _SquashZpaqStream {
 
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void               squash_zpaq_options_init    (SquashZpaqOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashZpaqOptions* squash_zpaq_options_new     (SquashCodec* codec);
-static void               squash_zpaq_options_destroy (void* options);
-static void               squash_zpaq_options_free    (void* options);
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus              squash_plugin_init          (SquashPlugin* plugin);
 
 static void               squash_zpaq_stream_init     (SquashZpaqStream* stream,
                                                        SquashCodec* codec,
                                                        SquashStreamType stream_type,
-                                                       SquashZpaqOptions* options,
+                                                       SquashOptions* options,
                                                        SquashDestroyNotify destroy_notify);
-static SquashZpaqStream*  squash_zpaq_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashZpaqOptions* options);
+static SquashZpaqStream*  squash_zpaq_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_zpaq_stream_destroy  (void* stream);
 static void               squash_zpaq_stream_free     (void* stream);
 
@@ -151,65 +152,9 @@ void SquashZpaqIO::write (const char* buf, int n) {
   }
 }
 
-static void
-squash_zpaq_options_init (SquashZpaqOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-	options->level = SQUASH_ZPAQ_DEFAULT_LEVEL;
-}
-
-static SquashZpaqOptions*
-squash_zpaq_options_new (SquashCodec* codec) {
-  SquashZpaqOptions* options;
-
-  options = (SquashZpaqOptions*) malloc (sizeof (SquashZpaqOptions));
-  squash_zpaq_options_init (options, codec, squash_zpaq_options_free);
-
-  return options;
-}
-
-static void
-squash_zpaq_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_zpaq_options_free (void* options) {
-  squash_zpaq_options_destroy ((SquashZpaqOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_zpaq_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_zpaq_options_new (codec);
-}
-
-static SquashStatus
-squash_zpaq_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashZpaqOptions* opts = (SquashZpaqOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 1 && level <= 5 ) {
-      opts->level = level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
-
 static SquashZpaqStream* squash_zpaq_stream_new (SquashCodec* codec,
                                                  SquashStreamType stream_type,
-                                                 SquashZpaqOptions* options) {
+                                                 SquashOptions* options) {
   SquashZpaqStream* stream;
 
   assert (codec != NULL);
@@ -225,9 +170,9 @@ static void
 squash_zpaq_stream_init (SquashZpaqStream* stream,
                          SquashCodec* codec,
                          SquashStreamType stream_type,
-                         SquashZpaqOptions* options,
+                         SquashOptions* options,
                          SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+  squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
 
   stream->stream = new SquashZpaqIO(stream);
   stream->stream->stream = stream;
@@ -248,7 +193,7 @@ squash_zpaq_stream_free (void* stream) {
 
 static SquashStream*
 squash_zpaq_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zpaq_stream_new (codec, stream_type, (SquashZpaqOptions*) options);
+  return (SquashStream*) squash_zpaq_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -260,7 +205,7 @@ squash_zpaq_process_stream (SquashStream* stream, SquashOperation operation) {
   try {
     if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
       char level_s[2];
-      snprintf (level_s, sizeof(level_s), "%d", (stream->options != NULL) ? ((SquashZpaqOptions*) stream->options)->level : SQUASH_ZPAQ_DEFAULT_LEVEL);
+      snprintf (level_s, sizeof(level_s), "%d", squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_ZPAQ_OPT_LEVEL));
 
       squash_zpaq_thread_stream = stream;
       compress (s->stream, s->stream, level_s);
@@ -288,13 +233,20 @@ squash_zpaq_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 extern "C" SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  const SquashOptionInfoRangeInt level_range = { 1, 5, 0, false };
+
+  squash_zpaq_options[SQUASH_ZPAQ_OPT_LEVEL].default_value.int_value = 1;
+  squash_zpaq_options[SQUASH_ZPAQ_OPT_LEVEL].info.range_int = level_range;
+}
+
+extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zpaq", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->create_options = squash_zpaq_create_options;
-    funcs->parse_option = squash_zpaq_parse_option;
+    funcs->options = squash_zpaq_options;
     funcs->create_stream = squash_zpaq_create_stream;
     funcs->process_stream = squash_zpaq_process_stream;
     funcs->get_max_compressed_size = squash_zpaq_get_max_compressed_size;

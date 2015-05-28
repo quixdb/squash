@@ -32,11 +32,18 @@
 
 #include "crush.h"
 
-typedef struct _SquashCrushOptions {
-  SquashOptions base_object;
+enum SquashCrushOptIndex {
+  SQUASH_CRUSH_OPT_LEVEL = 0
+};
 
-  int level;
-} SquashCrushOptions;
+static SquashOptionInfo squash_crush_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 0,
+      .max = 2 },
+    .default_value.int_value = 1 },
+};
 
 typedef struct SquashCrushStream_s {
   SquashStream base_object;
@@ -49,17 +56,12 @@ typedef struct SquashCrushStream_s {
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecFuncs* funcs);
 
-static void                squash_crush_options_init    (SquashCrushOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashCrushOptions* squash_crush_options_new     (SquashCodec* codec);
-static void                squash_crush_options_destroy (void* options);
-static void                squash_crush_options_free    (void* options);
-
 static void                squash_crush_stream_init     (SquashCrushStream* stream,
                                                          SquashCodec* codec,
                                                          SquashStreamType stream_type,
-                                                         SquashCrushOptions* options,
+                                                         SquashOptions* options,
                                                          SquashDestroyNotify destroy_notify);
-static SquashCrushStream*  squash_crush_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashCrushOptions* options);
+static SquashCrushStream*  squash_crush_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                squash_crush_stream_destroy  (void* stream);
 static void                squash_crush_stream_free     (void* stream);
 
@@ -108,75 +110,20 @@ squash_crush_writer (uint8_t* buf, size_t size, SquashCrushStream* stream) {
 }
 
 static void
-squash_crush_options_init (SquashCrushOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-	options->level = 1;
-}
-
-static SquashCrushOptions*
-squash_crush_options_new (SquashCodec* codec) {
-  SquashCrushOptions* options;
-
-  options = (SquashCrushOptions*) malloc (sizeof (SquashCrushOptions));
-  squash_crush_options_init (options, codec, squash_crush_options_free);
-
-  return options;
-}
-
-static void
-squash_crush_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_crush_options_free (void* options) {
-  squash_crush_options_destroy ((SquashCrushOptions*) options);
-  free (options);
-}
-
-static SquashOptions*
-squash_crush_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_crush_options_new (codec);
-}
-
-static SquashStatus
-squash_crush_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashCrushOptions* opts = (SquashCrushOptions*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "level") == 0) {
-    const int level = strtol (value, &endptr, 0);
-    if ( *endptr == '\0' && level >= 0 && level <= 2 ) {
-      opts->level = level;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
-
-static void
 squash_crush_stream_init (SquashCrushStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashCrushOptions* options,
-                         SquashDestroyNotify destroy_notify) {
+                          SquashCodec* codec,
+                          SquashStreamType stream_type,
+                          SquashOptions* options,
+                          SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   crush_init(&(stream->ctx), squash_crush_reader, (CrushWriteFunc) squash_crush_writer, stream, NULL);
 }
 
-static SquashCrushStream* squash_crush_stream_new (SquashCodec* codec,
-                                                 SquashStreamType stream_type,
-                                                 SquashCrushOptions* options) {
+static SquashCrushStream*
+squash_crush_stream_new (SquashCodec* codec,
+                         SquashStreamType stream_type,
+                         SquashOptions* options) {
   SquashCrushStream* stream;
 
   assert (codec != NULL);
@@ -203,7 +150,7 @@ squash_crush_stream_free (void* stream) {
 
 static SquashStream*
 squash_crush_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_crush_stream_new (codec, stream_type, (SquashCrushOptions*) options);
+  return (SquashStream*) squash_crush_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -214,7 +161,7 @@ squash_crush_process_stream (SquashStream* stream, SquashOperation operation) {
   s->operation = operation;
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    res = crush_compress (&(s->ctx), (stream->options != NULL) ? ((SquashCrushOptions*) stream->options)->level : 1);
+    res = crush_compress (&(s->ctx), squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_CRUSH_OPT_LEVEL));
   } else {
     res = crush_decompress (&(s->ctx));
   }
@@ -234,8 +181,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
 
   if (strcmp ("crush", name) == 0) {
     funcs->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
-    funcs->create_options = squash_crush_create_options;
-    funcs->parse_option = squash_crush_parse_option;
+    funcs->options = squash_crush_options;
     funcs->create_stream = squash_crush_create_stream;
     funcs->process_stream = squash_crush_process_stream;
     funcs->get_max_compressed_size = squash_crush_get_max_compressed_size;

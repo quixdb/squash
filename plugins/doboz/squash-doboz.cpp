@@ -44,7 +44,9 @@ squash_doboz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
 }
 
 static size_t
-squash_doboz_get_uncompressed_size (SquashCodec* codec, const uint8_t* compressed, size_t compressed_length) {
+squash_doboz_get_uncompressed_size (SquashCodec* codec,
+                                    size_t compressed_length,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)]) {
   doboz::Decompressor decompressor;
   doboz::CompressionInfo compression_info;
   doboz::Result e;
@@ -78,8 +80,10 @@ squash_doboz_status (doboz::Result status) {
 
 static SquashStatus
 squash_doboz_compress_buffer (SquashCodec* codec,
-                              uint8_t* compressed, size_t* compressed_length,
-                              const uint8_t* uncompressed, size_t uncompressed_length,
+                              size_t* compressed_length,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                              size_t uncompressed_length,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                               SquashOptions* options) {
   doboz::Result doboz_e;
   doboz::Compressor compressor;
@@ -103,8 +107,10 @@ squash_doboz_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_doboz_decompress_buffer (SquashCodec* codec,
-                                uint8_t* decompressed, size_t* decompressed_length,
-                                const uint8_t* compressed, size_t compressed_length,
+                                size_t* decompressed_length,
+                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                size_t compressed_length,
+                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                 SquashOptions* options) {
   doboz::Result doboz_e;
   doboz::Decompressor decompressor;

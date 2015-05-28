@@ -10,7 +10,7 @@ project](http://tukaani.org/xz/).
    instead unless you need this for compatibility reasons.
  * **lzma2**: Format with a single-byte header used by xz.  Requires
    *dict-size* to be present for the decoder.  Relying on the default
-   *value is dangerous as it can change from version to version.
+   value is dangerous as it can change from version to version.
  * **lzma1**: Raw format used by lzma.  The following options should
    be present: *dict-size*, *lc*, *lp*, *pb*.  Relying on default
    values for those options is dangerous as those defaults can change
@@ -21,13 +21,6 @@ project](http://tukaani.org/xz/).
  * **level** (integer, 1-9, default 6): Set the compression level.  1
    will result in the fastest compression while 9 will result in the
    highest compression ratio.
- * **check** (enumeration, default crc64, xz only): Set the algorithm
-     used to verify the compressed data.  Available values:
-   * *none*: do not verify
-   * *crc32*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-32, suitable mainly for small files.
-   * *crc64*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-64, suitable for larger files.
-   * *sha256*: [SHA-256](https://en.wikipedia.org/wiki/SHA-2), for
-      when security is important.
  * **dict-size** (integer, 4096-1610612736 (2^30 + 2^29), default
      8388608 (2^23), required for lzma1 and lzma2): From the xz man
      page:
@@ -109,9 +102,21 @@ project](http://tukaani.org/xz/).
    > be worth taking into account when designing file formats that are
    > likely to be often compressed with LZMA1 or LZMA2.
 
-### Decoder-only ###
+### xz-only ###
 
- * **memlimit** (integer, default UINT64_MAX): Memory limit to use
+#### Encoder-only ####
+
+ * **check** (enumeration, default crc64): Set the algorithm
+     used to verify the compressed data.  Available values:
+   * *none*: do not verify
+   * *crc32*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-32, suitable mainly for small files.
+   * *crc64*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-64, suitable for larger files.
+   * *sha256*: [SHA-256](https://en.wikipedia.org/wiki/SHA-2), for
+      when security is important.
+
+#### Decoder-only ####
+
+ * **mem-limit** (integer, default UINT64_MAX): Memory limit to use
    while decoding.  Note that decoding could fail if this is set too
    low.
 

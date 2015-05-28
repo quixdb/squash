@@ -125,9 +125,6 @@ squash_plugin_init (SquashPlugin* plugin) {
     handle = LoadLibrary (TEXT(plugin_file_name));
 #endif
 
-    if (handle == NULL) {
-      fprintf (stderr, "=== %s\n", dlerror ());
-    }
     free (plugin_file_name);
 
     if (handle != NULL) {

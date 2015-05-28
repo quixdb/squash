@@ -34,79 +34,23 @@
 
 #include "lz77.h"
 
-typedef struct SquashYalz77Options_s {
-  SquashOptions base_object;
+enum SquashYalz77OptIndex {
+  SQUASH_YALZ77_OPT_SEARCH_LENGTH = 0,
+  SQUASH_YALZ77_OPT_BLOCK_SIZE
+};
 
-  size_t searchlen;
-  size_t blocksize;
-} SquashYalz77Options;
+static SquashOptionInfo squash_yalz77_options[] = {
+  { (char*) "search-length",
+    SQUASH_OPTION_TYPE_SIZE, },
+  { (char*) "block-size",
+    SQUASH_OPTION_TYPE_SIZE },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs);
-
-static void
-squash_yalz77_options_init (SquashYalz77Options* options, SquashCodec* codec, SquashDestroyNotify destroy_notify) {
-  assert (options != NULL);
-
-  squash_options_init ((SquashOptions*) options, codec, destroy_notify);
-
-  options->searchlen = lz77::DEFAULT_SEARCHLEN;
-  options->blocksize = lz77::DEFAULT_BLOCKSIZE;
-}
-
-static void
-squash_yalz77_options_destroy (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-}
-
-static void
-squash_yalz77_options_free (void* options) {
-  squash_yalz77_options_destroy ((SquashYalz77Options*) options);
-  free (options);
-}
-
-static SquashYalz77Options*
-squash_yalz77_options_new (SquashCodec* codec) {
-  SquashYalz77Options* options;
-
-  options = (SquashYalz77Options*) malloc (sizeof (SquashYalz77Options));
-  squash_yalz77_options_init (options, codec, squash_yalz77_options_free);
-
-  return options;
-}
-
-static SquashOptions*
-squash_yalz77_create_options (SquashCodec* codec) {
-  return (SquashOptions*) squash_yalz77_options_new (codec);
-}
-
-static SquashStatus
-squash_yalz77_parse_option (SquashOptions* options, const char* key, const char* value) {
-  SquashYalz77Options* opts = (SquashYalz77Options*) options;
-  char* endptr = NULL;
-
-  assert (opts != NULL);
-
-  if (strcasecmp (key, "search-length") == 0) {
-    const size_t searchlen = (size_t) strtoul (value, &endptr, 0);
-    if ( *endptr == '\0' && searchlen > 0) {
-      opts->searchlen = searchlen;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else if (strcasecmp (key, "block-size") == 0) {
-    const size_t blocksize = (size_t) strtoul (value, &endptr, 0);
-    if ( *endptr == '\0' && blocksize > 0) {
-      opts->blocksize = blocksize;
-    } else {
-      return SQUASH_BAD_VALUE;
-    }
-  } else {
-    return SQUASH_BAD_PARAM;
-  }
-
-  return SQUASH_OK;
-}
+extern "C" SQUASH_PLUGIN_EXPORT
+SquashStatus squash_plugin_init       (SquashPlugin* plugin);
 
 static size_t
 squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -121,14 +65,8 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                SquashOptions* options) {
 
-  size_t searchlen = lz77::DEFAULT_SEARCHLEN;
-  size_t blocksize = lz77::DEFAULT_BLOCKSIZE;
-
-  if (options != NULL) {
-    SquashYalz77Options* opts = (SquashYalz77Options*) options;
-    searchlen = opts->searchlen;
-    blocksize = opts->blocksize;
-  }
+  const size_t searchlen = squash_codec_get_option_size_index (codec, options, SQUASH_YALZ77_OPT_SEARCH_LENGTH);
+  const size_t blocksize = squash_codec_get_option_size_index (codec, options, SQUASH_YALZ77_OPT_BLOCK_SIZE);
 
   try {
     lz77::compress_t compress(searchlen, blocksize);
@@ -174,12 +112,17 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
 }
 
 extern "C" SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  squash_yalz77_options[SQUASH_YALZ77_OPT_SEARCH_LENGTH].default_value.size_value = 8;
+  squash_yalz77_options[SQUASH_YALZ77_OPT_BLOCK_SIZE].default_value.size_value = 65536;
+}
+
+extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecFuncs* funcs) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("yalz77", name) == 0) {
-    funcs->create_options = squash_yalz77_create_options;
-    funcs->parse_option = squash_yalz77_parse_option;
+    funcs->options = squash_yalz77_options;
     funcs->get_max_compressed_size = squash_yalz77_get_max_compressed_size;
     funcs->decompress_buffer = squash_yalz77_decompress_buffer;
     funcs->compress_buffer = squash_yalz77_compress_buffer;
