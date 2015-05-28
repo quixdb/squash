@@ -1431,11 +1431,14 @@ squash_codec_get_option_value_by_name (SquashCodec* codec,
                                        SquashOptions* options,
                                        const char* key,
                                        SquashOptionType* type) {
+  size_t c_option;
+  const SquashOptionInfo* info;
+
   assert (codec != NULL);
   assert (key != NULL);
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  for (size_t c_option = 0 ; info[c_option].name != NULL ; c_option++) {
+  info = squash_codec_get_option_info (codec);
+  for (c_option = 0 ; info[c_option].name != NULL ; c_option++) {
     if (strcasecmp (key, info[c_option].name) == 0) {
       if (type != NULL)
         *type = info[c_option].type;
