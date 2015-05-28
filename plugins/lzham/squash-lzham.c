@@ -223,7 +223,7 @@ squash_operation_to_lzham (SquashOperation operation) {
       return LZHAM_FINISH;
   }
 
-  assert (0);
+  squash_assert_unreachable();
 }
 
 static SquashStatus

@@ -210,7 +210,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
 
     case SQUASH_OPTION_TYPE_NONE:
     default:
-      assert (false);
+      squash_assert_unreachable();
   }
 
   return squash_error (SQUASH_FAILED);
@@ -413,8 +413,7 @@ squash_options_init (void* options,
           break;
         case SQUASH_OPTION_TYPE_NONE:
         default:
-          assert (false);
-          break;
+          squash_assert_unreachable();
       }
     }
   }

@@ -211,7 +211,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         }
       }
     } else {
-      assert (false);
+      squash_assert_unreachable();
     }
   }
 

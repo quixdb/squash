@@ -114,7 +114,7 @@ static SquashZlibType squash_zlib_codec_to_type (SquashCodec* codec) {
   } else if (strcmp ("deflate", name) == 0) {
     return SQUASH_ZLIB_TYPE_DEFLATE;
   } else {
-    assert (false);
+    squash_assert_unreachable();
   }
 }
 
@@ -181,7 +181,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     zlib_e = inflateInit2 (&(stream->stream), window_bits);
   } else {
-    assert (false);
+    squash_assert_unreachable();
   }
 
   if (zlib_e != Z_OK) {
@@ -218,7 +218,7 @@ squash_operation_to_zlib (SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return Z_FINISH;
     default:
-      assert (false);
+      squash_assert_unreachable();
   }
 }
 

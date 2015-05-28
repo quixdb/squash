@@ -51,6 +51,12 @@
 #  define SQUASH_ARRAY_PARAM(name)
 #endif
 
+#if defined(__GNUC__)
+#  define squash_assert_unreachable() do { assert(false); __builtin_unreachable(); } while(0)
+#else
+#  define squash_assert_unreachable() assert(false)
+#endif
+
 #include <squash/version.h>
 
 #include "status.h"

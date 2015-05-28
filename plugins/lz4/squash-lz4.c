@@ -94,7 +94,7 @@ squash_lz4_decompress_buffer (SquashCodec* codec,
 /*       case 6: */
 /*         return 2; */
 /*       default: */
-/*         assert (false); */
+/*         squash_assert_unreachable(); */
 /*     } */
 /* } */
 
@@ -116,7 +116,7 @@ squash_lz4_level_to_hc_level (const int level) {
     case 14:
       return 16;
     default:
-      assert (false);
+      squash_assert_unreachable();
   }
 }
 
@@ -140,7 +140,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
     /*                                         (char*) compressed, */
     /*                                         (int) uncompressed_length, */
     /*                                         squash_lz4_level_to_fast_mode (level)); */
-    assert (false);
+    squash_assert_unreachable();
   } else if (level < 17) {
     *compressed_length = LZ4_compressHC2_limitedOutput ((char*) uncompressed,
                                                         (char*) compressed,
@@ -148,7 +148,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                                                         (int) *compressed_length,
                                                         squash_lz4_level_to_hc_level (level));
   } else {
-    assert (false);
+    squash_assert_unreachable();
   }
 
   return (*compressed_length == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
@@ -176,7 +176,7 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
     /*                                         (char*) compressed, */
     /*                                         (int) uncompressed_length, */
     /*                                         squash_lz4_level_to_fast_mode (level)); */
-    assert (false);
+    squash_assert_unreachable();
   } else {
     *compressed_length = LZ4_compressHC2 ((char*) uncompressed,
                                           (char*) compressed,

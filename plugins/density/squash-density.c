@@ -192,7 +192,7 @@ squash_density_flush_internal_buffer (SquashStream* stream) {
     }
   }
 
-  assert (false);
+  squash_assert_unreachable();
 }
 
 static size_t total_bytes_written = 0;
@@ -346,7 +346,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         break;
       case SQUASH_DENSITY_ACTION_FINISHED:
       default:
-        assert (0);
+        squash_assert_unreachable();
         break;
     }
   }
@@ -390,7 +390,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         s->output_invalid = true;
         return SQUASH_PROCESSING;
       } else {
-        assert (0);
+        squash_assert_unreachable();
       }
     }
   }

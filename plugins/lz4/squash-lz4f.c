@@ -197,7 +197,7 @@ squash_lz4f_block_size_id_to_size (blockSizeID_t blkid) {
     case max4MB:
       return   4 * 1024 * 1024;
     default:
-      assert (0);
+      squash_assert_unreachable();
       break;
   }
 }
@@ -297,7 +297,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
           stream->next_in += input_length;
           stream->avail_in -= input_length;
         } else {
-          assert (0);
+          squash_assert_unreachable();
         }
       } else if (operation == SQUASH_OPERATION_FLUSH) {
         assert (stream->avail_in == 0);
@@ -316,11 +316,11 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
       } else if (progress) {
         break;
       } else {
-        assert (0);
+        squash_assert_unreachable();
       }
 
       if (LZ4F_isError (olen)) {
-        assert (0);
+        squash_assert_unreachable();
         return squash_error (SQUASH_FAILED);
       } else {
         if (olen != 0) {
@@ -392,7 +392,7 @@ squash_lz4f_process_stream (SquashStream* stream, SquashOperation operation) {
     case SQUASH_STREAM_DECOMPRESS:
       return squash_lz4f_decompress_stream (stream, operation);
     default:
-      assert (false);
+      squash_assert_unreachable();
   }
 }
 

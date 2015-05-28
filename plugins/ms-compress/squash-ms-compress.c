@@ -64,7 +64,7 @@ squash_ms_format_from_codec (SquashCodec* codec) {
   else if (name[14] == 0)
     return MSCOMP_XPRESS_HUFF;
   else
-    assert (false);
+    squash_assert_unreachable();
 }
 
 static SquashStatus
@@ -152,7 +152,7 @@ squash_ms_comp_flush_from_operation (SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return MSCOMP_FINISH;
   }
-  assert (false);
+  squash_assert_unreachable();
 }
 
 static SquashStatus

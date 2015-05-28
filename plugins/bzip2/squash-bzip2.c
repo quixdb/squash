@@ -97,7 +97,7 @@ squash_bz2_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashO
                                   0,
                                   squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_SMALL));
   } else {
-    assert (false);
+    squash_assert_unreachable();
   }
 
   if (bz2_e != BZ_OK) {
@@ -262,7 +262,7 @@ squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
       return squash_bz2_finish_stream (stream);
   }
 
-  assert (0);
+  squash_assert_unreachable();
 }
 
 static size_t

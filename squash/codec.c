@@ -1466,8 +1466,7 @@ squash_codec_get_option_string (SquashCodec* codec,
     case SQUASH_OPTION_TYPE_STRING:
       return value->string_value;
     default:
-      assert (false);
-      return NULL;
+      squash_assert_unreachable();
   }
 }
 
@@ -1491,8 +1490,7 @@ squash_codec_get_option_bool (SquashCodec* codec,
     case SQUASH_OPTION_TYPE_BOOL:
       return value->bool_value;
     default:
-      assert (false);
-      return false;
+      squash_assert_unreachable();
   }
 }
 
@@ -1518,8 +1516,7 @@ squash_codec_get_option_int (SquashCodec* codec,
     case SQUASH_OPTION_TYPE_ENUM_STRING:
       return value->int_value;
     default:
-      assert (false);
-      return 0;
+      squash_assert_unreachable();
   }
 }
 
@@ -1544,8 +1541,7 @@ squash_codec_get_option_size (SquashCodec* codec,
     case SQUASH_OPTION_TYPE_RANGE_SIZE:
       return value->size_value;
     default:
-      assert (false);
-      return 0;
+      squash_assert_unreachable();
   }
 }
 

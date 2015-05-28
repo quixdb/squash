@@ -53,7 +53,7 @@ squash_ncompress_status_to_squash_status (enum CompressStatus status) {
     case COMPRESS_FAILED:
       return SQUASH_FAILED;
   }
-  assert (0);
+  squash_assert_unreachable();
 }
 
 static SquashStatus
