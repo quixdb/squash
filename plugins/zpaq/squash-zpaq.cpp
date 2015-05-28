@@ -84,7 +84,7 @@ struct _SquashZpaqStream {
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init          (SquashPlugin* plugin);
+SquashStatus              squash_plugin_init_plugin   (SquashPlugin* plugin);
 
 static void               squash_zpaq_stream_init     (SquashZpaqStream* stream,
                                                        SquashCodec* codec,
@@ -233,7 +233,7 @@ squash_zpaq_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 extern "C" SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   const SquashOptionInfoRangeInt level_range = { 1, 5, 0, false };
 
   squash_zpaq_options[SQUASH_ZPAQ_OPT_LEVEL].default_value.int_value = 1;

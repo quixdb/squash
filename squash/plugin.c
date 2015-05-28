@@ -147,9 +147,9 @@ squash_plugin_init (SquashPlugin* plugin) {
     } else {
       SquashStatus (*init_func) (SquashPlugin*);
 #if !defined(_WIN32)
-      *(void **) (&init_func) = dlsym (plugin->plugin, "squash_plugin_init");
+      *(void **) (&init_func) = dlsym (plugin->plugin, "squash_plugin_init_plugin");
 #else
-      *(void **) (&init_func) = GetProcAddress (handle, "squash_plugin_init");
+      *(void **) (&init_func) = GetProcAddress (handle, "squash_plugin_init_plugin");
 #endif
       if (init_func != NULL) {
         init_func (plugin);

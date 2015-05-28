@@ -75,7 +75,7 @@ struct _SquashZlingStream {
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus               squash_plugin_init           (SquashPlugin* plugin);
+SquashStatus               squash_plugin_init_plugin    (SquashPlugin* plugin);
 
 static void                squash_zling_stream_init     (SquashZlingStream* stream,
                                                          SquashCodec* codec,
@@ -224,7 +224,7 @@ squash_zling_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
 }
 
 extern "C" SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   const SquashOptionInfoRangeInt level_range = { 0, 4, 0, false };
 
   squash_zling_options[SQUASH_ZLING_OPT_LEVEL].default_value.int_value = 0;

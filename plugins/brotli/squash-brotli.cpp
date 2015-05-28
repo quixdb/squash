@@ -65,7 +65,7 @@ typedef struct SquashBrotliStream_s {
 } SquashBrotliStream;
 
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init            (SquashPlugin* plugin);
+SquashStatus                squash_plugin_init_plugin     (SquashPlugin* plugin);
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecImpl* impl);
 
@@ -287,7 +287,7 @@ squash_brotli_compress_buffer (SquashCodec* codec,
 }
 
 extern "C" SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_brotli_options[SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS].default_value.bool_value = false;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_TEXT;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {

@@ -76,7 +76,7 @@ typedef struct SquashCscStream_s {
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus             squash_plugin_init         (SquashPlugin* plugin);
+SquashStatus             squash_plugin_init_plugin  (SquashPlugin* plugin);
 
 static void              squash_csc_stream_init     (SquashCscStream* stream,
                                                      SquashCodec* codec,
@@ -259,7 +259,7 @@ squash_csc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 }
 
 extern "C" SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   const SquashOptionInfoRangeSize dict_size_range = { 32768, 1073741824, 0, false };
 
   squash_csc_options[SQUASH_CSC_OPT_LEVEL].default_value.int_value = 2;

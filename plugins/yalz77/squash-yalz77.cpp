@@ -48,9 +48,9 @@ static SquashOptionInfo squash_yalz77_options[] = {
 };
 
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
+SquashStatus squash_plugin_init_codec  (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
-SquashStatus squash_plugin_init       (SquashPlugin* plugin);
+SquashStatus squash_plugin_init_plugin (SquashPlugin* plugin);
 
 static size_t
 squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
@@ -112,7 +112,7 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
 }
 
 extern "C" SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_yalz77_options[SQUASH_YALZ77_OPT_SEARCH_LENGTH].default_value.size_value = 8;
   squash_yalz77_options[SQUASH_YALZ77_OPT_BLOCK_SIZE].default_value.size_value = 65536;
 }

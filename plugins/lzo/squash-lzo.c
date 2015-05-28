@@ -363,7 +363,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
 }
 
 SquashStatus
-squash_plugin_init (SquashPlugin* plugin) {
+squash_plugin_init_plugin (SquashPlugin* plugin) {
   return squash_lzo_status_to_squash_status (lzo_init ());
 }
 
