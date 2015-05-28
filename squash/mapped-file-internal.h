@@ -31,6 +31,8 @@
 #error "This is internal API; you cannot use it."
 #endif
 
+#include <unistd.h>
+
 typedef struct SquashMappedFile_s SquashMappedFile;
 
 struct SquashMappedFile_s {

@@ -24,12 +24,15 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <strings.h>
 
 #if !defined(_WIN32)
 #include <sys/mman.h>

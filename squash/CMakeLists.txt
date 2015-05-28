@@ -33,6 +33,8 @@ set (squash_PUBLIC_HEADERS
   stream.h
   types.h)
 
+squash_source_file_set_c99 (squash_SOURCES)
+
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 add_extra_warning_cflags (TARGET squash${SQUASH_VERSION_API})
 

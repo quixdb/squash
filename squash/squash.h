@@ -31,6 +31,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef  __cplusplus
 #  define SQUASH_BEGIN_DECLS extern "C" {
