@@ -42,7 +42,7 @@ static SquashOptionInfo squash_lz4_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_RANGE_INT,
     .info.range_int = {
-      .min = 7,
+      .min = 1,
       .max = 14 },
     .default_value.int_value = 7 },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
@@ -78,25 +78,25 @@ squash_lz4_decompress_buffer (SquashCodec* codec,
   }
 }
 
-/* static int */
-/* squash_lz4_level_to_fast_mode (const int level) { */
-/*     switch (level) { */
-/*       case 1: */
-/*         return 32; */
-/*       case 2: */
-/*         return 24; */
-/*       case 3: */
-/*         return 17; */
-/*       case 4: */
-/*         return 8; */
-/*       case 5: */
-/*         return 4; */
-/*       case 6: */
-/*         return 2; */
-/*       default: */
-/*         squash_assert_unreachable(); */
-/*     } */
-/* } */
+static int
+squash_lz4_level_to_fast_mode (const int level) {
+    switch (level) {
+      case 1:
+        return 32;
+      case 2:
+        return 24;
+      case 3:
+        return 17;
+      case 4:
+        return 8;
+      case 5:
+        return 4;
+      case 6:
+        return 2;
+      default:
+        squash_assert_unreachable();
+    }
+}
 
 static int
 squash_lz4_level_to_hc_level (const int level) {
@@ -135,12 +135,11 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                                                      (int) uncompressed_length,
                                                      (int) *compressed_length);
   } else if (level < 7) {
-    /* To be added when the fastMode branch is merged into LZ4 */
-    /* *compressed_length = LZ4_compress_fast ((const char*) uncompressed, */
-    /*                                         (char*) compressed, */
-    /*                                         (int) uncompressed_length, */
-    /*                                         squash_lz4_level_to_fast_mode (level)); */
-    squash_assert_unreachable();
+    *compressed_length = LZ4_compress_fast ((const char*) uncompressed,
+                                            (char*) compressed,
+                                            (int) uncompressed_length,
+                                            (int) *compressed_length,
+                                            squash_lz4_level_to_fast_mode (level));
   } else if (level < 17) {
     *compressed_length = LZ4_compressHC2_limitedOutput ((char*) uncompressed,
                                                         (char*) compressed,
@@ -170,13 +169,11 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                        (char*) compressed,
                                        (int) uncompressed_length);
   } else if (level < 7) {
-    // No LZ4_compress_fast_limitedOutput?
-    /* To be added when the fastMode branch is merged into LZ4 */
-    /* *compressed_length = LZ4_compress_fast ((const char*) uncompressed, */
-    /*                                         (char*) compressed, */
-    /*                                         (int) uncompressed_length, */
-    /*                                         squash_lz4_level_to_fast_mode (level)); */
-    squash_assert_unreachable();
+    *compressed_length = LZ4_compress_fast ((const char*) uncompressed,
+                                            (char*) compressed,
+                                            (int) uncompressed_length,
+                                            (int) *compressed_length,
+                                            squash_lz4_level_to_fast_mode (level));
   } else {
     *compressed_length = LZ4_compressHC2 ((char*) uncompressed,
                                           (char*) compressed,
