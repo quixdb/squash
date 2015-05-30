@@ -238,6 +238,8 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
 
   squash_zpaq_options[SQUASH_ZPAQ_OPT_LEVEL].default_value.int_value = 1;
   squash_zpaq_options[SQUASH_ZPAQ_OPT_LEVEL].info.range_int = level_range;
+
+  return SQUASH_OK;
 }
 
 extern "C" SquashStatus

@@ -115,6 +115,8 @@ extern "C" SquashStatus
 squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_yalz77_options[SQUASH_YALZ77_OPT_SEARCH_LENGTH].default_value.size_value = 8;
   squash_yalz77_options[SQUASH_YALZ77_OPT_BLOCK_SIZE].default_value.size_value = 65536;
+
+  return SQUASH_OK;
 }
 
 extern "C" SquashStatus

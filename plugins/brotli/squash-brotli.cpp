@@ -296,6 +296,8 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
       { "font", brotli::BrotliParams::MODE_FONT },
       { NULL, 0 } }
   };
+
+  return SQUASH_OK;
 }
 
 extern "C" SquashStatus

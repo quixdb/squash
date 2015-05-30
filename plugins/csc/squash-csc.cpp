@@ -268,6 +268,8 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_csc_options[SQUASH_CSC_OPT_DELTA_FILTER].default_value.bool_value = false;
   squash_csc_options[SQUASH_CSC_OPT_EXE_FILTER].default_value.bool_value = true;
   squash_csc_options[SQUASH_CSC_OPT_TXT_FILTER].default_value.bool_value = true;
+
+  return SQUASH_OK;
 }
 
 extern "C" SquashStatus
