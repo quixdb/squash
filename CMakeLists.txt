@@ -206,7 +206,6 @@ function (squash_source_file_add_compile_flag file flag)
   endif ()
 
   if (NOT ${test_name})
-    message (FATAL_ERROR "No such flag: '${flag}' (${test_name})")
     return ()
   endif ()
 
