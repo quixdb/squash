@@ -40,9 +40,6 @@
 [submodule "plugins/bsc/libbsc"]
 	path = plugins/bsc/libbsc
 	url = https://github.com/IlyaGrebnov/libbsc.git
-[submodule "plugins/lzg/liblzg"]
-	path = plugins/lzg/liblzg
-	url = https://gitorious.org/liblzg/liblzg.git
 [submodule "plugins/pithy/pithy"]
 	path = plugins/pithy/pithy
 	url = https://github.com/johnezang/pithy.git
@@ -76,3 +73,6 @@
 [submodule "plugins/wflz/wflz"]
 	path = plugins/wflz/wflz
 	url = https://github.com/ShaneWF/wflz.git
+[submodule "plugins/lzg/liblzg"]
+	path = plugins/lzg/liblzg
+	url = https://github.com/mbitsnbites/liblzg.git
