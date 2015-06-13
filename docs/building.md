@@ -14,7 +14,7 @@ you'll need glib.  The necessary packages vary by distribution, but
 for some of the more popular distributions:
 
 * **Debian/Ubuntu** — gcc g++ ragel cmake make libglib2.0-dev
-* **Fedora/RHEL/CentOS** — gcc gcc-g++ ragel cmake make glib2-devel
+* **Fedora/RHEL/CentOS** — gcc gcc-c++ ragel cmake make glib2-devel
 
 Squash includes copies of all the libraries it uses for
 compression/decompression.  That said, you may prefer to use system
