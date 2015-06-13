@@ -15,6 +15,7 @@ set (brotli_sources
   brotli/enc/histogram.cc
   brotli/enc/literal_cost.cc
   brotli/enc/metablock.cc
+  brotli/enc/static_dict.cc
   brotli/enc/streams.cc)
 
 if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
