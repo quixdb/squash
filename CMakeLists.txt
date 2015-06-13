@@ -117,7 +117,7 @@ function (squash_plugin_add name sources)
     set_property (TARGET squash${SQUASH_VERSION_API}-plugin-${name} APPEND PROPERTY LINK_FLAGS -fvisibility=hidden)
   endif ()
 
-  if (NOT OPTIMIZE_CFLAGS STREQUAL "")
+  if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
     foreach (file ${${sources}})
       if ("${file}" MATCHES "^squash-${name}.c$")
         add_extra_warning_cflags (SOURCE "${file}")
@@ -183,7 +183,7 @@ endfunction ()
 
 function (squash_source_file_add_cflag file flag)
   get_source_file_property (existing ${file} COMPILE_FLAGS)
-  if (${existing} STREQUAL "NOTFOUND")
+  if ("${existing}" STREQUAL "NOTFOUND")
     set_source_files_properties (${file}
       PROPERTIES COMPILE_FLAGS "${flag}")
   else ()
@@ -194,7 +194,7 @@ endfunction ()
 
 function (squash_source_file_set_c99 files)
   foreach (file ${${files}})
-    squash_source_file_add_cflag (${file} "-std=c99")
+    squash_source_file_add_cflag ("${file}" "-std=c99")
   endforeach (file)
 endfunction (squash_source_file_set_c99)
 
