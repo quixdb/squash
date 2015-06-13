@@ -156,8 +156,6 @@ squash_brotli_stream_init (SquashBrotliStream* s,
 
 static void
 squash_brotli_stream_destroy (void* stream) {
-  SquashBrotliStream* s = (SquashBrotliStream*) stream;
-
   squash_stream_destroy (stream);
 }
 

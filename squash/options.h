@@ -101,7 +101,7 @@ union _SquashOptionValue {
 };
 
 struct _SquashOptionInfo {
-  char* name;
+  const char* name;
   SquashOptionType type;
   union {
     struct _SquashOptionInfoEnumString enum_string;

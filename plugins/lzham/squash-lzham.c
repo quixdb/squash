@@ -146,18 +146,6 @@ squash_lzham_decompress_apply_options (SquashCodec* codec,
   *params = opts;
 }
 
-static bool
-string_to_bool (const char* value, bool* result) {
-  if (strcasecmp (value, "true") == 0) {
-    *result = true;
-  } else if (strcasecmp (value, "false")) {
-    *result = false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
 static SquashLZHAMStream*
 squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashLZHAMStream* stream;

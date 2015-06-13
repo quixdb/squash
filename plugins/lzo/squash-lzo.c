@@ -267,13 +267,11 @@ squash_lzo_status_to_squash_status (int lzo_e) {
   return res;
 }
 
-static void              squash_lzo_options_init    (SquashOptions* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-static SquashOptions*    squash_lzo_options_new     (SquashCodec* codec);
-static void              squash_lzo_options_destroy (void* options);
-static void              squash_lzo_options_free    (void* options);
+SQUASH_PLUGIN_EXPORT
+SquashStatus squash_plugin_init_plugin (SquashPlugin* plugin);
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
+SquashStatus squash_plugin_init_codec  (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
 squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {

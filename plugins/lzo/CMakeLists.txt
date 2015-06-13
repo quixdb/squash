@@ -151,6 +151,10 @@ if (NOT LZO_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
 
   # LZO_HAVE_CONFIG_H
   add_definitions(-DLZO_CFG_NO_CONFIG_HEADER=1)
+
+  foreach (file ${lzo_sources})
+    squash_source_file_add_cflag ("${file}" "-Wno-undef")
+  endforeach ()
 else ()
   squash_plugin_add_for_package(lzo LZO lzo_sources)
 endif ()

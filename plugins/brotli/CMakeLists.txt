@@ -25,4 +25,9 @@ if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
   # CMake 3.2
   # set_target_properties("squash${SQUASH_VERSION_API}-plugin-${plugin}" PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
+
+  foreach (file ${brotli_sources})
+    squash_source_file_add_cflag ("${file}" "-Wno-shadow")
+    squash_source_file_add_cflag ("${file}" "-Wno-sign-compare")
+  endforeach ()
 endif ()

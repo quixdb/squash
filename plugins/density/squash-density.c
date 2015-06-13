@@ -168,6 +168,8 @@ squash_density_level_to_mode (int level) {
       return DENSITY_COMPRESSION_MODE_CHEETAH_ALGORITHM;
     case 9:
       return DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
+    default:
+      squash_assert_unreachable ();
   }
 }
 
