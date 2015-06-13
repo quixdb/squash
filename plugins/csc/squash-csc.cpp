@@ -217,8 +217,8 @@ squash_csc_process_stream (SquashStream* stream, SquashOperation operation) {
   CSCProps props;
   unsigned char props_buf[CSC_PROP_SIZE];
 
-  struct SquashCscInStream istream = { squash_csc_reader, s };
-  struct SquashCscOutStream ostream = { squash_csc_writer, s };
+  struct SquashCscInStream istream = { { squash_csc_reader }, s };
+  struct SquashCscOutStream ostream = { { squash_csc_writer }, s };
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     CSCEncProps_Init (&props,

@@ -18,6 +18,9 @@
 
 #include <squash/squash.h>
 
+#if defined(__GNUC__)
+__attribute__((__noreturn__))
+#endif
 static void
 print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "Usage: %s [OPTION]... INPUT [OUTPUT]\n", argv[0]);

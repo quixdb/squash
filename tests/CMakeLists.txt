@@ -23,5 +23,8 @@ if (GLIB_FOUND)
     add_extra_warning_cflags (TARGET ${test})
 
     add_test (${test} ${test} --squash-plugins=${PROJECT_BINARY_DIR}/plugins)
+
+    squash_source_file_add_compile_flag ("${test}.c" "-Wno-unknown-attributes")
   endforeach (test)
+  squash_source_file_add_compile_flag ("test-codecs.c" "-Wno-unknown-attributes")
 endif (GLIB_FOUND)

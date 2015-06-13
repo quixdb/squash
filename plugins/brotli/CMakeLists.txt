@@ -27,7 +27,10 @@ if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
   # set_target_properties("squash${SQUASH_VERSION_API}-plugin-${plugin}" PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
 
   foreach (file ${brotli_sources})
-    squash_source_file_add_cflag ("${file}" "-Wno-shadow")
-    squash_source_file_add_cflag ("${file}" "-Wno-sign-compare")
+    squash_source_file_add_compile_flag ("${file}" "-Wno-shadow")
+    squash_source_file_add_compile_flag ("${file}" "-Wno-sign-compare")
+    squash_source_file_add_compile_flag ("${file}" "-Wno-cast-align")
   endforeach ()
+
+  squash_source_file_add_compile_flag ("brotli/enc/static_dict.cc" "-Wno-tautological-constant-out-of-range-compare")
 endif ()
