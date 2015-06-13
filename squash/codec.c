@@ -1394,10 +1394,12 @@ SquashCodecInfo
 squash_get_info (const char* codec) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real != NULL)
+  if (codec_real != NULL) {
     return squash_codec_get_info (codec_real);
-  else
-    return squash_error (SQUASH_CODEC_INFO_INVALID);
+  } else {
+    squash_error (SQUASH_NOT_FOUND);
+    return SQUASH_CODEC_INFO_INVALID;
+  }
 }
 
 /**
