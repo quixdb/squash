@@ -3,7 +3,6 @@ set (brotli_sources
   brotli/dec/bit_reader.c
   brotli/dec/decode.c
   brotli/dec/huffman.c
-  brotli/dec/safe_malloc.c
   brotli/dec/state.c
   brotli/dec/streams.c
   brotli/enc/backward_references.cc

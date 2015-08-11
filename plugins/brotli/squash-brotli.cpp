@@ -32,7 +32,8 @@
 #include "brotli/dec/decode.h"
 
 enum SquashBrotliOptionIndex {
-  SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS = 0,
+  SQUASH_BROTLI_OPT_LEVEL = 0,
+  SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS,
   SQUASH_BROTLI_OPT_MODE
 };
 
@@ -40,6 +41,8 @@ enum SquashBrotliOptionIndex {
    least, I can't figure out how to do it), so there is some extra
    code in the init_plugin func to finish it off. */
 static SquashOptionInfo squash_brotli_options[] = {
+  { .name = (char*) "level",
+    .type = SQUASH_OPTION_TYPE_RANGE_INT },
   { .name = (char*) "enable-transforms",
     .type = SQUASH_OPTION_TYPE_BOOL },
   { .name = (char*) "mode",
@@ -176,6 +179,7 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
   SquashBrotliStream* s = (SquashBrotliStream*) stream;
 
   brotli::BrotliParams params;
+  params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
   params.enable_transforms = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
 
@@ -286,6 +290,10 @@ squash_brotli_compress_buffer (SquashCodec* codec,
 
 extern "C" SquashStatus
 squash_plugin_init_plugin (SquashPlugin* plugin) {
+  const SquashOptionInfoRangeInt level_range = { 1, 11, 0, false };
+  squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].default_value.int_value = 11;
+  squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].info.range_int = level_range;
+
   squash_brotli_options[SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS].default_value.bool_value = false;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_TEXT;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {
