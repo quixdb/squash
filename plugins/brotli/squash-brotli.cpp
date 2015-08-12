@@ -182,6 +182,7 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
   params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
   params.enable_transforms = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
+  params.lgblock = 21;
 
   s->ctx.comp = new brotli::BrotliCompressor (params);
   s->ctx.comp->WriteStreamHeader ();
@@ -198,7 +199,10 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
 
   while ((block_size = BrotliRead (s->in, input_buffer, SQUASH_BROTLI_MAX_BLOCK_SIZE)) != 0) {
     output_size = SQUASH_BROTLI_MAX_OUT_SIZE;
-    s->ctx.comp->WriteMetaBlock (block_size, input_buffer, false, &output_size, output_buffer);
+    if (!s->ctx.comp->WriteMetaBlock (block_size, input_buffer, false, &output_size, output_buffer)) {
+      res = SQUASH_FAILED;
+      goto cleanup;
+    }
     if (BrotliWrite (s->out, output_buffer, output_size) != output_size) {
       res = SQUASH_FAILED;
       goto cleanup;
@@ -273,6 +277,7 @@ squash_brotli_compress_buffer (SquashCodec* codec,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                SquashOptions* options) {
   brotli::BrotliParams params;
+  params.quality = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
   params.enable_transforms = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
 
@@ -295,9 +300,10 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].info.range_int = level_range;
 
   squash_brotli_options[SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS].default_value.bool_value = false;
-  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_TEXT;
+  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_GENERIC;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {
     (const SquashOptionInfoEnumStringMap []) {
+      { "generic", brotli::BrotliParams::MODE_GENERIC },
       { "text", brotli::BrotliParams::MODE_TEXT },
       { "font", brotli::BrotliParams::MODE_FONT },
       { NULL, 0 } }
