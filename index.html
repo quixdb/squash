@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <script src="query-string.js"></script>
   </head>
 
   <body>
@@ -41,7 +43,6 @@
                 <li>
                   <a href="https://stackoverflow.com/questions/tagged/squash-compression">Stack Overflow</a>
                 <li><a href="http://encode.ru/threads/2160-Squash-and-the-Squash-Benchmark">Encode.ru Thread</a></li>
-                </li>
                 <li class="divider"></li>
                 <li><a href="https://github.com/quixdb/squash/issues">Issue Tracker</a></li>
               </ul>
@@ -208,6 +209,11 @@
 	</dd>
       </dl>
 
+      <p>
+	If you would like to be notified of new releases via e-mail,
+	you can <a href="#announce-list">subscribe to the squash-announce mailing list</a>.
+      </p>
+
       <h3 id="git">Git</h3>
 
       <dl>
@@ -217,6 +223,35 @@
         <dt>Web interface</dt>
         <dd><p><a href="https://github.com/quixdb/squash">https://github.com/quixdb/squash</a></p></dd>
       </dl>
+    </div>
+
+    <div id="announce-list" class="container">
+      <h2><a href="#announce-list">Announcement List</a></h2>
+
+      <p>
+	To be notified of new releases via e-mail you can subscribe to
+	the squash-announce mailing list.  We will only send messages
+	for new releases or other major events.
+      </p>
+
+      <form class="form-horizontal" method="post" action="https://scripts.dreamhost.com/add_list.cgi">
+	<input type="hidden" name="list" value="squash-announce" />
+	<input type="hidden" name="domain" value="coeus-group.com" />
+
+	<div class="form-group">
+	  <label for="announce-email" class="col-sm-2 control-label">Your e-Mail Address</label>
+	  <div class="col-sm-4">
+	    <input type="email" class="form-control" id="announce-email" name="email" placeholder="you@example.com" />
+	  </div>
+	</div>
+
+	<div class="form-group">
+	  <div class="col-sm-offset-2 col-sm-10">
+	    <button type="submit" name="submit" class="btn btn-primary">Subscribe</button>
+	    <button type="submit" name="unsub" class="btn btn-warning" value="Unsubscribe">Unsubscribe</button>
+	  </div>
+	</div>
+      </form>
     </div>
 
     <div id="support" class="container">
