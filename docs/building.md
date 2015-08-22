@@ -67,14 +67,15 @@ autotools-based project:
 ~~~
 
 This will translate the arugments you pass to the CMake versions and
-invoke CMake.
+invoke CMake.  For a list of supported arguments, pass `--help`.
 
-For a list of supported arguments, pass `--help`.  If you don't have
-bash, you'll have to call CMake manually:
+If you don't have bash, you'll have to call CMake manually:
 
 ~~~{.sh}
 cmake .
 ~~~
 
-At this point, all you need to is call `make`, and likely `make
-install`, just as you would for any other project.
+At this point, all you need to do is call `make`, and likely `make
+install`, just as you would for any other project.  If you encounter
+an error at this point please file a bug—all misconfigurations should
+be detected by `configure`/`cmake`.
