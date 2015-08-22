@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pithy_20plugin',['pithy Plugin',['../md_plugins_pithy_pithy.html',1,'']]]
+  ['ncompress_20plugin',['ncompress Plugin',['../md_plugins_ncompress_ncompress.html',1,'']]]
 ];

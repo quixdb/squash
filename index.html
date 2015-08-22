@@ -13,6 +13,12 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
     <script src="query-string.js"></script>
+
+    <style type="text/css">
+      h2 > a > i.fa-link {
+        font-size: smaller;
+      }
+    </style>
   </head>
 
   <body>
@@ -62,10 +68,10 @@
         <h1>Squash</h1>
 
         <p>
-          Squash is an abstraction library which provides a single API
-          to access many compression libraries, allowing applications
-          a great deal of flexibility in choosing a compression
-          algorithm, or allowing a choice between several of them.
+          Squash provides a single API to access many compression
+          libraries, allowing applications a great deal of flexibility
+          in choosing compression algorithms, including the option to
+          pass that choice along to the user.
         </p>
       </div>
 
@@ -99,7 +105,7 @@
     </div>
 
     <div class="container">
-      <h2 id="documentation"><a href="#documentation">Documentation</a></h2>
+      <h2 id="documentation">Documentation <a href="#documentation"><i class="fa fa-link"></i></a></h2>
 
       <p>
         The <a href="api/c/index.html">C <abbr>API</abbr> Reference</a>
@@ -120,7 +126,7 @@
     </div>
 
     <div class="container">
-      <h2 id="plugins"><a href="#plugins">Plugins</a></h2>
+      <h2 id="plugins">Plugins <a href="#plugins"><i class="fa fa-link"></i></a></h2>
 
       <p>
         Squash currently has plugins for the following libraries:
@@ -145,6 +151,7 @@
         <li><a href="http://tukaani.org/xz/">liblzma</a></li>
         <li><a href="http://www.oberhumer.com/opensource/lzo/">LZO</a></li>
         <li><a href="https://github.com/coderforlife/ms-compress/">ms-compress</a></li>
+        <li><a href="http://ncompress.sourceforge.net/">ncompress</a></li>
         <li><a href="https://github.com/johnezang/pithy">pithy</a></li>
         <li><a href="http://www.quicklz.com/">QuickLZ</a></li>
         <li><a href="https://code.google.com/p/snappy/">Snappy</a></li>
@@ -169,7 +176,7 @@
     </div>
 
     <div class="container">
-      <h2 id="bindings"><a href="#bindings">Bindings</a></h2>
+      <h2 id="bindings">Bindings <a href="#bindings"><i class="fa fa-link"></i></a></h2>
 
       <p>
         Squash is written in C, so it should be possible to create
@@ -193,13 +200,39 @@
     </div>
 
     <div id="download" class="container">
-      <h2><a href="#download">Download</a></h2>
+      <h2>Download <a href="#download"><i class="fa fa-link"></i></a></h2>
 
       <h3 id="releases">Releases <a style="color: #ed7129" href="https://github.com/quixdb/squash/releases.atom"><i class="fa fa-rss-square"></i></a></h3>
 
       <dl class="release-list">
 	<dt>
-	  <a href="https://github.com/quixdb/squash/releases/download/v0.5.0/squash-0.5.0.tar.bz2">Squash 0.5.0</a> —
+	  <a href="https://github.com/quixdb/squash/releases/download/v0.6.0/squash-0.6.0.tar.bz2">Squash 0.6.0 <i class="fa fa-download"></i></a> —
+	  2015-08-21 —
+	  <a href="https://github.com/quixdb/squash/releases/tag/v0.6.0">details</a>
+	</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      New plugins:
+	      <ul>
+		<li>yalz77</li>
+		<li>copy</li>
+		<li>csc</li>
+		<li>ncompress</li>
+	      </ul>
+	    </li>
+	    <li>Disabled Doboz</li>
+	    <li>Create in-tree copies of all modules</li>
+	    <li>Use conformant array parameters for buffers</li>
+	    <li>New API for option parsing and introspection</li>
+	    <li>Updated many plugins</li>
+	    <li>Assorted bug fixes and enhancements</li>
+	  </ul>
+	</dd>
+
+	<dt>
+	  <a href="https://github.com/quixdb/squash/releases/download/v0.5.0/squash-0.5.0.tar.bz2">Squash 0.5.0 <i class="fa fa-download"></i></a> —
+	  2015-03-29 —
 	  <a href="https://github.com/quixdb/squash/releases/tag/v0.5.0">details</a>
 	</dt>
 	<dd>
@@ -226,7 +259,7 @@
     </div>
 
     <div id="announce-list" class="container">
-      <h2><a href="#announce-list">Announcement List</a></h2>
+      <h2>Announcement List <a href="#announce-list"><i class="fa fa-link"></i></a></h2>
 
       <p>
 	To be notified of new releases via e-mail you can subscribe to
@@ -255,7 +288,7 @@
     </div>
 
     <div id="support" class="container">
-      <h2><a href="#support">Support</a></h2>
+      <h2>Support <a href="#support"><i class="fa fa-link"></i></a></h2>
 
       <dl>
         <dt id="mailing-list">Mailing List / Forum</dt>
@@ -288,7 +321,7 @@
     </div>
 
     <div id="licensing" class="container">
-      <h2><a href="#licensing">Licensing</a></h2>
+      <h2>Licensing <a href="#licensing"><i class="fa fa-link"></i></a></h2>
 
       <p>
         Squash is licensed under

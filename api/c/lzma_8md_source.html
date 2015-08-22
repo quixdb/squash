@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -99,7 +99,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;   instead unless you need this for compatibility reasons.</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; * **lzma2**: Format with a single-byte header used by xz.  Requires</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;   *dict-size* to be present for the decoder.  Relying on the default</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;   *value is dangerous as it can change from version to version.</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;   value is dangerous as it can change from version to version.</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; * **lzma1**: Raw format used by lzma.  The following options should</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;   be present: *dict-size*, *lc*, *lp*, *pb*.  Relying on default</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;   values for those options is dangerous as those defaults can change</div>
@@ -110,105 +110,110 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; * **level** (integer, 1-9, default 6): Set the compression level.  1</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;   will result in the fastest compression while 9 will result in the</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;   highest compression ratio.</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; * **check** (enumeration, default crc64, xz only): Set the algorithm</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;     used to verify the compressed data.  Available values:</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;   * *none*: do not verify</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;   * *crc32*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-32, suitable mainly for small files.</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;   * *crc64*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-64, suitable for larger files.</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;   * *sha256*: [SHA-256](https://en.wikipedia.org/wiki/SHA-2), for</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      when security is important.</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; * **dict-size** (integer, 4096-1610612736 (2^30 + 2^29), default</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;     8388608 (2^23), required for lzma1 and lzma2): From the xz man</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;     page:</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;   &gt; Dictionary (history buffer) size indicates how many bytes of the</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;   &gt; recently processed uncompressed data is kept in memory.  The</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;   &gt; algorithm tries to find repeating byte sequences (matches) in the</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;   &gt; uncompressed data, and replace them with references to the data</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;   &gt; currently in the dictionary.  The bigger the dictionary, the</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;   &gt; higher is the chance to find a match.  Thus, increasing</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;   &gt; dictionary size usually improves compression ratio, but a</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;   &gt; dictionary bigger than the uncompressed file is waste of</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;   &gt; memory.</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;   &gt;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;   &gt; Typical dictionary size is from 64 KiB to 64 MiB.  The minimum is</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;   &gt; 4 KiB.  The maximum for compression is currently 1.5 GiB (1536</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;   &gt; MiB).  The decompressor already supports dictionaries up to one</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;   &gt; byte less than 4 GiB, which is the maximum for the LZMA1 and</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;   &gt; LZMA2 stream formats.</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;   &gt;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;   &gt; Dictionary size and match finder (mf) together determine the</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;   &gt; memory usage of the LZMA1 or LZMA2 encoder.  The same (or bigger)</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;   &gt; dictionary size is required for decompressing that was used when</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;   &gt; compressing, thus the memory usage of the decoder is determined</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;   &gt; by the dictionary size used when compressing.  The .xz headers</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;   &gt; store the dictionary size either as 2^n or 2^n + 2^(n-1), so</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;   &gt; these sizes are somewhat preferred for compression.  Other sizes</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;   &gt; will get rounded up when stored in the .xz headers.</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; * **lc**: (integer, 0-4, default 3, required for lzma1): From the xz</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;     man page:</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;   &gt; Specify the number of literal context bits.  The minimum is 0 and</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;   &gt; the maximum is 4; the default is 3.  In addition, the sum of lc</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;   &gt; and lp must not exceed 4.</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;   &gt;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;   &gt; All bytes that cannot be encoded as matches are encoded as</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;   &gt; literals.  That is, literals are simply 8-bit bytes that are</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;   &gt; encoded one at a time.</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;   &gt;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;   &gt; The literal coding makes an assumption that the highest lc bits</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;   &gt; of the previous uncompressed byte correlate with the next byte.</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;   &gt; E.g. in typical English text, an uppercase letter is often</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;   &gt; followed by a lower-case letter, and a lower-case letter is</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;   &gt; usually followed by another lower-case letter.  In the US-ASCII</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;   &gt; character set, the highest three bits are 010 for upper-case</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;   &gt; letters and 011 for lower-case letters.  When lc is at least 3,</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;   &gt; the literal coding can take advantage of this property in the</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;   &gt; uncompressed data.</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;   &gt;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;   &gt; The default value (3) is usually good.  If you want maximum</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;   &gt; compression, test lc=4.  Sometimes it helps a little, and</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;   &gt; sometimes it makes compression worse.  If it makes it worse, test</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;   &gt; e.g. lc=2 too.</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; * **lp** (integer, 0-4, default 0, required for lzma1): From the xz</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;     man page:</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;   &gt; Specify the number of literal position bits.  The minimum is 0</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;   &gt; and the maximum is 4; the default is 0.</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;   &gt;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;   &gt; Lp affects what kind of alignment in the uncompressed data is</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;   &gt; assumed when encoding literals.  See pb below for more</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;   &gt; information about alignment.</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; * **pb** (integer, 0-4, default 2, required for lzma1): From the xz</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;     man page:</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;   &gt; Specify the number of position bits.  The minimum is 0 and the</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;   &gt; maximum is 4; the default is 2.</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;   &gt;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;   &gt; Pb affects what kind of alignment in the uncompressed data is</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;   &gt; assumed in general.  The default means four-byte alignment</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;   &gt; (2^pb=2^2=4), which is often a good choice when there&#39;s no better</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;   &gt; guess.</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; * **dict-size** (integer, 4096-1610612736 (2^30 + 2^29), default</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;     8388608 (2^23), required for lzma1 and lzma2): From the xz man</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;     page:</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;   &gt; Dictionary (history buffer) size indicates how many bytes of the</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;   &gt; recently processed uncompressed data is kept in memory.  The</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;   &gt; algorithm tries to find repeating byte sequences (matches) in the</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;   &gt; uncompressed data, and replace them with references to the data</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;   &gt; currently in the dictionary.  The bigger the dictionary, the</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;   &gt; higher is the chance to find a match.  Thus, increasing</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;   &gt; dictionary size usually improves compression ratio, but a</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;   &gt; dictionary bigger than the uncompressed file is waste of</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;   &gt; memory.</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;   &gt;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;   &gt; Typical dictionary size is from 64 KiB to 64 MiB.  The minimum is</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;   &gt; 4 KiB.  The maximum for compression is currently 1.5 GiB (1536</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;   &gt; MiB).  The decompressor already supports dictionaries up to one</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;   &gt; byte less than 4 GiB, which is the maximum for the LZMA1 and</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;   &gt; LZMA2 stream formats.</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;   &gt;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;   &gt; Dictionary size and match finder (mf) together determine the</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;   &gt; memory usage of the LZMA1 or LZMA2 encoder.  The same (or bigger)</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;   &gt; dictionary size is required for decompressing that was used when</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;   &gt; compressing, thus the memory usage of the decoder is determined</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;   &gt; by the dictionary size used when compressing.  The .xz headers</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;   &gt; store the dictionary size either as 2^n or 2^n + 2^(n-1), so</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;   &gt; these sizes are somewhat preferred for compression.  Other sizes</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;   &gt; will get rounded up when stored in the .xz headers.</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; * **lc**: (integer, 0-4, default 3, required for lzma1): From the xz</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;     man page:</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;   &gt; Specify the number of literal context bits.  The minimum is 0 and</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;   &gt; the maximum is 4; the default is 3.  In addition, the sum of lc</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;   &gt; and lp must not exceed 4.</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;   &gt;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;   &gt; All bytes that cannot be encoded as matches are encoded as</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;   &gt; literals.  That is, literals are simply 8-bit bytes that are</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;   &gt; encoded one at a time.</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;   &gt;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;   &gt; The literal coding makes an assumption that the highest lc bits</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;   &gt; of the previous uncompressed byte correlate with the next byte.</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;   &gt; E.g. in typical English text, an uppercase letter is often</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;   &gt; followed by a lower-case letter, and a lower-case letter is</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;   &gt; usually followed by another lower-case letter.  In the US-ASCII</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;   &gt; character set, the highest three bits are 010 for upper-case</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;   &gt; letters and 011 for lower-case letters.  When lc is at least 3,</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;   &gt; the literal coding can take advantage of this property in the</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;   &gt; uncompressed data.</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;   &gt;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;   &gt; The default value (3) is usually good.  If you want maximum</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;   &gt; compression, test lc=4.  Sometimes it helps a little, and</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;   &gt; sometimes it makes compression worse.  If it makes it worse, test</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;   &gt; e.g. lc=2 too.</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; * **lp** (integer, 0-4, default 0, required for lzma1): From the xz</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;     man page:</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;   &gt; Specify the number of literal position bits.  The minimum is 0</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;   &gt; and the maximum is 4; the default is 0.</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;   &gt;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;   &gt; Lp affects what kind of alignment in the uncompressed data is</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;   &gt; assumed when encoding literals.  See pb below for more</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;   &gt; information about alignment.</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; * **pb** (integer, 0-4, default 2, required for lzma1): From the xz</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;     man page:</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;   &gt; Specify the number of position bits.  The minimum is 0 and the</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;   &gt; maximum is 4; the default is 2.</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;   &gt;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;   &gt; Pb affects what kind of alignment in the uncompressed data is</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;   &gt; assumed in general.  The default means four-byte alignment</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;   &gt; (2^pb=2^2=4), which is often a good choice when there&#39;s no better</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;   &gt; guess.</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;   &gt;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;   &gt; When the aligment is known, setting pb accordingly may reduce the</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;   &gt; file size a little.  E.g. with text files having one-byte</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;   &gt; alignment (US-ASCII, ISO-8859-*, UTF-8), setting pb=0 can improve</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;   &gt; compression slightly.  For UTF-16 text, pb=1 is a good choice.</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;   &gt; If the alignment is an odd number like 3 bytes, pb=0 might be the</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;   &gt; best choice.</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;   &gt;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;   &gt; When the aligment is known, setting pb accordingly may reduce the</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;   &gt; file size a little.  E.g. with text files having one-byte</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;   &gt; alignment (US-ASCII, ISO-8859-*, UTF-8), setting pb=0 can improve</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;   &gt; compression slightly.  For UTF-16 text, pb=1 is a good choice.</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;   &gt; If the alignment is an odd number like 3 bytes, pb=0 might be the</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;   &gt; best choice.</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;   &gt;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;   &gt; Even though the assumed alignment can be adjusted with pb and lp,</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;   &gt; LZMA1 and LZMA2 still slightly favor 16-byte alignment.  It might</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;   &gt; be worth taking into account when designing file formats that are</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;   &gt; likely to be often compressed with LZMA1 or LZMA2.</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;### Decoder-only ###</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; * **memlimit** (integer, default UINT64_MAX): Memory limit to use</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;   while decoding.  Note that decoding could fail if this is set too</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;   low.</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;## License ##</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;The lzma plugin is licensed under the [MIT</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;License](http://opensource.org/licenses/MIT), and liblzma public</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;domain.</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;   &gt; Even though the assumed alignment can be adjusted with pb and lp,</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;   &gt; LZMA1 and LZMA2 still slightly favor 16-byte alignment.  It might</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;   &gt; be worth taking into account when designing file formats that are</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;   &gt; likely to be often compressed with LZMA1 or LZMA2.</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;### xz-only ###</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;#### Encoder-only ####</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; * **check** (enumeration, default crc64): Set the algorithm</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;     used to verify the compressed data.  Available values:</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;   * *none*: do not verify</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;   * *crc32*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-32, suitable mainly for small files.</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;   * *crc64*: [CRC](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)-64, suitable for larger files.</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;   * *sha256*: [SHA-256](https://en.wikipedia.org/wiki/SHA-2), for</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      when security is important.</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;#### Decoder-only ####</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; * **mem-limit** (integer, default UINT64_MAX): Memory limit to use</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;   while decoding.  Note that decoding could fail if this is set too</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;   low.</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;## License ##</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;The lzma plugin is licensed under the [MIT</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;License](http://opensource.org/licenses/MIT), and liblzma public</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;domain.</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

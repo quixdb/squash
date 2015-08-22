@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -84,6 +84,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="textblock"><p>The zpaq plugin provides an interface for the ZPAQ library.</p>
 <p>For more information about ZPAQ see <a href="http://mattmahoney.net/dc/zpaq.html">http://mattmahoney.net/dc/zpaq.html</a></p>
+<h2>Security</h2>
+<p>ZPAQ is <em>not</em> safe for decompressing untrusted input. In order to allow changes to the algorithms ZPAQ embeds decompressors written in a language called ZPAQL in the compressed file. It is possible for malicious actors to create an infinite loop, effectively allowing denial of service attacks.</p>
 <h2>Codecs</h2>
 <ul>
 <li><b>zpaq</b> — ZPAQ archive</li>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quicklz_20plugin',['quicklz Plugin',['../md_plugins_quicklz_quicklz.html',1,'']]]
+  ['pithy_20plugin',['pithy Plugin',['../md_plugins_pithy_pithy.html',1,'']]]
 ];

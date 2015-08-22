@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -96,10 +96,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Buffer API</h1>
 <p>If you have a block of data in memory which you want to compress (or decompress), the easiest way to do so is using the buffer API.</p>
 <div class="fragment"><div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
-<div class="line"><a class="code" href="group__SquashCodec.html#ga99b7aa198ed99ac7a39ad6fb6a7a00ef">squash_compress</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* codec,</div>
+<div class="line"><a class="code" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* codec,</div>
 <div class="line">                 uint8_t* compressed, <span class="keywordtype">size_t</span>* compressed_length,</div>
 <div class="line">                 <span class="keyword">const</span> uint8_t* uncompressed, <span class="keywordtype">size_t</span> uncompressed_length, ...);</div>
-</div><!-- fragment --><p>Like many functions in Squash, <a class="el" href="group__SquashCodec.html#ga99b7aa198ed99ac7a39ad6fb6a7a00ef" title="Compress a buffer. ">squash_compress</a> returns a <a class="el" href="group__SquashStatus.html">SquashStatus</a>. If the operation was successful, a positive number is returned (generally <a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a>), and a negative number is returned on failure.</p>
+</div><!-- fragment --><p>Like many functions in Squash, <a class="el" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11" title="Compress a buffer. ">squash_compress</a> returns a <a class="el" href="group__SquashStatus.html">SquashStatus</a>. If the operation was successful, a positive number is returned (generally <a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a>), and a negative number is returned on failure.</p>
 <p>The first argument is the name of the codec.</p>
 <p>The <em>compressed</em> and <em>compressed_length</em> arguments represent the buffer which you wish to compress the data into. Notice that <em>compressed_length</em> is a <code>size_t*</code>, not a <code>size_t</code>. When you call the function it should be a pointer to the number of bytes available for writing in the compressed buffer, and the function will alter the value to the true size of the compressed data upon successful compression.</p>
 <p><em>uncompressed</em> and <em>uncompressed_length</em> are the buffer you wish to compress. <em>uncompressed_length</em> is a <code>size_t</code>, not a <code>size_t</code>, because the function does not need to modify the value.</p>
@@ -115,7 +115,7 @@ Buffer API</h1>
 <div class="line">uint8_t* compressed = (uint8_t*) malloc (compressed_length);</div>
 <div class="line"></div>
 <div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> res =</div>
-<div class="line">  <a class="code" href="group__SquashCodec.html#ga99b7aa198ed99ac7a39ad6fb6a7a00ef">squash_compress</a> (<span class="stringliteral">&quot;deflate&quot;</span>, </div>
+<div class="line">  <a class="code" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (<span class="stringliteral">&quot;deflate&quot;</span>, </div>
 <div class="line">                   compressed, &amp;compressed_length,</div>
 <div class="line">                   (<span class="keyword">const</span> uint8_t*) uncompressed, uncompressed_length,</div>
 <div class="line">                   NULL);</div>
@@ -132,7 +132,7 @@ Buffer API</h1>
 <div class="fragment"><div class="line"><span class="keywordtype">size_t</span> decompressed_length = uncompressed_length + 1;</div>
 <div class="line"><span class="keywordtype">char</span>* decompressed = (<span class="keywordtype">char</span>*) malloc (uncompressed_length + 1);</div>
 <div class="line"></div>
-<div class="line">res = <a class="code" href="group__SquashCodec.html#gab1877550d1c2b82e745943bd8fba14b6">squash_decompress</a> (<span class="stringliteral">&quot;deflate&quot;</span>,</div>
+<div class="line">res = <a class="code" href="group__SquashCodec.html#ga02d80d21824d374856a6bbe823f983dd">squash_decompress</a> (<span class="stringliteral">&quot;deflate&quot;</span>,</div>
 <div class="line">                         (uint8_t*) decompressed, &amp;decompressed_length,</div>
 <div class="line">                         compressed, compressed_length, NULL);</div>
 <div class="line"></div>

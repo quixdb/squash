@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ref_5fcount',['ref_count',['../struct__SquashObject.html#afc260b5e0fb3aa09362926e9ee39b2ee',1,'_SquashObject']]]
+  ['priv',['priv',['../struct__SquashStream.html#a135e3726355ba288513739400211aaaa',1,'_SquashStream']]],
+  ['process_5fstream',['process_stream',['../struct__SquashCodecImpl.html#acc29df2d2294fb6f750c6fdb0cebb382',1,'_SquashCodecImpl']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['user_20guide',['User Guide',['../md_docs_user-guide.html',1,'']]]
+  ['snappy_20plugin',['snappy Plugin',['../md_plugins_snappy_snappy.html',1,'']]]
 ];

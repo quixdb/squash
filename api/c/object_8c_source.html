@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -239,11 +239,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;</div>
 <div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;<span class="keywordtype">void</span></div>
 <div class="line"><a name="l00325"></a><span class="lineno"><a class="line" href="group__SquashObject.html#gaa4dabc116f6e3b520084f1dfb56f71cd">  325</a></span>&#160;<a class="code" href="group__SquashObject.html#gaa4dabc116f6e3b520084f1dfb56f71cd">squash_object_destroy</a> (<span class="keywordtype">void</span>* obj) {</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  SquashObject* <span class="keywordtype">object</span> = (SquashObject*) obj;</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;  assert (<span class="keywordtype">object</span> != NULL);</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;}</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  assert (obj != NULL);</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;}</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;</div>
 <div class="ttc" id="group__SquashObject_html_gaa85f5f3941a11357287144f12b768730"><div class="ttname"><a href="group__SquashObject.html#gaa85f5f3941a11357287144f12b768730">SquashDestroyNotify</a></div><div class="ttdeci">void(* SquashDestroyNotify)(void *data)</div><div class="ttdoc">Callback to be invoked when information data is no longer needed. </div><div class="ttdef"><b>Definition:</b> <a href="object_8h_source.html#l00043">object.h:43</a></div></div>
 <div class="ttc" id="group__SquashObject_html_gaeab0d041c33a9e9cb9d37e6f33c038e8"><div class="ttname"><a href="group__SquashObject.html#gaeab0d041c33a9e9cb9d37e6f33c038e8">squash_object_ref_sink</a></div><div class="ttdeci">void * squash_object_ref_sink(void *obj)</div><div class="ttdoc">Sink a floating reference if one exists. </div><div class="ttdef"><b>Definition:</b> <a href="object_8c_source.html#l00237">object.c:237</a></div></div>
 <div class="ttc" id="group__SquashObject_html_gacd8284a24b2e2edcdd5c270bc72a1319"><div class="ttname"><a href="group__SquashObject.html#gacd8284a24b2e2edcdd5c270bc72a1319">squash_object_unref</a></div><div class="ttdeci">void * squash_object_unref(void *obj)</div><div class="ttdoc">Decrement the reference count on an object. </div><div class="ttdef"><b>Definition:</b> <a href="object_8c_source.html#l00255">object.c:255</a></div></div>

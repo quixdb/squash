@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -143,12 +143,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gacb7bfe8a83b58fe9e407401726f187b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gacb7bfe8a83b58fe9e407401726f187b7">squash_codec_init</a> (SquashCodec *codec)</td></tr>
 <tr class="memdesc:gacb7bfe8a83b58fe9e407401726f187b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a codec.  <a href="#gacb7bfe8a83b58fe9e407401726f187b7">More...</a><br /></td></tr>
 <tr class="separator:gacb7bfe8a83b58fe9e407401726f187b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga475990a04e9f357e3b843f2805447a53"><td class="memItemLeft" align="right" valign="top">SquashCodecFuncs *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga475990a04e9f357e3b843f2805447a53">squash_codec_get_funcs</a> (SquashCodec *codec)</td></tr>
-<tr class="memdesc:ga475990a04e9f357e3b843f2805447a53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the codec's function table.  <a href="#ga475990a04e9f357e3b843f2805447a53">More...</a><br /></td></tr>
-<tr class="separator:ga475990a04e9f357e3b843f2805447a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabde3c4cd929cd44b1e339f91b3422104"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gabde3c4cd929cd44b1e339f91b3422104">squash_codec_get_uncompressed_size</a> (SquashCodec *codec, const uint8_t *compressed, size_t compressed_length)</td></tr>
-<tr class="memdesc:gabde3c4cd929cd44b1e339f91b3422104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the uncompressed size of the compressed buffer.  <a href="#gabde3c4cd929cd44b1e339f91b3422104">More...</a><br /></td></tr>
-<tr class="separator:gabde3c4cd929cd44b1e339f91b3422104"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga956d42f7d4394012af4b3e0ce64a7baa"><td class="memItemLeft" align="right" valign="top">SquashCodecImpl *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga956d42f7d4394012af4b3e0ce64a7baa">squash_codec_get_impl</a> (SquashCodec *codec)</td></tr>
+<tr class="memdesc:ga956d42f7d4394012af4b3e0ce64a7baa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the codec's function table.  <a href="#ga956d42f7d4394012af4b3e0ce64a7baa">More...</a><br /></td></tr>
+<tr class="separator:ga956d42f7d4394012af4b3e0ce64a7baa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf9276d100760b4037123d0d601d80325"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gaf9276d100760b4037123d0d601d80325">squash_codec_get_uncompressed_size</a> (SquashCodec *codec, size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)])</td></tr>
+<tr class="memdesc:gaf9276d100760b4037123d0d601d80325"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the uncompressed size of the compressed buffer.  <a href="#gaf9276d100760b4037123d0d601d80325">More...</a><br /></td></tr>
+<tr class="separator:gaf9276d100760b4037123d0d601d80325"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5737dad972a975199477eaf6a0a3ff47"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga5737dad972a975199477eaf6a0a3ff47">squash_codec_get_max_compressed_size</a> (SquashCodec *codec, size_t uncompressed_length)</td></tr>
 <tr class="memdesc:ga5737dad972a975199477eaf6a0a3ff47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the maximum buffer size necessary to store compressed data.  <a href="#ga5737dad972a975199477eaf6a0a3ff47">More...</a><br /></td></tr>
 <tr class="separator:ga5737dad972a975199477eaf6a0a3ff47"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,30 +161,30 @@ Functions</h2></td></tr>
 <tr class="memitem:ga208c9594143d6d865a5a781ca78e1a99"><td class="memItemLeft" align="right" valign="top">SquashStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga208c9594143d6d865a5a781ca78e1a99">squash_codec_create_stream</a> (SquashCodec *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type,...)</td></tr>
 <tr class="memdesc:ga208c9594143d6d865a5a781ca78e1a99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new stream with existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga208c9594143d6d865a5a781ca78e1a99">More...</a><br /></td></tr>
 <tr class="separator:ga208c9594143d6d865a5a781ca78e1a99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4005caea54dfacd95362fd7ea594dfae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga4005caea54dfacd95362fd7ea594dfae">squash_codec_compress_with_options</a> (SquashCodec *codec, uint8_t *compressed, size_t *compressed_length, const uint8_t *uncompressed, size_t uncompressed_length, SquashOptions *options)</td></tr>
-<tr class="memdesc:ga4005caea54dfacd95362fd7ea594dfae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga4005caea54dfacd95362fd7ea594dfae">More...</a><br /></td></tr>
-<tr class="separator:ga4005caea54dfacd95362fd7ea594dfae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad6c0c8e2b355858a1784fa51fdb1d7d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gad6c0c8e2b355858a1784fa51fdb1d7d3">squash_codec_compress</a> (SquashCodec *codec, uint8_t *compressed, size_t *compressed_length, const uint8_t *uncompressed, size_t uncompressed_length,...)</td></tr>
-<tr class="memdesc:gad6c0c8e2b355858a1784fa51fdb1d7d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer.  <a href="#gad6c0c8e2b355858a1784fa51fdb1d7d3">More...</a><br /></td></tr>
-<tr class="separator:gad6c0c8e2b355858a1784fa51fdb1d7d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3cca0e3c2f06f46e9747a6667494e627"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga3cca0e3c2f06f46e9747a6667494e627">squash_codec_decompress_with_options</a> (SquashCodec *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length, SquashOptions *options)</td></tr>
-<tr class="memdesc:ga3cca0e3c2f06f46e9747a6667494e627"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga3cca0e3c2f06f46e9747a6667494e627">More...</a><br /></td></tr>
-<tr class="separator:ga3cca0e3c2f06f46e9747a6667494e627"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4c96157b7a420105bf9c6ec99cede243"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga4c96157b7a420105bf9c6ec99cede243">squash_codec_decompress</a> (SquashCodec *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length,...)</td></tr>
-<tr class="memdesc:ga4c96157b7a420105bf9c6ec99cede243"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#ga4c96157b7a420105bf9c6ec99cede243">More...</a><br /></td></tr>
-<tr class="separator:ga4c96157b7a420105bf9c6ec99cede243"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga99b7aa198ed99ac7a39ad6fb6a7a00ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga99b7aa198ed99ac7a39ad6fb6a7a00ef">squash_compress</a> (const char *codec, uint8_t *compressed, size_t *compressed_length, const uint8_t *uncompressed, size_t uncompressed_length,...)</td></tr>
-<tr class="memdesc:ga99b7aa198ed99ac7a39ad6fb6a7a00ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer.  <a href="#ga99b7aa198ed99ac7a39ad6fb6a7a00ef">More...</a><br /></td></tr>
-<tr class="separator:ga99b7aa198ed99ac7a39ad6fb6a7a00ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga310cd7bf19034d5922ccc242dadadc1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga310cd7bf19034d5922ccc242dadadc1d">squash_compress_with_options</a> (const char *codec, uint8_t *compressed, size_t *compressed_length, const uint8_t *uncompressed, size_t uncompressed_length, SquashOptions *options)</td></tr>
-<tr class="memdesc:ga310cd7bf19034d5922ccc242dadadc1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga310cd7bf19034d5922ccc242dadadc1d">More...</a><br /></td></tr>
-<tr class="separator:ga310cd7bf19034d5922ccc242dadadc1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab1877550d1c2b82e745943bd8fba14b6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gab1877550d1c2b82e745943bd8fba14b6">squash_decompress</a> (const char *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length,...)</td></tr>
-<tr class="memdesc:gab1877550d1c2b82e745943bd8fba14b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#gab1877550d1c2b82e745943bd8fba14b6">More...</a><br /></td></tr>
-<tr class="separator:gab1877550d1c2b82e745943bd8fba14b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gad9af84f04edf39e699764e0ef23f5bf9">squash_decompress_with_options</a> (const char *codec, uint8_t *decompressed, size_t *decompressed_length, const uint8_t *compressed, size_t compressed_length, SquashOptions *options)</td></tr>
-<tr class="memdesc:gad9af84f04edf39e699764e0ef23f5bf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#gad9af84f04edf39e699764e0ef23f5bf9">More...</a><br /></td></tr>
-<tr class="separator:gad9af84f04edf39e699764e0ef23f5bf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga04c13666d70b33252e9fc6e35b6e031a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga04c13666d70b33252e9fc6e35b6e031a">squash_codec_compress_with_options</a> (SquashCodec *codec, size_t *compressed_length, uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)], size_t uncompressed_length, const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)], SquashOptions *options)</td></tr>
+<tr class="memdesc:ga04c13666d70b33252e9fc6e35b6e031a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga04c13666d70b33252e9fc6e35b6e031a">More...</a><br /></td></tr>
+<tr class="separator:ga04c13666d70b33252e9fc6e35b6e031a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae0e65256a79c91172b725ddb56313717"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gae0e65256a79c91172b725ddb56313717">squash_codec_compress</a> (SquashCodec *codec, size_t *compressed_length, uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)], size_t uncompressed_length, const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],...)</td></tr>
+<tr class="memdesc:gae0e65256a79c91172b725ddb56313717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer.  <a href="#gae0e65256a79c91172b725ddb56313717">More...</a><br /></td></tr>
+<tr class="separator:gae0e65256a79c91172b725ddb56313717"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8125f4687cfe0421871dbe8bf5d0a7f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga8125f4687cfe0421871dbe8bf5d0a7f6">squash_codec_decompress_with_options</a> (SquashCodec *codec, size_t *decompressed_length, uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)], size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)], SquashOptions *options)</td></tr>
+<tr class="memdesc:ga8125f4687cfe0421871dbe8bf5d0a7f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga8125f4687cfe0421871dbe8bf5d0a7f6">More...</a><br /></td></tr>
+<tr class="separator:ga8125f4687cfe0421871dbe8bf5d0a7f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gada8fa80a9fe604d8b2bb48f84e3914d1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gada8fa80a9fe604d8b2bb48f84e3914d1">squash_codec_decompress</a> (SquashCodec *codec, size_t *decompressed_length, uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)], size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],...)</td></tr>
+<tr class="memdesc:gada8fa80a9fe604d8b2bb48f84e3914d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#gada8fa80a9fe604d8b2bb48f84e3914d1">More...</a><br /></td></tr>
+<tr class="separator:gada8fa80a9fe604d8b2bb48f84e3914d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga863fa3a9613f0dc6cbf0da906ed71b11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (const char *codec, size_t *compressed_length, uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)], size_t uncompressed_length, const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],...)</td></tr>
+<tr class="memdesc:ga863fa3a9613f0dc6cbf0da906ed71b11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer.  <a href="#ga863fa3a9613f0dc6cbf0da906ed71b11">More...</a><br /></td></tr>
+<tr class="separator:ga863fa3a9613f0dc6cbf0da906ed71b11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae154f1f8b59b710cca6cfc92813ac299"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gae154f1f8b59b710cca6cfc92813ac299">squash_compress_with_options</a> (const char *codec, size_t *compressed_length, uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)], size_t uncompressed_length, const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)], SquashOptions *options)</td></tr>
+<tr class="memdesc:gae154f1f8b59b710cca6cfc92813ac299"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#gae154f1f8b59b710cca6cfc92813ac299">More...</a><br /></td></tr>
+<tr class="separator:gae154f1f8b59b710cca6cfc92813ac299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga02d80d21824d374856a6bbe823f983dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga02d80d21824d374856a6bbe823f983dd">squash_decompress</a> (const char *codec, size_t *decompressed_length, uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)], size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],...)</td></tr>
+<tr class="memdesc:ga02d80d21824d374856a6bbe823f983dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer with an existing <a class="el" href="group__SquashOptions.html">SquashOptions</a>.  <a href="#ga02d80d21824d374856a6bbe823f983dd">More...</a><br /></td></tr>
+<tr class="separator:ga02d80d21824d374856a6bbe823f983dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga94877b6d1b9df394cd01a9deb9be5ad6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga94877b6d1b9df394cd01a9deb9be5ad6">squash_decompress_with_options</a> (const char *codec, size_t *decompressed_length, uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)], size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)], SquashOptions *options)</td></tr>
+<tr class="memdesc:ga94877b6d1b9df394cd01a9deb9be5ad6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decompress a buffer.  <a href="#ga94877b6d1b9df394cd01a9deb9be5ad6">More...</a><br /></td></tr>
+<tr class="separator:ga94877b6d1b9df394cd01a9deb9be5ad6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga9f341f35d36fb5d8d8489a1e3b2f0ba9">squash_codec_get_extension</a> (SquashCodec *codec)</td></tr>
 <tr class="memdesc:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the codec's extension.  <a href="#ga9f341f35d36fb5d8d8489a1e3b2f0ba9">More...</a><br /></td></tr>
 <tr class="separator:ga9f341f35d36fb5d8d8489a1e3b2f0ba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,6 +218,36 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5b8690339570531bdbe578a9b7a3dd0a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashCodec.html#gabdbf4a0f26de22f53d71d940fb6a2e9e">SquashCodecInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga5b8690339570531bdbe578a9b7a3dd0a">squash_get_info</a> (const char *codec)</td></tr>
 <tr class="memdesc:ga5b8690339570531bdbe578a9b7a3dd0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a bitmask of information about the codec.  <a href="#ga5b8690339570531bdbe578a9b7a3dd0a">More...</a><br /></td></tr>
 <tr class="separator:ga5b8690339570531bdbe578a9b7a3dd0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga98c623c4e44377141715beaad2cd0eb0"><td class="memItemLeft" align="right" valign="top">const SquashOptionInfo *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga98c623c4e44377141715beaad2cd0eb0">squash_codec_get_option_info</a> (SquashCodec *codec)</td></tr>
+<tr class="memdesc:ga98c623c4e44377141715beaad2cd0eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of options applicable to the codec.  <a href="#ga98c623c4e44377141715beaad2cd0eb0">More...</a><br /></td></tr>
+<tr class="separator:ga98c623c4e44377141715beaad2cd0eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga26fc3c886bc95053e2c202c559c913f8"><td class="memItemLeft" align="right" valign="top">const SquashOptionInfo *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga26fc3c886bc95053e2c202c559c913f8">squash_get_option_info</a> (const char *codec)</td></tr>
+<tr class="memdesc:ga26fc3c886bc95053e2c202c559c913f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of options applicable to the codec.  <a href="#ga26fc3c886bc95053e2c202c559c913f8">More...</a><br /></td></tr>
+<tr class="separator:ga26fc3c886bc95053e2c202c559c913f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga59c25e91bb0b9ab38a1430d264320fec"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga59c25e91bb0b9ab38a1430d264320fec">squash_codec_get_option_string</a> (SquashCodec *codec, SquashOptions *options, const char *key)</td></tr>
+<tr class="memdesc:ga59c25e91bb0b9ab38a1430d264320fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the string value for an option.  <a href="#ga59c25e91bb0b9ab38a1430d264320fec">More...</a><br /></td></tr>
+<tr class="separator:ga59c25e91bb0b9ab38a1430d264320fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga40332e83b53a120a31ee77d94743ee07"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga40332e83b53a120a31ee77d94743ee07">squash_codec_get_option_string_index</a> (SquashCodec *codec, SquashOptions *options, size_t index)</td></tr>
+<tr class="memdesc:ga40332e83b53a120a31ee77d94743ee07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the string value for an option by index.  <a href="#ga40332e83b53a120a31ee77d94743ee07">More...</a><br /></td></tr>
+<tr class="separator:ga40332e83b53a120a31ee77d94743ee07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga60311d249b0a5d8ce59495afe8dadc00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga60311d249b0a5d8ce59495afe8dadc00">squash_codec_get_option_bool</a> (SquashCodec *codec, SquashOptions *options, const char *key)</td></tr>
+<tr class="memdesc:ga60311d249b0a5d8ce59495afe8dadc00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the boolean value for an option.  <a href="#ga60311d249b0a5d8ce59495afe8dadc00">More...</a><br /></td></tr>
+<tr class="separator:ga60311d249b0a5d8ce59495afe8dadc00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga869f32aeaa6ca104996cd2f8498948a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga869f32aeaa6ca104996cd2f8498948a2">squash_codec_get_option_bool_index</a> (SquashCodec *codec, SquashOptions *options, size_t index)</td></tr>
+<tr class="memdesc:ga869f32aeaa6ca104996cd2f8498948a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the boolean value for an option by index.  <a href="#ga869f32aeaa6ca104996cd2f8498948a2">More...</a><br /></td></tr>
+<tr class="separator:ga869f32aeaa6ca104996cd2f8498948a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga24dcffc84ceef510875c680842aa73c8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga24dcffc84ceef510875c680842aa73c8">squash_codec_get_option_int</a> (SquashCodec *codec, SquashOptions *options, const char *key)</td></tr>
+<tr class="memdesc:ga24dcffc84ceef510875c680842aa73c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the integer value for an option.  <a href="#ga24dcffc84ceef510875c680842aa73c8">More...</a><br /></td></tr>
+<tr class="separator:ga24dcffc84ceef510875c680842aa73c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga90f8e82e7ff333d60699a29a84d488dd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga90f8e82e7ff333d60699a29a84d488dd">squash_codec_get_option_int_index</a> (SquashCodec *codec, SquashOptions *options, size_t index)</td></tr>
+<tr class="memdesc:ga90f8e82e7ff333d60699a29a84d488dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the integer value for an option by index.  <a href="#ga90f8e82e7ff333d60699a29a84d488dd">More...</a><br /></td></tr>
+<tr class="separator:ga90f8e82e7ff333d60699a29a84d488dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab16e2d83e744564c487f4e7331251483"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#gab16e2d83e744564c487f4e7331251483">squash_codec_get_option_size</a> (SquashCodec *codec, SquashOptions *options, const char *key)</td></tr>
+<tr class="memdesc:gab16e2d83e744564c487f4e7331251483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size value for an option.  <a href="#gab16e2d83e744564c487f4e7331251483">More...</a><br /></td></tr>
+<tr class="separator:gab16e2d83e744564c487f4e7331251483"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5e8385881e6eb7e6f16fd30fd8401b41"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashCodec.html#ga5e8385881e6eb7e6f16fd30fd8401b41">squash_codec_get_option_size_index</a> (SquashCodec *codec, SquashOptions *options, size_t index)</td></tr>
+<tr class="memdesc:ga5e8385881e6eb7e6f16fd30fd8401b41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size value for an option by index.  <a href="#ga5e8385881e6eb7e6f16fd30fd8401b41">More...</a><br /></td></tr>
+<tr class="separator:ga5e8385881e6eb7e6f16fd30fd8401b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>A compression/decompression codec. </p>
@@ -241,7 +271,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00093">93</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00099">99</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -288,7 +318,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="gad6c0c8e2b355858a1784fa51fdb1d7d3"></a>
+<a class="anchor" id="gae0e65256a79c91172b725ddb56313717"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -301,26 +331,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>uncompressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(*compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>uncompressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>uncompressed</em>[SQUASH_ARRAY_PARAM(uncompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -350,7 +380,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00676">676</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00650">650</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -403,7 +433,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01187">1187</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01175">1175</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -456,11 +486,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01140">1140</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01128">1128</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga4005caea54dfacd95362fd7ea594dfae"></a>
+<a class="anchor" id="ga04c13666d70b33252e9fc6e35b6e031a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -473,26 +503,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>uncompressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(*compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>uncompressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>uncompressed</em>[SQUASH_ARRAY_PARAM(uncompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -522,7 +552,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00559">559</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00532">532</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -567,7 +597,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00527">527</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00504">504</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -612,11 +642,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00491">491</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00472">472</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga4c96157b7a420105bf9c6ec99cede243"></a>
+<a class="anchor" id="gada8fa80a9fe604d8b2bb48f84e3914d1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -629,26 +659,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>decompressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>decompressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>decompressed</em>[SQUASH_ARRAY_PARAM(*decompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -678,7 +708,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00781">781</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00756">756</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -739,7 +769,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01231">1231</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01219">1219</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -799,11 +829,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01163">1163</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01151">1151</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga3cca0e3c2f06f46e9747a6667494e627"></a>
+<a class="anchor" id="ga8125f4687cfe0421871dbe8bf5d0a7f6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -816,26 +846,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>decompressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>decompressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>decompressed</em>[SQUASH_ARRAY_PARAM(*decompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -865,7 +895,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00708">708</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00685">685</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -892,16 +922,16 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The extension, or <em>NULL</em> if none is known </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00975">975</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00963">963</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga475990a04e9f357e3b843f2805447a53"></a>
+<a class="anchor" id="ga956d42f7d4394012af4b3e0ce64a7baa"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">SquashCodecFuncs* squash_codec_get_funcs </td>
+          <td class="memname">SquashCodecImpl* squash_codec_get_impl </td>
           <td>(</td>
           <td class="paramtype">SquashCodec *&#160;</td>
           <td class="paramname"><em>codec</em></td><td>)</td>
@@ -919,7 +949,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The function table. </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00374">374</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00362">362</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -946,7 +976,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the codec info </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01379">1379</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01367">1367</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -976,7 +1006,7 @@ Functions</h2></td></tr>
 
 <p>Get the maximum buffer size necessary to store compressed data. </p>
 <p>Typically the return value will be some percentage larger than the uncompressed length, plus a few bytes. For example, for bzip2 it is the uncompressed length plus 1%, plus an additional 600 bytes.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The result of this function is not guaranteed to be correct for use with the <a class="el" href="group__SquashStream.html">SquashStream</a> API—it should only be used with the single-squashl buffer-to-buffer functions such as <a class="el" href="group__SquashCodec.html#gad6c0c8e2b355858a1784fa51fdb1d7d3" title="Compress a buffer. ">squash_codec_compress</a> and <a class="el" href="group__SquashCodec.html#ga4005caea54dfacd95362fd7ea594dfae" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a>.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>The result of this function is not guaranteed to be correct for use with the <a class="el" href="group__SquashStream.html">SquashStream</a> API—it should only be used with the single-squashl buffer-to-buffer functions such as <a class="el" href="group__SquashCodec.html#gae0e65256a79c91172b725ddb56313717" title="Compress a buffer. ">squash_codec_compress</a> and <a class="el" href="group__SquashCodec.html#ga04c13666d70b33252e9fc6e35b6e031a" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">codec</td><td>The codec </td></tr>
@@ -986,7 +1016,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The maximum size required to store a compressed buffer representing <em>uncompressed_length</em> of uncompressed data. </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00435">435</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00420">420</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1013,7 +1043,402 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The codec's name </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00314">314</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00302">302</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga60311d249b0a5d8ce59495afe8dadc00"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool squash_codec_get_option_bool </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the boolean value for an option. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a boolean the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>the name of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01506">1506</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga869f32aeaa6ca104996cd2f8498948a2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool squash_codec_get_option_bool_index </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the boolean value for an option by index. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a boolean the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">index</td><td>the index of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01532">1532</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga98c623c4e44377141715beaad2cd0eb0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const SquashOptionInfo* squash_codec_get_option_info </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get a list of options applicable to the codec. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>The codec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a list of options, terminated by an option with a NULL name </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01397">1397</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga24dcffc84ceef510875c680842aa73c8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int squash_codec_get_option_int </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the integer value for an option. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not an integer the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>the name of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01554">1554</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga90f8e82e7ff333d60699a29a84d488dd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int squash_codec_get_option_int_index </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the integer value for an option by index. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not an integer the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">index</td><td>the index of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01582">1582</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="gab16e2d83e744564c487f4e7331251483"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t squash_codec_get_option_size </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the size value for an option. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a size the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>the name of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01604">1604</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga5e8385881e6eb7e6f16fd30fd8401b41"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t squash_codec_get_option_size_index </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the size value for an option by index. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a size the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">index</td><td>the index of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01631">1631</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga59c25e91bb0b9ab38a1430d264320fec"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* squash_codec_get_option_string </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the string value for an option. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a string the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>the name of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01458">1458</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga40332e83b53a120a31ee77d94743ee07"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* squash_codec_get_option_string_index </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the string value for an option by index. </p>
+<p>Note that this function will not perform a conversion—if you use it to request the value of an option which is not a string the result is undefined.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>the relevant codec </td></tr>
+    <tr><td class="paramname">options</td><td>the options instance to retrieve the value from </td></tr>
+    <tr><td class="paramname">index</td><td>the index of the option to retrieve the value of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value of the option </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01484">1484</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1040,7 +1465,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The plugin to which the codec belongs </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00340">340</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00328">328</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1067,11 +1492,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The codec's priority </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00327">327</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00315">315</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="gabde3c4cd929cd44b1e339f91b3422104"></a>
+<a class="anchor" id="gaf9276d100760b4037123d0d601d80325"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1084,14 +1509,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>compressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>compressed_length</em>&#160;</td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(compressed_length)]&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1113,7 +1538,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The uncompressed size, or <em>0</em> if unknown </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00399">399</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00387">387</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1148,11 +1573,11 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00363">363</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00351">351</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga99b7aa198ed99ac7a39ad6fb6a7a00ef"></a>
+<a class="anchor" id="ga863fa3a9613f0dc6cbf0da906ed71b11"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1165,26 +1590,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>uncompressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(*compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>uncompressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>uncompressed</em>[SQUASH_ARRAY_PARAM(uncompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1215,7 +1640,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a1">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00817">817</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00795">795</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1268,7 +1693,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01318">1318</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01306">1306</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1321,11 +1746,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01261">1261</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01249">1249</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ga310cd7bf19034d5922ccc242dadadc1d"></a>
+<a class="anchor" id="gae154f1f8b59b710cca6cfc92813ac299"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1338,26 +1763,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>uncompressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(*compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>uncompressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>uncompressed</em>[SQUASH_ARRAY_PARAM(uncompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1387,11 +1812,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00851">851</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00832">832</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="gab1877550d1c2b82e745943bd8fba14b6"></a>
+<a class="anchor" id="ga02d80d21824d374856a6bbe823f983dd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1404,26 +1829,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>decompressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>decompressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>decompressed</em>[SQUASH_ARRAY_PARAM(*decompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1454,7 +1879,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a4">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00881">881</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00864">864</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1514,7 +1939,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01353">1353</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01341">1341</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1574,11 +1999,11 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a> on success, or a negative error code on failure </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01289">1289</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01277">1277</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="gad9af84f04edf39e699764e0ef23f5bf9"></a>
+<a class="anchor" id="ga94877b6d1b9df394cd01a9deb9be5ad6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1591,26 +2016,26 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>decompressed</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>decompressed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>compressed</em>, </td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>decompressed</em>[SQUASH_ARRAY_PARAM(*decompressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>compressed_length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>compressed</em>[SQUASH_ARRAY_PARAM(compressed_length)], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1640,7 +2065,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00914">914</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00900">900</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1667,7 +2092,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the codec info, or <a class="el" href="group__SquashCodec.html#gab4cfcd5b2922cbcfeab34635257a56d6">SQUASH_CODEC_INFO_INVALID</a> if there is no such codec </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8c_source.html#l01391">1391</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01379">1379</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>
@@ -1697,7 +2122,7 @@ Functions</h2></td></tr>
 
 <p>Get the maximum buffer size necessary to store compressed data. </p>
 <p>Typically the return value will be some percentage larger than the uncompressed length, plus a few bytes. For example, for bzip2 it is the uncompressed length plus 1%, plus an additional 600 bytes.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The result of this function is not guaranteed to be correct for use with the <a class="el" href="group__SquashStream.html">SquashStream</a> API—it should only be used with the single-squashl buffer-to-buffer functions such as <a class="el" href="group__SquashCodec.html#gad6c0c8e2b355858a1784fa51fdb1d7d3" title="Compress a buffer. ">squash_codec_compress</a> and <a class="el" href="group__SquashCodec.html#ga4005caea54dfacd95362fd7ea594dfae" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a>.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>The result of this function is not guaranteed to be correct for use with the <a class="el" href="group__SquashStream.html">SquashStream</a> API—it should only be used with the single-squashl buffer-to-buffer functions such as <a class="el" href="group__SquashCodec.html#gae0e65256a79c91172b725ddb56313717" title="Compress a buffer. ">squash_codec_compress</a> and <a class="el" href="group__SquashCodec.html#ga04c13666d70b33252e9fc6e35b6e031a" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">codec</td><td>The name of the codec </td></tr>
@@ -1709,7 +2134,34 @@ Functions</h2></td></tr>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga5737dad972a975199477eaf6a0a3ff47" title="Get the maximum buffer size necessary to store compressed data. ">squash_codec_get_max_compressed_size</a> </dd></dl>
 <dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_8c-example.html#a0">simple.c</a>.</dd>
 </dl>
-<p>Definition at line <a class="el" href="codec_8c_source.html#l00471">471</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+<p>Definition at line <a class="el" href="codec_8c_source.html#l00452">452</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga26fc3c886bc95053e2c202c559c913f8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const SquashOptionInfo* squash_get_option_info </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>codec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get a list of options applicable to the codec. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>name of the codec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a list of options, terminated by an option with a NULL name </dd></dl>
+
+<p>Definition at line <a class="el" href="codec_8c_source.html#l01409">1409</a> of file <a class="el" href="codec_8c_source.html">codec.c</a>.</p>
 
 </div>
 </div>

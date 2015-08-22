@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -91,12 +91,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h2>Options</h2>
 <h3>lz4</h3>
 <ul>
-<li><b>level</b> (integer, 1 or 9) — 1 is the default, 9 will use the high compression derivative.</li>
+<li><b>level</b> (integer, 7-14, default 7) — higher level corresponds to better compression ratio but slower compression speed.<ul>
+<li><b>7</b> — The default algorithm (LZ4_compress)</li>
+<li><b>8</b> — LZ4HC level 2</li>
+<li><b>9</b> — LZ4HC level 4</li>
+<li><b>10</b> — LZ4HC level 6</li>
+<li><b>11</b> — LZ4HC level 9</li>
+<li><b>12</b> — LZ4HC level 12</li>
+<li><b>13</b> — LZ4HC level 14</li>
+<li><b>14</b> — LZ4HC level 16</li>
+</ul>
+</li>
 </ul>
 <h3>lz4f</h3>
 <ul>
-<li><b>level</b> (integer, 0 - 16) — 0 is the default, higher = better compression ratio but slower compression speed</li>
-<li><b>block-size</b> (enum) — input block size<ul>
+<li><b>level</b> (integer, 0 - 16, default 0) — higher = better compression ratio but slower compression speed</li>
+<li><b>block-size</b> (enum, default 4) — input block size<ul>
 <li>4 — 64 KiB</li>
 <li>5 — 256 KiB</li>
 <li>6 — 1 MiB</li>

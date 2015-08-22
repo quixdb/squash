@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -82,22 +82,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Building Squash </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Note: <a href="https://github.com/quixdb/squash/issues/86">Squash currently does not support Windows</a>.</p>
-<p>Squash currently requires a system copy of liblzma (from xz utils). We're working on removing this limitation, but in the meantime there is probably a package available for your system… xz-devel on Fedora, liblzma-dev on Debian/Ubuntu, liblzma on FreeBSD, etc.</p>
+<div class="textblock"><p>Note: <a href="https://github.com/quixdb/squash/issues/86">Squash currently does not support Windows</a>. It should work on at least Linux, BSD, and OS X. If you encounter problems please file an issue.</p>
+<h2>Dependencies</h2>
+<p>In order to build Squash, you'll need CMake, make, a C compiler, a C++ compiler, and <a href="http://www.colm.net/open-source/ragel/">Ragel</a>. Additionally, if you want to build the tests (which is a good idea) you'll need glib. The necessary packages vary by distribution, but for some of the more popular distributions:</p>
+<ul>
+<li><b>Debian/Ubuntu</b> — gcc g++ ragel cmake make libglib2.0-dev</li>
+<li><b>Fedora/RHEL/CentOS</b> — gcc gcc-c++ ragel cmake make glib2-devel</li>
+</ul>
+<p>Squash includes copies of all the libraries it uses for compression/decompression. That said, you may prefer to use system copies when available. By default, if a system library is installed when configuring the build Squash will use it, if not it will fall back on its internal copy. Again, the package names vary by distribution, but for some of the more popular distributions:</p>
+<ul>
+<li><b>Debian/Ubuntu</b> — libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev</li>
+<li><b>Fedora/RHEL/CentOS</b> — bzip2-devel xz-devel liblzf-devel lzo-devel snappy-devel zlib-devel</li>
+</ul>
 <h2>Building from git</h2>
 <p>If you are building from a release, skip this section.</p>
 <p>Squash makes very heavy use of git submodules to pull in code from other projects, mostly for the libraries used by each plugin. When possible Squash will use system libraries instead of its own copy, but only a relatively small number of plugins use libraries which are typically packaged by distributions.</p>
 <p>If you are on a UNIX-like system with bash, you can simply call the <code>autogen.sh</code> script (located in the top level of the Squash sources) just as you would call the <code>configure</code> script. If not you can update the submodules manually—from the top level of the Squash sources:</p>
-<div class="fragment"><div class="line">git submodule update --init --recursive</div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;git submodule update --init --recursive</div>
 </div><!-- fragment --><p><code>autogen.sh</code> simply invokes this command then calls <code>configure</code> with the arguments you passed to it.</p>
 <p>Once you have all the submodules your source tree should be in basically the same state as a release (except you still have all the git data), so proceed to the next section.</p>
 <h2>Building from a release</h2>
 <p>If you are on a UNIX-like system (basically non-Windows) with bash (basically non-BSD), simply run the <code>configure</code> script with the same arguments you would pass to the <code>configure</code> script of any autotools-based project:</p>
-<div class="fragment"><div class="line">./configure</div>
-</div><!-- fragment --><p>This will translate the arugments you pass to the CMake versions and invoke CMake.</p>
-<p>For a list of supported arguments, pass <code>--help</code>. If you don't have bash, you'll have to call CMake manually:</p>
-<div class="fragment"><div class="line">cmake .</div>
-</div><!-- fragment --><p>At this point, all you need to is call <code>make</code> likely <code>make install</code>, just as you would for any other project. </p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;./configure</div>
+</div><!-- fragment --><p>This will translate the arugments you pass to the CMake versions and invoke CMake. For a list of supported arguments, pass <code>--help</code>.</p>
+<p>If you don't have bash, you'll have to call CMake manually:</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;cmake .</div>
+</div><!-- fragment --><p>At this point, all you need to do is call <code>make</code>, and likely <code>make install</code>, just as you would for any other project. If you encounter an error at this point please file a bug—all misconfigurations should be detected by <code>configure</code>/<code>cmake</code>. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

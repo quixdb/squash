@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -93,21 +93,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;For more information about ZPAQ see http://mattmahoney.net/dc/zpaq.html</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;## Codecs ##</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;## Security ##</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;- **zpaq** — ZPAQ archive</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;## Options ##</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;- **level** (integer, 1-5, default 1): The compression level provided</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  to ZPAQ.  1 is fastest while 3 provides the highest compression</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  ratio.</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;ZPAQ is *not* safe for decompressing untrusted input.  In order to</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;allow changes to the algorithms ZPAQ embeds decompressors written in a</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;language called ZPAQL in the compressed file.  It is possible for</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;malicious actors to create an infinite loop, effectively allowing</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;denial of service attacks.</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;## Codecs ##</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;## License ##</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;- **zpaq** — ZPAQ archive</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;The zlib plugin is licensed under the [MIT</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;License](http://opensource.org/licenses/MIT), and libzpaq is public</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;domain.</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;## Options ##</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;- **level** (integer, 1-5, default 1): The compression level provided</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  to ZPAQ.  1 is fastest while 3 provides the highest compression</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  ratio.</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;## License ##</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;The zlib plugin is licensed under the [MIT</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;License](http://opensource.org/licenses/MIT), and libzpaq is public</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;domain.</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

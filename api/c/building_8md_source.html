@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -90,63 +90,84 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;# Building Squash</div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;Note: [Squash currently does not support</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;Windows](https://github.com/quixdb/squash/issues/86).</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;Squash currently requires a system copy of liblzma (from xz utils).</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;We&#39;re working on removing this limitation, but in the meantime there</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;is probably a package available for your system… xz-devel on Fedora,</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;liblzma-dev on Debian/Ubuntu, liblzma on FreeBSD, etc.</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;## Building from git</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;If you are building from a release, skip this section.</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;Squash makes very heavy use of git submodules to pull in code from</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;other projects, mostly for the libraries used by each plugin.  When</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;possible Squash will use system libraries instead of its own copy, but</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;only a relatively small number of plugins use libraries which are</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;typically packaged by distributions.</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;If you are on a UNIX-like system with bash, you can simply call the</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;`autogen.sh` script (located in the top level of the Squash sources)</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;just as you would call the `configure` script.  If not you can</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;update the submodules manually—from the top level of the Squash</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;sources:</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;git submodule update --init --recursive</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;~~~</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;Windows](https://github.com/quixdb/squash/issues/86).  It should work</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;on at least Linux, BSD, and OS X.  If you encounter problems please</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;file an issue.</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;## Dependencies</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;In order to build Squash, you&#39;ll need CMake, make, a C compiler, a C++</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;compiler, and [Ragel](http://www.colm.net/open-source/ragel/).</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;Additionally, if you want to build the tests (which is a good idea)</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;you&#39;ll need glib.  The necessary packages vary by distribution, but</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;for some of the more popular distributions:</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;* **Debian/Ubuntu** — gcc g++ ragel cmake make libglib2.0-dev</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;* **Fedora/RHEL/CentOS** — gcc gcc-c++ ragel cmake make glib2-devel</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;Squash includes copies of all the libraries it uses for</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;compression/decompression.  That said, you may prefer to use system</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;copies when available.  By default, if a system library is installed</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;when configuring the build Squash will use it, if not it will fall</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;back on its internal copy.  Again, the package names vary by</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;distribution, but for some of the more popular distributions:</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;* **Debian/Ubuntu** — libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  zlib1g-dev</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;* **Fedora/RHEL/CentOS** — bzip2-devel xz-devel liblzf-devel lzo-devel</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  snappy-devel zlib-devel</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;`autogen.sh` simply invokes this command then calls `configure` with</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;the arguments you passed to it.</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;Once you have all the submodules your source tree should be in</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;basically the same state as a release (except you still have all the</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;git data), so proceed to the next section.</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;## Building from a release</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;If you are on a UNIX-like system (basically non-Windows) with bash</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;(basically non-BSD), simply run the `configure` script with the same</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;arguments you would pass to the `configure` script of any</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;autotools-based project:</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;./configure</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;~~~</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;This will translate the arugments you pass to the CMake versions and</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;invoke CMake.</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;For a list of supported arguments, pass `--help`.  If you don&#39;t have</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;bash, you&#39;ll have to call CMake manually:</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;cmake .</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;~~~</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;At this point, all you need to is call `make` likely `make install`,</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;just as you would for any other project.</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;## Building from git</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;If you are building from a release, skip this section.</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;Squash makes very heavy use of git submodules to pull in code from</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;other projects, mostly for the libraries used by each plugin.  When</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;possible Squash will use system libraries instead of its own copy, but</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;only a relatively small number of plugins use libraries which are</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;typically packaged by distributions.</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;If you are on a UNIX-like system with bash, you can simply call the</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;`autogen.sh` script (located in the top level of the Squash sources)</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;just as you would call the `configure` script.  If not you can</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;update the submodules manually—from the top level of the Squash</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;sources:</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;~~~{.sh}</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;git submodule update --init --recursive</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;~~~</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;`autogen.sh` simply invokes this command then calls `configure` with</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;the arguments you passed to it.</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;Once you have all the submodules your source tree should be in</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;basically the same state as a release (except you still have all the</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;git data), so proceed to the next section.</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;## Building from a release</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;If you are on a UNIX-like system (basically non-Windows) with bash</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;(basically non-BSD), simply run the `configure` script with the same</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;arguments you would pass to the `configure` script of any</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;autotools-based project:</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;~~~{.sh}</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;./configure</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;~~~</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;This will translate the arugments you pass to the CMake versions and</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;invoke CMake.  For a list of supported arguments, pass `--help`.</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;If you don&#39;t have bash, you&#39;ll have to call CMake manually:</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;~~~{.sh}</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;cmake .</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;~~~</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;At this point, all you need to do is call `make`, and likely `make</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;install`, just as you would for any other project.  If you encounter</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;an error at this point please file a bug—all misconfigurations should</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;be detected by `configure`/`cmake`.</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

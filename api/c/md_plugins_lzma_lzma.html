@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -87,19 +87,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <ul>
 <li><b>xz</b>: The stream format used by default in the xz tool.</li>
 <li><b>lzma</b>: Legacy format used by the lzma tool. You should use xz instead unless you need this for compatibility reasons.</li>
-<li><b>lzma2</b>: Format with a single-byte header used by xz. Requires <em>dict-size</em> to be present for the decoder. Relying on the default <em>value is dangerous as it can change from version to version.</em></li>
-<li><em><b>lzma1</b>: Raw format used by lzma. The following options should be present: *dict-size</em>, <em>lc</em>, <em>lp</em>, <em>pb</em>. Relying on default values for those options is dangerous as those defaults can change from version to version.</li>
+<li><b>lzma2</b>: Format with a single-byte header used by xz. Requires <em>dict-size</em> to be present for the decoder. Relying on the default value is dangerous as it can change from version to version.</li>
+<li><b>lzma1</b>: Raw format used by lzma. The following options should be present: <em>dict-size</em>, <em>lc</em>, <em>lp</em>, <em>pb</em>. Relying on default values for those options is dangerous as those defaults can change from version to version.</li>
 </ul>
 <h2>Options</h2>
 <ul>
 <li><b>level</b> (integer, 1-9, default 6): Set the compression level. 1 will result in the fastest compression while 9 will result in the highest compression ratio.</li>
-<li><b>check</b> (enumeration, default crc64, xz only): Set the algorithm used to verify the compressed data. Available values:<ul>
-<li><em>none</em>: do not verify</li>
-<li><em>crc32</em>: <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC</a>-32, suitable mainly for small files.</li>
-<li><em>crc64</em>: <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC</a>-64, suitable for larger files.</li>
-<li><em>sha256</em>: <a href="https://en.wikipedia.org/wiki/SHA-2">SHA-256</a>, for when security is important.</li>
-</ul>
-</li>
 <li><b>dict-size</b> (integer, 4096-1610612736 (2^30 + 2^29), default 8388608 (2^23), required for lzma1 and lzma2): From the xz man page: <blockquote class="doxtable">
 <p>Dictionary (history buffer) size indicates how many bytes of the recently processed uncompressed data is kept in memory. The algorithm tries to find repeating byte sequences (matches) in the uncompressed data, and replace them with references to the data currently in the dictionary. The bigger the dictionary, the higher is the chance to find a match. Thus, increasing dictionary size usually improves compression ratio, but a dictionary bigger than the uncompressed file is waste of memory.</p>
 <p>Typical dictionary size is from 64 KiB to 64 MiB. The minimum is 4 KiB. The maximum for compression is currently 1.5 GiB (1536 MiB). The decompressor already supports dictionaries up to one byte less than 4 GiB, which is the maximum for the LZMA1 and LZMA2 stream formats.</p>
@@ -126,9 +119,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </blockquote>
 </li>
 </ul>
-<h3>Decoder-only</h3>
+<h3>xz-only</h3>
+<h4>Encoder-only</h4>
 <ul>
-<li><b>memlimit</b> (integer, default UINT64_MAX): Memory limit to use while decoding. Note that decoding could fail if this is set too low.</li>
+<li><b>check</b> (enumeration, default crc64): Set the algorithm used to verify the compressed data. Available values:<ul>
+<li><em>none</em>: do not verify</li>
+<li><em>crc32</em>: <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC</a>-32, suitable mainly for small files.</li>
+<li><em>crc64</em>: <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">CRC</a>-64, suitable for larger files.</li>
+<li><em>sha256</em>: <a href="https://en.wikipedia.org/wiki/SHA-2">SHA-256</a>, for when security is important.</li>
+</ul>
+</li>
+</ul>
+<h4>Decoder-only</h4>
+<ul>
+<li><b>mem-limit</b> (integer, default UINT64_MAX): Memory limit to use while decoding. Note that decoding could fail if this is set too low.</li>
 </ul>
 <h2>License</h2>
 <p>The lzma plugin is licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>, and liblzma public domain. </p>

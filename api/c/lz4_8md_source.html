@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.6.0</span>
    </div>
   </td>
  </tr>
@@ -102,27 +102,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;### lz4 ###</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;- **level** (integer, 1 or 9) — 1 is the default, 9 will use the high</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    compression derivative.</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;### lz4f ###</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;- **level** (integer, 0 - 16) — 0 is the default, higher = better</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  compression ratio but slower compression speed</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;- **block-size** (enum) — input block size</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  - 4 — 64 KiB</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  - 5 — 256 KiB</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  - 6 — 1 MiB</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  - 7 — 4 MiB</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;- **checksum** (boolean, default false) — whether or not to include a</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  checksum (xxHash) for verification</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;## License ##</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;The lz4 plugin is licensed under the [MIT</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;License](http://opensource.org/licenses/MIT), and LZ4 is licensed</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;under a [3-clause BSD](http://opensource.org/licenses/BSD-3-Clause)</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;license.</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;- **level** (integer, 7-14, default 7) — higher level corresponds to</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  better compression ratio but slower compression speed.</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  - **7** — The default algorithm (LZ4_compress)</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  - **8** — LZ4HC level 2</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  - **9** — LZ4HC level 4</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  - **10** — LZ4HC level 6</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  - **11** — LZ4HC level 9</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  - **12** — LZ4HC level 12</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  - **13** — LZ4HC level 14</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  - **14** — LZ4HC level 16</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;### lz4f ###</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;- **level** (integer, 0 - 16, default 0) — higher = better</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  compression ratio but slower compression speed</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;- **block-size** (enum, default 4) — input block size</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  - 4 — 64 KiB</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  - 5 — 256 KiB</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  - 6 — 1 MiB</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  - 7 — 4 MiB</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;- **checksum** (boolean, default false) — whether or not to include a</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  checksum (xxHash) for verification</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;## License ##</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;The lz4 plugin is licensed under the [MIT</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;License](http://opensource.org/licenses/MIT), and LZ4 is licensed</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;under a [3-clause BSD](http://opensource.org/licenses/BSD-3-Clause)</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;license.</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
