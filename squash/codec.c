@@ -1044,7 +1044,7 @@ squash_codec_process_file_with_options (SquashCodec* codec,
       if (res != SQUASH_OK) {
         size_t ipos = in_map->data_offset;
         squash_mapped_file_free (in_map);
-        fseek (input, ipos, SEEK_SET);
+        (void) fseek (input, ipos, SEEK_SET);
       } else {
         squash_mapped_file_free (in_map);
       }
@@ -1396,7 +1396,7 @@ squash_get_info (const char* codec) {
 const SquashOptionInfo*
 squash_codec_get_option_info (SquashCodec* codec) {
   SquashCodecImpl* impl = squash_codec_get_impl (codec);
-  return impl->options;
+  return SQUASH_LIKELY(impl != NULL) ? impl->options : NULL;
 }
 
 /**

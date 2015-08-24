@@ -427,7 +427,7 @@ static SquashStatus
 squash_stream_process_internal (SquashStream* stream, SquashOperation operation) {
   SquashCodec* codec;
   SquashCodecImpl* impl = NULL;
-  SquashStatus res;
+  SquashStatus res = SQUASH_OK;
   SquashOperation current_operation = SQUASH_OPERATION_PROCESS;
   SquashStreamPrivate* priv = (SquashStreamPrivate*) stream->priv;
 

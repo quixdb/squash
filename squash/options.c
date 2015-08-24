@@ -217,9 +217,11 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
             case 'g':
             case 'G':
               res *= 1024;
+              /* Fall through */
             case 'm':
             case 'M':
               res *= 1024;
+              /* Fall through */
             case 'k':
             case 'K':
               res *= 1024;
