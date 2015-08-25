@@ -15,8 +15,7 @@ For more information about Brotli, see https://github.com/google/brotli
 - **level** (integer, 1-11, default 11): Compression level.  1 will
    result in the fastest compression while 11 will result in the
    highest compression ratio.
-- **mode** (enumeration, "text" or "font", default "text")
-- **enable-transforms** (boolean, default false)
+- **mode** (enumeration, "generic", "text", or "font", default "generic")
 
 ## License ##
 

@@ -33,7 +33,6 @@
 
 enum SquashBrotliOptionIndex {
   SQUASH_BROTLI_OPT_LEVEL = 0,
-  SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS,
   SQUASH_BROTLI_OPT_MODE
 };
 
@@ -43,8 +42,6 @@ enum SquashBrotliOptionIndex {
 static SquashOptionInfo squash_brotli_options[] = {
   { .name = (char*) "level",
     .type = SQUASH_OPTION_TYPE_RANGE_INT },
-  { .name = (char*) "enable-transforms",
-    .type = SQUASH_OPTION_TYPE_BOOL },
   { .name = (char*) "mode",
     .type = SQUASH_OPTION_TYPE_ENUM_STRING },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
@@ -243,7 +240,6 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
   brotli::BrotliParams params;
   params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
-  params.enable_transforms = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
   return BrotliCompress(params, s->encoder_in, s->encoder_out) ? SQUASH_OK : SQUASH_FAILED;
 }
 
@@ -252,7 +248,7 @@ squash_brotli_decompress_stream (SquashStream* stream, SquashOperation operation
   SquashBrotliStream* s = (SquashBrotliStream*) stream;
 
   if (!BrotliDecompress (s->in, s->out)) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
   return SQUASH_OK;
@@ -272,6 +268,21 @@ squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_l
 }
 
 static SquashStatus
+squash_brotli_status_to_squash_status (BrotliResult status) {
+  switch (status) {
+    case BROTLI_RESULT_SUCCESS:
+      return SQUASH_OK;
+    case BROTLI_RESULT_NEEDS_MORE_INPUT:
+      return squash_error (SQUASH_BUFFER_EMPTY);
+    case BROTLI_RESULT_NEEDS_MORE_OUTPUT:
+      return squash_error (SQUASH_BUFFER_FULL);
+    case BROTLI_RESULT_ERROR:
+    default:
+      return squash_error (SQUASH_FAILED);
+  }
+}
+
+static SquashStatus
 squash_brotli_decompress_buffer (SquashCodec* codec,
                                  size_t* decompressed_length,
                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
@@ -279,13 +290,13 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                  SquashOptions* options) {
   try {
-    int res = BrotliDecompressBuffer (compressed_length, compressed,
-                                      decompressed_length, decompressed);
-    return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+    BrotliResult res = BrotliDecompressBuffer (compressed_length, compressed,
+                                               decompressed_length, decompressed);
+    return squash_brotli_status_to_squash_status (res);
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 }
 
@@ -299,17 +310,16 @@ squash_brotli_compress_buffer (SquashCodec* codec,
   brotli::BrotliParams params;
   params.quality = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
-  params.enable_transforms = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
 
   try {
     int res = brotli::BrotliCompressBuffer (params,
                                             uncompressed_length, uncompressed,
                                             compressed_length, compressed);
-    return (res == 1) ? SQUASH_OK : SQUASH_FAILED;
+    return (res == 1) ? SQUASH_OK : squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 }
 
@@ -319,7 +329,6 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].default_value.int_value = 11;
   squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].info.range_int = level_range;
 
-  squash_brotli_options[SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS].default_value.bool_value = false;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_GENERIC;
   squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {
     (const SquashOptionInfoEnumStringMap []) {
@@ -345,7 +354,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->decompress_buffer = squash_brotli_decompress_buffer;
     impl->compress_buffer = squash_brotli_compress_buffer;
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;
