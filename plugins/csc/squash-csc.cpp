@@ -47,7 +47,7 @@ enum SquashCscOptionIndex {
    code in the init_plugin func to finish it off. */
 static SquashOptionInfo squash_csc_options[] = {
   { .name = (char*) "level",
-    .type = SQUASH_OPTION_TYPE_BOOL },
+    .type = SQUASH_OPTION_TYPE_RANGE_INT },
   { .name = (char*) "dict-size",
     .type = SQUASH_OPTION_TYPE_RANGE_SIZE },
   { .name = (char*) "delta-filter",
@@ -260,9 +260,11 @@ squash_csc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_leng
 
 extern "C" SquashStatus
 squash_plugin_init_plugin (SquashPlugin* plugin) {
+  const SquashOptionInfoRangeInt level_range = { 1, 5, 0, false };
   const SquashOptionInfoRangeSize dict_size_range = { 32768, 1073741824, 0, false };
 
   squash_csc_options[SQUASH_CSC_OPT_LEVEL].default_value.int_value = 2;
+  squash_csc_options[SQUASH_CSC_OPT_LEVEL].info.range_int = level_range;
   squash_csc_options[SQUASH_CSC_OPT_DICT_SIZE].default_value.size_value = (1024 * 1024 * 64);
   squash_csc_options[SQUASH_CSC_OPT_DICT_SIZE].info.range_size = dict_size_range;
   squash_csc_options[SQUASH_CSC_OPT_DELTA_FILTER].default_value.bool_value = false;

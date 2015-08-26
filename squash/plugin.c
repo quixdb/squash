@@ -177,7 +177,7 @@ squash_plugin_get_name (SquashPlugin* plugin) {
  * @brief Get the licenses of the plugin.
  *
  * @param plugin The plugin.
- * @return An array of the plugin's licenses terminated with @ref
+ * @return An array of the plugin's licenses terminated with
  *   SQUASH_LICENSE_UNKNOWN, or *NULL* if no licenses were specified.
  */
 SquashLicense*

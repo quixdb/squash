@@ -56,6 +56,99 @@ static void squash_options_free (void* options);
  * @struct _SquashOptions
  * @extends _SquashObject
  * @brief A set of compression/decompression options.
+ *
+ * @var _SquashOptions::values
+ * @brief NULL-terminated array of option values
+ */
+
+/**
+ * @struct _SquashOptionInfoEnumString
+ * @brief A list of strings which are mapped to integer values
+ *
+ * @var _SquashOptionInfoEnumString::values
+ * @brief a NULL terminated list of string and integer pairs
+ */
+
+/**
+ * @struct _SquashOptionInfoEnumStringMap
+ * @brief An item in a map of strings to integer values
+ *
+ * @var _SquashOptionInfoEnumStringMap::name
+ * @brief a string representing the option value
+ * @var _SquashOptionInfoEnumStringMap::value
+ * @brief an integer representing the option value
+ */
+
+/**
+ * @struct _SquashOptionInfoEnumInt
+ * @brief A list of potential integer values
+ *
+ * @var _SquashOptionInfoEnumInt::values_length
+ * @brief number of integer values understood for this option
+ * @var _SquashOptionInfoEnumInt::values
+ * @brief array of integer values understood for this option
+ */
+
+/**
+ * @struct _SquashOptionInfoRangeInt
+ * @brief A range of potential integer values
+ *
+ * @var _SquashOptionInfoRangeInt::min
+ * @brief minimum value for this option
+ * @var _SquashOptionInfoRangeInt::max
+ * @brief maximum value for this option
+ * @var _SquashOptionInfoRangeInt::modulus
+ * @brief modulus of acceptable values, or 0 to accept all
+ * @var _SquashOptionInfoRangeInt::allow_zero
+ * @brief whether to allow zero as a value
+ *
+ * Note that this is in addition to the range, and independent of the
+ * modulus.
+ */
+
+/**
+ * @struct _SquashOptionInfoRangeSize
+ * @brief A range of potential size values
+ *
+ * @var _SquashOptionInfoRangeSize::min
+ * @brief minimum value for this option
+ * @var _SquashOptionInfoRangeSize::max
+ * @brief maximum value for this option
+ * @var _SquashOptionInfoRangeSize::modulus
+ * @brief modulus of acceptable values, or 0 to accept all
+ * @var _SquashOptionInfoRangeSize::allow_zero
+ * @brief whether to allow zero as a value
+ *
+ * Note that this is in addition to the range, and independent of the
+ * modulus.
+ */
+
+/**
+ * @union _SquashOptionValue
+ * @brief A value
+ *
+ * @var _SquashOptionValue::string_value
+ * @brief the value as a string
+ * @var _SquashOptionValue::int_value
+ * @brief the value as an integer
+ * @var _SquashOptionValue::bool_value
+ * @brief the value as a boolean
+ * @var _SquashOptionValue::size_value
+ * @brief the value as a size
+ */
+
+/**
+ * @struct _SquashOptionInfo
+ * @brief Information about options which can be passed to a codec
+ *
+ * @var _SquashOptionInfo::name
+ * @brief name of the option
+ * @var _SquashOptionInfo::type
+ * @brief type of the option
+ * @var _SquashOptionInfo::info
+ * @brief detailed information about the value
+ * @var _SquashOptionInfo::default_value
+ * @brief value to use if none is provided by the user
  */
 
 /**

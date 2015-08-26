@@ -62,23 +62,8 @@
  */
 
 /**
- * @var _SquashCodecImpl::create_options
- * @brief Create a new %SquashOptions instance.
- *
- * @param codec The codec.
- * @return a new %SquashOptions instance, or *NULL* on failure.
- */
-
-/**
- * @var _SquashCodecImpl::parse_option
- * @brief Parse an option.
- *
- * @param options The options to instance parse into.
- * @param key The option key.
- * @param value The option value.
- * @return A status code (*SQUASH_OK* on success)
- *
- * @see squash_options_parse_option
+ * @var _SquashCodecImpl::options
+ * @brief options which may bo passed to the codec to modify its operation
  */
 
 /**
@@ -1414,7 +1399,6 @@ squash_codec_get_option_info (SquashCodec* codec) {
   return impl->options;
 }
 
-
 /**
  * @brief Get a list of options applicable to the codec
  *
@@ -1458,6 +1442,18 @@ squash_codec_get_option_value_by_name (SquashCodec* codec,
   return NULL;
 }
 
+/**
+ * @brief Get the string value for an option
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a string the result
+ * is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param key the name of the option to retrieve the value of
+ * @return the value of the option
+ */
 const char*
 squash_codec_get_option_string (SquashCodec* codec,
                                 SquashOptions* options,
@@ -1472,6 +1468,18 @@ squash_codec_get_option_string (SquashCodec* codec,
   }
 }
 
+/**
+ * @brief Get the string value for an option by index
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a string the result
+ * is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param index the index of the option to retrieve the value of
+ * @return the value of the option
+ */
 const char*
 squash_codec_get_option_string_index (SquashCodec* codec,
                                       SquashOptions* options,
@@ -1482,6 +1490,18 @@ squash_codec_get_option_string_index (SquashCodec* codec,
     return codec->impl.options[index].default_value.string_value;
 }
 
+/**
+ * @brief Get the boolean value for an option
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a boolean the result
+ * is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param key the name of the option to retrieve the value of
+ * @return the value of the option
+ */
 bool
 squash_codec_get_option_bool (SquashCodec* codec,
                               SquashOptions* options,
@@ -1496,6 +1516,18 @@ squash_codec_get_option_bool (SquashCodec* codec,
   }
 }
 
+/**
+ * @brief Get the boolean value for an option by index
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a boolean the result
+ * is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param index the index of the option to retrieve the value of
+ * @return the value of the option
+ */
 bool
 squash_codec_get_option_bool_index (SquashCodec* codec,
                                     SquashOptions* options,
@@ -1506,6 +1538,18 @@ squash_codec_get_option_bool_index (SquashCodec* codec,
     return codec->impl.options[index].default_value.bool_value;
 }
 
+/**
+ * @brief Get the integer value for an option
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not an integer the
+ * result is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param key the name of the option to retrieve the value of
+ * @return the value of the option
+ */
 int
 squash_codec_get_option_int (SquashCodec* codec,
                              SquashOptions* options,
@@ -1522,6 +1566,18 @@ squash_codec_get_option_int (SquashCodec* codec,
   }
 }
 
+/**
+ * @brief Get the integer value for an option by index
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not an integer the
+ * result is undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param index the index of the option to retrieve the value of
+ * @return the value of the option
+ */
 int
 squash_codec_get_option_int_index (SquashCodec* codec,
                                    SquashOptions* options,
@@ -1532,6 +1588,18 @@ squash_codec_get_option_int_index (SquashCodec* codec,
     return codec->impl.options[index].default_value.int_value;
 }
 
+/**
+ * @brief Get the size value for an option
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a size the result is
+ * undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param key the name of the option to retrieve the value of
+ * @return the value of the option
+ */
 size_t
 squash_codec_get_option_size (SquashCodec* codec,
                               SquashOptions* options,
@@ -1547,6 +1615,18 @@ squash_codec_get_option_size (SquashCodec* codec,
   }
 }
 
+/**
+ * @brief Get the size value for an option by index
+ *
+ * Note that this function will not perform a conversion—if you use it
+ * to request the value of an option which is not a size the result is
+ * undefined.
+ *
+ * @param codec the relevant codec
+ * @param options the options instance to retrieve the value from
+ * @param index the index of the option to retrieve the value of
+ * @return the value of the option
+ */
 size_t
 squash_codec_get_option_size_index (SquashCodec* codec,
                                     SquashOptions* options,
