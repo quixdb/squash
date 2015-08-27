@@ -182,14 +182,14 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
   params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
   params.enable_transforms = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_ENABLE_TRANSFORMS);
-  params.lgblock = 21;
 
   s->ctx.comp = new brotli::BrotliCompressor (params);
   s->ctx.comp->WriteStreamHeader ();
 
   int block_size;
-  uint8_t* input_buffer = (uint8_t*) malloc (SQUASH_BROTLI_MAX_BLOCK_SIZE);
-  uint8_t* output_buffer = (uint8_t*) malloc (SQUASH_BROTLI_MAX_OUT_SIZE);
+  size_t max_block_size = s->ctx.comp->input_block_size ();
+  uint8_t* input_buffer = (uint8_t*) malloc (max_block_size);
+  uint8_t* output_buffer = (uint8_t*) malloc (max_block_size);
   size_t output_size;
 
   if (input_buffer == NULL || output_buffer == NULL) {
@@ -197,8 +197,8 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
     goto cleanup;
   }
 
-  while ((block_size = BrotliRead (s->in, input_buffer, SQUASH_BROTLI_MAX_BLOCK_SIZE)) != 0) {
-    output_size = SQUASH_BROTLI_MAX_OUT_SIZE;
+  while ((block_size = BrotliRead (s->in, input_buffer, max_block_size)) != 0) {
+    output_size = max_block_size;
     if (!s->ctx.comp->WriteMetaBlock (block_size, input_buffer, false, &output_size, output_buffer)) {
       res = SQUASH_FAILED;
       goto cleanup;
@@ -209,7 +209,7 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
     }
   }
 
-  output_size = SQUASH_BROTLI_MAX_OUT_SIZE;
+  output_size = max_block_size;
   s->ctx.comp->WriteMetaBlock (block_size, input_buffer, true, &output_size, output_buffer);
   if (BrotliWrite (s->out, output_buffer, output_size) != output_size) {
     res = squash_error (SQUASH_FAILED);
