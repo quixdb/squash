@@ -46,6 +46,8 @@ endif ()
 find_package (Threads)
 target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 
+squash_target_add_coverage (squash${SQUASH_VERSION_API})
+
 if (WIN32)
 else ()
   include (FindClockGettime)

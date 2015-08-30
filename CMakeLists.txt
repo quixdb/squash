@@ -185,6 +185,18 @@ function (squash_target_add_ldflag target flag)
   endif ()
 endfunction ()
 
+function (squash_target_add_coverage target)
+  if (CMAKE_BUILD_TYPE MATCHES "Coverage")
+    foreach (cflag -g -O0 -fprofile-arcs -ftest-coverage)
+      squash_target_add_cflag (${target} ${cflag})
+    endforeach ()
+
+    foreach (cflag -fprofile-arcs -ftest-coverage)
+      squash_target_add_ldflag (${target} ${cflag})
+    endforeach ()
+  endif ()
+endfunction ()
+
 function (squash_source_file_add_compile_flag_ex file flag)
   get_source_file_property (existing ${file} COMPILE_FLAGS)
   if ("${existing}" STREQUAL "NOTFOUND")
