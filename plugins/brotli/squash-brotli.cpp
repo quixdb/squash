@@ -22,6 +22,7 @@
  *
  * Authors:
  *   Evan Nemerson <evan@nemerson.com>
+ *   Eugene Kliuchnikov <eustas.ru+squash@gmail.com>
  */
 
 #include <assert.h>
@@ -47,27 +48,18 @@ static SquashOptionInfo squash_brotli_options[] = {
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
-#define SQUASH_BROTLI_MAX_BLOCK_SIZE (1 << 21)
-#define SQUASH_BROTLI_MAX_OUT_SIZE (1 << 22)
-
-class SquashBrotliIn;
-class SquashBrotliOut;
-
 typedef struct SquashBrotliStream_s {
   SquashStream base_object;
 
   BrotliInput in;
   BrotliOutput out;
-
-  SquashBrotliIn* encoder_in;
-  SquashBrotliOut* encoder_out;
-
-  SquashOperation operation;
-
-  union {
-    brotli::BrotliCompressor* comp;
-    BrotliState decomp;
-  } ctx;
+  BrotliState* decompressor;
+  bool decompressor_finished;
+  brotli::BrotliCompressor* compressor;
+  bool should_flush;
+  size_t remaining_block_in;
+  size_t remaining_out;
+  uint8_t* next_out;
 } SquashBrotliStream;
 
 extern "C" SQUASH_PLUGIN_EXPORT
@@ -86,99 +78,24 @@ static SquashBrotliStream*  squash_brotli_stream_new      (SquashCodec* codec,
 static void                 squash_brotli_stream_destroy  (void* stream);
 static void                 squash_brotli_stream_free     (void* stream);
 
-class SquashBrotliIn : public brotli::BrotliIn {
- public:
-  SquashBrotliIn(SquashBrotliStream* stream) : stream_(stream) { }
-
-  virtual const void* Read(size_t n, size_t* output) override {
-    while (stream_->base_object.avail_in == 0 && stream_->operation != SQUASH_OPERATION_FINISH) {
-      stream_->operation = squash_stream_yield ((SquashStream*) stream_, SQUASH_OK);
-    }
-    const void* result = stream_->base_object.next_in;
-    size_t cp_size = stream_->base_object.avail_in;
-    if (cp_size == 0) {
-      result = NULL;
-    }
-    cp_size = cp_size < n ? cp_size : n;
-    *output = cp_size;
-    stream_->base_object.next_in += cp_size;
-    stream_->base_object.avail_in -= cp_size;
-    return result;
-  }
-
- private:
-  SquashBrotliStream* stream_;
-};
-
-class SquashBrotliOut : public brotli::BrotliOut {
- public:
-  SquashBrotliOut(SquashBrotliStream* stream) : stream_(stream) { }
-
-  virtual bool Write(const void* buf, size_t n) override {
-    size_t remaining = n;
-    while (remaining != 0) {
-      size_t cp_size = stream_->base_object.avail_out;
-      cp_size = cp_size < remaining ? cp_size : remaining;
-
-      memcpy (stream_->base_object.next_out, (uint8_t*)buf + (n - remaining), cp_size);
-      stream_->base_object.next_out += cp_size;
-      stream_->base_object.avail_out -= cp_size;
-      remaining -= cp_size;
-
-      if (remaining != 0) {
-        stream_->operation = squash_stream_yield ((SquashStream*) stream_, SQUASH_PROCESSING);
-      }
-    }
-
-    return true;
-  }
-
- private:
-  SquashBrotliStream* stream_;
-};
-
 static int
 squash_brotli_reader (void* user_data, uint8_t* buf, size_t size) {
   SquashBrotliStream* stream = (SquashBrotliStream*) user_data;
-
-  size_t remaining = size;
-  while (remaining != 0) {
-    const size_t cp_size = (stream->base_object.avail_in < remaining) ? stream->base_object.avail_in : remaining;
-
-    memcpy (buf + (size - remaining), stream->base_object.next_in, cp_size);
-    stream->base_object.next_in += cp_size;
-    stream->base_object.avail_in -= cp_size;
-    remaining -= cp_size;
-
-    if (remaining != 0) {
-      if (stream->operation == SQUASH_OPERATION_FINISH)
-        break;
-
-      stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_OK);
-    }
-  }
-
-  return (size - remaining);
+  size = (stream->base_object.avail_in < size) ? stream->base_object.avail_in : size;
+  memcpy (buf, stream->base_object.next_in, size);
+  stream->base_object.next_in += size;
+  stream->base_object.avail_in -= size;
+  return size;
 }
 
 static int
 squash_brotli_writer (void* user_data, const uint8_t* buf, size_t size) {
   SquashBrotliStream* stream = (SquashBrotliStream*) user_data;
-  size_t remaining = size;
-  while (remaining != 0) {
-    const size_t cp_size = (stream->base_object.avail_out < remaining) ? stream->base_object.avail_out : remaining;
-
-    memcpy (stream->base_object.next_out, buf + (size - remaining), cp_size);
-    stream->base_object.next_out += cp_size;
-    stream->base_object.avail_out -= cp_size;
-    remaining -= cp_size;
-
-    if (remaining != 0) {
-      stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_PROCESSING);
-    }
-  }
-
-  return (size - remaining);
+  size = (stream->base_object.avail_out < size) ? stream->base_object.avail_out : size;
+  memcpy (stream->base_object.next_out, buf, size);
+  stream->base_object.next_out += size;
+  stream->base_object.avail_out -= size;
+  return size;
 }
 
 static SquashBrotliStream*
@@ -201,25 +118,44 @@ squash_brotli_stream_init (SquashBrotliStream* s,
                            SquashOptions* options,
                            SquashDestroyNotify destroy_notify) {
   SquashStream* stream = (SquashStream*) s;
-
-  s->in.cb_ = squash_brotli_reader;
-  s->in.data_ = (void*) stream;
-  s->encoder_in = new SquashBrotliIn(s);
-  s->out.cb_ = squash_brotli_writer;
-  s->out.data_ = (void*) stream;
-  s->encoder_out = new SquashBrotliOut(s);
-  s->operation = SQUASH_OPERATION_PROCESS;
-
   squash_stream_init (stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+
+  if (stream_type == SQUASH_STREAM_COMPRESS) {
+    brotli::BrotliParams params;
+    params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
+    params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
+    s->compressor = new brotli::BrotliCompressor (params);
+    s->remaining_block_in = s->compressor->input_block_size();
+    s->remaining_out = 0;
+    s->next_out = NULL;
+    s->should_flush = false;
+  } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
+    s->in.cb_ = squash_brotli_reader;
+    s->in.data_ = (void*) stream;
+    s->out.cb_ = squash_brotli_writer;
+    s->out.data_ = (void*) stream;
+    s->decompressor = new BrotliState ();
+    s->decompressor_finished = false;
+    BrotliStateInit(s->decompressor);
+  } else {
+    squash_assert_unreachable();
+  }
 }
 
 static void
 squash_brotli_stream_destroy (void* stream) {
   SquashBrotliStream* s = (SquashBrotliStream*) stream;
-  squash_stream_destroy (stream);
 
-  delete s->encoder_out;
-  delete s->encoder_in;
+  if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_COMPRESS) {
+    delete s->compressor;
+  } else if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_DECOMPRESS) {
+    BrotliStateCleanup(s->decompressor);
+    delete s->decompressor;
+  } else {
+    squash_assert_unreachable();
+  }
+
+  squash_stream_destroy (stream);
 }
 
 static void
@@ -231,40 +167,6 @@ squash_brotli_stream_free (void* stream) {
 static SquashStream*
 squash_brotli_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   return (SquashStream*) squash_brotli_stream_new (codec, stream_type, options);
-}
-
-static SquashStatus
-squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) {
-  SquashBrotliStream* s = (SquashBrotliStream*) stream;
-
-  brotli::BrotliParams params;
-  params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
-  params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
-  return BrotliCompress(params, s->encoder_in, s->encoder_out) ? SQUASH_OK : SQUASH_FAILED;
-}
-
-static SquashStatus
-squash_brotli_decompress_stream (SquashStream* stream, SquashOperation operation) {
-  SquashBrotliStream* s = (SquashBrotliStream*) stream;
-
-  if (!BrotliDecompress (s->in, s->out)) {
-    return squash_error (SQUASH_FAILED);
-  }
-
-  return SQUASH_OK;
-}
-
-static SquashStatus
-squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
-  if (stream->stream_type == SQUASH_STREAM_COMPRESS)
-    return squash_brotli_compress_stream (stream, operation);
-  else
-    return squash_brotli_decompress_stream (stream, operation);
-}
-
-static size_t
-squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 4;
 }
 
 static SquashStatus
@@ -280,6 +182,103 @@ squash_brotli_status_to_squash_status (BrotliResult status) {
     default:
       return squash_error (SQUASH_FAILED);
   }
+}
+
+static SquashStatus
+squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) {
+  SquashBrotliStream* s = (SquashBrotliStream*) stream;
+  if (operation == SQUASH_OPERATION_FLUSH) {
+    s->should_flush = true;
+  }
+
+  bool end_of_input = false;
+  while (true) {
+    size_t out_size = s->remaining_out;
+    if (out_size != 0) {
+      out_size = (s->base_object.avail_out < out_size) ? s->base_object.avail_out : out_size;
+      memcpy (s->base_object.next_out, s->next_out, out_size);
+      s->base_object.next_out += out_size;
+      s->base_object.avail_out -= out_size;
+      s->next_out += out_size;
+      s->remaining_out -= out_size;
+      if (s->base_object.avail_out == 0) {
+        return SQUASH_PROCESSING;
+      }
+    }
+
+    if (end_of_input) {
+      return SQUASH_OK;
+    }
+
+    size_t in_size = s->base_object.avail_in;
+    in_size = (in_size < s->remaining_block_in) ? in_size : s->remaining_block_in;
+    if (in_size != 0) {
+      s->compressor->CopyInputToRingBuffer (in_size, s->base_object.next_in);
+      s->base_object.next_in += in_size;
+      s->base_object.avail_in -= in_size;
+      s->remaining_block_in -= in_size;
+      if (s->remaining_block_in == 0) {
+        s->remaining_block_in = s->compressor->input_block_size ();
+      }
+    }
+
+    end_of_input = s->base_object.avail_in == 0;
+    if ((operation == SQUASH_OPERATION_FINISH) && end_of_input) {
+      if (!s->compressor->WriteBrotliData(true,
+                                          true,
+                                          &s->remaining_out, &s->next_out)) {
+        return squash_error (SQUASH_FAILED);
+      }
+    } else {
+      if (!s->compressor->WriteBrotliData((operation == SQUASH_OPERATION_FINISH) && end_of_input,
+                                          s->should_flush && end_of_input,
+                                          &s->remaining_out, &s->next_out)) {
+        return squash_error (SQUASH_FAILED);
+      }
+    }
+    if (end_of_input) {
+      s->should_flush = false;
+    }
+  }
+}
+
+static SquashStatus
+squash_brotli_decompress_stream (SquashStream* stream, SquashOperation operation) {
+  SquashBrotliStream* s = (SquashBrotliStream*) stream;
+
+  if (s->decompressor_finished) {
+    return SQUASH_OK;
+  }
+
+  try {
+    bool final = (operation == SQUASH_OPERATION_FINISH) || (s->base_object.avail_in == 0);
+    BrotliResult res = BrotliDecompressStreaming (s->in, s->out, final, s->decompressor);
+    if (res == BROTLI_RESULT_SUCCESS) {
+      s->decompressor_finished = true;
+      return SQUASH_OK;
+    }
+    if (res ==  BROTLI_RESULT_NEEDS_MORE_OUTPUT || res == BROTLI_RESULT_NEEDS_MORE_INPUT) {
+      return (res == BROTLI_RESULT_NEEDS_MORE_OUTPUT) ? SQUASH_PROCESSING : SQUASH_OK;
+    }
+    return squash_error (SQUASH_FAILED);
+  } catch (const std::bad_alloc& e) {
+    return squash_error (SQUASH_MEMORY);
+  } catch (...) {
+    return squash_error (SQUASH_FAILED);
+  }
+}
+
+static SquashStatus
+squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS)
+    return squash_brotli_compress_stream (stream, operation);
+  else
+    return squash_brotli_decompress_stream (stream, operation);
+}
+
+static size_t
+squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+  return uncompressed_length + 5;
 }
 
 static SquashStatus
@@ -310,7 +309,6 @@ squash_brotli_compress_buffer (SquashCodec* codec,
   brotli::BrotliParams params;
   params.quality = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
-
   try {
     int res = brotli::BrotliCompressBuffer (params,
                                             uncompressed_length, uncompressed,
@@ -346,7 +344,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brotli", name) == 0) {
-    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
+    impl->info = 0;
     impl->options = squash_brotli_options;
     impl->get_max_compressed_size = squash_brotli_get_max_compressed_size;
     impl->create_stream = squash_brotli_create_stream;
