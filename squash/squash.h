@@ -64,6 +64,7 @@
 #include "object.h"
 #include "options.h"
 #include "stream.h"
+#include "file.h"
 #include "license.h"
 #include "codec.h"
 #include "plugin.h"

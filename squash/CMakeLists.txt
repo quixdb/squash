@@ -10,6 +10,7 @@ set (squash_SOURCES
   ${RAGEL_ini_OUTPUTS}
   buffer.c
   codec.c
+  file.c
   license.c
   options.c
   status.c
@@ -24,6 +25,7 @@ set (squash_SOURCES
 set (squash_PUBLIC_HEADERS
   context.h
   codec.h
+  file.h
   license.h
   object.h
   options.h

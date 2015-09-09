@@ -148,6 +148,8 @@ squash_status_to_string (SquashStatus status) {
       return "The requested codec could not be found";
     case SQUASH_INVALID_BUFFER:
       return "Invalid buffer";
+    case SQUASH_IO:
+      return "I/O error";
     default:
       return "Unknown.";
   }

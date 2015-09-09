@@ -48,7 +48,8 @@ typedef enum {
   SQUASH_STATE                 = -8,
   SQUASH_INVALID_OPERATION     = -9,
   SQUASH_NOT_FOUND             = -10,
-  SQUASH_INVALID_BUFFER        = -11
+  SQUASH_INVALID_BUFFER        = -11,
+  SQUASH_IO                    = -12
 } SquashStatus;
 
 SQUASH_API const char* squash_status_to_string (SquashStatus status);

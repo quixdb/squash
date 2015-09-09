@@ -42,6 +42,7 @@ typedef struct _SquashContext    SquashContext;
 typedef struct _SquashCodec      SquashCodec;
 typedef struct _SquashCodecImpl  SquashCodecImpl;
 typedef struct _SquashPlugin     SquashPlugin;
+typedef struct _SquashFile       SquashFile;
 
 SQUASH_END_DECLS
 
