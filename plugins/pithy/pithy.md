@@ -17,7 +17,7 @@ For more information about Pithy, see https://github.com/johnezang/pithy
 
 ## License ##
 
-The zstd plugin is licensed under the [MIT
+The pithy plugin is licensed under the [MIT
 License](http://opensource.org/licenses/MIT), and Pithy is licensed
 under a [3-clause BSD
 license](http://opensource.org/licenses/BSD-3-Clause).
