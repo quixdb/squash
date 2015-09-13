@@ -6,10 +6,12 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define TEST_CODEC "zlib:gzip"
+#define STREAM_TEST_CODEC "zlib:gzip"
+#define BUFFER_TEST_CODEC "snappy:snappy"
 
-#define LOREM_IPSUM                                                     \
+#define LOREM_IPSUM (const uint8_t*)                                    \
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vulputate " \
   "lectus nisl, vitae ultricies justo dictum nec. Vestibulum ante ipsum " \
   "primis in faucibus orci luctus et ultrices posuere cubilia Curae; "  \
@@ -80,7 +82,7 @@ single_teardown (struct Single* data, gconstpointer user_data) {
 
 static void
 test_file_io (struct Single* data, gconstpointer user_data) {
-  SquashFile* file = squash_file_open (data->filename, "w+", TEST_CODEC, NULL);
+  SquashFile* file = squash_file_open (data->filename, "w+", STREAM_TEST_CODEC, NULL);
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
@@ -88,7 +90,7 @@ test_file_io (struct Single* data, gconstpointer user_data) {
 
   squash_file_close (file);
 
-  file = squash_file_open (data->filename, "r", TEST_CODEC, NULL);
+  file = squash_file_open (data->filename, "rb", STREAM_TEST_CODEC, NULL);
   g_assert (file != NULL);
 
   uint8_t decompressed[LOREM_IPSUM_LENGTH];
@@ -107,11 +109,86 @@ test_file_io (struct Single* data, gconstpointer user_data) {
   squash_file_close (file);
 }
 
+struct Triple {
+  char* filename[3];
+  int fd[3];
+};
+
+static void
+triple_setup (struct Triple* data, gconstpointer user_data) {
+  GError* e = NULL;
+
+  data->fd[0] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[0]), &e);
+  g_assert (e == NULL);
+  data->fd[1] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[1]), &e);
+  g_assert (e == NULL);
+  data->fd[2] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[2]), &e);
+  g_assert (e == NULL);
+}
+
+static void
+triple_teardown (struct Triple* data, gconstpointer user_data) {
+  unlink (data->filename[0]);
+  unlink (data->filename[1]);
+  unlink (data->filename[2]);
+  close (data->fd[0]);
+  close (data->fd[1]);
+  close (data->fd[2]);
+}
+
+static void
+test_file_splice (struct Triple* data, gconstpointer user_data) {
+  const uint8_t offset_buf[4096] = { 0, };
+  size_t offset;
+  size_t bytes_written;
+  int ires;
+
+  FILE* uncompressed = fdopen (dup (data->fd[0]), "wb");
+  FILE* compressed = fdopen (dup (data->fd[1]), "w+b");
+  FILE* decompressed = fdopen (dup (data->fd[2]), "w+b");
+
+  bytes_written = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
+  g_assert_cmpint (bytes_written, ==, LOREM_IPSUM_LENGTH);
+  fflush (uncompressed);
+  rewind (uncompressed);
+
+  /* Start in the middle of the file, just to make sure it works. */
+  offset = (size_t) g_test_rand_int_range (1, 4096);
+  bytes_written = fwrite (offset_buf, 1, offset, compressed);
+  g_assert_cmpint (bytes_written, ==, offset);
+
+  SquashStatus res = squash_splice (uncompressed, compressed, 0, SQUASH_STREAM_COMPRESS, (char*) user_data, NULL);
+  g_assert (res == SQUASH_OK);
+
+  {
+    size_t compressed_length = squash_get_max_compressed_size ((char*) user_data, LOREM_IPSUM_LENGTH);
+    uint8_t* compressed_data = malloc (compressed_length);
+    res = squash_compress ((char*) user_data, &compressed_length, compressed_data, LOREM_IPSUM_LENGTH, LOREM_IPSUM);
+    g_assert_cmpint (res, ==, SQUASH_OK);
+    g_assert_cmpint (ftello (compressed), ==, compressed_length + offset);
+    free (compressed_data);
+  }
+
+  ires = fseek (compressed, offset, SEEK_SET);
+  g_assert_cmpint (ires, ==, 0);
+
+  res = squash_splice (compressed, decompressed, 0, SQUASH_STREAM_DECOMPRESS, (char*) user_data, NULL);
+  g_assert (res == SQUASH_OK);
+
+  g_assert_cmpint (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
+
+  fclose (uncompressed);
+  fclose (compressed);
+  fclose (decompressed);
+}
+
 int
 main (int argc, char** argv) {
   g_test_init (&argc, &argv, NULL);
 
   g_test_add ("/file/io", struct Single, NULL, single_setup, test_file_io, single_teardown);
+  g_test_add ("/file/splice/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
+  g_test_add ("/file/splice/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
 
   return g_test_run ();
 }

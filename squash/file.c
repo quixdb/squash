@@ -24,11 +24,19 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
+#define _FILE_OFFSET_BITS 64
+#define _POSIX_C_SOURCE 200112L
+
 #include "internal.h"
 
 #ifndef SQUASH_FILE_BUF_SIZE
 #  define SQUASH_FILE_BUF_SIZE ((size_t) (1024 * 1024))
 #endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
 struct _SquashFile {
   FILE* fp;
@@ -475,6 +483,401 @@ squash_file_flush (SquashFile* file) {
 bool
 squash_file_eof (SquashFile* file) {
   return file->eof && (file->stream->avail_in == 0);
+}
+
+/**
+ * @brief compress or decompress the contents of one file to another
+ *
+ * This function will attempt to compress or decompress the contents
+ * of one file to another.  It will attempt to use memory-mapped files
+ * in order to reduce memory usage and increase performance, and so
+ * should be preferred over writing similar code manually.
+ *
+ * @param fp_in the input *FILE* pointer
+ * @param fp_out the output *FILE* pointer
+ * @param length number of bytes (uncompressed) to transfer from @a
+ *   fp_in to @a fp_out, or 0 to transfer the entire file
+ * @param stream_type whether to compress or decompress the data
+ * @param codec the name of the codec to use
+ * @param ... list of options (with a *NULL* sentinel)
+ * @returns @ref SQUASH_OK on success, or a negative error code on
+ *   failure
+ */
+SquashStatus
+squash_splice (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, const char* codec, ...) {
+  assert (fp_in != NULL);
+  assert (fp_out != NULL);
+  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
+
+  SquashCodec* codec_i = squash_get_codec (codec);
+  if (codec_i == NULL)
+    return squash_error (SQUASH_BAD_PARAM);
+
+  SquashOptions* options = NULL;
+  va_list ap;
+  va_start (ap, codec);
+  options = squash_options_newv (codec_i, ap);
+  va_end (ap);
+
+  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec_i, options);
+}
+
+/**
+ * @brief compress or decompress the contents of one file to another
+ *
+ * This function will attempt to compress or decompress the contents
+ * of one file to another.  It will attempt to use memory-mapped files
+ * in order to reduce memory usage and increase performance, and so
+ * should be preferred over writing similar code manually.
+ *
+ * @param fp_in the input *FILE* pointer
+ * @param fp_out the output *FILE* pointer
+ * @param length number of bytes (uncompressed) to transfer from @a
+ *   fp_in to @a fp_out
+ * @param stream_type whether to compress or decompress the data
+ * @param codec codec to use
+ * @param ... list of options (with a *NULL* sentinel)
+ * @returns @ref SQUASH_OK on success, or a negative error code on
+ *   failure
+ */
+SquashStatus
+squash_splice_codec (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, SquashCodec* codec, ...) {
+  assert (fp_in != NULL);
+  assert (fp_out != NULL);
+  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
+  assert (codec != NULL);
+
+  SquashOptions* options = NULL;
+  va_list ap;
+  va_start (ap, codec);
+  options = squash_options_newv (codec, ap);
+  va_end (ap);
+
+  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec, options);
+}
+
+/**
+ * @brief compress or decompress the contents of one file to another
+ *
+ * This function will attempt to compress or decompress the contents
+ * of one file to another.  It will attempt to use memory-mapped files
+ * in order to reduce memory usage and increase performance, and so
+ * should be preferred over writing similar code manually.
+ *
+ * @param fp_in the input *FILE* pointer
+ * @param fp_out the output *FILE* pointer
+ * @param length number of bytes (uncompressed) to transfer from @a
+ *   fp_in to @a fp_out
+ * @param stream_type whether to compress or decompress the data
+ * @param codec name of the codec to use
+ * @param options options to pass to the codec
+ * @returns @ref SQUASH_OK on success, or a negative error code on
+ *   failure
+ */
+SquashStatus
+squash_splice_with_options (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, const char* codec, SquashOptions* options) {
+  assert (fp_in != NULL);
+  assert (fp_out != NULL);
+  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
+
+  SquashCodec* codec_i = squash_get_codec (codec);
+  if (codec_i == NULL)
+    return squash_error (SQUASH_BAD_PARAM);
+
+  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec_i, options);
+}
+
+#if defined(__GNUC__)
+__attribute__ ((__const__))
+#endif
+static size_t
+squash_npot (size_t v) {
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+#if SIZE_MAX > UINT32_MAX
+  v |= v >> 32;
+#endif
+  v++;
+  return v;
+}
+
+typedef struct SquashMappedFile_s {
+  uint8_t* data;
+  size_t length;
+  size_t map_length;
+  size_t window_offset;
+  FILE* fp;
+  bool writable;
+} SquashMappedFile;
+
+static bool
+squash_mapped_file_init (SquashMappedFile* mapped, FILE* fp, size_t length, bool writable) {
+  assert (mapped != NULL);
+  assert (fp != NULL);
+
+  if (mapped->data != MAP_FAILED)
+    munmap (mapped->data - mapped->window_offset, mapped->length + mapped->window_offset);
+
+  int fd = fileno (fp);
+  if (fd == -1)
+    return false;
+
+  int ires;
+  struct stat fp_stat;
+
+  ires = fstat (fd, &fp_stat);
+  if (ires == -1 || !S_ISREG(fp_stat.st_mode) || (!writable && fp_stat.st_size == 0))
+    return false;
+
+  off_t offset = ftello (fp);
+  if (offset < 0)
+    return false;
+
+  if (writable) {
+    ires = ftruncate (fd, offset + (off_t) length);
+    if (ires == -1)
+      return false;
+  } else {
+    if (length == 0) {
+      length = fp_stat.st_size - (size_t) offset;
+    } else if (((off_t) length + offset) > fp_stat.st_size) {
+      return false;
+    }
+  }
+  mapped->length = length;
+
+  const size_t page_size = (size_t) sysconf (_SC_PAGE_SIZE);
+  mapped->window_offset = (size_t) offset % page_size;
+  mapped->map_length = length + mapped->window_offset;
+
+  mapped->data = mmap (NULL, mapped->map_length, writable ? PROT_READ | PROT_WRITE : PROT_READ, MAP_SHARED, fd, offset - mapped->window_offset);
+  if (mapped->data == MAP_FAILED)
+    return false;
+
+  mapped->data += mapped->window_offset;
+  mapped->fp = fp;
+  mapped->writable = writable;
+
+  return true;
+}
+
+static void
+squash_mapped_file_destroy (SquashMappedFile* mapped) {
+  if (mapped->data != MAP_FAILED) {
+    munmap (mapped->data - mapped->window_offset, mapped->length + mapped->window_offset);
+    if (mapped->writable) {
+      fseeko (mapped->fp, mapped->length, SEEK_CUR);
+      ftruncate (fileno (mapped->fp), ftello (mapped->fp));
+    }
+  }
+}
+
+/**
+ * @brief compress or decompress the contents of one file to another
+ *
+ * This function will attempt to compress or decompress the contents
+ * of one file to another.  It will attempt to use memory-mapped files
+ * in order to reduce memory usage and increase performance, and so
+ * should be preferred over writing similar code manually.
+ *
+ * @param fp_in the input *FILE* pointer
+ * @param fp_out the output *FILE* pointer
+ * @param length number of bytes (uncompressed) to transfer from @a
+ *   fp_in to @a fp_out
+ * @param stream_type whether to compress or decompress the data
+ * @param codec codec to use
+ * @param options options to pass to the codec
+ * @returns @ref SQUASH_OK on success, or a negative error code on
+ *   failure
+ */
+SquashStatus
+squash_splice_codec_with_options (FILE* fp_in,
+                                  FILE* fp_out,
+                                  size_t length,
+                                  SquashStreamType stream_type,
+                                  SquashCodec* codec,
+                                  SquashOptions* options) {
+  SquashStatus res;
+
+  assert (fp_in != NULL);
+  assert (fp_out != NULL);
+  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
+  assert (codec != NULL);
+
+  if (codec->impl.create_stream == NULL) {
+    SquashMappedFile mapped_in = { MAP_FAILED, 0, };
+    SquashMappedFile mapped_out = { MAP_FAILED, 0, };
+
+    bool success = squash_mapped_file_init (&mapped_in, fp_in, length, false);
+    if (!success)
+      goto nomap;
+
+    if (stream_type == SQUASH_STREAM_COMPRESS) {
+      const size_t output_length = squash_codec_get_max_compressed_size(codec, mapped_in.length) + 4096;
+
+      success = squash_mapped_file_init (&mapped_out, fp_out, output_length, true);
+      if (success) {
+        size_t compressed_length = output_length;
+        res = squash_codec_compress_with_options (codec, &compressed_length, mapped_out.data, mapped_in.length, mapped_in.data, options);
+        if (res == SQUASH_OK) {
+          mapped_out.length = compressed_length;
+          squash_mapped_file_destroy (&mapped_in);
+          squash_mapped_file_destroy (&mapped_out);
+        }
+        return res;
+      } else {
+        uint8_t* compressed = malloc (output_length);
+        if (compressed != NULL) {
+          size_t compressed_length = output_length;
+          res = squash_codec_compress_with_options (codec, &compressed_length, compressed, mapped_in.length, mapped_in.data, options);
+          if (res == SQUASH_OK) {
+            const size_t written = fwrite (compressed, 1, compressed_length, fp_out);
+            if (written != compressed_length)
+              res = squash_error (SQUASH_IO);
+          }
+          free (compressed);
+        } else {
+          res = squash_error (SQUASH_MEMORY);
+        }
+
+        squash_mapped_file_destroy (&mapped_in);
+        return res;
+      }
+    } else {
+      assert (stream_type == SQUASH_STREAM_DECOMPRESS);
+
+      size_t output_length;
+      const bool knows_uncompressed =
+        (squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
+
+      if (knows_uncompressed) {
+        output_length = squash_codec_get_uncompressed_size (codec, mapped_in.length, mapped_in.data);
+        if (output_length == 0) {
+          squash_mapped_file_destroy (&mapped_in);
+          return squash_error (SQUASH_INVALID_BUFFER);
+        }
+      } else {
+        output_length = squash_npot (mapped_in.length) << 3;
+      }
+
+      do {
+        success = squash_mapped_file_init (&mapped_out, fp_out, output_length, true);
+        if (success) {
+          size_t olen = output_length;
+          res = squash_codec_decompress_with_options (codec, &olen, mapped_out.data, mapped_in.length, mapped_in.data, options);
+          if (res == SQUASH_OK) {
+            mapped_out.length = olen;
+            squash_mapped_file_destroy (&mapped_out);
+            break;
+          }
+        } else {
+          size_t decompressed_length = output_length;
+          uint8_t* decompressed = malloc (decompressed_length);
+          if (decompressed == NULL) {
+            squash_mapped_file_destroy (&mapped_in);
+            goto nomap;
+          }
+          res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, mapped_in.length, mapped_in.data, options);
+          if (res == SQUASH_OK) {
+            size_t bytes_written = fwrite (decompressed, 1, decompressed_length, fp_out);
+            if (bytes_written != decompressed_length)
+              res = squash_error (SQUASH_IO);
+          } else {
+            output_length <<= 1;
+          }
+          free (decompressed);
+        }
+      } while (res == SQUASH_BUFFER_FULL && !knows_uncompressed);
+    }
+
+    squash_mapped_file_destroy (&mapped_in);
+
+    return res;
+  }
+
+ nomap:
+
+  res = SQUASH_OK;
+
+  uint8_t* input_buf;
+  uint8_t* output_buf;
+
+  input_buf = malloc (SQUASH_FILE_BUF_SIZE);
+  output_buf = malloc (SQUASH_FILE_BUF_SIZE);
+
+  if (input_buf == NULL || output_buf == NULL) {
+    free (input_buf);
+    free (output_buf);
+    return SQUASH_MEMORY;
+  }
+
+  SquashStream* stream = squash_codec_create_stream_with_options (codec, stream_type, options);
+  if (stream == NULL) {
+    squash_object_unref (stream);
+    return squash_error (SQUASH_FAILED);
+  }
+
+  stream->next_out = output_buf;
+  stream->avail_out = SQUASH_FILE_BUF_SIZE;
+  while ((stream->avail_in = fread (input_buf, 1, SQUASH_FILE_BUF_SIZE, fp_in)) != 0) {
+    stream->next_in = input_buf;
+    do {
+      res = squash_stream_process (stream);
+
+      if (res < 0)
+        goto nomap_cleanup;
+
+      if (stream->avail_out != SQUASH_FILE_BUF_SIZE) {
+        size_t bytes_written = fwrite (output_buf, 1, SQUASH_FILE_BUF_SIZE - stream->avail_out, fp_out);
+        if (bytes_written != SQUASH_FILE_BUF_SIZE - stream->avail_out) {
+          res = squash_error (SQUASH_IO);
+          goto nomap_cleanup;
+        }
+
+        stream->avail_out = SQUASH_FILE_BUF_SIZE;
+        stream->next_out = output_buf;
+      }
+    } while (res == SQUASH_PROCESSING);
+  }
+
+  if (!feof (fp_in)) {
+    res = squash_error (SQUASH_IO);
+    goto nomap_cleanup;
+  }
+
+  if (res != SQUASH_END_OF_STREAM) {
+    do {
+      res = squash_stream_finish (stream);
+
+      if (res < 0)
+        goto nomap_cleanup;
+
+      if (stream->avail_out != SQUASH_FILE_BUF_SIZE) {
+        size_t bytes_written = fwrite (output_buf, 1, SQUASH_FILE_BUF_SIZE - stream->avail_out, fp_out);
+        if (bytes_written != SQUASH_FILE_BUF_SIZE - stream->avail_out) {
+          res = squash_error (SQUASH_IO);
+          goto nomap_cleanup;
+        }
+
+        stream->avail_out = SQUASH_FILE_BUF_SIZE;
+        stream->next_out = output_buf;
+      }
+    } while (res == SQUASH_PROCESSING);
+  } else {
+    res = SQUASH_OK;
+  }
+
+ nomap_cleanup:
+
+  free (input_buf);
+  free (output_buf);
+  squash_object_unref (stream);
+
+  return res;
 }
 
 /**

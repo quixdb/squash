@@ -267,7 +267,7 @@ int main (int argc, char** argv) {
   if ( strcmp (input_name, "-") == 0 ) {
     input = stdin;
   } else {
-    input = fopen (input_name, "r+");
+    input = fopen (input_name, "r");
     if ( input == NULL ) {
       perror ("Unable to open input file");
       exit (EXIT_FAILURE);
@@ -297,11 +297,7 @@ int main (int argc, char** argv) {
 
   options = squash_options_newa (codec, (const char * const*) option_keys, (const char * const*) option_values);
 
-  if ( direction == SQUASH_STREAM_COMPRESS ) {
-    res = squash_codec_compress_file_with_options (codec, output, input, options);
-  } else {
-    res = squash_codec_decompress_file_with_options (codec, output, 0, input, options);
-  }
+  res = squash_splice_codec_with_options (input, output, 0, direction, codec, options);
 
   if ( res != SQUASH_OK ) {
     fprintf (stderr, "Failed to %s: %s\n",

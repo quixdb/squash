@@ -77,6 +77,5 @@
 #include "ini-internal.h"
 #include "mtx-internal.h"
 #include "stream-internal.h"
-#include "mapped-file-internal.h"
 
 #endif /* SQUASH_INTERNAL_H */

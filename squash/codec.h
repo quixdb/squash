@@ -31,8 +31,6 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-#include <stdio.h>
-
 SQUASH_BEGIN_DECLS
 
 typedef enum {
@@ -135,21 +133,6 @@ SQUASH_API SquashStatus            squash_codec_decompress_with_options      (Sq
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                                                               SquashOptions* options);
-SQUASH_API SquashStatus            squash_codec_compress_file_with_options   (SquashCodec* codec,
-                                                                              FILE* compressed, FILE* uncompressed,
-                                                                              SquashOptions* options);
-SQUASH_API SquashStatus            squash_codec_decompress_file_with_options (SquashCodec* codec,
-                                                                              FILE* decompressed, size_t decompressed_length,
-                                                                              FILE* compressed,
-                                                                              SquashOptions* options);
-SQUASH_API SquashStatus            squash_codec_compress_file                (SquashCodec* codec,
-                                                                              FILE* compressed, FILE* uncompressed,
-                                                                              ...);
-SQUASH_API SquashStatus            squash_codec_decompress_file              (SquashCodec* codec,
-                                                                              FILE* decompressed,
-                                                                              size_t decompressed_length,
-                                                                              FILE* compressed,
-                                                                              ...);
 SQUASH_API SquashCodecInfo         squash_codec_get_info                     (SquashCodec* codec);
 SQUASH_API const SquashOptionInfo* squash_codec_get_option_info              (SquashCodec* codec);
 
@@ -204,22 +187,6 @@ SQUASH_API SquashStatus            squash_decompress_with_options            (co
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                                                               SquashOptions* options);
-SQUASH_API SquashStatus            squash_compress_file_with_options         (const char* codec,
-                                                                              FILE* compressed, FILE* uncompressed,
-                                                                              SquashOptions* options);
-SQUASH_API SquashStatus            squash_decompress_file_with_options       (const char* codec,
-                                                                              FILE* decompressed,
-                                                                              size_t decompressed_length,
-                                                                              FILE* compressed,
-                                                                              SquashOptions* options);
-SQUASH_API SquashStatus            squash_compress_file                      (const char* codec,
-                                                                              FILE* compressed, FILE* uncompressed,
-                                                                              ...);
-SQUASH_API SquashStatus            squash_decompress_file                    (const char* codec,
-                                                                              FILE* decompressed,
-                                                                              size_t decompressed_length,
-                                                                              FILE* compressed,
-                                                                              ...);
 SQUASH_API SquashCodecInfo         squash_get_info                           (const char* codec);
 SQUASH_API const SquashOptionInfo* squash_get_option_info                    (const char* codec);
 

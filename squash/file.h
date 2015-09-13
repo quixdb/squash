@@ -74,6 +74,31 @@ SQUASH_API SquashStatus squash_file_write                    (SquashFile* file,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 
+SQUASH_API SquashStatus squash_splice                        (FILE* fp_in,
+                                                              FILE* fp_out,
+                                                              size_t length,
+                                                              SquashStreamType stream_type,
+                                                              const char* codec,
+                                                              ...);
+SQUASH_API SquashStatus squash_splice_codec                  (FILE* fp_in,
+                                                              FILE* fp_out,
+                                                              size_t length,
+                                                              SquashStreamType stream_type,
+                                                              SquashCodec* codec,
+                                                              ...);
+SQUASH_API SquashStatus squash_splice_with_options           (FILE* fp_in,
+                                                              FILE* fp_out,
+                                                              size_t length,
+                                                              SquashStreamType stream_type,
+                                                              const char* codec,
+                                                              SquashOptions* options);
+SQUASH_API SquashStatus squash_splice_codec_with_options     (FILE* fp_in,
+                                                              FILE* fp_out,
+                                                              size_t length,
+                                                              SquashStreamType stream_type,
+                                                              SquashCodec* codec,
+                                                              SquashOptions* options);
+
 SQUASH_API SquashStatus squash_file_close                    (SquashFile* file);
 SQUASH_API SquashStatus squash_file_free                     (SquashFile* file,
                                                               FILE** fp);
