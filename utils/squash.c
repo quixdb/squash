@@ -37,7 +37,20 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "\t-P            List available plugins and exit\n");
   fprintf (stderr, "\t-f            Overwrite the output file if it exists.\n");
   fprintf (stderr, "\t-d            Decompress\n");
+  fprintf (stderr, "\t-V            Print version number and exit\n");
   fprintf (stderr, "\t-h            Print this help screen and exit.\n");
+
+  exit (exit_code);
+}
+
+static void
+print_version_and_exit (int argc, char** argv, int exit_code) {
+  const unsigned int libversion = squash_version ();
+  fprintf (stdout, "squash version %d.%d.%d (library version %d.%d.%d)\n",
+           SQUASH_VERSION_MAJOR, SQUASH_VERSION_MINOR, SQUASH_VERSION_REVISION,
+           SQUASH_VERSION_EXTRACT_MAJOR(libversion),
+           SQUASH_VERSION_EXTRACT_MINOR(libversion),
+           SQUASH_VERSION_EXTRACT_REVISION(libversion));
 
   exit (exit_code);
 }
@@ -140,7 +153,7 @@ int main (int argc, char** argv) {
   *option_keys = NULL;
   *option_values = NULL;
 
-  while ( (opt = getopt(argc, argv, "c:ko:123456789LPfdhb:")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "c:ko:123456789LPfdhb:V")) != -1 ) {
     switch ( opt ) {
       case 'c':
         codec = squash_get_codec (optarg);
@@ -183,6 +196,9 @@ int main (int argc, char** argv) {
         break;
       case 'd':
         direction = SQUASH_STREAM_DECOMPRESS;
+        break;
+      case 'V':
+        print_version_and_exit (argc, argv, EXIT_SUCCESS);
         break;
     }
 

@@ -19,6 +19,7 @@ set (squash_SOURCES
   object.c
   plugin.c
   stream.c
+  version.c
   tinycthread/source/tinycthread.c)
 
 set (squash_PUBLIC_HEADERS

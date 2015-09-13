@@ -31,13 +31,23 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-#define SQUASH_VERSION(major,minor,micro) (((major) << 16) | ((minor) << 8) | (micro))
-
 #define SQUASH_VERSION_MAJOR ${SQUASH_VERSION_MAJOR}
 #define SQUASH_VERSION_MINOR ${SQUASH_VERSION_MINOR}
 #define SQUASH_VERSION_REVISION ${SQUASH_VERSION_REVISION}
 #define SQUASH_VERSION_API "${SQUASH_VERSION_API}"
 
+#define SQUASH_VERSION(major,minor,revision) (((major) << 16) | ((minor) << 8) | (revision))
 #define SQUASH_VERSION_CURRENT SQUASH_VERSION(SQUASH_VERSION_MAJOR, SQUASH_VERSION_MINOR, SQUASH_VERSION_REVISION)
+
+#define SQUASH_VERSION_EXTRACT_MAJOR(version) (((version) >> 16) & 0xff)
+#define SQUASH_VERSION_EXTRACT_MINOR(version) (((version) >> 8) & 0xff)
+#define SQUASH_VERSION_EXTRACT_REVISION(version) ((version) & 0xff)
+
+SQUASH_BEGIN_DECLS
+
+SQUASH_API unsigned int squash_version     (void);
+SQUASH_API const char*  squash_version_api (void);
+
+SQUASH_END_DECLS
 
 #endif /* SQUASH_VERSION_H */
