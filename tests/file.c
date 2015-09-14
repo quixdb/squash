@@ -86,7 +86,7 @@ test_file_io (struct Single* data, gconstpointer user_data) {
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
-  assert (res == SQUASH_OK);
+  g_assert (res == SQUASH_OK);
 
   squash_file_close (file);
 
