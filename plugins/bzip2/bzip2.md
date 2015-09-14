@@ -5,6 +5,16 @@ The bzip2 plugin provides an interface for libbzip2.
 For more information about bzip2 and libbzip2 see
 http://www.bzip2.org/
 
+## Flushing ##
+
+The bzip2 library claims to support flushing, and as far as I can tell
+the encoder does.  However, when you feed all of the compressed data
+received from the flush operation to the decoder it will not output
+any data.  This violates the core assumption of flushing from Squash's
+point of view, and therefore this plugin does not support flushing.
+If you know of a way to force the decoder to decode the data please
+[let us know](https://github.com/quixdb/squash/issues/116).
+
 ## Codecs ##
 
 - bzip2
@@ -60,8 +70,8 @@ of clause #1 and the disclaimer at the end, which are from the
 > 3. Altered source versions must be plainly marked as such, and must
 >    not be misrepresented as being the original software.
 >
-> 4. The name of the author may not be used to endorse or promote 
->    products derived from this software without specific prior written 
+> 4. The name of the author may not be used to endorse or promote
+>    products derived from this software without specific prior written
 >    permission.
 >
 > THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS

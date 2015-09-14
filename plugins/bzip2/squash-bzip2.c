@@ -319,6 +319,8 @@ squash_bz2_compress_buffer (SquashCodec* codec,
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   if (strcmp ("bzip2", squash_codec_get_name (codec)) == 0) {
+    /* Doesn't work—see plugin documentation */
+    /* impl->info |= SQUASH_CODEC_INFO_CAN_FLUSH; */
     impl->options = squash_bz2_options;
     impl->create_stream = squash_bz2_create_stream;
     impl->process_stream = squash_bz2_process_stream;
