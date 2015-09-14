@@ -43,6 +43,9 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   exit (exit_code);
 }
 
+#if defined(__GNUC__)
+__attribute__((__noreturn__))
+#endif
 static void
 print_version_and_exit (int argc, char** argv, int exit_code) {
   const unsigned int libversion = squash_version ();
