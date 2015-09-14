@@ -79,23 +79,7 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
   if (allocation > buffer->allocated) {
     allocation = squash_buffer_npot_page (allocation);
 
-#if defined(HAVE_MREMAP)
-    if (buffer->data == NULL) {
-      buffer->data = mmap (NULL, allocation, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-      buffer->allocated = allocation;
-      assert (buffer->data != MAP_FAILED);
-    } else {
-      buffer->data = mremap (buffer->data, buffer->allocated, allocation, MREMAP_MAYMOVE, NULL);
-    }
-
-    /* lseek (buffer->fd, (off_t) buffer->allocated - 1, SEEK_SET); */
-    /* write (buffer->fd, "", 1); */
-    /* buffer->data = mmap (NULL, buffer->allocated, PROT_READ | PROT_WRITE, MAP_SHARED, buffer->fd, 0); */
-    /* assert (buffer->data != MAP_FAILED); */
-    /* fflush (stderr); */
-#else
     buffer->data = (uint8_t*) realloc (buffer->data, buffer->allocated);
-#endif
   }
 }
 
@@ -110,18 +94,9 @@ SquashBuffer*
 squash_buffer_new (size_t preallocated_len) {
   SquashBuffer* buffer = (SquashBuffer*) malloc (sizeof (SquashBuffer));
 
-#if defined(HAVE_MREMAP)
-  buffer->data = NULL;
-  buffer->length = 0;
-  buffer->allocated = 0;
-
-  if (preallocated_len > 0)
-    squash_buffer_ensure_allocation (buffer, preallocated_len);
-#else
   buffer->data = preallocated_len > 0 ? (uint8_t*) malloc (preallocated_len) : NULL;
   buffer->length = 0;
   buffer->allocated = preallocated_len;
-#endif
 
   return buffer;
 }
@@ -132,6 +107,14 @@ squash_buffer_set_size (SquashBuffer* buffer, size_t length) {
     squash_buffer_ensure_allocation (buffer, length);
 
   buffer->length = length;
+}
+
+void
+squash_buffer_clear (SquashBuffer* buffer) {
+  free (buffer->data);
+  buffer->data = NULL;
+  buffer->allocated = 0;
+  buffer->length = 0;
 }
 
 void
@@ -146,11 +129,7 @@ squash_buffer_append (SquashBuffer* buffer, uint8_t* data, size_t data_length) {
 void
 squash_buffer_free (SquashBuffer* buffer) {
   if (buffer->data != NULL) {
-#if defined(HAVE_MREMAP)
-    munmap (buffer->data, buffer->allocated);
-#else
     free (buffer->data);
-#endif
   }
   free (buffer);
 }

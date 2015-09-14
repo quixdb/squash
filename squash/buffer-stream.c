@@ -195,14 +195,17 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         decompressed_size |= decompressed_size >> 16;
         decompressed_size++;
 
-        /* One more power of two, should catch all but the most highly
+        /* A bit more, to (hopefully) catch all but the most highly
            compressed data. */
-        decompressed_size <<= 1;
+        decompressed_size <<= 2;
 
         stream->output = squash_buffer_new (decompressed_size);
 
         res = SQUASH_BUFFER_FULL;
         while ( res == SQUASH_BUFFER_FULL ) {
+          /* free/malloc instead of realloc (avoid a copy) */
+          if (stream->output->allocated < decompressed_size)
+            squash_buffer_clear (stream->output);
           squash_buffer_set_size (stream->output, decompressed_size);
           res = squash_codec_decompress_with_options (stream->base_object.codec,
                                                       &(stream->output->length), stream->output->data,
