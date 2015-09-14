@@ -1,14 +1,21 @@
 User Guide
 ==========
 
-While the Squash API is fairly large, in general you will only need a
-handful of functions.
+While the Squash API is fairly large, it is conceptually fairly
+simple.
+
+Most of the functions are really just layers of convenience wrappers
+which follow common conventions; for example, many functions will have
+versions for string and @ref SquashCodec parameters for the codec, and
+variadic arguments or a @ref SquashOptions parameter for the options,
+which means four versions for every function, but only one concept to
+learn.
 
 Squash's API follows some pretty standard conventions:
 
 - Type names are CamelCase (with the first letter uppercase)
 - Functions are lowercase_with_underscores
-- Binary data is two variables—a `uint8_t*` and a `size_t`.
+- Binary data is two parameters—a `size_t` followed by a `uint8_t*`.
 - Instance arguments come first, followed by any output arguments,
   followed by input arguments.
 
@@ -29,8 +36,11 @@ decompress), the easiest way to do so is using the buffer API.
 ~~~{.c}
 SquashStatus
 squash_compress (const char* codec,
-                 uint8_t* compressed, size_t* compressed_length,
-                 const uint8_t* uncompressed, size_t uncompressed_length, ...);
+                 size_t* compressed_length,
+                 uint8_t compressed[],
+                 size_t uncompressed_length,
+                 const uint8_t uncompressed[],
+                 ...);
 ~~~
 
 Like many functions in Squash, ::squash_compress returns a
@@ -38,7 +48,10 @@ Like many functions in Squash, ::squash_compress returns a
 positive number is returned (generally ::SQUASH_OK), and a negative
 number is returned on failure.
 
-The first argument is the name of the codec.
+The first argument is the name of the codec.  To list available
+codecs, you can use the `squash -L` command; the convention is that
+codecs are just the lowercase name of the algorithm.  For example,
+"gzip", "lz4", and "bzip2" are all what you would probably expect.
 
 The @a compressed and @a compressed_length arguments represent the
 buffer which you wish to compress the data into.  Notice that @a
@@ -81,15 +94,15 @@ size_t compressed_length = squash_get_max_compressed_size ("deflate", uncompress
 uint8_t* compressed = (uint8_t*) malloc (compressed_length);
 
 SquashStatus res =
-  squash_compress ("deflate", 
-                   compressed, &compressed_length,
-                   (const uint8_t*) uncompressed, uncompressed_length,
+  squash_compress ("deflate",
+                   &compressed_length, compressed,
+                   uncompressed_length, (const uint8_t*) uncompressed,
                    NULL);
 
 if (res != SQUASH_OK) {
   fprintf (stderr, "Unable to compress data [%d]: %s\n",
            res, squash_status_to_string (res));
-  exit (res);
+  exit (EXIT_FAILURE);
 }
 
 fprintf (stdout, "Compressed a %lu byte buffer to %lu bytes.\n",
@@ -103,13 +116,13 @@ size_t decompressed_length = uncompressed_length + 1;
 char* decompressed = (char*) malloc (uncompressed_length + 1);
 
 res = squash_decompress ("deflate",
-                         (uint8_t*) decompressed, &decompressed_length,
-                         compressed, compressed_length, NULL);
+                         &decompressed_length, (uint8_t*) decompressed
+                         compressed_length, compressed, NULL);
 
 if (res != SQUASH_OK) {
   fprintf (stderr, "Unable to decompress data [%d]: %s\n",
            res, squash_status_to_string (res));
-  exit (res);
+  exit (EXIT_FAILURE);
 }
 
 /* Notice that we didn't compress the *NULL* byte at the end of the
@@ -118,7 +131,7 @@ decompressed[decompressed_length] = '\0';
 
 if (strcmp (decompressed, uncompressed) != 0) {
   fprintf (stderr, "Bad decompressed data.\n");
-  exit (-1);
+  exit (EXIT_FAILURE);
 }
 
 fprintf (stdout, "Successfully decompressed.\n");
@@ -129,15 +142,78 @@ compress (it "compresses" from 13 bytes to 15 bytes here), but using a
 longer string will yield better results.  You can find a complete,
 self-contained example in [simple.c](@ref simple.c).
 
-@section streams Stream API
+@section streams File I/O API
 
-While the buffer API is very easy to use, if you want to compress a
-lot of data without loading it into memory then the stream API is much
-more appropriate.
+While the buffer API is very easy to use it can be a bit limiting.  If
+you want to compress a lot of data without loading it into memory then
+a streaming API is much more appropriate.
 
-If you've ever worked with a compression API in the past then the
-stream API will probably feel pretty familiar to you.  The basic idea
-is that you have a data structure, a @ref SquashStream, and you
-shuttle data into one buffer and out of another.
+Squash has two streaming APIs; the first is modeled after the API
+provided by zlib, which has been copied by many other libraries.  It
+is a bit of a pain to use, but extremely powerful.  The second API is
+a higher-level convenience API which wraps the lower-level API and
+provides an interface similar to the standard C I/O API (*i.e.* fopen,
+fclose, fflush, fread, and fwrite).
+
+We will not go into detail about the lower-level API now, but if
+you're interested you can look at the API documentation for @ref
+SquashStream for details.
+
+The higher level API is documented in @ref SquashFile, but some of the
+prototypes are reproduced here:
+
+~~~{.c}
+SquashFile*
+squash_file_open (const char* filename,
+                  const char* mode,
+                  const char* codec,
+                  ...);
+SquashStatus
+squash_file_read (SquashFile* file,
+                  size_t* decompressed_length,
+                  uint8_t decompressed[]);
+SquashStatus
+squash_file_write (SquashFile* file,
+                   size_t uncompressed_length,
+                   const uint8_t uncompressed[]);
+SquashStatus
+squash_file_flush (SquashFile* file);
+SquashStatus
+squash_file_close (SquashFile* file);
+~~~
+
+Like most of the Squash API, most of these functions return @ref
+SQUASH_OK on success and a negative error code on failure.  The
+exception to this is @ref squash_file_open which, like `fopen`,
+returns *NULL* on failure.  The @a mode string is passed verbatim to
+`fopen`.
+
+Going back to our "Hello, world!" example from above, to write a file
+with the compressed version of "Hello, world!", all you would have to
+do is something like:
+
+~~~{.c}
+const char* uncompressed = "Hello, world!";
+
+SquashFile* file = squash_file_open ("hello.gz", "w+", "gzip", NULL);
+if (file == NULL) {
+  fprintf (stderr, "Unable to open file for writing\n");
+  exit (EXIT_FAILURE);
+}
+
+SquashStatus res = squash_file_write (file, strlen (uncompressed), uncompressed);
+if (res != SQUASH_OK) {
+  fprintf (stderr, "Unable to write compressed data [%d]: %s\n",
+           res, squash_status_to_string (res));
+  exit (EXIT_FAILURE);
+}
+
+SquashStatus res = squash_file_close (file);
+if (res != SQUASH_OK) {
+  fprintf (stderr, "Unable to close file [%d]: %s\n",
+           res, squash_status_to_string (res));
+  exit (EXIT_FAILURE);
+}
+~~~
 
 @example simple.c

@@ -38,6 +38,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+/**
+ * @cond INTERNAL
+ */
 struct _SquashFile {
   FILE* fp;
   bool eof;
@@ -46,6 +49,9 @@ struct _SquashFile {
   SquashOptions* options;
   uint8_t buf[SQUASH_FILE_BUF_SIZE];
 };
+/**
+ * @endcond
+ */
 
 /**
  * @defgroup SquashFile SquashFile
@@ -306,7 +312,6 @@ squash_file_steal_codec_with_options (FILE* fp, SquashCodec* codec, SquashOption
  * the end of the input file was reached.
  *
  * @param file the file to read from
- * @param[out] decompressed_read number of bytes read
  * @param decompressed_length number of bytes to attempt to write to @a decompressed
  * @param decompressed buffer to write the decompressed data to
  * @return the result of the operation
@@ -605,6 +610,9 @@ squash_npot (size_t v) {
   return v;
 }
 
+/**
+ * @cond INTERNAL
+ */
 typedef struct SquashMappedFile_s {
   uint8_t* data;
   size_t length;
@@ -675,6 +683,9 @@ squash_mapped_file_destroy (SquashMappedFile* mapped) {
     }
   }
 }
+/**
+ * @endcond INTERNAL
+ */
 
 /**
  * @brief compress or decompress the contents of one file to another
@@ -897,6 +908,8 @@ squash_splice_codec_with_options (FILE* fp_in,
  * instead.
  *
  * @param file file to close
+ * @return @ref SQUASH_OK on success or a negative error code on
+ *   failure
  */
 SquashStatus
 squash_file_close (SquashFile* file) {
@@ -917,6 +930,8 @@ squash_file_close (SquashFile* file) {
  *
  * @param file file to free
  * @param[out] fp location to store the underlying *FILE* pointer
+ * @return @ref SQUASH_OK on success or a negative error code on
+ *   failure
  */
 SquashStatus
 squash_file_free (SquashFile* file, FILE** fp) {
