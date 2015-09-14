@@ -1,6 +1,6 @@
 # wflz Plugin #
 
-For information about wfLZ, see https://code.google.com/p/wflz/
+For information about wfLZ, see https://github.com/ShaneWF/wflz
 
 ## Codecs ##
 

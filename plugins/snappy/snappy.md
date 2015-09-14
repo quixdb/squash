@@ -3,7 +3,7 @@
 Snappy is a compression library created by Google with a goal of being
 fast while maintaining a reasonable compression ratio.
 
-For more information about Snappy, see https://code.google.com/p/snappy/
+For more information about Snappy, see https://google.github.io/snappy/
 
 ## Codecs ##
 
