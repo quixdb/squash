@@ -163,7 +163,7 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   {
     size_t compressed_length = squash_get_max_compressed_size ((char*) user_data, LOREM_IPSUM_LENGTH);
     uint8_t* compressed_data = malloc (compressed_length);
-    res = squash_compress ((char*) user_data, &compressed_length, compressed_data, LOREM_IPSUM_LENGTH, LOREM_IPSUM);
+    res = squash_compress ((char*) user_data, &compressed_length, compressed_data, LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
     g_assert_cmpint (res, ==, SQUASH_OK);
     g_assert_cmpint (ftello (compressed), ==, compressed_length + offset);
     free (compressed_data);
@@ -182,9 +182,31 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   fclose (decompressed);
 }
 
+static gchar* squash_plugins_dir = NULL;
+
+static GOptionEntry options[] = {
+  { "squash-plugins", 0, 0, G_OPTION_ARG_STRING, &squash_plugins_dir, "Path to the Squash plugins directory", "DIR" },
+  { NULL }
+};
+
 int
 main (int argc, char** argv) {
+  GError *error = NULL;
+  GOptionContext *context;
+
   g_test_init (&argc, &argv, NULL);
+
+  context = g_option_context_new ("- Squash unit test");
+  g_option_context_add_main_entries (context, options, NULL);
+  g_option_context_set_ignore_unknown_options (context, FALSE);
+  if (!g_option_context_parse (context, &argc, &argv, &error)) {
+    g_error ("Option parsing failed: %s\n", error->message);
+  }
+  g_option_context_free (context);
+
+  if (squash_plugins_dir != NULL) {
+    g_setenv ("SQUASH_PLUGINS", squash_plugins_dir, TRUE);
+  }
 
   g_test_add ("/file/io", struct Single, NULL, single_setup, test_file_io, single_teardown);
   g_test_add ("/file/splice/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
