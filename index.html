@@ -18,6 +18,15 @@
       h2 > a > i.fa-link {
         font-size: smaller;
       }
+
+      .multi-column {
+        -webkit-column-gap: 2em;
+        -moz-column-gap: 2em;
+        column-gap: 2em;
+        -webkit-column-width: 10em;
+        -moz-column-width: 10em;
+        column-width: 10em;
+      }
     </style>
   </head>
 
@@ -132,7 +141,7 @@
         Squash currently has plugins for the following libraries:
       </p>
 
-      <ul>
+      <ul class="multi-column">
         <li><a href="https://github.com/google/brotli">Brotli</a></li>
         <li><a href="http://libbsc.com/">libbsc</a></li>
         <li><a href="http://bzip.org/">bzip2</a></li>
