@@ -738,6 +738,7 @@ squash_splice_stream (SquashStream* stream, FILE* input, FILE* output, size_t le
         }
       }
       stream->next_out = output_buf;
+      const size_t current_output_size = stream->avail_out;
 
       if (stream->avail_in == 0 || (length != 0 && stream_type == SQUASH_STREAM_COMPRESS && (stream->avail_in + stream->total_in) == length)) {
         res = squash_stream_finish (stream);
@@ -747,8 +748,8 @@ squash_splice_stream (SquashStream* stream, FILE* input, FILE* output, size_t le
         res = squash_stream_process (stream);
       }
 
-      if (res > 0 && stream->avail_out != SQUASH_FILE_BUF_SIZE) {
-        const size_t bytes_to_write = SQUASH_FILE_BUF_SIZE - stream->avail_out;
+      if (res > 0 && stream->avail_out > 0 && stream->avail_out != SQUASH_FILE_BUF_SIZE) {
+        const size_t bytes_to_write = current_output_size - stream->avail_out;
         const size_t bytes_written = fwrite (output_buf, 1, bytes_to_write, output);
         if (bytes_written != bytes_to_write) {
           res = squash_error (SQUASH_IO);
