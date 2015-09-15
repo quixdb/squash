@@ -151,6 +151,8 @@ squash_ms_comp_flush_from_operation (SquashOperation operation) {
       return MSCOMP_FLUSH;
     case SQUASH_OPERATION_FINISH:
       return MSCOMP_FINISH;
+    case SQUASH_OPERATION_TERMINATE:
+      squash_assert_unreachable ();
   }
   squash_assert_unreachable();
 }
@@ -213,6 +215,9 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
               break;
           }
           break;
+        case SQUASH_OPERATION_TERMINATE:
+          squash_assert_unreachable ();
+          break;
       }
       break;
     case SQUASH_STREAM_DECOMPRESS:
@@ -230,6 +235,8 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
               break;
           }
           break;
+        case SQUASH_OPERATION_TERMINATE:
+          squash_assert_unreachable ();
       }
       break;
   }

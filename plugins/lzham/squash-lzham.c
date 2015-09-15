@@ -209,6 +209,9 @@ squash_operation_to_lzham (SquashOperation operation) {
       return LZHAM_SYNC_FLUSH;
     case SQUASH_OPERATION_FINISH:
       return LZHAM_FINISH;
+    case SQUASH_OPERATION_TERMINATE:
+      squash_assert_unreachable ();
+      break;
   }
 
   squash_assert_unreachable();

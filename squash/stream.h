@@ -51,7 +51,8 @@ typedef enum {
 typedef enum {
   SQUASH_OPERATION_PROCESS = 1,
   SQUASH_OPERATION_FLUSH = 2,
-  SQUASH_OPERATION_FINISH = 3
+  SQUASH_OPERATION_FINISH = 3,
+  SQUASH_OPERATION_TERMINATE = 4
 } SquashOperation;
 
 struct _SquashStream {

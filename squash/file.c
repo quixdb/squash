@@ -419,6 +419,9 @@ squash_file_write_internal (SquashFile* file,
       case SQUASH_OPERATION_FINISH:
         res = squash_stream_finish (file->stream);
         break;
+      case SQUASH_OPERATION_TERMINATE:
+        squash_assert_unreachable ();
+        break;
     }
 
     if (res > 0 && file->stream->avail_out != SQUASH_FILE_BUF_SIZE) {

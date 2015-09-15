@@ -217,9 +217,12 @@ squash_operation_to_zlib (SquashOperation operation) {
       return Z_SYNC_FLUSH;
     case SQUASH_OPERATION_FINISH:
       return Z_FINISH;
-    default:
+    case SQUASH_OPERATION_TERMINATE:
       squash_assert_unreachable();
+      break;
   }
+
+  squash_assert_unreachable ();
 }
 
 static SquashStatus
@@ -252,6 +255,9 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
         case SQUASH_OPERATION_FINISH:
           res = SQUASH_PROCESSING;
           break;
+        case SQUASH_OPERATION_TERMINATE:
+          squash_assert_unreachable ();
+          break;
       }
       break;
     case Z_BUF_ERROR:
@@ -270,6 +276,9 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
           } else {
             res = SQUASH_PROCESSING;
           }
+          break;
+        case SQUASH_OPERATION_TERMINATE:
+          squash_assert_unreachable ();
           break;
       }
       break;

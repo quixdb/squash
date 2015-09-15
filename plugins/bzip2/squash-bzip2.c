@@ -260,6 +260,9 @@ squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
       return squash_bz2_process_stream_ex (stream, BZ_FLUSH);
     case SQUASH_OPERATION_FINISH:
       return squash_bz2_finish_stream (stream);
+    case SQUASH_OPERATION_TERMINATE:
+      squash_assert_unreachable ();
+      break;
   }
 
   squash_assert_unreachable();

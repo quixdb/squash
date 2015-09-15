@@ -47,7 +47,6 @@ struct _SquashStreamPrivate {
 };
 
 #define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
-#define SQUASH_OPERATION_TERMINATE ((SquashOperation) -1)
 #define SQUASH_STATUS_INVALID ((SquashStatus) 0)
 
 SQUASH_END_DECLS

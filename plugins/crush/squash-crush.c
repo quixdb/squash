@@ -80,7 +80,7 @@ squash_crush_reader (void* buffer, size_t size, void* user_data) {
     remaining -= cp_size;
 
     if (remaining != 0) {
-      if (stream->operation == SQUASH_OPERATION_FINISH)
+      if (stream->operation == SQUASH_OPERATION_FINISH || stream->operation == SQUASH_OPERATION_TERMINATE)
         break;
 
       stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_OK);

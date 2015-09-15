@@ -345,6 +345,8 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       lzma_e = lzma_code (s, LZMA_FINISH);
       break;
+    case SQUASH_OPERATION_TERMINATE:
+      squash_assert_unreachable ();
   }
   SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, s);
 
@@ -359,8 +361,9 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
       case SQUASH_OPERATION_FINISH:
         return SQUASH_PROCESSING;
         break;
-      default:
-        squash_assert_unreachable();
+      case SQUASH_OPERATION_TERMINATE:
+        squash_assert_unreachable ();
+        break;
     }
   } else if (lzma_e == LZMA_STREAM_END) {
     return SQUASH_OK;

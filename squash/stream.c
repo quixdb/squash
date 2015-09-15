@@ -314,7 +314,7 @@ squash_stream_destroy (void* stream) {
     SquashStreamPrivate* priv = (SquashStreamPrivate*) s->priv;
 
     if (!priv->finished) {
-      thrd_exit (-1);
+      squash_stream_send_to_thread (s, SQUASH_OPERATION_TERMINATE);
     }
     cnd_destroy (&(priv->request_cnd));
     cnd_destroy (&(priv->result_cnd));
@@ -592,6 +592,9 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
           break;
         case SQUASH_OPERATION_FINISH:
           stream->state = SQUASH_STREAM_STATE_FINISHING;
+          break;
+        case SQUASH_OPERATION_TERMINATE:
+          squash_assert_unreachable ();
           break;
       }
       break;
