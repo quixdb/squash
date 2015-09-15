@@ -78,8 +78,8 @@ static void
 squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
   if (allocation > buffer->allocated) {
     allocation = squash_buffer_npot_page (allocation);
-
-    buffer->data = (uint8_t*) realloc (buffer->data, buffer->allocated);
+    buffer->allocated = allocation;
+    buffer->data = (uint8_t*) realloc (buffer->data, allocation);
   }
 }
 
