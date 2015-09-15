@@ -143,7 +143,7 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   size_t bytes_written;
   int ires;
 
-  FILE* uncompressed = fdopen (dup (data->fd[0]), "wb");
+  FILE* uncompressed = fdopen (dup (data->fd[0]), "w+b");
   FILE* compressed = fdopen (dup (data->fd[1]), "w+b");
   FILE* decompressed = fdopen (dup (data->fd[2]), "w+b");
 
@@ -182,6 +182,55 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   fclose (decompressed);
 }
 
+static void
+test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
+  uint8_t filler[LOREM_IPSUM_LENGTH] = { 0, };
+  uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
+  size_t bytes;
+  int ires, i;
+  size_t len1, len2;
+
+  FILE* uncompressed = fdopen (dup (data->fd[0]), "w+b");
+  FILE* compressed = fdopen (dup (data->fd[1]), "w+b");
+  FILE* decompressed = fdopen (dup (data->fd[2]), "w+b");
+
+  for (len1 = 0 ; len1 < (size_t) LOREM_IPSUM_LENGTH ; len1++)
+    filler[len1] = (uint8_t) g_test_rand_int_range (0x00, 0xff);
+
+  bytes = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
+  g_assert_cmpint (bytes, ==, LOREM_IPSUM_LENGTH);
+  fflush (uncompressed);
+  rewind (uncompressed);
+
+  len1 = (size_t) g_test_rand_int_range (128, LOREM_IPSUM_LENGTH - 1);
+  len2 = (size_t) g_test_rand_int_range (64, len1 - 1);
+
+  SquashStatus res = squash_splice (uncompressed, compressed, len1, SQUASH_STREAM_COMPRESS, (char*) user_data, NULL);
+  g_assert_cmpint (res, ==, SQUASH_OK);
+  rewind (uncompressed);
+  rewind (compressed);
+
+  res = squash_splice (compressed, decompressed, 0, SQUASH_STREAM_DECOMPRESS, (char*) user_data, NULL);
+  g_assert (res == SQUASH_OK);
+  g_assert_cmpint (ftello (decompressed), ==, (off_t) len1);
+  rewind (compressed);
+  rewind (decompressed);
+
+  bytes = fread (decompressed_data, 1, LOREM_IPSUM_LENGTH, decompressed);
+  g_assert (bytes == len1);
+  g_assert (feof (decompressed));
+  rewind (compressed);
+  rewind (decompressed);
+
+  memcpy (decompressed_data, filler, sizeof (decompressed_data));
+  res = squash_splice (compressed, decompressed, len2, SQUASH_STREAM_DECOMPRESS, (char*) user_data, NULL);
+  g_assert_cmpint (res, ==, SQUASH_OK);
+
+  fclose (uncompressed);
+  fclose (compressed);
+  fclose (decompressed);
+}
+
 static gchar* squash_plugins_dir = NULL;
 
 static GOptionEntry options[] = {
@@ -211,6 +260,8 @@ main (int argc, char** argv) {
   g_test_add ("/file/io", struct Single, NULL, single_setup, test_file_io, single_teardown);
   g_test_add ("/file/splice/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
   g_test_add ("/file/splice/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
+  g_test_add ("/file/splice/partial/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
+  g_test_add ("/file/splice/partial/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
 
   return g_test_run ();
 }

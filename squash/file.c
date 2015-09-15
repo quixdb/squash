@@ -687,6 +687,88 @@ squash_mapped_file_destroy (SquashMappedFile* mapped) {
  * @endcond INTERNAL
  */
 
+static SquashStatus
+squash_splice_stream (SquashStream* stream, FILE* input, FILE* output, size_t length) {
+  assert (stream != NULL);
+  assert (input != NULL);
+  assert (output != NULL);
+
+  SquashStatus res = SQUASH_OK;
+  uint8_t* input_buf = malloc (SQUASH_FILE_BUF_SIZE);
+  uint8_t* output_buf = malloc (SQUASH_FILE_BUF_SIZE);
+
+  const SquashStreamType stream_type = stream->stream_type;
+
+  while (length == 0 ||
+         (stream_type == SQUASH_STREAM_COMPRESS && stream->total_in < length) ||
+         (stream_type == SQUASH_STREAM_DECOMPRESS && stream->total_out < length)) {
+    const size_t remaining = length - stream->total_in;
+
+    if (length == 0 || stream_type == SQUASH_STREAM_DECOMPRESS) {
+      stream->avail_in = SQUASH_FILE_BUF_SIZE;
+    } else {
+      stream->avail_in = (remaining < SQUASH_FILE_BUF_SIZE) ? remaining : SQUASH_FILE_BUF_SIZE;
+    }
+
+    {
+      assert (stream->avail_in != 0);
+      const size_t bytes_read = fread (input_buf, 1, stream->avail_in, input);
+      if (bytes_read == 0) {
+        if (stream_type == SQUASH_STREAM_COMPRESS) {
+          if (feof (input)) {
+            length = stream->total_in + bytes_read;
+          } else {
+            res = squash_error (SQUASH_IO);
+            break;
+          }
+        }
+      }
+      stream->avail_in = bytes_read;
+      stream->next_in = input_buf;
+    }
+
+    do {
+      if (stream_type == SQUASH_STREAM_COMPRESS) {
+        stream->avail_out = SQUASH_FILE_BUF_SIZE;
+      } else {
+        if (length == 0) {
+          stream->avail_out = SQUASH_FILE_BUF_SIZE;
+        } else {
+          stream->avail_out = (remaining < SQUASH_FILE_BUF_SIZE) ? remaining : SQUASH_FILE_BUF_SIZE;
+        }
+      }
+      stream->next_out = output_buf;
+
+      if (stream->avail_in == 0 || (length != 0 && stream_type == SQUASH_STREAM_COMPRESS && (stream->avail_in + stream->total_in) == length)) {
+        res = squash_stream_finish (stream);
+        if (res == SQUASH_OK)
+          length = stream->total_out;
+      } else {
+        res = squash_stream_process (stream);
+      }
+
+      if (res > 0 && stream->avail_out != SQUASH_FILE_BUF_SIZE) {
+        const size_t bytes_to_write = SQUASH_FILE_BUF_SIZE - stream->avail_out;
+        const size_t bytes_written = fwrite (output_buf, 1, bytes_to_write, output);
+        if (bytes_written != bytes_to_write) {
+          res = squash_error (SQUASH_IO);
+        }
+      }
+
+      stream->avail_out = 0;
+      stream->next_out = NULL;
+    } while (res == SQUASH_PROCESSING);
+
+    if (res < 0)
+      break;
+  }
+
+  free (input_buf);
+  free (output_buf);
+
+  return res;
+}
+
 /**
  * @brief compress or decompress the contents of one file to another
  *
@@ -712,7 +794,7 @@ squash_splice_codec_with_options (FILE* fp_in,
                                   SquashStreamType stream_type,
                                   SquashCodec* codec,
                                   SquashOptions* options) {
-  SquashStatus res;
+  SquashStatus res = SQUASH_FAILED;
 
   assert (fp_in != NULL);
   assert (fp_out != NULL);
@@ -720,10 +802,14 @@ squash_splice_codec_with_options (FILE* fp_in,
   assert (codec != NULL);
 
   if (codec->impl.create_stream == NULL) {
+
+  }
+
+  if (false) {
     SquashMappedFile mapped_in = { MAP_FAILED, 0, };
     SquashMappedFile mapped_out = { MAP_FAILED, 0, };
 
-    bool success = squash_mapped_file_init (&mapped_in, fp_in, length, false);
+    bool success = squash_mapped_file_init (&mapped_in, fp_in, (stream_type == SQUASH_STREAM_COMPRESS) ? length : 0, false);
     if (!success)
       goto nomap;
 
@@ -758,9 +844,7 @@ squash_splice_codec_with_options (FILE* fp_in,
         squash_mapped_file_destroy (&mapped_in);
         return res;
       }
-    } else {
-      assert (stream_type == SQUASH_STREAM_DECOMPRESS);
-
+    } else { /* stream_type == SQUASH_STREAM_DECOMPRESS */
       size_t output_length;
       const bool knows_uncompressed =
         (squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
@@ -780,6 +864,7 @@ squash_splice_codec_with_options (FILE* fp_in,
         if (success) {
           size_t olen = output_length;
           res = squash_codec_decompress_with_options (codec, &olen, mapped_out.data, mapped_in.length, mapped_in.data, options);
+          assert (res == SQUASH_OK);
           if (res == SQUASH_OK) {
             mapped_out.length = olen;
             squash_mapped_file_destroy (&mapped_out);
@@ -814,78 +899,18 @@ squash_splice_codec_with_options (FILE* fp_in,
 
   res = SQUASH_OK;
 
-  uint8_t* input_buf;
-  uint8_t* output_buf;
+  SquashStream* stream = NULL;
 
-  input_buf = malloc (SQUASH_FILE_BUF_SIZE);
-  output_buf = malloc (SQUASH_FILE_BUF_SIZE);
-
-  if (input_buf == NULL || output_buf == NULL) {
-    free (input_buf);
-    free (output_buf);
-    return SQUASH_MEMORY;
-  }
-
-  SquashStream* stream = squash_codec_create_stream_with_options (codec, stream_type, options);
+  stream = squash_codec_create_stream_with_options (codec, stream_type, options);
   if (stream == NULL) {
-    squash_object_unref (stream);
-    return squash_error (SQUASH_FAILED);
-  }
-
-  stream->next_out = output_buf;
-  stream->avail_out = SQUASH_FILE_BUF_SIZE;
-  while ((stream->avail_in = fread (input_buf, 1, SQUASH_FILE_BUF_SIZE, fp_in)) != 0) {
-    stream->next_in = input_buf;
-    do {
-      res = squash_stream_process (stream);
-
-      if (res < 0)
-        goto nomap_cleanup;
-
-      if (stream->avail_out != SQUASH_FILE_BUF_SIZE) {
-        size_t bytes_written = fwrite (output_buf, 1, SQUASH_FILE_BUF_SIZE - stream->avail_out, fp_out);
-        if (bytes_written != SQUASH_FILE_BUF_SIZE - stream->avail_out) {
-          res = squash_error (SQUASH_IO);
-          goto nomap_cleanup;
-        }
-
-        stream->avail_out = SQUASH_FILE_BUF_SIZE;
-        stream->next_out = output_buf;
-      }
-    } while (res == SQUASH_PROCESSING);
-  }
-
-  if (!feof (fp_in)) {
-    res = squash_error (SQUASH_IO);
+    res = squash_error (SQUASH_FAILED);
     goto nomap_cleanup;
   }
 
-  if (res != SQUASH_END_OF_STREAM) {
-    do {
-      res = squash_stream_finish (stream);
-
-      if (res < 0)
-        goto nomap_cleanup;
-
-      if (stream->avail_out != SQUASH_FILE_BUF_SIZE) {
-        size_t bytes_written = fwrite (output_buf, 1, SQUASH_FILE_BUF_SIZE - stream->avail_out, fp_out);
-        if (bytes_written != SQUASH_FILE_BUF_SIZE - stream->avail_out) {
-          res = squash_error (SQUASH_IO);
-          goto nomap_cleanup;
-        }
-
-        stream->avail_out = SQUASH_FILE_BUF_SIZE;
-        stream->next_out = output_buf;
-      }
-    } while (res == SQUASH_PROCESSING);
-  } else {
-    res = SQUASH_OK;
-  }
+  res = squash_splice_stream (stream, fp_in, fp_out, length);
 
  nomap_cleanup:
 
-  free (input_buf);
-  free (output_buf);
   squash_object_unref (stream);
 
   return res;
@@ -925,6 +950,7 @@ squash_file_close (SquashFile* file) {
  *
  * This function will free the @ref SquashFile, but unlike @ref
  * squash_file_close it will not actually close the underlying *FILE*
+
  * pointer.  Instead, it will return the value in the @a fp argument,
  * allowing you to further manipulate it.
  *
