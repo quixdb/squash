@@ -13,11 +13,8 @@ check_codec (SquashCodec* codec) {
   SQUASH_ASSERT_OK(res);
 
   res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
+  g_assert_cmpint (LOREM_IPSUM_LENGTH, ==, uncompressed_length);
   SQUASH_ASSERT_OK(res);
-
-  if (uncompressed_length != LOREM_IPSUM_LENGTH) {
-    g_critical ("Decompressed data is %zu bytes, expected %zu", uncompressed_length, LOREM_IPSUM_LENGTH);
-  }
 
   for (pos = 0 ; pos < uncompressed_length && pos < LOREM_IPSUM_LENGTH ; pos++) {
     if (uncompressed[pos] != LOREM_IPSUM[pos]) {
@@ -25,6 +22,10 @@ check_codec (SquashCodec* codec) {
     }
   }
   g_assert (pos == uncompressed_length && pos == LOREM_IPSUM_LENGTH);
+
+  uncompressed_length = LOREM_IPSUM_LENGTH - 1;
+  res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
+  SQUASH_ASSERT_VALUE(res, SQUASH_BUFFER_FULL);
 
   free (compressed);
   free (uncompressed);
