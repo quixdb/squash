@@ -179,7 +179,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->get_max_compressed_size = squash_gipfeli_get_max_compressed_size;
     impl->decompress_buffer = squash_gipfeli_decompress_buffer;
     impl->compress_buffer = squash_gipfeli_compress_buffer;
-    impl->compress_buffer = squash_gipfeli_compress_buffer_unsafe;
+    impl->compress_buffer_unsafe = squash_gipfeli_compress_buffer_unsafe;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
