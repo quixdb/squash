@@ -325,11 +325,18 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
                                     compressed, compressed_length,
                                     NULL);
 
-  if (status != LZHAM_DECOMP_STATUS_SUCCESS) {
-    return SQUASH_FAILED;
+  switch ((int) status) {
+    case LZHAM_DECOMP_STATUS_SUCCESS:
+      return SQUASH_OK;
+    case LZHAM_DECOMP_STATUS_FAILED_DEST_BUF_TOO_SMALL:
+      return squash_error (SQUASH_BUFFER_FULL);
+    case LZHAM_DECOMP_STATUS_FAILED_EXPECTED_MORE_RAW_BYTES:
+      return squash_error (SQUASH_BUFFER_EMPTY);
+    default:
+      return squash_error (SQUASH_FAILED);
   }
 
-  return SQUASH_OK;
+  squash_assert_unreachable ();
 }
 
 SquashStatus

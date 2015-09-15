@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <stdexcept>
 
 #include <squash/squash.h>
 
@@ -65,6 +66,35 @@ squash_gipfeli_get_uncompressed_size (SquashCodec* codec,
   }
 }
 
+class CheckedByteArraySink : public util::compression::Sink {
+ public:
+  explicit CheckedByteArraySink(char* dest, size_t dest_length) : dest_(dest), remaining_(dest_length) {}
+  virtual ~CheckedByteArraySink() {}
+  virtual void Append(const char* data, size_t n) {
+    fprintf (stderr, "append %p[%zu] (to %zu)\n", data, n, remaining_);
+    if (n > remaining_) {
+      throw std::overflow_error("buffer too small");
+    }
+
+    if (data != dest_) {
+      memcpy(dest_, data, n);
+    }
+
+    dest_ += n;
+    remaining_ -= n;
+  }
+  char* GetAppendBufferVariable(size_t min_size, size_t desired_size_hint,
+                                char* scratch, size_t scratch_size,
+                                size_t* allocated_size) {
+    *allocated_size = desired_size_hint;
+    return dest_;
+  }
+
+ private:
+  char* dest_;
+  size_t remaining_;
+};
+
 static SquashStatus
 squash_gipfeli_decompress_buffer (SquashCodec* codec,
                                   size_t* decompressed_length,
@@ -78,8 +108,14 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
   util::compression::ByteArraySource source((const char*) compressed, compressed_length);
 
   std::string compressed_str((const char*) compressed, compressed_length);
-  if (!compressor->GetUncompressedLength (compressed_str, decompressed_length))
+  size_t uncompressed_length;
+  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_length))
     return squash_error (SQUASH_FAILED);
+
+  if (uncompressed_length > *decompressed_length)
+    return squash_error (SQUASH_BUFFER_FULL);
+  else
+    *decompressed_length = uncompressed_length;
 
   if (!compressor->UncompressStream (&source, &sink)) {
     return squash_error (SQUASH_FAILED);
@@ -96,6 +132,28 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
                                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                 SquashOptions* options) {
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
+  CheckedByteArraySink sink((char*) compressed, *compressed_length);
+  util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
+
+  try {
+    *compressed_length = compressor->CompressStream (&source, &sink);
+  } catch (const std::bad_alloc& e) {
+    return squash_error (SQUASH_MEMORY);
+  } catch (...) {
+    return squash_error (SQUASH_FAILED);
+  }
+
+  return *compressed_length > 0 ? SQUASH_OK : squash_error (SQUASH_FAILED);
+}
+
+static SquashStatus
+squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
+                                       size_t* compressed_length,
+                                       uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                       size_t uncompressed_length,
+                                       const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                       SquashOptions* options) {
+  util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) compressed);
   util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
 
@@ -103,6 +161,8 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
     *compressed_length = compressor->CompressStream (&source, &sink);
   } catch (const std::bad_alloc& e) {
     return squash_error (SQUASH_MEMORY);
+  } catch (const std::overflow_error& e) {
+    return squash_error (SQUASH_BUFFER_FULL);
   } catch (...) {
     return squash_error (SQUASH_FAILED);
   }
@@ -118,7 +178,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->get_uncompressed_size = squash_gipfeli_get_uncompressed_size;
     impl->get_max_compressed_size = squash_gipfeli_get_max_compressed_size;
     impl->decompress_buffer = squash_gipfeli_decompress_buffer;
-    impl->compress_buffer_unsafe = squash_gipfeli_compress_buffer;
+    impl->compress_buffer = squash_gipfeli_compress_buffer;
+    impl->compress_buffer = squash_gipfeli_compress_buffer_unsafe;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }

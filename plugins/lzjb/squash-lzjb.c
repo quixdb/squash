@@ -60,8 +60,16 @@ squash_lzjb_decompress_buffer (SquashCodec* codec,
                                size_t compressed_length,
                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                SquashOptions* options) {
-  *decompressed_length = lzjb_decompress (compressed, decompressed, compressed_length, *decompressed_length);
-  return (*decompressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+  LZJBResult res = lzjb_decompress (compressed, decompressed, compressed_length, decompressed_length);
+  switch (res) {
+    case LZJB_OK:
+      return SQUASH_OK;
+    case LZJB_BAD_DATA:
+      return SQUASH_FAILED;
+    case LZJB_WOULD_OVERFLOW:
+      return SQUASH_BUFFER_FULL;
+  }
+  squash_assert_unreachable ();
 }
 
 SquashStatus

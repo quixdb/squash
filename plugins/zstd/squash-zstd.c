@@ -33,6 +33,7 @@
 #include <squash/squash.h>
 
 #include "zstd/lib/zstd.h"
+#include "zstd/lib/zstd_static.h"
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -43,6 +44,32 @@ squash_zstd_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 }
 
 static SquashStatus
+squash_zstd_status_from_zstd_error (size_t res) {
+  if (!ZSTD_isError (res))
+    return SQUASH_OK;
+
+  switch ((ZSTD_errorCodes) (-(int)(res))) {
+    case ZSTD_OK_NoError:
+      return SQUASH_OK;
+    case ZSTD_ERROR_GENERIC:
+      return squash_error (SQUASH_FAILED);
+    case ZSTD_ERROR_MagicNumber:
+      return squash_error (SQUASH_INVALID_BUFFER);
+    case ZSTD_ERROR_SrcSize:
+      return squash_error (SQUASH_BUFFER_EMPTY);
+    case ZSTD_ERROR_maxDstSize_tooSmall:
+      return squash_error (SQUASH_BUFFER_FULL);
+    case ZSTD_ERROR_corruption:
+      return squash_error (SQUASH_INVALID_BUFFER);
+    case ZSTD_ERROR_maxCode:
+    default:
+      return squash_error (SQUASH_FAILED);
+  }
+
+  squash_assert_unreachable ();
+}
+
+static SquashStatus
 squash_zstd_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_length,
                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
@@ -50,7 +77,8 @@ squash_zstd_decompress_buffer (SquashCodec* codec,
                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                SquashOptions* options) {
   *decompressed_length = ZSTD_decompress (decompressed, *decompressed_length, compressed, compressed_length);
-  return ZSTD_isError (*decompressed_length) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+
+  return squash_zstd_status_from_zstd_error (*decompressed_length);
 }
 
 static SquashStatus
@@ -61,7 +89,8 @@ squash_zstd_compress_buffer (SquashCodec* codec,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                              SquashOptions* options) {
   *compressed_length = ZSTD_compress (compressed, *compressed_length, uncompressed, uncompressed_length);
-  return ZSTD_isError (*compressed_length) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+
+  return squash_zstd_status_from_zstd_error (*compressed_length);
 }
 
 SquashStatus

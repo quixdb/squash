@@ -106,8 +106,13 @@ squash_lzg_decompress_buffer (SquashCodec* codec,
                               size_t compressed_length,
                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                               SquashOptions* options) {
-  lzg_uint32_t res = LZG_Decode ((const unsigned char*) compressed, (lzg_uint32_t) compressed_length,
-                                 (unsigned char*) decompressed, (lzg_uint32_t) *decompressed_length);
+  lzg_uint32_t res;
+
+  if ((size_t) LZG_DecodedSize ((const unsigned char*) compressed, (lzg_uint32_t) compressed_length) > *decompressed_length)
+    return squash_error (SQUASH_BUFFER_FULL);
+
+  res = LZG_Decode ((const unsigned char*) compressed, (lzg_uint32_t) compressed_length,
+                    (unsigned char*) decompressed, (lzg_uint32_t) *decompressed_length);
 
   if (res == 0) {
     return squash_error (SQUASH_FAILED);

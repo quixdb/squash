@@ -99,7 +99,7 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
     const std::string& res = decompress.result();
 
     if (res.size() > *decompressed_length)
-      return SQUASH_FAILED;
+      return SQUASH_BUFFER_FULL;
 
     memcpy(decompressed, res.c_str(), res.size());
     *decompressed_length = res.size();
