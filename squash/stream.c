@@ -137,6 +137,42 @@
  */
 
 /**
+ * @enum SquashOperation
+ * @brief Operations to perform on a stream
+ */
+
+/**
+ * @var SquashStatus::SQUASH_OPERATION_PROCESS
+ * @brief Continue processing the stream normally.
+ *
+ * @see squash_stream_process
+ */
+
+/**
+ * @var SquashStatus::SQUASH_OPERATION_FLUSH
+ * @brief Flush the stream
+ *
+ * @see squash_stream_flush
+ */
+
+/**
+ * @var SquashStatus::SQUASH_OPERATION_FINISH
+ * @brief Finish processing the stream
+ *
+ * @see squash_stream_finish
+ */
+
+/**
+ * @var SquashStatus::SQUASH_OPERATION_TERMINATE
+ * @brief Abort
+ *
+ * This value is only passed to plugins with the @ref
+ * SQUASH_CODEC_INFO_RUN_IN_THREAD flag set, and signals that the
+ * stream is being destroyed (likely before processing has completed).
+ * There will be no further input, and any output will be ignored.
+ */
+
+/**
  * @struct _SquashStream
  * @extends _SquashObject
  * @brief Compression/decompression streams.
