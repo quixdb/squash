@@ -802,10 +802,6 @@ squash_splice_codec_with_options (FILE* fp_in,
   assert (codec != NULL);
 
   if (codec->impl.create_stream == NULL) {
-
-  }
-
-  if (false) {
     SquashMappedFile mapped_in = { MAP_FAILED, 0, };
     SquashMappedFile mapped_out = { MAP_FAILED, 0, };
 

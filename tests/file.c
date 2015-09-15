@@ -187,7 +187,6 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   uint8_t filler[LOREM_IPSUM_LENGTH] = { 0, };
   uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
   size_t bytes;
-  int ires, i;
   size_t len1, len2;
 
   FILE* uncompressed = fdopen (dup (data->fd[0]), "w+b");
