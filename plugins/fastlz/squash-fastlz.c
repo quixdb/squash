@@ -73,6 +73,8 @@ squash_fastlz_decompress_buffer (SquashCodec* codec,
 
   if (fastlz_e < 0) {
     return squash_error (SQUASH_FAILED);
+  } else if (fastlz_e == 0) {
+    return SQUASH_BUFFER_FULL;
   } else {
     *decompressed_length = (size_t) fastlz_e;
     return SQUASH_OK;
@@ -86,10 +88,6 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
                                size_t uncompressed_length,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                SquashOptions* options) {
-  if (*compressed_length < squash_fastlz_get_max_compressed_size (codec, uncompressed_length)) {
-    return SQUASH_BUFFER_FULL;
-  }
-
   *compressed_length = fastlz_compress_level (squash_codec_get_option_int_index (codec, options, SQUASH_FASTLZ_OPT_LEVEL),
                                               (const void*) uncompressed,
                                               (int) uncompressed_length,
@@ -106,7 +104,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->options = squash_fastlz_options;
     impl->get_max_compressed_size = squash_fastlz_get_max_compressed_size;
     impl->decompress_buffer = squash_fastlz_decompress_buffer;
-    impl->compress_buffer = squash_fastlz_compress_buffer;
+    impl->compress_buffer_unsafe = squash_fastlz_compress_buffer;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
