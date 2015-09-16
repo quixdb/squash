@@ -102,6 +102,8 @@ squash_crush_writer (uint8_t* buf, size_t size, SquashCrushStream* stream) {
     remaining -= cp_size;
 
     if (remaining != 0) {
+      if (stream->operation == SQUASH_OPERATION_TERMINATE)
+        break;
       stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_PROCESSING);
     }
   }

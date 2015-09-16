@@ -147,8 +147,12 @@ void SquashZpaqIO::write (const char* buf, int n) {
     str->next_out += cp_size;
     str->avail_out -= cp_size;
 
-    if (remaining != 0)
+    if (remaining != 0) {
+      if (this->stream->operation == SQUASH_OPERATION_TERMINATE)
+        break;
+
       this->stream->operation = squash_stream_yield (str, SQUASH_PROCESSING);
+    }
   }
 }
 
@@ -180,9 +184,9 @@ squash_zpaq_stream_init (SquashZpaqStream* stream,
 
 static void
 squash_zpaq_stream_destroy (void* stream) {
-  delete ((SquashZpaqStream*) stream)->stream;
-
+  SquashZpaqIO* str = ((SquashZpaqStream*) stream)->stream;
   squash_stream_destroy (stream);
+  delete str;
 }
 
 static void

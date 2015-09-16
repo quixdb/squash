@@ -115,7 +115,7 @@ squash_csc_reader (void* istream, void* buf, size_t* size) {
     }
 
     if (remaining != 0) {
-      if (s->operation == SQUASH_OPERATION_FINISH)
+      if (s->operation == SQUASH_OPERATION_FINISH || s->operation == SQUASH_OPERATION_TERMINATE)
         break;
 
       s->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_OK);
@@ -144,11 +144,13 @@ squash_csc_writer (void* ostream, const void* buf, size_t size) {
       remaining -= cp_size;
     }
 
-    if (remaining != 0)
+    if (remaining != 0) {
+      if (s->operation == SQUASH_OPERATION_TERMINATE)
+        break;
       s->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_PROCESSING);
+    }
   }
 
-  assert (remaining == 0);
   return (size - remaining);
 }
 
