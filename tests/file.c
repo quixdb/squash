@@ -157,17 +157,10 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   bytes_written = fwrite (offset_buf, 1, offset, compressed);
   g_assert_cmpint (bytes_written, ==, offset);
 
+  g_assert_cmpint (ftello (compressed), ==, offset);
+
   SquashStatus res = squash_splice (uncompressed, compressed, 0, SQUASH_STREAM_COMPRESS, (char*) user_data, NULL);
   g_assert (res == SQUASH_OK);
-
-  {
-    size_t compressed_length = squash_get_max_compressed_size ((char*) user_data, LOREM_IPSUM_LENGTH);
-    uint8_t* compressed_data = malloc (compressed_length);
-    res = squash_compress ((char*) user_data, &compressed_length, compressed_data, LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
-    g_assert_cmpint (res, ==, SQUASH_OK);
-    g_assert_cmpint (ftello (compressed), ==, compressed_length + offset);
-    free (compressed_data);
-  }
 
   ires = fseek (compressed, offset, SEEK_SET);
   g_assert_cmpint (ires, ==, 0);
@@ -176,6 +169,17 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   g_assert (res == SQUASH_OK);
 
   g_assert_cmpint (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
+
+  rewind (decompressed);
+  {
+    uint8_t* decompressed_data = malloc (LOREM_IPSUM_LENGTH);
+    g_assert (decompressed_data != NULL);
+
+    size_t bytes_read = fread (decompressed_data, 1, LOREM_IPSUM_LENGTH, decompressed);
+    g_assert_cmpint (bytes_read, ==, LOREM_IPSUM_LENGTH);
+
+    g_assert (memcmp (decompressed_data, LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+  }
 
   fclose (uncompressed);
   fclose (compressed);

@@ -677,18 +677,75 @@ squash_mapped_file_init (SquashMappedFile* mapped, FILE* fp, size_t length, bool
 }
 
 static void
-squash_mapped_file_destroy (SquashMappedFile* mapped) {
+squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
   if (mapped->data != MAP_FAILED) {
     munmap (mapped->data - mapped->window_offset, mapped->length + mapped->window_offset);
-    if (mapped->writable) {
+    mapped->data = MAP_FAILED;
+
+    if (success) {
       fseeko (mapped->fp, mapped->length, SEEK_CUR);
-      ftruncate (fileno (mapped->fp), ftello (mapped->fp));
+      if (mapped->writable) {
+        ftruncate (fileno (mapped->fp), ftello (mapped->fp));
+      }
     }
   }
 }
 /**
  * @endcond INTERNAL
  */
+
+static SquashStatus
+squash_splice_map (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, SquashCodec* codec, SquashOptions* options) {
+  SquashStatus res = SQUASH_FAILED;
+  SquashMappedFile mapped_in = { MAP_FAILED, 0, };
+  SquashMappedFile mapped_out = { MAP_FAILED, 0, };
+
+  if (stream_type == SQUASH_STREAM_COMPRESS) {
+    if (!squash_mapped_file_init (&mapped_in, fp_in, length, false))
+      goto cleanup;
+
+    const size_t max_output_length = squash_codec_get_max_compressed_size(codec, mapped_in.length);
+    if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_length, true))
+      goto cleanup;
+
+    res = squash_codec_compress (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data);
+    if (res != SQUASH_OK)
+      goto cleanup;
+
+    squash_mapped_file_destroy (&mapped_in, true);
+    squash_mapped_file_destroy (&mapped_out, true);
+  } else {
+    if (!squash_mapped_file_init (&mapped_in, fp_in, 0, false))
+      goto cleanup;
+
+    const SquashCodecInfo codec_info = squash_codec_get_info (codec);
+    const bool knows_uncompressed = ((codec_info & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE);
+
+    size_t max_output_length = knows_uncompressed ?
+      squash_codec_get_uncompressed_size(codec, mapped_in.length, mapped_in.data) :
+      squash_npot (mapped_in.length) << 3;
+
+    do {
+      if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_length, true))
+        goto cleanup;
+
+      res = squash_codec_decompress (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data);
+      if (res == SQUASH_OK) {
+        squash_mapped_file_destroy (&mapped_in, true);
+        squash_mapped_file_destroy (&mapped_out, true);
+      } else {
+        max_output_length <<= 1;
+      }
+    } while (!knows_uncompressed && res == SQUASH_BUFFER_FULL);
+  }
+
+ cleanup:
+
+  squash_mapped_file_destroy (&mapped_in, false);
+  squash_mapped_file_destroy (&mapped_out, false);
+
+  return res;
+}
 
 static SquashStatus
 squash_splice_stream (SquashStream* stream, FILE* input, FILE* output, size_t length) {
@@ -805,113 +862,20 @@ squash_splice_codec_with_options (FILE* fp_in,
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
   assert (codec != NULL);
 
-  if (codec->impl.create_stream == NULL) {
-    SquashMappedFile mapped_in = { MAP_FAILED, 0, };
-    SquashMappedFile mapped_out = { MAP_FAILED, 0, };
+  if (codec->impl.create_stream == NULL)
+    res = squash_splice_map (fp_in, fp_out, length, stream_type, codec, options);
 
-    bool success = squash_mapped_file_init (&mapped_in, fp_in, (stream_type == SQUASH_STREAM_COMPRESS) ? length : 0, false);
-    if (!success)
-      goto nomap;
+  if (res != SQUASH_OK) {
+    SquashStream* stream = NULL;
 
-    if (stream_type == SQUASH_STREAM_COMPRESS) {
-      const size_t output_length = squash_codec_get_max_compressed_size(codec, mapped_in.length) + 4096;
-
-      success = squash_mapped_file_init (&mapped_out, fp_out, output_length, true);
-      if (success) {
-        size_t compressed_length = output_length;
-        res = squash_codec_compress_with_options (codec, &compressed_length, mapped_out.data, mapped_in.length, mapped_in.data, options);
-        if (res == SQUASH_OK) {
-          mapped_out.length = compressed_length;
-          squash_mapped_file_destroy (&mapped_in);
-          squash_mapped_file_destroy (&mapped_out);
-        }
-        return res;
-      } else {
-        uint8_t* compressed = malloc (output_length);
-        if (compressed != NULL) {
-          size_t compressed_length = output_length;
-          res = squash_codec_compress_with_options (codec, &compressed_length, compressed, mapped_in.length, mapped_in.data, options);
-          if (res == SQUASH_OK) {
-            const size_t written = fwrite (compressed, 1, compressed_length, fp_out);
-            if (written != compressed_length)
-              res = squash_error (SQUASH_IO);
-          }
-          free (compressed);
-        } else {
-          res = squash_error (SQUASH_MEMORY);
-        }
-
-        squash_mapped_file_destroy (&mapped_in);
-        return res;
-      }
-    } else { /* stream_type == SQUASH_STREAM_DECOMPRESS */
-      size_t output_length;
-      const bool knows_uncompressed =
-        (squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
-
-      if (knows_uncompressed) {
-        output_length = squash_codec_get_uncompressed_size (codec, mapped_in.length, mapped_in.data);
-        if (output_length == 0) {
-          squash_mapped_file_destroy (&mapped_in);
-          return squash_error (SQUASH_INVALID_BUFFER);
-        }
-      } else {
-        output_length = squash_npot (mapped_in.length) << 3;
-      }
-
-      do {
-        success = squash_mapped_file_init (&mapped_out, fp_out, output_length, true);
-        if (success) {
-          size_t olen = output_length;
-          res = squash_codec_decompress_with_options (codec, &olen, mapped_out.data, mapped_in.length, mapped_in.data, options);
-          assert (res == SQUASH_OK);
-          if (res == SQUASH_OK) {
-            mapped_out.length = olen;
-            squash_mapped_file_destroy (&mapped_out);
-            break;
-          }
-        } else {
-          size_t decompressed_length = output_length;
-          uint8_t* decompressed = malloc (decompressed_length);
-          if (decompressed == NULL) {
-            squash_mapped_file_destroy (&mapped_in);
-            goto nomap;
-          }
-          res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, mapped_in.length, mapped_in.data, options);
-          if (res == SQUASH_OK) {
-            size_t bytes_written = fwrite (decompressed, 1, decompressed_length, fp_out);
-            if (bytes_written != decompressed_length)
-              res = squash_error (SQUASH_IO);
-          } else {
-            output_length <<= 1;
-          }
-          free (decompressed);
-        }
-      } while (res == SQUASH_BUFFER_FULL && !knows_uncompressed);
+    stream = squash_codec_create_stream_with_options (codec, stream_type, options);
+    if (stream == NULL) {
+      res = squash_error (SQUASH_FAILED);
+    } else {
+      res = squash_splice_stream (stream, fp_in, fp_out, length);
+      squash_object_unref (stream);
     }
-
-    squash_mapped_file_destroy (&mapped_in);
-
-    return res;
   }
-
- nomap:
-
-  res = SQUASH_OK;
-
-  SquashStream* stream = NULL;
-
-  stream = squash_codec_create_stream_with_options (codec, stream_type, options);
-  if (stream == NULL) {
-    res = squash_error (SQUASH_FAILED);
-    goto nomap_cleanup;
-  }
-
-  res = squash_splice_stream (stream, fp_in, fp_out, length);
-
- nomap_cleanup:
-
-  squash_object_unref (stream);
 
   return res;
 }
