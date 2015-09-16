@@ -150,9 +150,16 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
   const char* codec_name = squash_codec_get_name (codec);
   uint32_t decompressed_size;
 
-  if (compressed_length < 12 || (decompressed_size = wfLZ_GetDecompressedSize (compressed)) > *decompressed_length) {
-    return squash_error (SQUASH_FAILED);
-  }
+  if (compressed_length < 12)
+    return squash_error (SQUASH_BUFFER_EMPTY);
+
+  decompressed_size = wfLZ_GetDecompressedSize (compressed);
+
+  if (decompressed_size == 0)
+    return squash_error (SQUASH_INVALID_BUFFER);
+
+  if (decompressed_size > *decompressed_length)
+    return squash_error (SQUASH_BUFFER_FULL);
 
   if (codec_name[4] == '\0') {
     wfLZ_Decompress (compressed, decompressed);
