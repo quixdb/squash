@@ -2,6 +2,9 @@ set (wflz_sources
   squash-wflz.c
   wflz/wfLZ.c)
 
+# https://github.com/ShaneWF/wflz/issues/4
+add_definitions(-DWF_LZ_NO_UNALIGNED_ACCESS)
+
 if ("${ENABLE_WFLZ}" STREQUAL "yes")
   squash_plugin_add (wflz wflz_sources)
 endif ()
