@@ -54,11 +54,9 @@ check_codec (SquashCodec* codec) {
     /* How about decompressing some random data?  Note that this may
        actually succeed, so don't check the response—we just want to
        make sure it doesn't crash. */
-    if (strcmp ("xpress-huffman", squash_codec_get_name (codec)) != 0) {
-      compressed_length = uncompressed_length;
-      memcpy (compressed_data, uncompressed_data, uncompressed_length);
-      squash_codec_decompress_with_options (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
-    }
+    compressed_length = uncompressed_length;
+    memcpy (compressed_data, uncompressed_data, uncompressed_length);
+    squash_codec_decompress_with_options (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
   }
 
   free (compressed_data);
