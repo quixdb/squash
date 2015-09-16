@@ -73,6 +73,7 @@ typedef struct SquashSnappyFramedStream_s {
   SquashStream base_object;
 
   enum SquashSnappyFramedState state;
+  bool first;
 
   uint8_t* input_buffer;
   size_t input_buffer_length;
@@ -173,6 +174,7 @@ squash_snappy_framed_stream_init (SquashSnappyFramedStream* stream,
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   stream->state = SQUASH_SNAPPY_FRAMED_STATE_INIT;
+  stream->first = true;
 
   stream->input_buffer = NULL;
   stream->input_buffer_length = 0;
@@ -355,6 +357,12 @@ squash_snappy_framed_handle_chunk (SquashSnappyFramedStream* s) {
     compressed = stream->next_in;
   }
   compressed_length = squash_snappy_framed_header_get_chunk_size (compressed);
+
+  if (s->first) {
+    if (compressed[0] != SQUASH_SNAPPY_FRAMED_CHUNK_TYPE_IDENTIFIER)
+      return false;
+    s->first = false;
+  }
 
   if (compressed[0] == SQUASH_SNAPPY_FRAMED_CHUNK_TYPE_IDENTIFIER) {
     if (compressed_length + 4 == sizeof(squash_snappy_framed_identifier) &&
@@ -575,8 +583,15 @@ static SquashStatus
 squash_snappy_framed_decompress_stream (SquashStream* stream, SquashOperation operation) {
   SquashSnappyFramedStream* s = (SquashSnappyFramedStream*) stream;
 
-  if (s->state == SQUASH_SNAPPY_FRAMED_STATE_INIT)
+  if (s->state == SQUASH_SNAPPY_FRAMED_STATE_INIT) {
+    if (stream->avail_in == 0)
+      return SQUASH_OK;
+
+    if (*stream->next_in != SQUASH_SNAPPY_FRAMED_CHUNK_TYPE_IDENTIFIER)
+      return SQUASH_INVALID_BUFFER;
+
     s->state = SQUASH_SNAPPY_FRAMED_STATE_IDLE;
+  }
 
   while (true) {
     if (s->state == SQUASH_SNAPPY_FRAMED_STATE_IDLE) {

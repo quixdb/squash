@@ -32,7 +32,7 @@
 
 #include <squash/squash.h>
 #include <lz4.h>
-#include <lz4frame.h>
+#include <lz4frame_static.h>
 
 #define SQUASH_LZ4F_DICT_SIZE ((size_t) 65536)
 
@@ -102,6 +102,43 @@ static void               squash_lz4f_stream_init     (SquashLZ4FStream* stream,
 static SquashLZ4FStream*  squash_lz4f_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_lz4f_stream_destroy  (void* stream);
 static void               squash_lz4f_stream_free     (void* stream);
+
+static SquashStatus
+squash_lz4f_get_status (size_t res) {
+  if (!LZ4F_isError (res))
+    return SQUASH_OK;
+
+  switch ((LZ4F_errorCodes) (-(int)(res))) {
+    case LZ4F_OK_NoError:
+      return SQUASH_OK;
+    case LZ4F_ERROR_GENERIC:
+      return squash_error (SQUASH_FAILED);
+    case LZ4F_ERROR_maxBlockSize_invalid:
+    case LZ4F_ERROR_blockMode_invalid:
+    case LZ4F_ERROR_contentChecksumFlag_invalid:
+    case LZ4F_ERROR_headerVersion_wrong:
+    case LZ4F_ERROR_blockChecksum_unsupported:
+    case LZ4F_ERROR_reservedFlag_set:
+    case LZ4F_ERROR_frameHeader_incomplete:
+    case LZ4F_ERROR_frameType_unknown:
+    case LZ4F_ERROR_frameSize_wrong:
+    case LZ4F_ERROR_headerChecksum_invalid:
+    case LZ4F_ERROR_contentChecksum_invalid:
+      return squash_error (SQUASH_INVALID_BUFFER);
+    case LZ4F_ERROR_compressionLevel_invalid:
+      return squash_error (SQUASH_BAD_VALUE);
+    case LZ4F_ERROR_allocation_failed:
+      return squash_error (SQUASH_MEMORY);
+    case LZ4F_ERROR_srcSize_tooLarge:
+    case LZ4F_ERROR_dstMaxSize_tooSmall:
+      return squash_error (SQUASH_BUFFER_FULL);
+    case LZ4F_ERROR_decompressionFailed:
+    case LZ4F_ERROR_srcPtr_wrong:
+      return squash_error (SQUASH_FAILED);
+    default:
+      squash_assert_unreachable ();
+  }
+}
 
 static SquashLZ4FStream*
 squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
@@ -369,6 +406,10 @@ squash_lz4f_decompress_stream (SquashStream* stream, SquashOperation operation) 
     size_t dst_len = stream->avail_out;
     size_t src_len = stream->avail_in;
     size_t bytes_read = LZ4F_decompress (s->data.decomp.ctx, stream->next_out, &dst_len, stream->next_in, &src_len, NULL);
+
+    if (LZ4F_isError (bytes_read)) {
+      return squash_lz4f_get_status (bytes_read);
+    }
 
     if (src_len != 0) {
       stream->next_in += src_len;

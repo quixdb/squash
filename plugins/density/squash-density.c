@@ -317,7 +317,8 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         } else {
           s->state = density_stream_decompress_init (s->stream, NULL);
         }
-        assert (s->state == DENSITY_STREAM_STATE_READY);
+        if (s->state != DENSITY_STREAM_STATE_READY)
+          return squash_error (SQUASH_FAILED);
         s->next = SQUASH_DENSITY_ACTION_CONTINUE;
         break;
       case SQUASH_DENSITY_ACTION_CONTINUE_OR_FINISH:
