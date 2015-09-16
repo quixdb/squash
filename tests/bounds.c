@@ -71,6 +71,11 @@ check_codec (SquashCodec* codec) {
   res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
   g_assert (res == SQUASH_OK);
 
+  /* Decompress to a buffer which is too small */
+  decompressed = decompressed_protected - (LOREM_IPSUM_LENGTH - 1);
+  decompressed_length = LOREM_IPSUM_LENGTH - 1;
+  res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
+  g_assert (res != SQUASH_OK);
 
   /* Compress to a buffer which is exactly the right size */
   compressed = compressed_protected - compressed_length;
