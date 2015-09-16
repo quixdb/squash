@@ -77,7 +77,6 @@ squash_ms_status_to_squash_status (MSCompStatus status) {
     case MSCOMP_ARG_ERROR:
       return SQUASH_BAD_PARAM;
     case MSCOMP_DATA_ERROR:
-      return SQUASH_BUFFER_FULL;
       return SQUASH_FAILED;
     case MSCOMP_MEM_ERROR:
       return SQUASH_MEMORY;
