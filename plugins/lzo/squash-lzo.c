@@ -260,7 +260,6 @@ squash_lzo_status_to_squash_status (int lzo_e) {
     case LZO_E_NOT_COMPRESSIBLE:
     case LZO_E_ERROR:
     default:
-      fprintf (stderr, ":: :: %d\n", lzo_e);
       res = squash_error (SQUASH_FAILED);
       break;
   }
@@ -309,12 +308,6 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   lzo_e = lzo_codec->decompress (compressed, compressed_len,
                                  decompressed, &decompressed_len,
                                  work_mem);
-  if (lzo_e == LZO_E_OK && decompressed_len > *decompressed_length) {
-    /* TODO: this doesn't seem sane… should really be getting
-       LZO_E_OUTPUT_OVERRUN.  Verify that we're not actually writing
-       past the end of the buffer. */
-    return squash_error (SQUASH_BUFFER_FULL);
-  }
   *decompressed_length = (size_t) decompressed_len;
 
   if (work_mem != NULL) {

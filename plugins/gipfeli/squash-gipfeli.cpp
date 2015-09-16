@@ -71,7 +71,6 @@ class CheckedByteArraySink : public util::compression::Sink {
   explicit CheckedByteArraySink(char* dest, size_t dest_length) : dest_(dest), remaining_(dest_length) {}
   virtual ~CheckedByteArraySink() {}
   virtual void Append(const char* data, size_t n) {
-    fprintf (stderr, "append %p[%zu] (to %zu)\n", data, n, remaining_);
     if (n > remaining_) {
       throw std::overflow_error("buffer too small");
     }

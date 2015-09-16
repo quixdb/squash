@@ -4,14 +4,25 @@ For information about LZO, see http://www.oberhumer.com/opensource/lzo/
 
 ## Codecs ##
 
-* **lzo1**
-* **lzo1a**
 * **lzo1b**
 * **lzo1c**
 * **lzo1f**
 * **lzo1x**
 * **lzo1y**
 * **lzo1z**
+
+Note that support for *lzo1* and *lzo1a* are included in the plugin
+itself, but are disabled in the *squash.ini* file because there are no
+safe decompressors (*i.e.*, to `lzo1_decompress_safe` and
+`lzo1a_decompress_safe` functions).  Squash requires all decompression
+implementations to be safe.
+
+According to the documentation in LZO, both algorithms "… are mainly
+included for compatibility reasons"; it is unlikely you really want to
+use them, and due to the absence of a safe decompressor doing so is
+**strongly** discouraged, especially with untrusted input.  However,
+in the event that you do need to use them you can simply add them to
+the lzo plugin's *squash.ini*.
 
 From the [LZO documentation](http://www.oberhumer.com/opensource/lzo/lzodoc.php):
 
