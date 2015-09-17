@@ -808,7 +808,7 @@ squash_splice_stream (SquashStream* stream, FILE* input, FILE* output, size_t le
         res = squash_stream_process (stream);
       }
 
-      if (res > 0 && stream->avail_out > 0 && stream->avail_out != SQUASH_FILE_BUF_SIZE) {
+      if (res > 0 && stream->avail_out != SQUASH_FILE_BUF_SIZE) {
         const size_t bytes_to_write = current_output_size - stream->avail_out;
         const size_t bytes_written = fwrite (output_buf, 1, bytes_to_write, output);
         if (bytes_written != bytes_to_write) {
