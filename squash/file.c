@@ -210,7 +210,7 @@ squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
  * @see squash_file_open_codec_with_options
  */
 SquashFile*
-squash_file_open (const char* filename, const char* mode, const char* codec, ...) {
+squash_file_open (const char* codec, const char* filename, const char* mode, ...) {
   va_list ap;
   SquashOptions* options;
   SquashCodec* codec_i;
@@ -223,11 +223,11 @@ squash_file_open (const char* filename, const char* mode, const char* codec, ...
   if (codec_i == NULL)
     return NULL;
 
-  va_start (ap, codec);
+  va_start (ap, mode);
   options = squash_options_newv (codec_i, ap);
   va_end (ap);
 
-  return squash_file_open_codec_with_options (filename, mode, codec_i, options);
+  return squash_file_open_codec_with_options (codec_i, filename, mode, options);
 }
 
 /**
@@ -241,7 +241,7 @@ squash_file_open (const char* filename, const char* mode, const char* codec, ...
  * @see squash_file_open
  */
 SquashFile*
-squash_file_open_codec (const char* filename, const char* mode, SquashCodec* codec, ...) {
+squash_file_open_codec (SquashCodec* codec, const char* filename, const char* mode, ...) {
   va_list ap;
   SquashOptions* options;
 
@@ -249,11 +249,11 @@ squash_file_open_codec (const char* filename, const char* mode, SquashCodec* cod
   assert (mode != NULL);
   assert (codec != NULL);
 
-  va_start (ap, codec);
+  va_start (ap, mode);
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_file_open_codec_with_options (filename, mode, codec, options);
+  return squash_file_open_codec_with_options (codec, filename, mode, options);
 }
 
 /**
@@ -267,7 +267,7 @@ squash_file_open_codec (const char* filename, const char* mode, SquashCodec* cod
  * @see squash_file_open
  */
 SquashFile*
-squash_file_open_with_options (const char* filename, const char* mode, const char* codec, SquashOptions* options) {
+squash_file_open_with_options (const char* codec, const char* filename, const char* mode, SquashOptions* options) {
   assert (filename != NULL);
   assert (mode != NULL);
   assert (codec != NULL);
@@ -276,7 +276,7 @@ squash_file_open_with_options (const char* filename, const char* mode, const cha
   if (codec_i == NULL)
     return NULL;
 
-  return squash_file_open_codec_with_options (filename, mode, codec_i, options);
+  return squash_file_open_codec_with_options (codec_i, filename, mode, options);
 }
 
 /**
@@ -290,7 +290,7 @@ squash_file_open_with_options (const char* filename, const char* mode, const cha
  * @see squash_file_open
  */
 SquashFile*
-squash_file_open_codec_with_options (const char* filename, const char* mode, SquashCodec* codec, SquashOptions* options) {
+squash_file_open_codec_with_options (SquashCodec* codec, const char* filename, const char* mode, SquashOptions* options) {
   assert (filename != NULL);
   assert (mode != NULL);
   assert (codec != NULL);
@@ -299,7 +299,7 @@ squash_file_open_codec_with_options (const char* filename, const char* mode, Squ
   if (fp == NULL)
     return NULL;
 
-  return squash_file_steal_codec_with_options (fp, codec, options);
+  return squash_file_steal_codec_with_options (codec, fp, options);
 }
 
 
@@ -315,7 +315,7 @@ squash_file_open_codec_with_options (const char* filename, const char* mode, Squ
  * @see squash_file_steal_codec_with_options
  */
 SquashFile*
-squash_file_steal (FILE* fp, const char* codec, ...) {
+squash_file_steal (const char* codec, FILE* fp, ...) {
   va_list ap;
   SquashOptions* options;
 
@@ -325,11 +325,11 @@ squash_file_steal (FILE* fp, const char* codec, ...) {
   SquashCodec* codec_i = squash_get_codec (codec);
   if (codec_i == NULL)
     return NULL;
-  va_start (ap, codec);
+  va_start (ap, fp);
   options = squash_options_newv (codec_i, ap);
   va_end (ap);
 
-  return squash_file_steal_codec_with_options (fp, codec_i, options);
+  return squash_file_steal_codec_with_options (codec_i, fp, options);
 }
 
 /**
@@ -344,18 +344,18 @@ squash_file_steal (FILE* fp, const char* codec, ...) {
  * @see squash_file_steal_codec_with_options
  */
 SquashFile*
-squash_file_steal_codec (FILE* fp, SquashCodec* codec, ...) {
+squash_file_steal_codec (SquashCodec* codec, FILE* fp, ...) {
   va_list ap;
   SquashOptions* options;
 
   assert (fp != NULL);
   assert (codec != NULL);
 
-  va_start (ap, codec);
+  va_start (ap, fp);
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_file_steal_codec_with_options (fp, codec, options);
+  return squash_file_steal_codec_with_options (codec, fp, options);
 }
 
 /**
@@ -370,7 +370,7 @@ squash_file_steal_codec (FILE* fp, SquashCodec* codec, ...) {
  * @see squash_file_steal_codec_with_options
  */
 SquashFile*
-squash_file_steal_with_options (FILE* fp, const char* codec, SquashOptions* options) {
+squash_file_steal_with_options (const char* codec, FILE* fp, SquashOptions* options) {
   assert (fp != NULL);
   assert (codec != NULL);
 
@@ -378,7 +378,7 @@ squash_file_steal_with_options (FILE* fp, const char* codec, SquashOptions* opti
   if (codec_i == NULL)
     return NULL;
 
-  return squash_file_steal_codec_with_options (fp, codec_i, options);
+  return squash_file_steal_codec_with_options (codec_i, fp, options);
 }
 
 /**
@@ -393,7 +393,7 @@ squash_file_steal_with_options (FILE* fp, const char* codec, SquashOptions* opti
  * @see squash_file_steal_codec_with_options
  */
 SquashFile*
-squash_file_steal_codec_with_options (FILE* fp, SquashCodec* codec, SquashOptions* options) {
+squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOptions* options) {
   assert (fp != NULL);
   assert (codec != NULL);
 
@@ -650,7 +650,7 @@ squash_file_eof (SquashFile* file) {
  *   failure
  */
 SquashStatus
-squash_splice (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, const char* codec, ...) {
+squash_splice (const char* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t length, ...) {
   assert (fp_in != NULL);
   assert (fp_out != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
@@ -665,7 +665,7 @@ squash_splice (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream
   options = squash_options_newv (codec_i, ap);
   va_end (ap);
 
-  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec_i, options);
+  return squash_splice_codec_with_options (codec_i, stream_type, fp_out, fp_in, length, options);
 }
 
 /**
@@ -687,7 +687,7 @@ squash_splice (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream
  *   failure
  */
 SquashStatus
-squash_splice_codec (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, SquashCodec* codec, ...) {
+squash_splice_codec (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t length, ...) {
   assert (fp_in != NULL);
   assert (fp_out != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
@@ -699,7 +699,7 @@ squash_splice_codec (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType 
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec, options);
+  return squash_splice_codec_with_options (codec, stream_type, fp_out, fp_in, length, options);
 }
 
 /**
@@ -721,7 +721,7 @@ squash_splice_codec (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType 
  *   failure
  */
 SquashStatus
-squash_splice_with_options (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, const char* codec, SquashOptions* options) {
+squash_splice_with_options (const char* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t length, SquashOptions* options) {
   assert (fp_in != NULL);
   assert (fp_out != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
@@ -730,7 +730,7 @@ squash_splice_with_options (FILE* fp_in, FILE* fp_out, size_t length, SquashStre
   if (codec_i == NULL)
     return squash_error (SQUASH_BAD_PARAM);
 
-  return squash_splice_codec_with_options (fp_in, fp_out, length, stream_type, codec_i, options);
+  return squash_splice_codec_with_options (codec_i, stream_type, fp_out, fp_in, length, options);
 }
 
 static SquashStatus
@@ -861,7 +861,7 @@ squash_splice_stream (FILE* fp_in,
 #endif /* defined(SQUASH_MMAP_IO) */
 
   if (res != SQUASH_OK) {
-    file = squash_file_steal_codec_with_options ((stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), codec, options);
+    file = squash_file_steal_codec_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
     if (file == NULL) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
@@ -950,11 +950,11 @@ squash_splice_stream (FILE* fp_in,
  *   failure
  */
 SquashStatus
-squash_splice_codec_with_options (FILE* fp_in,
-                                  FILE* fp_out,
-                                  size_t length,
+squash_splice_codec_with_options (SquashCodec* codec,
                                   SquashStreamType stream_type,
-                                  SquashCodec* codec,
+                                  FILE* fp_out,
+                                  FILE* fp_in,
+                                  size_t length,
                                   SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
 

@@ -316,7 +316,7 @@ int main (int argc, char** argv) {
 
   options = squash_options_newa (codec, (const char * const*) option_keys, (const char * const*) option_values);
 
-  res = squash_splice_codec_with_options (input, output, 0, direction, codec, options);
+  res = squash_splice_codec_with_options (codec, direction, output, input, 0, options);
 
   if ( res != SQUASH_OK ) {
     fprintf (stderr, "Failed to %s: %s\n",

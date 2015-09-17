@@ -36,34 +36,34 @@
 
 SQUASH_BEGIN_DECLS
 
-SQUASH_API SquashFile*  squash_file_open                     (const char* filename,
+SQUASH_API SquashFile*  squash_file_open                     (const char* codec,
+                                                              const char* filename,
                                                               const char* mode,
-                                                              const char* codec,
                                                               ...);
-SQUASH_API SquashFile*  squash_file_open_codec               (const char* filename,
+SQUASH_API SquashFile*  squash_file_open_codec               (SquashCodec* codec,
+                                                              const char* filename,
                                                               const char* mode,
-                                                              SquashCodec* codec,
                                                               ...);
-SQUASH_API SquashFile*  squash_file_open_with_options        (const char* filename,
+SQUASH_API SquashFile*  squash_file_open_with_options        (const char* codec,
+                                                              const char* filename,
                                                               const char* mode,
-                                                              const char* codec,
                                                               SquashOptions* options);
-SQUASH_API SquashFile*  squash_file_open_codec_with_options  (const char* filename,
+SQUASH_API SquashFile*  squash_file_open_codec_with_options  (SquashCodec* codec,
+                                                              const char* filename,
                                                               const char* mode,
-                                                              SquashCodec* codec,
                                                               SquashOptions* options);
 
-SQUASH_API SquashFile*  squash_file_steal                    (FILE* fp,
-                                                              const char* codec,
+SQUASH_API SquashFile*  squash_file_steal                    (const char* codec,
+                                                              FILE* fp,
                                                               ...);
-SQUASH_API SquashFile*  squash_file_steal_codec              (FILE* fp,
-                                                              SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_steal_codec              (SquashCodec* codec,
+                                                              FILE* fp,
                                                               ...);
-SQUASH_API SquashFile*  squash_file_steal_with_options       (FILE* fp,
-                                                              const char* codec,
+SQUASH_API SquashFile*  squash_file_steal_with_options       (const char* codec,
+                                                              FILE* fp,
                                                               SquashOptions* options);
-SQUASH_API SquashFile*  squash_file_steal_codec_with_options (FILE* fp,
-                                                              SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_steal_codec_with_options (SquashCodec* codec,
+                                                              FILE* fp,
                                                               SquashOptions* options);
 
 SQUASH_API SquashStatus squash_file_read                     (SquashFile* file,
@@ -74,29 +74,29 @@ SQUASH_API SquashStatus squash_file_write                    (SquashFile* file,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 
-SQUASH_API SquashStatus squash_splice                        (FILE* fp_in,
-                                                              FILE* fp_out,
-                                                              size_t length,
+SQUASH_API SquashStatus squash_splice                        (const char* codec,
                                                               SquashStreamType stream_type,
-                                                              const char* codec,
+                                                              FILE* fp_out,
+                                                              FILE* fp_in,
+                                                              size_t length,
                                                               ...);
-SQUASH_API SquashStatus squash_splice_codec                  (FILE* fp_in,
-                                                              FILE* fp_out,
-                                                              size_t length,
+SQUASH_API SquashStatus squash_splice_codec                  (SquashCodec* codec,
                                                               SquashStreamType stream_type,
-                                                              SquashCodec* codec,
+                                                              FILE* fp_out,
+                                                              FILE* fp_in,
+                                                              size_t length,
                                                               ...);
-SQUASH_API SquashStatus squash_splice_with_options           (FILE* fp_in,
-                                                              FILE* fp_out,
-                                                              size_t length,
+SQUASH_API SquashStatus squash_splice_with_options           (const char* codec,
                                                               SquashStreamType stream_type,
-                                                              const char* codec,
+                                                              FILE* fp_out,
+                                                              FILE* fp_in,
+                                                              size_t length,
                                                               SquashOptions* options);
-SQUASH_API SquashStatus squash_splice_codec_with_options     (FILE* fp_in,
-                                                              FILE* fp_out,
-                                                              size_t length,
+SQUASH_API SquashStatus squash_splice_codec_with_options     (SquashCodec* codec,
                                                               SquashStreamType stream_type,
-                                                              SquashCodec* codec,
+                                                              FILE* fp_out,
+                                                              FILE* fp_in,
+                                                              size_t length,
                                                               SquashOptions* options);
 
 SQUASH_API SquashStatus squash_file_close                    (SquashFile* file);
