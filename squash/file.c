@@ -913,7 +913,7 @@ squash_splice_stream (FILE* fp_in,
         }
 
         if (remaining != 0) {
-          assert (data_length < remaining);
+          assert (data_length <= remaining);
           remaining -= data_length;
         }
       }
