@@ -661,7 +661,7 @@ squash_splice (const char* codec, SquashStreamType stream_type, FILE* fp_out, FI
 
   SquashOptions* options = NULL;
   va_list ap;
-  va_start (ap, codec);
+  va_start (ap, length);
   options = squash_options_newv (codec_i, ap);
   va_end (ap);
 
@@ -695,7 +695,7 @@ squash_splice_codec (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_
 
   SquashOptions* options = NULL;
   va_list ap;
-  va_start (ap, codec);
+  va_start (ap, length);
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
