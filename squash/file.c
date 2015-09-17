@@ -736,8 +736,8 @@ squash_splice_with_options (FILE* fp_in, FILE* fp_out, size_t length, SquashStre
 static SquashStatus
 squash_splice_map (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType stream_type, SquashCodec* codec, SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
-  SquashMappedFile mapped_in = { MAP_FAILED, 0, };
-  SquashMappedFile mapped_out = { MAP_FAILED, 0, };
+  SquashMappedFile mapped_in = squash_mapped_file_empty;
+  SquashMappedFile mapped_out = squash_mapped_file_empty;
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     if (!squash_mapped_file_init (&mapped_in, fp_in, length, false))
