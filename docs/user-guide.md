@@ -216,4 +216,25 @@ if (res != SQUASH_OK) {
 }
 ~~~
 
+If you want to simply splice the contents of one file to another
+(decompressing of compressing in the process), you can use the
+`squash_splice` family of functions, which looks like:
+
+~~~{.c}
+SquashStatus
+squash_splice (const char* codec,
+               SquashStreamType stream_type,
+               FILE* fp_out,
+               FILE* fp_in,
+               size_t length,
+               ...);
+~~~
+
+Beyond just being convenient, this function has the advantage that for
+codecs which don't implement streaming natively Squash will attempt to
+memory map the files and pass those addresses directly to the
+buffer-to-buffer compression function.  This eliminates a lot of
+buffering which, for larger files, can consume significant amounts of
+memory.
+
 @example simple.c
