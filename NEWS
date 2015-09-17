@@ -1,4 +1,4 @@
-Squash 0.6.1
+Squash 0.7.0
 ============
 
  * Provide an error message during configuration when using a bad
@@ -6,6 +6,7 @@ Squash 0.6.1
  * Rewrite brotli plugin to avoid threads
  * Add new file I/O API
  * Replace old file-to-file functions with a new splice API
+ * Enable wfLZ
  * Updated many plugins
  * Assorted bug fixes and enhancements
 

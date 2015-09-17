@@ -5,9 +5,7 @@ set (wflz_sources
 # https://github.com/ShaneWF/wflz/issues/4
 add_definitions(-DWF_LZ_NO_UNALIGNED_ACCESS)
 
-if ("${ENABLE_WFLZ}" STREQUAL "yes")
-  squash_plugin_add (wflz wflz_sources)
-endif ()
+squash_plugin_add (wflz wflz_sources)
 
 foreach (file ${wflz_sources})
   squash_source_file_add_compile_flag ("${file}" "-Wno-strict-prototypes")
