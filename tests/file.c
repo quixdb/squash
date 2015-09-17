@@ -210,6 +210,7 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
 
   SquashStatus res = squash_splice (uncompressed, compressed, len1, SQUASH_STREAM_COMPRESS, (char*) user_data, NULL);
   g_assert_cmpint (res, ==, SQUASH_OK);
+  g_assert_cmpint (ftello (uncompressed), ==, len1);
   rewind (uncompressed);
   rewind (compressed);
 
