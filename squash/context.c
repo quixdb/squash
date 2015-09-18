@@ -125,7 +125,7 @@ squash_context_get_codec (SquashContext* context, const char* codec) {
     if (plugin == NULL)
       return NULL;
 
-    return squash_context_get_codec (context, codec);
+    return squash_plugin_get_codec (plugin, codec);
   } else {
     SquashCodecRef* codec_ref = squash_context_get_codec_ref (context, codec);
     if (codec_ref != NULL) {
