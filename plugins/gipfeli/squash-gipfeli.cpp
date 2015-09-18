@@ -57,13 +57,13 @@ squash_gipfeli_get_uncompressed_size (SquashCodec* codec,
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
   std::string compressed_str((const char*) compressed, compressed_length);
-  size_t uncompressed_length = 0;
 
-  if (compressor->GetUncompressedLength (compressed_str, &uncompressed_length)) {
-    return uncompressed_length;
-  } else {
-    return 0;
-  }
+  size_t uncompressed_length = 0;
+  bool success = compressor->GetUncompressedLength (compressed_str, &uncompressed_length);
+
+  delete compressor;
+
+  return success ? uncompressed_length : 0;
 }
 
 class CheckedByteArraySink : public util::compression::Sink {
@@ -105,22 +105,34 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
     util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) decompressed);
   util::compression::ByteArraySource source((const char*) compressed, compressed_length);
+  SquashStatus res = SQUASH_OK;
+
+  if (compressor == NULL)
+    return squash_error (SQUASH_MEMORY);
 
   std::string compressed_str((const char*) compressed, compressed_length);
   size_t uncompressed_length;
-  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_length))
-    return squash_error (SQUASH_FAILED);
-
-  if (uncompressed_length > *decompressed_length)
-    return squash_error (SQUASH_BUFFER_FULL);
-  else
-    *decompressed_length = uncompressed_length;
-
-  if (!compressor->UncompressStream (&source, &sink)) {
-    return squash_error (SQUASH_FAILED);
+  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_length)) {
+    res = squash_error (SQUASH_FAILED);
+    goto cleanup;
   }
 
-  return SQUASH_OK;
+  if (uncompressed_length > *decompressed_length) {
+    res = squash_error (SQUASH_BUFFER_FULL);
+    goto cleanup;
+  } else {
+    *decompressed_length = uncompressed_length;
+  }
+
+  if (!compressor->UncompressStream (&source, &sink)) {
+    res = squash_error (SQUASH_FAILED);
+  }
+
+ cleanup:
+
+  delete compressor;
+
+  return res;
 }
 
 static SquashStatus
@@ -133,16 +145,23 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   CheckedByteArraySink sink((char*) compressed, *compressed_length);
   util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
+  SquashStatus res;
 
   try {
     *compressed_length = compressor->CompressStream (&source, &sink);
+    res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
-    return squash_error (SQUASH_MEMORY);
+    res = squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return squash_error (SQUASH_FAILED);
+    res = squash_error (SQUASH_FAILED);
   }
 
-  return *compressed_length > 0 ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  delete compressor;
+
+  if (res == SQUASH_OK && *compressed_length == 0)
+    res = squash_error (SQUASH_FAILED);
+
+  return res;
 }
 
 static SquashStatus
@@ -155,18 +174,25 @@ squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) compressed);
   util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
+  SquashStatus res;
 
   try {
     *compressed_length = compressor->CompressStream (&source, &sink);
+    res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
-    return squash_error (SQUASH_MEMORY);
+    res = squash_error (SQUASH_MEMORY);
   } catch (const std::overflow_error& e) {
-    return squash_error (SQUASH_BUFFER_FULL);
+    res = squash_error (SQUASH_BUFFER_FULL);
   } catch (...) {
-    return squash_error (SQUASH_FAILED);
+    res = squash_error (SQUASH_FAILED);
   }
 
-  return *compressed_length > 0 ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  delete compressor;
+
+  if (res == SQUASH_OK && *compressed_length == 0)
+    res = squash_error (SQUASH_FAILED);
+
+  return res;
 }
 
 extern "C" SquashStatus
