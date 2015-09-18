@@ -25,6 +25,7 @@ set (plugins_available
   wflz
   yalz77
   zlib
+  zlib-ng
   zling
   zpaq
   zstd)

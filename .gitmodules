@@ -76,3 +76,6 @@
 [submodule "plugins/lzg/liblzg"]
 	path = plugins/lzg/liblzg
 	url = https://github.com/mbitsnbites/liblzg.git
+[submodule "plugins/zlib-ng/zlib-ng"]
+	path = plugins/zlib-ng/zlib-ng
+	url = https://github.com/Dead2/zlib-ng.git
