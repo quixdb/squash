@@ -7,6 +7,7 @@ Squash 0.7.0
  * Add new file I/O API
  * Replace old file-to-file functions with a new splice API
  * Enable wfLZ
+ * Add zlib-ng plugin
  * Updated many plugins
  * Assorted bug fixes and enhancements
 
