@@ -617,7 +617,9 @@ squash_file_write (SquashFile* file,
  */
 SquashStatus
 squash_file_flush (SquashFile* file) {
-  return squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FINISH);
+  SquashStatus res = squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FLUSH);
+  fflush (file->fp);
+  return res;
 }
 
 /**
@@ -1024,6 +1026,8 @@ squash_file_free (SquashFile* file, FILE** fp) {
 
   if (file->stream != NULL && file->stream->stream_type == SQUASH_STREAM_COMPRESS)
     res = squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FINISH);
+
+  fflush (file->fp);
 
 #if defined(SQUASH_MMAP_IO)
   squash_mapped_file_destroy (&(file->map), false);
