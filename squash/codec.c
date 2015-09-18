@@ -696,10 +696,13 @@ squash_codec_decompress_with_options (SquashCodec* codec,
     return squash_error (SQUASH_INVALID_BUFFER);
 
   if (impl->decompress_buffer != NULL) {
-    return impl->decompress_buffer (codec,
-                                     decompressed_length, decompressed,
-                                     compressed_length, compressed,
-                                     options);
+    SquashStatus res;
+    res = impl->decompress_buffer (codec,
+                                   decompressed_length, decompressed,
+                                   compressed_length, compressed,
+                                   squash_object_ref (options));
+    squash_object_unref (options);
+    return res;
   } else {
     SquashStatus status;
     SquashStream* stream;

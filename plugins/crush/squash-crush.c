@@ -43,6 +43,7 @@ static SquashOptionInfo squash_crush_options[] = {
       .min = 0,
       .max = 2 },
     .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 typedef struct SquashCrushStream_s {

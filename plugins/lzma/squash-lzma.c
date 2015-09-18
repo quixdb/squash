@@ -285,11 +285,11 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
       squash_assert_unreachable();
     }
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    const uint64_t memlimit = squash_codec_get_option_size_index (codec, options, SQUASH_LZMA_OPT_MEM_LIMIT);
-
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
+      const uint64_t memlimit = squash_codec_get_option_size_index (codec, options, SQUASH_LZMA_OPT_MEM_LIMIT);
       lzma_e = lzma_stream_decoder(&(stream->stream), memlimit, 0);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA) {
+      const uint64_t memlimit = squash_codec_get_option_size_index (codec, options, SQUASH_LZMA_OPT_MEM_LIMIT);
       lzma_e = lzma_alone_decoder(&(stream->stream), memlimit);
       assert (lzma_e == LZMA_OK);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||

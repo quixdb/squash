@@ -54,4 +54,6 @@ check_codec (SquashCodec* codec) {
   for ( i = 0 ; i < n_threads ; i++ ) {
     g_assert (g_thread_join (threads[i]) == NULL);
   }
+
+  free (threads);
 }

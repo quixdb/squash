@@ -79,7 +79,8 @@ static SquashOptionInfo squash_lzo1_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 2, (const int[]) { 1, 99 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1a_compressors[] = {
@@ -92,7 +93,8 @@ static SquashOptionInfo squash_lzo1a_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 2, (const int[]) { 1, 99 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1b_compressors[] = {
@@ -114,7 +116,8 @@ static SquashOptionInfo squash_lzo1b_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 11, (const int[]) { 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 999 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1c_compressors[] = {
@@ -136,7 +139,8 @@ static SquashOptionInfo squash_lzo1c_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 11, (const int[]) { 1, 2, 3, 4, 5, 6, 7, 8, 9, 99, 999 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1f_compressors[] = {
@@ -149,7 +153,8 @@ static SquashOptionInfo squash_lzo1f_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 2, (const int[]) { 1, 999 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1x_compressors[] = {
@@ -165,7 +170,8 @@ static SquashOptionInfo squash_lzo1x_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 5, (const int[]) { 1, 11, 12, 15, 999 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1y_compressors[] = {
@@ -178,7 +184,8 @@ static SquashOptionInfo squash_lzo1y_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 2, (const int[]) { 1, 999 } },
-    .default_value.int_value = 1 }
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCompressor squash_lzo1z_compressors[] = {
@@ -191,7 +198,8 @@ static SquashOptionInfo squash_lzo1z_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_ENUM_INT,
     .info.enum_int = { 1, (const int[]) { 999 } },
-    .default_value.int_value = 999 }
+    .default_value.int_value = 999 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
 static const SquashLZOCodec squash_lzo_codecs[] = {

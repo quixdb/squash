@@ -179,6 +179,8 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
     g_assert_cmpint (bytes_read, ==, LOREM_IPSUM_LENGTH);
 
     g_assert (memcmp (decompressed_data, LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+
+    free (decompressed_data);
   }
 
   fclose (uncompressed);
