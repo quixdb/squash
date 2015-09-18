@@ -747,7 +747,7 @@ squash_splice_map (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType st
     if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_length, true))
       goto cleanup;
 
-    res = squash_codec_compress (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data);
+    res = squash_codec_compress_with_options (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data, options);
     if (res != SQUASH_OK)
       goto cleanup;
 
@@ -768,7 +768,7 @@ squash_splice_map (FILE* fp_in, FILE* fp_out, size_t length, SquashStreamType st
       if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_length, true))
         goto cleanup;
 
-      res = squash_codec_decompress (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data);
+      res = squash_codec_decompress_with_options (codec, &mapped_out.length, mapped_out.data, mapped_in.length, mapped_in.data, options);
       if (res == SQUASH_OK) {
         squash_mapped_file_destroy (&mapped_in, true);
         squash_mapped_file_destroy (&mapped_out, true);
