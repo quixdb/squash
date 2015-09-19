@@ -169,7 +169,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
   s->mscomp.out = stream->next_out;
   s->mscomp.out_avail = stream->avail_out;
 
-  if (s->mscomp.in_avail == 0) {
+  if (s->mscomp.in == NULL) {
     s->mscomp.in = &nul_buf;
   }
 
