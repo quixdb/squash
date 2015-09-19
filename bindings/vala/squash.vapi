@@ -264,11 +264,11 @@ namespace Squash {
   public static Squash.Status decompress_with_options (string codec, ref size_t decompressed_length, [CCode (array_length = false)] uint8[] decompressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] compressed, Squash.Options? options = null);
 
   [CCode (cname = "squash_splice")]
-  public static Squash.Status splice (GLib.FileStream fp_in, GLib.FileStream fp_out, size_t length, Squash.StreamType stream_type, string codec, ...);
+  public static Squash.Status splice (string codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t length, ...);
   [CCode (cname = "squash_splice_codec")]
-  public static Squash.Status splice_codec (GLib.FileStream fp_in, GLib.FileStream fp_out, size_t length, Squash.StreamType stream_type, Squash.Codec codec, ...);
+  public static Squash.Status splice_codec (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t length, ...);
   [CCode (cname = "squash_splice_with_options")]
-  public static Squash.Status splice_with_options (GLib.FileStream fp_in, GLib.FileStream fp_out, size_t length, Squash.StreamType stream_type, string codec, Squash.Options? options = null);
+  public static Squash.Status splice_with_options (string codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t length, Squash.Options? options = null);
   [CCode (cname = "squash_splice_codec_with_options")]
-  public static Squash.Status splice_codec_with_options (GLib.FileStream fp_in, GLib.FileStream fp_out, size_t length, Squash.StreamType stream_type, Squash.Codec codec, Squash.Options? options = null);
+  public static Squash.Status splice_codec_with_options (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t length, Squash.Options? options = null);
 }
