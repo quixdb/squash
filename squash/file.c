@@ -900,23 +900,28 @@ squash_splice_stream (FILE* fp_in,
         res = squash_file_read (file, &data_length, data);
         if (res < 0) {
           break;
-        } else if (res == SQUASH_END_OF_STREAM) {
-          res = SQUASH_OK;
-          break;
         } else if (res == SQUASH_PROCESSING) {
           res = SQUASH_OK;
         }
 
-        size_t bytes_written = fwrite (data, 1, data_length, fp_out);
-        assert (bytes_written == data_length);
-        if (bytes_written == 0) {
-          res = squash_error (SQUASH_IO);
-          break;
+        if (data_length > 0) {
+          size_t bytes_written = fwrite (data, 1, data_length, fp_out);
+          /* fprintf (stderr, "%s:%d: bytes_written: %zu\n", __FILE__, __LINE__, data_length); */
+          assert (bytes_written == data_length);
+          if (bytes_written == 0) {
+            res = squash_error (SQUASH_IO);
+            break;
+          }
+
+          if (remaining != 0) {
+            assert (data_length <= remaining);
+            remaining -= data_length;
+          }
         }
 
-        if (remaining != 0) {
-          assert (data_length <= remaining);
-          remaining -= data_length;
+        if (res == SQUASH_END_OF_STREAM) {
+          res = SQUASH_OK;
+          break;
         }
       }
     }
