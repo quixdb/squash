@@ -249,7 +249,7 @@ squash_options_get_int (SquashOptions* options, const char* key) {
 
   const int option_n = squash_options_find (options, key);
   if (option_n == -1)
-    return NULL;
+    return -1;
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
   const SquashOptionValue* val = &(options->values[option_n]);
@@ -280,7 +280,7 @@ squash_options_get_size (SquashOptions* options, const char* key) {
 
   const int option_n = squash_options_find (options, key);
   if (option_n == -1)
-    return NULL;
+    return 0;
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
   const SquashOptionValue* val = &(options->values[option_n]);
