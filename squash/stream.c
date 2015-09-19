@@ -459,6 +459,45 @@ squash_stream_new_with_options (const char* codec,
     squash_codec_create_stream_with_options (codec_real, stream_type, options) : NULL;
 }
 
+/**
+ * @brief Create a new stream using a codec instance
+ *
+ * @param codec Codec to use
+ * @param stream_type Stream type
+ * @param ... List of options
+ * @return A new stream, or *NULL* on failure
+ */
+SquashStream*
+squash_stream_new_codec (SquashCodec* codec,
+                         SquashStreamType stream_type,
+                         ...) {
+  assert (codec != NULL);
+
+  va_list options_list;
+  SquashOptions* opts;
+
+  va_start (options_list, stream_type);
+  opts = squash_options_newv (codec, options_list);
+  va_end (options_list);
+
+  return squash_codec_create_stream_with_options (codec, stream_type, opts);
+}
+
+/**
+ * @brief Create a new stream using codec and options intances
+ *
+ * @param codec Codec to use
+ * @param stream_type Stream type
+ * @param options An option group
+ * @return A new stream, or *NULL* on failure
+ */
+SquashStream*
+squash_stream_new_codec_with_options (SquashCodec* codec,
+                                      SquashStreamType stream_type,
+                                      SquashOptions* options) {
+  return squash_codec_create_stream_with_options (codec, stream_type, options);
+}
+
 static SquashStatus
 squash_stream_process_internal (SquashStream* stream, SquashOperation operation) {
   SquashCodec* codec;

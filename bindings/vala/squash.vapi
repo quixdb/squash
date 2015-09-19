@@ -102,6 +102,11 @@ namespace Squash {
 
   [Compact]
   public class Stream : Squash.Object {
+    public Stream (string codec, Squash.StreamType stream_type, ...);
+    public Stream.with_options (string codec, Squash.StreamType stream_type, Squash.Options? options = null);
+    public Stream.codec (Squash.Codec codec, Squash.StreamType stream_type, ...);
+    public Stream.codec_with_options (Squash.Codec codec, Squash.StreamType stream_type, Squash.Options? options = null);
+
     [CCode (array_length_cname = "avail_in", array_length_type = "size_t")]
     public unowned uint8[] next_in;
     public size_t total_in;
