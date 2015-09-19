@@ -73,17 +73,17 @@ squash_ms_status_to_squash_status (MSCompStatus status) {
     case MSCOMP_OK:
       return SQUASH_OK;
     case MSCOMP_ERRNO:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
     case MSCOMP_ARG_ERROR:
-      return SQUASH_BAD_PARAM;
+      return squash_error (SQUASH_BAD_PARAM);
     case MSCOMP_DATA_ERROR:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
     case MSCOMP_MEM_ERROR:
-      return SQUASH_MEMORY;
+      return squash_error (SQUASH_MEMORY);
     case MSCOMP_BUF_ERROR:
-      return SQUASH_BUFFER_FULL;
+      return squash_error (SQUASH_BUFFER_FULL);
     default:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
   }
 }
 
@@ -162,11 +162,16 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashStatus status = SQUASH_FAILED;
   MSCompStatus res;
   SquashMSCompStream* s = (SquashMSCompStream*) stream;
+  uint8_t nul_buf;
 
   s->mscomp.in = stream->next_in;
   s->mscomp.in_avail = stream->avail_in;
   s->mscomp.out = stream->next_out;
   s->mscomp.out_avail = stream->avail_out;
+
+  if (s->mscomp.in_avail == 0) {
+    s->mscomp.in = &nul_buf;
+  }
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     res = ms_deflate(&(s->mscomp), squash_ms_comp_flush_from_operation (operation));
