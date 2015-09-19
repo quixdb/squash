@@ -93,17 +93,16 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                  SquashOptions* options) {
   try {
-    lz77::decompress_t decompress;
+    lz77::decompress_t decompress(*decompressed_length);
     std::string remaining;
     bool done = decompress.feed(compressed, compressed + compressed_length, remaining);
     const std::string& res = decompress.result();
 
-    if (res.size() > *decompressed_length)
-      return SQUASH_BUFFER_FULL;
-
     memcpy(decompressed, res.c_str(), res.size());
     *decompressed_length = res.size();
     return (done && remaining.empty()) ? SQUASH_OK : SQUASH_FAILED;
+  } catch (std::length_error& e) {
+    return SQUASH_BUFFER_FULL;
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
   } catch (...) {
