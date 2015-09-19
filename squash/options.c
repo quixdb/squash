@@ -151,6 +151,151 @@ static void squash_options_free (void* options);
  * @brief value to use if none is provided by the user
  */
 
+static int
+squash_options_find (SquashOptions* options, const char* key) {
+  assert (options != NULL);
+  assert (key != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  unsigned int option_n = 0;
+
+  {
+    while (info->name != NULL) {
+      if (strcasecmp (key, info->name) == 0)
+        return option_n;
+
+      option_n++;
+      info++;
+    }
+  }
+
+  return -1;
+}
+
+/**
+ * Retrieve the value of a string option
+ *
+ * @note If the option is not natively a string (e.g., if it is an
+ * integer, size, or boolean), it will not be serialized to one.
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value, or *NULL* on failure
+ */
+const char*
+squash_options_get_string (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return NULL;
+
+  const int option_n = squash_options_find (options, key);
+  if (option_n == -1)
+    return NULL;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
+  const SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_ENUM_STRING:
+      return info->info.enum_string.values[val->int_value].name;
+    case SQUASH_OPTION_TYPE_STRING:
+      return val->string_value;
+    default:
+      return NULL;
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * Retrieve the value of a boolean option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+bool
+squash_options_get_bool (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return false;
+
+  const int option_n = squash_options_find (options, key);
+  if (option_n == -1)
+    return NULL;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
+  const SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_BOOL:
+      return val->bool_value;
+    default:
+      return false;
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * Retrieve the value of an integer option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+int
+squash_options_get_int (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return -1;
+
+  const int option_n = squash_options_find (options, key);
+  if (option_n == -1)
+    return -1;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
+  const SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_INT:
+    case SQUASH_OPTION_TYPE_ENUM_INT:
+    case SQUASH_OPTION_TYPE_RANGE_INT:
+      return val->int_value;
+    default:
+      return -1;
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * Retrieve the value of a size option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+size_t
+squash_options_get_size (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return 0;
+
+  const int option_n = squash_options_find (options, key);
+  if (option_n == -1)
+    return 0;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
+  const SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_SIZE:
+    case SQUASH_OPTION_TYPE_RANGE_SIZE:
+      return val->size_value;
+    default:
+      return 0;
+  }
+
+  squash_assert_unreachable ();
+}
+
 /**
  * @brief Parse a single option.
  *
@@ -175,22 +320,12 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
   else
     assert (options->values != NULL);
 
-  SquashOptionValue* val = NULL;
-  {
-    size_t option_n = 0;
-    while (info->name != NULL) {
-      if (strcasecmp (key, info->name) == 0) {
-        val = &(options->values[option_n]);
-        break;
-      }
-
-      option_n++;
-      info++;
-    }
-  }
-
-  if (val == NULL)
+  const int option_n = squash_options_find (options, key);
+  if (option_n < 0)
     return SQUASH_BAD_PARAM;
+
+  SquashOptionValue* val = &(options->values[option_n]);
+  info = info + option_n;
 
   switch (info->type) {
     case SQUASH_OPTION_TYPE_RANGE_INT:
