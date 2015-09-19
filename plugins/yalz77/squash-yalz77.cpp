@@ -101,6 +101,8 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
     memcpy(decompressed, res.c_str(), res.size());
     *decompressed_length = res.size();
     return (done && remaining.empty()) ? SQUASH_OK : SQUASH_FAILED;
+  } catch (std::length_error& e) {
+    return SQUASH_BUFFER_FULL;
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
   } catch (...) {
