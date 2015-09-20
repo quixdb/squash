@@ -262,6 +262,7 @@ namespace Squash {
   public static void foreach_codec (Squash.CodecForeachFunc func);
 
   public static Squash.CodecInfo get_info (string codec);
+  public static size_t get_uncompressed_size (string codec, [CCode (array_length_type = "size_t", array_length_pos = 1.5)] uint8[] uncompressed);
   public static size_t get_max_compressed_size (string codec, size_t uncompressed_length);
   public static Squash.Status compress (string codec, ref size_t compressed_length, [CCode (array_length = false)] uint8[] compressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] uncompressed, ...);
   public static Squash.Status compress_with_options (string codec, ref size_t compressed_length, [CCode (array_length = false)] uint8[] compressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] uncompressed, Squash.Options? options = null);

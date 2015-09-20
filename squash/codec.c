@@ -386,6 +386,8 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
   SquashCodecImpl* impl = NULL;
 
   assert (codec != NULL);
+  assert (compressed_length > 0);
+  assert (compressed != NULL);
 
   impl = squash_codec_get_impl (codec);
   if (impl != NULL && impl->get_uncompressed_size != NULL) {
@@ -393,6 +395,21 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
   } else {
     return 0;
   }
+}
+
+size_t
+squash_get_uncompressed_size (const char* codec,
+                              size_t compressed_length,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+  assert (codec != NULL);
+  assert (compressed_length > 0);
+  assert (compressed != NULL);
+
+  SquashCodec* codec_real = squash_get_codec (codec);
+  if (codec_real == NULL)
+    return 0;
+
+  return squash_codec_get_uncompressed_size (codec_real, compressed_length, compressed);
 }
 
 /**
