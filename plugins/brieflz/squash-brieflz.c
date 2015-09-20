@@ -40,22 +40,86 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
+read_varuint64 (const uint8_t *p, size_t p_size, uint64_t *v) {
+  uint64_t n = 0;
+  size_t i;
+
+  for (i = 0; i < 8 && i < p_size && *p > 0x7F; ++i) {
+    n = (n << 7) | (*p++ & 0x7F);
+  }
+
+  if (i == p_size) {
+    return 0;
+  }
+  else if (i == 8) {
+    n = (n << 8) | *p;
+  }
+  else {
+    n = (n << 7) | *p;
+  }
+
+  *v = n;
+
+  return i + 1;
+}
+
+static size_t
+write_varuint64 (uint8_t *p, size_t p_size, uint64_t v) {
+  uint8_t buf[10];
+  size_t i;
+  size_t j;
+
+  if (v & 0xFF00000000000000ULL) {
+    if (p_size < 9) {
+      return 0;
+    }
+
+    p[8] = (uint8_t) v;
+    v >>= 8;
+
+    i = 7;
+
+    for (j = 0; j < 8; ++j) {
+      p[i--] = (uint8_t) ((v & 0x7F) | 0x80);
+      v >>= 7;
+    }
+
+    return 9;
+  }
+
+  i = 0;
+
+  buf[i++] = (uint8_t) (v & 0x7F);
+  v >>= 7;
+
+  while (v > 0) {
+    buf[i++] = (uint8_t) ((v & 0x7F) | 0x80);
+    v >>= 7;
+  }
+
+  if (i > p_size) {
+    return 0;
+  }
+
+  for (j = 0; j < i; ++j) {
+    p[j] = buf[i - j - 1];
+  }
+
+  return i;
+}
+
+static size_t
 squash_brieflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return (size_t) blz_max_packed_size ((unsigned long) uncompressed_length) + 4;
+  return (size_t) blz_max_packed_size ((unsigned long) uncompressed_length) + 9;
 }
 
 static size_t
 squash_brieflz_get_uncompressed_size (SquashCodec* codec,
                                       size_t compressed_length,
                                       const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
-  if (compressed_length < 4) {
-    return 0;
-  }
+  uint64_t v;
 
-  return (size_t) compressed[0]
-      | ((size_t) compressed[1] << 8)
-      | ((size_t) compressed[2] << 16)
-      | ((size_t) compressed[3] << 24);
+  return read_varuint64 (compressed, compressed_length, &v) == 0 ? 0 : v;
 }
 
 static SquashStatus
@@ -65,30 +129,31 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
                                   size_t compressed_length,
                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                   SquashOptions* options) {
-  unsigned long original_size;
-  unsigned long size;
+  const uint8_t *src = compressed;
+  uint64_t original_size;
+  size_t size;
 
-  if (compressed_length < 4) {
+  size = read_varuint64 (src, compressed_length, &original_size);
+
+  if (size == 0) {
     return squash_error (SQUASH_FAILED);
   }
 
-  original_size = (unsigned long) compressed[0]
-               | ((unsigned long) compressed[1] << 8)
-               | ((unsigned long) compressed[2] << 16)
-               | ((unsigned long) compressed[3] << 24);
+  src += size;
+  compressed_length -= size;
 
   if (original_size > *decompressed_length) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
-  size = blz_depack_safe (compressed + 4, (unsigned long) compressed_length - 4,
-                          decompressed, original_size);
+  size = blz_depack_safe (src, (unsigned long) compressed_length,
+                          decompressed, (unsigned long) original_size);
 
   if (size != original_size) {
     return squash_error (SQUASH_FAILED);
   }
 
-  *decompressed_length = (size_t) size;
+  *decompressed_length = size;
 
   return SQUASH_OK;
 }
@@ -100,13 +165,22 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
                                 size_t uncompressed_length,
                                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                 SquashOptions* options) {
-  unsigned long size;
+  uint8_t *dst = compressed;
   void *workmem = NULL;
+  size_t size;
 
   if ((unsigned long) *compressed_length
     < squash_brieflz_get_max_compressed_size (codec, uncompressed_length)) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
+
+  size = write_varuint64 (dst, *compressed_length, uncompressed_length);
+
+  if (size == 0) {
+    return squash_error (SQUASH_BUFFER_FULL);
+  }
+
+  dst += size;
 
   workmem = malloc (blz_workmem_size ((unsigned long) uncompressed_length));
 
@@ -114,18 +188,13 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_MEMORY);
   }
 
-  compressed[0] = (uint8_t) uncompressed_length;
-  compressed[1] = (uint8_t) (uncompressed_length >> 8);
-  compressed[2] = (uint8_t) (uncompressed_length >> 16);
-  compressed[3] = (uint8_t) (uncompressed_length >> 24);
-
-  size = blz_pack (uncompressed, compressed + 4,
-                   (unsigned long) uncompressed_length,
-                   workmem);
+  size += blz_pack (uncompressed, dst,
+                    (unsigned long) uncompressed_length,
+                    workmem);
 
   free(workmem);
 
-  *compressed_length = (size_t) size + 4;
+  *compressed_length = size;
 
   return SQUASH_OK;
 }
