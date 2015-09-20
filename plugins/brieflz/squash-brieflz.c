@@ -54,6 +54,10 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
   unsigned long original_size;
   unsigned long size;
 
+  if (compressed_length < 4) {
+    return squash_error (SQUASH_FAILED);
+  }
+
   original_size = (unsigned long) compressed[0]
                | ((unsigned long) compressed[1] << 8)
                | ((unsigned long) compressed[2] << 16)
