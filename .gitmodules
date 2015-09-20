@@ -80,3 +80,6 @@
 	path = plugins/zlib-ng/zlib-ng
 	url = https://github.com/Dead2/zlib-ng.git
 	branch = develop
+[submodule "plugins/brieflz/brieflz"]
+	path = plugins/brieflz/brieflz
+	url = https://github.com/jibsen/brieflz.git
