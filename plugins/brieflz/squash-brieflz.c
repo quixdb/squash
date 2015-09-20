@@ -81,7 +81,8 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
-  size = blz_depack (compressed + 4, decompressed, original_size);
+  size = blz_depack_safe (compressed + 4, (unsigned long) compressed_length - 4,
+                          decompressed, original_size);
 
   if (size != original_size) {
     return squash_error (SQUASH_FAILED);
