@@ -1,4 +1,5 @@
 set (plugins_available
+  brieflz
   brotli
   bsc
   bzip2
