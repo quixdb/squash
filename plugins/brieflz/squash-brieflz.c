@@ -44,6 +44,20 @@ squash_brieflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
   return (size_t) blz_max_packed_size ((unsigned long) uncompressed_length) + 4;
 }
 
+static size_t
+squash_brieflz_get_uncompressed_size (SquashCodec* codec,
+                                      size_t compressed_length,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+  if (compressed_length < 4) {
+    return 0;
+  }
+
+  return (size_t) compressed[0]
+      | ((size_t) compressed[1] << 8)
+      | ((size_t) compressed[2] << 16)
+      | ((size_t) compressed[3] << 24);
+}
+
 static SquashStatus
 squash_brieflz_decompress_buffer (SquashCodec* codec,
                                   size_t* decompressed_length,
@@ -120,6 +134,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("brieflz", name) == 0) {
+    impl->get_uncompressed_size = squash_brieflz_get_uncompressed_size;
     impl->get_max_compressed_size = squash_brieflz_get_max_compressed_size;
     impl->decompress_buffer = squash_brieflz_decompress_buffer;
     impl->compress_buffer_unsafe = squash_brieflz_compress_buffer;
