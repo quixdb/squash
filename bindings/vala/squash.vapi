@@ -104,7 +104,8 @@ namespace Squash {
   public class Stream : Squash.Object {
     public Stream (string codec, Squash.StreamType stream_type, ...);
     public Stream.with_options (string codec, Squash.StreamType stream_type, Squash.Options? options = null);
-    public Stream.codec (Squash.Codec codec, Squash.StreamType stream_type, ...);
+    [CCode (cname = "squash_stream_new_codec")]
+    public Stream.with_codec (Squash.Codec codec, Squash.StreamType stream_type, ...);
     public Stream.codec_with_options (Squash.Codec codec, Squash.StreamType stream_type, Squash.Options? options = null);
 
     [CCode (array_length_cname = "avail_in", array_length_type = "size_t")]
@@ -120,12 +121,10 @@ namespace Squash {
     public void* user_data;
     public Squash.DestroyNotify destroy_user_data;
 
-    public Stream (string codec, Squash.StreamType stream_type, ...);
     [CCode (cname = "squash_stream_newv")]
     public Stream.v (string codec, Squash.StreamType stream_type, va_list options);
     [CCode (cname = "squash_stream_newa")]
     public Stream.array (string codec, Squash.StreamType stream_type, [CCode (array_length = false, array_null_terminated = true)] string[] keys, [CCode (array_length = false, array_null_terminated = true)] string[] values);
-    public Stream.with_options (string codec, Squash.StreamType stream_type, Squash.Options? options = null);
 
     public Squash.Status process ();
     public Squash.Status flush ();
