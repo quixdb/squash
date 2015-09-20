@@ -163,6 +163,10 @@ SQUASH_API size_t                  squash_codec_get_option_size_index        (Sq
 
 
 SQUASH_API size_t                  squash_get_max_compressed_size            (const char* codec, size_t uncompressed_length);
+SQUASH_API size_t                  squash_get_uncompressed_size              (const char* codec,
+                                                                              size_t compressed_length,
+                                                                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]);
+
 SQUASH_API SquashStatus            squash_compress                           (const char* codec,
                                                                               size_t* compressed_length,
                                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
