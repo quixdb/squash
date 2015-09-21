@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -119,6 +119,14 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:gae1fd4dcc743690884b98cff211806a8f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashOptions.html#gae1fd4dcc743690884b98cff211806a8f">squash_options_get_string</a> (SquashOptions *options, const char *key)</td></tr>
+<tr class="separator:gae1fd4dcc743690884b98cff211806a8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6afba64c9c0521676014429c0cdcfe96"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashOptions.html#ga6afba64c9c0521676014429c0cdcfe96">squash_options_get_bool</a> (SquashOptions *options, const char *key)</td></tr>
+<tr class="separator:ga6afba64c9c0521676014429c0cdcfe96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad18452932b71b89a1d60899fe3fcef6d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashOptions.html#gad18452932b71b89a1d60899fe3fcef6d">squash_options_get_int</a> (SquashOptions *options, const char *key)</td></tr>
+<tr class="separator:gad18452932b71b89a1d60899fe3fcef6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga36ecac778a0d11915a2e50af0b68177f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashOptions.html#ga36ecac778a0d11915a2e50af0b68177f">squash_options_get_size</a> (SquashOptions *options, const char *key)</td></tr>
+<tr class="separator:ga36ecac778a0d11915a2e50af0b68177f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacbfddac858801dbabea8d6a980ea230e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashOptions.html#gacbfddac858801dbabea8d6a980ea230e">squash_options_parse_option</a> (SquashOptions *options, const char *key, const char *value)</td></tr>
 <tr class="memdesc:gacbfddac858801dbabea8d6a980ea230e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a single option.  <a href="#gacbfddac858801dbabea8d6a980ea230e">More...</a><br /></td></tr>
 <tr class="separator:gacbfddac858801dbabea8d6a980ea230e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,7 +283,156 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00524">524</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00661">661</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga6afba64c9c0521676014429c0cdcfe96"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool squash_options_get_bool </td>
+          <td>(</td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Retrieve the value of a boolean option</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">options</td><td>the options to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>name of the option to retrieve the value from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value </dd></dl>
+
+<p>Definition at line <a class="el" href="options_8c_source.html#l00217">217</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="gad18452932b71b89a1d60899fe3fcef6d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int squash_options_get_int </td>
+          <td>(</td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Retrieve the value of an integer option</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">options</td><td>the options to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>name of the option to retrieve the value from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value </dd></dl>
+
+<p>Definition at line <a class="el" href="options_8c_source.html#l00246">246</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga36ecac778a0d11915a2e50af0b68177f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t squash_options_get_size </td>
+          <td>(</td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Retrieve the value of a size option</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">options</td><td>the options to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>name of the option to retrieve the value from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value </dd></dl>
+
+<p>Definition at line <a class="el" href="options_8c_source.html#l00277">277</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="gae1fd4dcc743690884b98cff211806a8f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* squash_options_get_string </td>
+          <td>(</td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Retrieve the value of a string option</p>
+<dl class="section note"><dt>Note</dt><dd>If the option is not natively a string (e.g., if it is an integer, size, or boolean), it will not be serialized to one.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">options</td><td>the options to retrieve the value from </td></tr>
+    <tr><td class="paramname">key</td><td>name of the option to retrieve the value from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the value, or <em>NULL</em> on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="options_8c_source.html#l00186">186</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -320,7 +477,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00470">470</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00607">607</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -358,7 +515,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new option group, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00396">396</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00533">533</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -403,7 +560,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new option group, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00445">445</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00582">582</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -441,7 +598,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new option group, or <em>NULL</em> if <em>codec</em> does not accept any options or could not be loaded. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00423">423</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00560">560</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -479,7 +636,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00377">377</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00514">514</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -532,7 +689,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00166">166</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00311">311</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -577,7 +734,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00321">321</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00458">458</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>
@@ -615,7 +772,7 @@ SquashOptionValue&#160;</td><td class="memItemRight" valign="bottom"><a class="e
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code. </dd></dl>
 
-<p>Definition at line <a class="el" href="options_8c_source.html#l00349">349</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
+<p>Definition at line <a class="el" href="options_8c_source.html#l00486">486</a> of file <a class="el" href="options_8c_source.html">options.c</a>.</p>
 
 </div>
 </div>

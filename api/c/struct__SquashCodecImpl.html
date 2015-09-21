@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -109,7 +109,7 @@ const SquashOptionInfo *&#160;</td><td class="memItemRight" valign="bottom"><a c
 <tr class="memitem:a865117606f66c59e90c0d32fa1123603"><td class="memItemLeft" align="right" valign="top">SquashStream *(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__SquashCodecImpl.html#a865117606f66c59e90c0d32fa1123603">create_stream</a> )(SquashCodec *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type, SquashOptions *<a class="el" href="struct__SquashCodecImpl.html#a68b64949c78d08e8dae13912508eb043">options</a>)</td></tr>
 <tr class="memdesc:a865117606f66c59e90c0d32fa1123603"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new SquashStream.  <a href="#a865117606f66c59e90c0d32fa1123603">More...</a><br /></td></tr>
 <tr class="separator:a865117606f66c59e90c0d32fa1123603"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc29df2d2294fb6f750c6fdb0cebb382"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__SquashCodecImpl.html#acc29df2d2294fb6f750c6fdb0cebb382">process_stream</a> )(SquashStream *stream, SquashOperation operation)</td></tr>
+<tr class="memitem:acc29df2d2294fb6f750c6fdb0cebb382"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__SquashCodecImpl.html#acc29df2d2294fb6f750c6fdb0cebb382">process_stream</a> )(SquashStream *stream, <a class="el" href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">SquashOperation</a> operation)</td></tr>
 <tr class="memdesc:acc29df2d2294fb6f750c6fdb0cebb382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process a SquashStream.  <a href="#acc29df2d2294fb6f750c6fdb0cebb382">More...</a><br /></td></tr>
 <tr class="separator:acc29df2d2294fb6f750c6fdb0cebb382"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47ad85ad259cd468014326459a949444"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__SquashCodecImpl.html#a47ad85ad259cd468014326459a949444">decompress_buffer</a> )(SquashCodec *codec, size_t *decompressed_length, uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)], size_t compressed_length, const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)], SquashOptions *<a class="el" href="struct__SquashCodecImpl.html#a68b64949c78d08e8dae13912508eb043">options</a>)</td></tr>
@@ -165,7 +165,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <p>This struct should only be used from within a plugin.</p>
 <p>This structure may grow over time to accomodate new features, so when setting up the callbacks in a plugin you must set each field individually instead of copying an entire instance of the struct. </p>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00053">53</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00051">51</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="ae1ef7aa814adbdba0af7ad096f43bd6b"></a>
 <div class="memitem">
@@ -191,7 +191,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga04c13666d70b33252e9fc6e35b6e031a" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00069">69</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00067">67</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -220,7 +220,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga04c13666d70b33252e9fc6e35b6e031a" title="Compress a buffer with an existing SquashOptions. ">squash_codec_compress_with_options</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00075">75</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00073">73</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -246,7 +246,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <dl class="section return"><dt>Returns</dt><dd>A new SquashStream.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga208c9594143d6d865a5a781ca78e1a99" title="Create a new stream with existing SquashOptions. ">squash_codec_create_stream</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00059">59</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00057">57</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -274,7 +274,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga8125f4687cfe0421871dbe8bf5d0a7f6" title="Decompress a buffer with an existing SquashOptions. ">squash_codec_decompress_with_options</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00063">63</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00061">61</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -299,7 +299,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <dl class="section return"><dt>Returns</dt><dd>The maximum buffer size necessary to contain the compressed data.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#ga5737dad972a975199477eaf6a0a3ff47" title="Get the maximum buffer size necessary to store compressed data. ">squash_codec_get_max_compressed_size</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00086">86</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00084">84</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -325,7 +325,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <dl class="section return"><dt>Returns</dt><dd>Size of the uncompressed data, or 0 if unknown.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashCodec.html#gaf9276d100760b4037123d0d601d80325" title="Get the uncompressed size of the compressed buffer. ">squash_codec_get_uncompressed_size</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00083">83</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00081">81</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>
@@ -350,7 +350,7 @@ void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <dl class="section return"><dt>Returns</dt><dd>A status code.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashStream.html#ga05defb5fc38779fa23f6abf360e2e48b" title="Process a stream. ">squash_stream_process</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="codec_8h_source.html#l00060">60</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
+<p>Definition at line <a class="el" href="codec_8h_source.html#l00058">58</a> of file <a class="el" href="codec_8h_source.html">codec.h</a>.</p>
 
 </div>
 </div>

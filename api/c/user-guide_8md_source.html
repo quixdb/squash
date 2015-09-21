@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -90,146 +90,243 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;User Guide</div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;==========</div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;While the Squash API is fairly large, in general you will only need a</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;handful of functions.</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;While the Squash API is fairly large, it is conceptually fairly</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;simple.</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;Squash&#39;s API follows some pretty standard conventions:</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;- Type names are CamelCase (with the first letter uppercase)</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;- Functions are lowercase_with_underscores</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;- Binary data is two variables—a `uint8_t*` and a `size_t`.</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;- Instance arguments come first, followed by any output arguments,</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  followed by input arguments.</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;The heart of Squash is the [codec](@ref SquashCodec).  A codec is an</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;implementation of an algorithm, and codecs with the same name are</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;assumed to be compatible.  A single [plugin](@ref SquashPlugin) can,</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;and often does, provide an implementation of several different codecs.</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;Typically you will not deal with [contexts](@ref SquashContext) or</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;plugins directly, and you may only deal with strings to represent</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;codecs.</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;@section buffers Buffer API</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;If you have a block of data in memory which you want to compress (or</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;decompress), the easiest way to do so is using the buffer API.</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;SquashStatus</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;squash_compress (const char* codec,</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                 uint8_t* compressed, size_t* compressed_length,</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                 const uint8_t* uncompressed, size_t uncompressed_length, ...);</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;~~~</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;Most of the functions are really just layers of convenience wrappers</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;which follow common conventions; for example, many functions will have</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;versions for string and @ref SquashCodec parameters for the codec, and</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;variadic arguments or a @ref SquashOptions parameter for the options,</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;which means four versions for every function, but only one concept to</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;learn.</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;Squash&#39;s API follows some pretty standard conventions:</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;- Type names are CamelCase (with the first letter uppercase)</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;- Functions are lowercase_with_underscores</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;- Binary data is two parameters—a `size_t` followed by a `uint8_t*`.</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;- Instance arguments come first, followed by any output arguments,</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  followed by input arguments.</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;The heart of Squash is the [codec](@ref SquashCodec).  A codec is an</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;implementation of an algorithm, and codecs with the same name are</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;assumed to be compatible.  A single [plugin](@ref SquashPlugin) can,</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;and often does, provide an implementation of several different codecs.</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;Typically you will not deal with [contexts](@ref SquashContext) or</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;plugins directly, and you may only deal with strings to represent</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;codecs.</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;@section buffers Buffer API</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;If you have a block of data in memory which you want to compress (or</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;decompress), the easiest way to do so is using the buffer API.</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;Like many functions in Squash, ::squash_compress returns a</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;[SquashStatus](@ref SquashStatus).  If the operation was successful, a</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;positive number is returned (generally ::SQUASH_OK), and a negative</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;number is returned on failure.</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;The first argument is the name of the codec.</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;The @a compressed and @a compressed_length arguments represent the</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;buffer which you wish to compress the data into.  Notice that @a</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;compressed_length is a `size_t*`, not a `size_t`.  When you call the</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;function it should be a pointer to the number of bytes available for</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;writing in the compressed buffer, and the function will alter the</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;value to the true size of the compressed data upon successful</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;compression.</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;squash_compress (const char* codec,</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;                 size_t* compressed_length,</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                 uint8_t compressed[],</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;                 size_t uncompressed_length,</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;                 const uint8_t uncompressed[],</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;                 ...);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;~~~</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;Like many functions in Squash, ::squash_compress returns a</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;[SquashStatus](@ref SquashStatus).  If the operation was successful, a</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;positive number is returned (generally ::SQUASH_OK), and a negative</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;number is returned on failure.</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;@a uncompressed and @a uncompressed_length are the buffer you wish to</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;compress.  @a uncompressed_length is a `size_t`, not a `size_t`,</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;because the function does not need to modify the value.</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;Finally, this function is variadic—it accepts an arbitrary number of</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;options, which you can use to control things like the compression</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;level.  Options are key/value pairs of strings, terminated by a *NULL*</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;sentinel… More on that later, but for now, just know that passing</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;*NULL* there will use the defaults, which is generally what you want.</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;Knowing how big the @a compressed buffer needs to be generally</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;requires another function:</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;The first argument is the name of the codec.  To list available</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;codecs, you can use the `squash -L` command; the convention is that</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;codecs are just the lowercase name of the algorithm.  For example,</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;&quot;gzip&quot;, &quot;lz4&quot;, and &quot;bzip2&quot; are all what you would probably expect.</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;The @a compressed and @a compressed_length arguments represent the</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;buffer which you wish to compress the data into.  Notice that @a</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;compressed_length is a `size_t*`, not a `size_t`.  When you call the</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;function it should be a pointer to the number of bytes available for</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;writing in the compressed buffer, and the function will alter the</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;value to the true size of the compressed data upon successful</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;compression.</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;size_t</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;squash_get_max_compressed_size (const char* codec, size_t uncompressed_length);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;~~~</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;This function returns the maximum buffer size necessary to hold @a</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;uncompressed_length worth of compressed data, even in the worst case</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;scenario (uncompressable data).  Typically it is slightly larger than</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;@a uncompressed_length.</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;@a uncompressed and @a uncompressed_length are the buffer you wish to</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;compress.  @a uncompressed_length is a `size_t`, not a `size_t`,</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;because the function does not need to modify the value.</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;Finally, this function is variadic—it accepts an arbitrary number of</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;options, which you can use to control things like the compression</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;level.  Options are key/value pairs of strings, terminated by a *NULL*</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;sentinel… More on that later, but for now, just know that passing</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;*NULL* there will use the defaults, which is generally what you want.</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;So, if you wanted to compress some data using the deflate algorithm,</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;you end up with something like this:</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;Knowing how big the @a compressed buffer needs to be generally</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;requires another function:</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;const char* uncompressed = &quot;Hello, world!&quot;;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;size_t uncompressed_length = strlen (uncompressed);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;size_t compressed_length = squash_get_max_compressed_size (&quot;deflate&quot;, uncompressed_length);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;uint8_t* compressed = (uint8_t*) malloc (compressed_length);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;SquashStatus res =</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  squash_compress (&quot;deflate&quot;, </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                   compressed, &amp;compressed_length,</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                   (const uint8_t*) uncompressed, uncompressed_length,</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                   NULL);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;if (res != SQUASH_OK) {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  fprintf (stderr, &quot;Unable to compress data [%d]: %s\n&quot;,</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;           res, squash_status_to_string (res));</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  exit (res);</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;fprintf (stdout, &quot;Compressed a %lu byte buffer to %lu bytes.\n&quot;,</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;         uncompressed_length, compressed_length);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;~~~</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;Decompression is basically the same:</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;~~~{.c}</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;size_t decompressed_length = uncompressed_length + 1;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;char* decompressed = (char*) malloc (uncompressed_length + 1);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;res = squash_decompress (&quot;deflate&quot;,</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                         (uint8_t*) decompressed, &amp;decompressed_length,</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                         compressed, compressed_length, NULL);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;if (res != SQUASH_OK) {</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  fprintf (stderr, &quot;Unable to decompress data [%d]: %s\n&quot;,</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;           res, squash_status_to_string (res));</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  exit (res);</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;/* Notice that we didn&#39;t compress the *NULL* byte at the end of the</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;   string.  We could have, it&#39;s just a waste to do so. */</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;decompressed[decompressed_length] = &#39;\0&#39;;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;if (strcmp (decompressed, uncompressed) != 0) {</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  fprintf (stderr, &quot;Bad decompressed data.\n&quot;);</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  exit (-1);</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;fprintf (stdout, &quot;Successfully decompressed.\n&quot;);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;~~~</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;It is worth noting that &quot;Hello, world!&quot; is really too short to</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;compress (it &quot;compresses&quot; from 13 bytes to 15 bytes here), but using a</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;longer string will yield better results.  You can find a complete,</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;self-contained example in [simple.c](@ref simple.c).</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;size_t</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;squash_get_max_compressed_size (const char* codec, size_t uncompressed_length);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;~~~</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;This function returns the maximum buffer size necessary to hold @a</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;uncompressed_length worth of compressed data, even in the worst case</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;scenario (uncompressable data).  Typically it is slightly larger than</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;@a uncompressed_length.</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;So, if you wanted to compress some data using the deflate algorithm,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;you end up with something like this:</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;const char* uncompressed = &quot;Hello, world!&quot;;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;size_t uncompressed_length = strlen (uncompressed);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;size_t compressed_length = squash_get_max_compressed_size (&quot;deflate&quot;, uncompressed_length);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;uint8_t* compressed = (uint8_t*) malloc (compressed_length);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;SquashStatus res =</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  squash_compress (&quot;deflate&quot;,</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                   &amp;compressed_length, compressed,</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                   uncompressed_length, (const uint8_t*) uncompressed,</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                   NULL);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;if (res != SQUASH_OK) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  fprintf (stderr, &quot;Unable to compress data [%d]: %s\n&quot;,</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;           res, squash_status_to_string (res));</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;fprintf (stdout, &quot;Compressed a %lu byte buffer to %lu bytes.\n&quot;,</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;         uncompressed_length, compressed_length);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;~~~</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;Decompression is basically the same:</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;size_t decompressed_length = uncompressed_length + 1;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;char* decompressed = (char*) malloc (uncompressed_length + 1);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;res = squash_decompress (&quot;deflate&quot;,</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;                         &amp;decompressed_length, (uint8_t*) decompressed</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;                         compressed_length, compressed, NULL);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;if (res != SQUASH_OK) {</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  fprintf (stderr, &quot;Unable to decompress data [%d]: %s\n&quot;,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;           res, squash_status_to_string (res));</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;}</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;/* Notice that we didn&#39;t compress the *NULL* byte at the end of the</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;   string.  We could have, it&#39;s just a waste to do so. */</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;decompressed[decompressed_length] = &#39;\0&#39;;</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;@section streams Stream API</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;While the buffer API is very easy to use, if you want to compress a</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;lot of data without loading it into memory then the stream API is much</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;more appropriate.</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;If you&#39;ve ever worked with a compression API in the past then the</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;stream API will probably feel pretty familiar to you.  The basic idea</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;is that you have a data structure, a @ref SquashStream, and you</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;shuttle data into one buffer and out of another.</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;@example simple.c</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;if (strcmp (decompressed, uncompressed) != 0) {</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  fprintf (stderr, &quot;Bad decompressed data.\n&quot;);</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;}</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;fprintf (stdout, &quot;Successfully decompressed.\n&quot;);</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;~~~</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;It is worth noting that &quot;Hello, world!&quot; is really too short to</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;compress (it &quot;compresses&quot; from 13 bytes to 15 bytes here), but using a</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;longer string will yield better results.  You can find a complete,</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;self-contained example in [simple.c](@ref simple.c).</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;@section streams File I/O API</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;While the buffer API is very easy to use it can be a bit limiting.  If</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;you want to compress a lot of data without loading it into memory then</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;a streaming API is much more appropriate.</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;Squash has two streaming APIs; the first is modeled after the API</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;provided by zlib, which has been copied by many other libraries.  It</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;is a bit of a pain to use, but extremely powerful.  The second API is</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;a higher-level convenience API which wraps the lower-level API and</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;provides an interface similar to the standard C I/O API (*i.e.* fopen,</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;fclose, fflush, fread, and fwrite).</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;We will not go into detail about the lower-level API now, but if</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;you&#39;re interested you can look at the API documentation for @ref</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;SquashStream for details.</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;The higher level API is documented in @ref SquashFile, but some of the</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;prototypes are reproduced here:</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;SquashFile*</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;squash_file_open (const char* filename,</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;                  const char* mode,</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;                  const char* codec,</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;                  ...);</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;squash_file_read (SquashFile* file,</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;                  size_t* decompressed_length,</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;                  uint8_t decompressed[]);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;squash_file_write (SquashFile* file,</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                   size_t uncompressed_length,</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;                   const uint8_t uncompressed[]);</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;squash_file_flush (SquashFile* file);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;squash_file_close (SquashFile* file);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;~~~</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;Like most of the Squash API, most of these functions return @ref</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;SQUASH_OK on success and a negative error code on failure.  The</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;exception to this is @ref squash_file_open which, like `fopen`,</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;returns *NULL* on failure.  The @a mode string is passed verbatim to</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;`fopen`.</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;Going back to our &quot;Hello, world!&quot; example from above, to write a file</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;with the compressed version of &quot;Hello, world!&quot;, all you would have to</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;do is something like:</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;const char* uncompressed = &quot;Hello, world!&quot;;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;SquashFile* file = squash_file_open (&quot;hello.gz&quot;, &quot;w+&quot;, &quot;gzip&quot;, NULL);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;if (file == NULL) {</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  fprintf (stderr, &quot;Unable to open file for writing\n&quot;);</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;}</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;SquashStatus res = squash_file_write (file, strlen (uncompressed), uncompressed);</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;if (res != SQUASH_OK) {</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;  fprintf (stderr, &quot;Unable to write compressed data [%d]: %s\n&quot;,</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;           res, squash_status_to_string (res));</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;}</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;SquashStatus res = squash_file_close (file);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;if (res != SQUASH_OK) {</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;  fprintf (stderr, &quot;Unable to close file [%d]: %s\n&quot;,</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;           res, squash_status_to_string (res));</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  exit (EXIT_FAILURE);</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;}</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;~~~</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;If you want to simply splice the contents of one file to another</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;(decompressing of compressing in the process), you can use the</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;`squash_splice` family of functions, which looks like:</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;~~~{.c}</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;SquashStatus</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;squash_splice (const char* codec,</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;               SquashStreamType stream_type,</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;               FILE* fp_out,</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;               FILE* fp_in,</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;               size_t length,</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;               ...);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;~~~</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;Beyond just being convenient, this function has the advantage that for</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;codecs which don&#39;t implement streaming natively Squash will attempt to</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;memory map the files and pass those addresses directly to the</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;buffer-to-buffer compression function.  This eliminates a lot of</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;buffering which, for larger files, can consume significant amounts of</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;memory.</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;@example simple.c</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -85,8 +85,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="textblock"><p>For information about LZO, see <a href="http://www.oberhumer.com/opensource/lzo/">http://www.oberhumer.com/opensource/lzo/</a></p>
 <h2>Codecs</h2>
 <ul>
-<li><b>lzo1</b></li>
-<li><b>lzo1a</b></li>
 <li><b>lzo1b</b></li>
 <li><b>lzo1c</b></li>
 <li><b>lzo1f</b></li>
@@ -94,6 +92,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li><b>lzo1y</b></li>
 <li><b>lzo1z</b></li>
 </ul>
+<p>Note that support for <em>lzo1</em> and <em>lzo1a</em> are included in the plugin itself, but are disabled in the <em>squash.ini</em> file because there are no safe decompressors (<em>i.e.</em>, to <code>lzo1_decompress_safe</code> and <code>lzo1a_decompress_safe</code> functions). Squash requires all decompression implementations to be safe.</p>
+<p>According to the documentation in LZO, both algorithms "… are mainly
+included for compatibility reasons"; it is unlikely you really want to use them, and due to the absence of a safe decompressor doing so is <b>strongly</b> discouraged, especially with untrusted input. However, in the event that you do need to use them you can simply add them to the lzo plugin's <em>squash.ini</em>.</p>
 <p>From the <a href="http://www.oberhumer.com/opensource/lzo/lzodoc.php">LZO documentation</a>:</p>
 <blockquote class="doxtable">
 <p>I first published LZO1 and LZO1A in the Internet newsgroups comp.compression and comp.compression.research in March 1996. They are mainly included for compatibility reasons. The LZO2A decompressor is too slow, and there is no fast compressor anyway.</p>

@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -107,10 +107,17 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga5dd4b87e7c353aac8615ba085e665b8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream type.  <a href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">More...</a><br /></td></tr>
 <tr class="separator:ga5dd4b87e7c353aac8615ba085e665b8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad8c27f93a8bdf9d9463992763dde5b68"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">SquashOperation</a> { <a class="el" href="group__SquashStream.html#ggad8c27f93a8bdf9d9463992763dde5b68a42a3e7534c3b33e0f8332b7f8eee4531">SQUASH_OPERATION_PROCESS</a> = 1, 
+<a class="el" href="group__SquashStream.html#ggad8c27f93a8bdf9d9463992763dde5b68ad8ae52a69466f974119900de266d1ef9">SQUASH_OPERATION_FLUSH</a> = 2, 
+<a class="el" href="group__SquashStream.html#ggad8c27f93a8bdf9d9463992763dde5b68a2e03a28d35aa7cafff9c370f717dbe13">SQUASH_OPERATION_FINISH</a> = 3, 
+<a class="el" href="group__SquashStream.html#ggad8c27f93a8bdf9d9463992763dde5b68aaec7a9a0e1af98e2de30bb21adea01ad">SQUASH_OPERATION_TERMINATE</a> = 4
+ }</td></tr>
+<tr class="memdesc:gad8c27f93a8bdf9d9463992763dde5b68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Operations to perform on a stream.  <a href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">More...</a><br /></td></tr>
+<tr class="separator:gad8c27f93a8bdf9d9463992763dde5b68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga426ecde6b4f4a6a399fa5ee5be24026f"><td class="memItemLeft" align="right" valign="top">SquashOperation&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga426ecde6b4f4a6a399fa5ee5be24026f">squash_stream_yield</a> (SquashStream *stream, <a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> status)</td></tr>
+<tr class="memitem:ga426ecde6b4f4a6a399fa5ee5be24026f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">SquashOperation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga426ecde6b4f4a6a399fa5ee5be24026f">squash_stream_yield</a> (SquashStream *stream, <a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> status)</td></tr>
 <tr class="memdesc:ga426ecde6b4f4a6a399fa5ee5be24026f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Yield execution back to the main thread.  <a href="#ga426ecde6b4f4a6a399fa5ee5be24026f">More...</a><br /></td></tr>
 <tr class="separator:ga426ecde6b4f4a6a399fa5ee5be24026f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5a59de3e8e7fb1f1992e1b1a84dde207"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga5a59de3e8e7fb1f1992e1b1a84dde207">squash_stream_init</a> (void *stream, SquashCodec *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type, SquashOptions *options, <a class="el" href="group__SquashObject.html#gaa85f5f3941a11357287144f12b768730">SquashDestroyNotify</a> destroy_notify)</td></tr>
@@ -131,6 +138,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gac40b540297f066b07479753dbbf78dfd"><td class="memItemLeft" align="right" valign="top">SquashStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#gac40b540297f066b07479753dbbf78dfd">squash_stream_new_with_options</a> (const char *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type, SquashOptions *options)</td></tr>
 <tr class="memdesc:gac40b540297f066b07479753dbbf78dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new stream with options.  <a href="#gac40b540297f066b07479753dbbf78dfd">More...</a><br /></td></tr>
 <tr class="separator:gac40b540297f066b07479753dbbf78dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3615495ac305c12a84e631856d459ff1"><td class="memItemLeft" align="right" valign="top">SquashStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga3615495ac305c12a84e631856d459ff1">squash_stream_new_codec</a> (SquashCodec *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type,...)</td></tr>
+<tr class="memdesc:ga3615495ac305c12a84e631856d459ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new stream using a codec instance.  <a href="#ga3615495ac305c12a84e631856d459ff1">More...</a><br /></td></tr>
+<tr class="separator:ga3615495ac305c12a84e631856d459ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2bccfefd0137e10bdb3acb878db3c933"><td class="memItemLeft" align="right" valign="top">SquashStream *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga2bccfefd0137e10bdb3acb878db3c933">squash_stream_new_codec_with_options</a> (SquashCodec *codec, <a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type, SquashOptions *options)</td></tr>
+<tr class="memdesc:ga2bccfefd0137e10bdb3acb878db3c933"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new stream using codec and options intances.  <a href="#ga2bccfefd0137e10bdb3acb878db3c933">More...</a><br /></td></tr>
+<tr class="separator:ga2bccfefd0137e10bdb3acb878db3c933"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga05defb5fc38779fa23f6abf360e2e48b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__SquashStream.html#ga05defb5fc38779fa23f6abf360e2e48b">squash_stream_process</a> (SquashStream *stream)</td></tr>
 <tr class="memdesc:ga05defb5fc38779fa23f6abf360e2e48b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process a stream.  <a href="#ga05defb5fc38779fa23f6abf360e2e48b">More...</a><br /></td></tr>
 <tr class="separator:ga05defb5fc38779fa23f6abf360e2e48b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +157,40 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Low-level compression and decompression streams. </p>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="gad8c27f93a8bdf9d9463992763dde5b68"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">SquashOperation</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Operations to perform on a stream. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="ggad8c27f93a8bdf9d9463992763dde5b68a42a3e7534c3b33e0f8332b7f8eee4531"></a>SQUASH_OPERATION_PROCESS&#160;</td><td class="fielddoc">
+<p>Continue processing the stream normally. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashStream.html#ga05defb5fc38779fa23f6abf360e2e48b" title="Process a stream. ">squash_stream_process</a> </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggad8c27f93a8bdf9d9463992763dde5b68ad8ae52a69466f974119900de266d1ef9"></a>SQUASH_OPERATION_FLUSH&#160;</td><td class="fielddoc">
+<p>Flush the stream. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashStream.html#gaf30071398681ab62c1e8903c21e3aa9f" title="Flush a stream. ">squash_stream_flush</a> </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggad8c27f93a8bdf9d9463992763dde5b68a2e03a28d35aa7cafff9c370f717dbe13"></a>SQUASH_OPERATION_FINISH&#160;</td><td class="fielddoc">
+<p>Finish processing the stream. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashStream.html#ga24721673ad2adef124c2008c11267b3e" title="Finish writing to a stream. ">squash_stream_finish</a> </dd></dl>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="ggad8c27f93a8bdf9d9463992763dde5b68aaec7a9a0e1af98e2de30bb21adea01ad"></a>SQUASH_OPERATION_TERMINATE&#160;</td><td class="fielddoc">
+<p>Abort. </p>
+<p>This value is only passed to plugins with the <a class="el" href="group__SquashCodec.html#ggabdbf4a0f26de22f53d71d940fb6a2e9ea8340c1f0c1fe7f490d1e06f91247b044">SQUASH_CODEC_INFO_RUN_IN_THREAD</a> flag set, and signals that the stream is being destroyed (likely before processing has completed). There will be no further input, and any output will be ignored. </p>
+</td></tr>
+</table>
+
+<p>Definition at line <a class="el" href="stream_8h_source.html#l00051">51</a> of file <a class="el" href="stream_8h_source.html">stream.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="ga5dd4b87e7c353aac8615ba085e665b8e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -200,7 +247,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashObject.html#gaa4dabc116f6e3b520084f1dfb56f71cd" title="Destroy an object. ">squash_object_destroy</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00306">306</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00342">342</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -227,7 +274,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00665">665</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00743">743</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -255,7 +302,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A status code. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00654">654</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00732">732</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -322,7 +369,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__SquashObject.html#ga67ca8a34f9ebe0c5ed07fb6204439ed3" title="Initialize a new object. ">squash_object_init</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00241">241</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00277">277</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -367,7 +414,97 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00346">346</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00382">382</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga3615495ac305c12a84e631856d459ff1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStream* squash_stream_new_codec </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a>&#160;</td>
+          <td class="paramname"><em>stream_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a new stream using a codec instance. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>Codec to use </td></tr>
+    <tr><td class="paramname">stream_type</td><td>Stream type </td></tr>
+    <tr><td class="paramname">...</td><td>List of options </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00471">471</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga2bccfefd0137e10bdb3acb878db3c933"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SquashStream* squash_stream_new_codec_with_options </td>
+          <td>(</td>
+          <td class="paramtype">SquashCodec *&#160;</td>
+          <td class="paramname"><em>codec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a>&#160;</td>
+          <td class="paramname"><em>stream_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SquashOptions *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a new stream using codec and options intances. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">codec</td><td>Codec to use </td></tr>
+    <tr><td class="paramname">stream_type</td><td>Stream type </td></tr>
+    <tr><td class="paramname">options</td><td>An option group </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure </dd></dl>
+
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00495">495</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -412,7 +549,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00413">413</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00449">449</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -464,7 +601,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00397">397</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00433">433</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -509,7 +646,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new stream, or <em>NULL</em> on failure. </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00368">368</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00404">404</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -545,7 +682,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00639">639</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00717">717</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>
@@ -557,7 +694,7 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">SquashOperation squash_stream_yield </td>
+          <td class="memname"><a class="el" href="group__SquashStream.html#gad8c27f93a8bdf9d9463992763dde5b68">SquashOperation</a> squash_stream_yield </td>
           <td>(</td>
           <td class="paramtype">SquashStream *&#160;</td>
           <td class="paramname"><em>stream</em>, </td>
@@ -592,7 +729,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The code of the next requested operation </dd></dl>
 
-<p>Definition at line <a class="el" href="stream_8c_source.html#l00187">187</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
+<p>Definition at line <a class="el" href="stream_8c_source.html#l00223">223</a> of file <a class="el" href="stream_8c_source.html">stream.c</a>.</p>
 
 </div>
 </div>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['yalz77_20plugin',['yalz77 Plugin',['../md_plugins_yalz77_yalz77.html',1,'']]]
+  ['wflz_20plugin',['wflz Plugin',['../md_plugins_wflz_wflz.html',1,'']]]
 ];

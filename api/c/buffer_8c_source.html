@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -171,75 +171,54 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;squash_buffer_ensure_allocation (SquashBuffer* buffer, <span class="keywordtype">size_t</span> allocation) {</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="keywordflow">if</span> (allocation &gt; buffer-&gt;allocated) {</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    allocation = squash_buffer_npot_page (allocation);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor">#if defined(HAVE_MREMAP)</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">if</span> (buffer-&gt;data == NULL) {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      buffer-&gt;data = mmap (NULL, allocation, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      buffer-&gt;allocated = allocation;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      assert (buffer-&gt;data != MAP_FAILED);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;      buffer-&gt;data = mremap (buffer-&gt;data, buffer-&gt;allocated, allocation, MREMAP_MAYMOVE, NULL);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    }</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="comment">/* lseek (buffer-&gt;fd, (off_t) buffer-&gt;allocated - 1, SEEK_SET); */</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="comment">/* write (buffer-&gt;fd, &quot;&quot;, 1); */</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="comment">/* buffer-&gt;data = mmap (NULL, buffer-&gt;allocated, PROT_READ | PROT_WRITE, MAP_SHARED, buffer-&gt;fd, 0); */</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="comment">/* assert (buffer-&gt;data != MAP_FAILED); */</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="comment">/* fflush (stderr); */</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    buffer-&gt;data = (uint8_t*) realloc (buffer-&gt;data, buffer-&gt;allocated);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  }</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;}</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;SquashBuffer*</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;squash_buffer_new (<span class="keywordtype">size_t</span> preallocated_len) {</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  SquashBuffer* buffer = (SquashBuffer*) malloc (<span class="keyword">sizeof</span> (SquashBuffer));</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor">#if defined(HAVE_MREMAP)</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  buffer-&gt;data = NULL;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  buffer-&gt;length = 0;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    buffer-&gt;allocated = allocation;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    buffer-&gt;data = (uint8_t*) realloc (buffer-&gt;data, allocation);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  }</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;SquashBuffer*</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;squash_buffer_new (<span class="keywordtype">size_t</span> preallocated_len) {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  SquashBuffer* buffer = (SquashBuffer*) malloc (<span class="keyword">sizeof</span> (SquashBuffer));</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  buffer-&gt;data = preallocated_len &gt; 0 ? (uint8_t*) malloc (preallocated_len) : NULL;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  buffer-&gt;length = 0;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  buffer-&gt;allocated = preallocated_len;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordflow">return</span> buffer;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;}</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;squash_buffer_set_size (SquashBuffer* buffer, <span class="keywordtype">size_t</span> length) {</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordflow">if</span> (length &gt; buffer-&gt;allocated)</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    squash_buffer_ensure_allocation (buffer, length);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  buffer-&gt;length = length;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;squash_buffer_clear (SquashBuffer* buffer) {</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  free (buffer-&gt;data);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  buffer-&gt;data = NULL;</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  buffer-&gt;allocated = 0;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordflow">if</span> (preallocated_len &gt; 0)</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    squash_buffer_ensure_allocation (buffer, preallocated_len);</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  buffer-&gt;data = preallocated_len &gt; 0 ? (uint8_t*) malloc (preallocated_len) : NULL;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  buffer-&gt;length = 0;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  buffer-&gt;allocated = preallocated_len;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  buffer-&gt;length = 0;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keywordtype">void</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;squash_buffer_append (SquashBuffer* buffer, uint8_t* data, <span class="keywordtype">size_t</span> data_length) {</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> start_pos = buffer-&gt;length;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  squash_buffer_set_size (buffer, buffer-&gt;length + data_length);</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <span class="keywordflow">return</span> buffer;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  memcpy (buffer-&gt;data + start_pos, data, data_length);</div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;squash_buffer_set_size (SquashBuffer* buffer, <span class="keywordtype">size_t</span> length) {</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordflow">if</span> (length &gt; buffer-&gt;allocated)</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    squash_buffer_ensure_allocation (buffer, length);</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  buffer-&gt;length = length;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;squash_buffer_free (SquashBuffer* buffer) {</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordflow">if</span> (buffer-&gt;data != NULL) {</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    free (buffer-&gt;data);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  }</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  free (buffer);</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;}</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;squash_buffer_append (SquashBuffer* buffer, uint8_t* data, <span class="keywordtype">size_t</span> data_length) {</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> start_pos = buffer-&gt;length;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  squash_buffer_set_size (buffer, buffer-&gt;length + data_length);</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  memcpy (buffer-&gt;data + start_pos, data, data_length);</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;}</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="keywordtype">void</span></div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;squash_buffer_free (SquashBuffer* buffer) {</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordflow">if</span> (buffer-&gt;data != NULL) {</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;<span class="preprocessor">#if defined(HAVE_MREMAP)</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    munmap (buffer-&gt;data, buffer-&gt;allocated);</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    free (buffer-&gt;data);</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  }</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  free (buffer);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

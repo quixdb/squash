@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -152,17 +152,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;      <span class="keywordflow">return</span> <span class="stringliteral">&quot;The requested codec could not be found&quot;</span>;</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordflow">case</span> <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a0a668f2fc9fce6ee9a6c3cc6da6ad3eb">SQUASH_INVALID_BUFFER</a>:</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;      <span class="keywordflow">return</span> <span class="stringliteral">&quot;Invalid buffer&quot;</span>;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;      <span class="keywordflow">return</span> <span class="stringliteral">&quot;Unknown.&quot;</span>;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  }</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;}</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
-<div class="line"><a name="l00171"></a><span class="lineno"><a class="line" href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">  171</a></span>&#160;<a class="code" href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">squash_error</a> (<a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> status) {</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  assert (status &lt; <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  <span class="keywordflow">return</span> status;</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;}</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordflow">case</span> SQUASH_IO:</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;      <span class="keywordflow">return</span> <span class="stringliteral">&quot;I/O error&quot;</span>;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;      <span class="keywordflow">return</span> <span class="stringliteral">&quot;Unknown.&quot;</span>;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  }</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;}</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a name="l00173"></a><span class="lineno"><a class="line" href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">  173</a></span>&#160;<a class="code" href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">squash_error</a> (<a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> status) {</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  assert (status &lt; <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  <span class="keywordflow">return</span> status;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275ad8fac5cb7f4de9be8361c4c7f59bdc4c"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275ad8fac5cb7f4de9be8361c4c7f59bdc4c">SQUASH_STATE</a></div><div class="ttdoc">Performing the requested operation from the current state is not supported. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00048">status.h:48</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275a221334b698d023fc34a3afdc30627819"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a221334b698d023fc34a3afdc30627819">SQUASH_BUFFER_EMPTY</a></div><div class="ttdoc">Supplied buffer was empty. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00047">status.h:47</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275a22631eb4008da285065eff4f9ebaa2d2"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a22631eb4008da285065eff4f9ebaa2d2">SQUASH_INVALID_OPERATION</a></div><div class="ttdoc">The requested operation is not available. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00049">status.h:49</a></div></div>
@@ -175,7 +177,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275acc34fdee2540f06b6335f54b81f75273"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275acc34fdee2540f06b6335f54b81f75273">SQUASH_BUFFER_FULL</a></div><div class="ttdoc">Insufficient space in buffer. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00046">status.h:46</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275a58fa368f4523e801c1c9940f7d58e413"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a58fa368f4523e801c1c9940f7d58e413">SQUASH_MEMORY</a></div><div class="ttdoc">Not enough memory is available. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00045">status.h:45</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_gaf1729c17cfd40d368052581e23d49275"><div class="ttname"><a href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div><div class="ttdeci">SquashStatus</div><div class="ttdoc">Status codes. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00036">status.h:36</a></div></div>
-<div class="ttc" id="group__SquashStatus_html_gac6f4b2d4ae6d438b182d85e446e84f9d"><div class="ttname"><a href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">squash_error</a></div><div class="ttdeci">SquashStatus squash_error(SquashStatus status)</div><div class="ttdoc">Emit an error. </div><div class="ttdef"><b>Definition:</b> <a href="status_8c_source.html#l00171">status.c:171</a></div></div>
+<div class="ttc" id="group__SquashStatus_html_gac6f4b2d4ae6d438b182d85e446e84f9d"><div class="ttname"><a href="group__SquashStatus.html#gac6f4b2d4ae6d438b182d85e446e84f9d">squash_error</a></div><div class="ttdeci">SquashStatus squash_error(SquashStatus status)</div><div class="ttdoc">Emit an error. </div><div class="ttdef"><b>Definition:</b> <a href="status_8c_source.html#l00173">status.c:173</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275ab880107b451a907a70a36f8a0494ac38"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275ab880107b451a907a70a36f8a0494ac38">SQUASH_BAD_VALUE</a></div><div class="ttdoc">One or more parameter values was not valid. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00044">status.h:44</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275a48874df1aa9ee4755feb71e8ff9fd164"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a48874df1aa9ee4755feb71e8ff9fd164">SQUASH_UNABLE_TO_LOAD</a></div><div class="ttdoc">Unable to load the requested resource. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00042">status.h:42</a></div></div>
 <div class="ttc" id="group__SquashStatus_html_ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6"><div class="ttname"><a href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a></div><div class="ttdoc">Operation completed successfully. </div><div class="ttdef"><b>Definition:</b> <a href="status_8h_source.html#l00037">status.h:37</a></div></div>

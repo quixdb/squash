@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">Squash
-   &#160;<span id="projectnumber">0.6.0</span>
+   &#160;<span id="projectnumber">0.7.0</span>
    </div>
   </td>
  </tr>
@@ -82,12 +82,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">User Guide </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>While the Squash API is fairly large, in general you will only need a handful of functions.</p>
+<div class="textblock"><p>While the Squash API is fairly large, it is conceptually fairly simple.</p>
+<p>Most of the functions are really just layers of convenience wrappers which follow common conventions; for example, many functions will have versions for string and <a class="el" href="group__SquashCodec.html">SquashCodec</a> parameters for the codec, and variadic arguments or a <a class="el" href="group__SquashOptions.html">SquashOptions</a> parameter for the options, which means four versions for every function, but only one concept to learn.</p>
 <p>Squash's API follows some pretty standard conventions:</p>
 <ul>
 <li>Type names are CamelCase (with the first letter uppercase)</li>
 <li>Functions are lowercase_with_underscores</li>
-<li>Binary data is two variables—a <code>uint8_t*</code> and a <code>size_t</code>.</li>
+<li>Binary data is two parameters—a <code>size_t</code> followed by a <code>uint8_t*</code>.</li>
 <li>Instance arguments come first, followed by any output arguments, followed by input arguments.</li>
 </ul>
 <p>The heart of Squash is the <a class="el" href="group__SquashCodec.html">codec</a>. A codec is an implementation of an algorithm, and codecs with the same name are assumed to be compatible. A single <a class="el" href="group__SquashPlugin.html">plugin</a> can, and often does, provide an implementation of several different codecs.</p>
@@ -97,10 +98,13 @@ Buffer API</h1>
 <p>If you have a block of data in memory which you want to compress (or decompress), the easiest way to do so is using the buffer API.</p>
 <div class="fragment"><div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
 <div class="line"><a class="code" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* codec,</div>
-<div class="line">                 uint8_t* compressed, <span class="keywordtype">size_t</span>* compressed_length,</div>
-<div class="line">                 <span class="keyword">const</span> uint8_t* uncompressed, <span class="keywordtype">size_t</span> uncompressed_length, ...);</div>
+<div class="line">                 <span class="keywordtype">size_t</span>* compressed_length,</div>
+<div class="line">                 uint8_t compressed[],</div>
+<div class="line">                 <span class="keywordtype">size_t</span> uncompressed_length,</div>
+<div class="line">                 <span class="keyword">const</span> uint8_t uncompressed[],</div>
+<div class="line">                 ...);</div>
 </div><!-- fragment --><p>Like many functions in Squash, <a class="el" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11" title="Compress a buffer. ">squash_compress</a> returns a <a class="el" href="group__SquashStatus.html">SquashStatus</a>. If the operation was successful, a positive number is returned (generally <a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6" title="Operation completed successfully. ">SQUASH_OK</a>), and a negative number is returned on failure.</p>
-<p>The first argument is the name of the codec.</p>
+<p>The first argument is the name of the codec. To list available codecs, you can use the <code>squash -L</code> command; the convention is that codecs are just the lowercase name of the algorithm. For example, "gzip", "lz4", and "bzip2" are all what you would probably expect.</p>
 <p>The <em>compressed</em> and <em>compressed_length</em> arguments represent the buffer which you wish to compress the data into. Notice that <em>compressed_length</em> is a <code>size_t*</code>, not a <code>size_t</code>. When you call the function it should be a pointer to the number of bytes available for writing in the compressed buffer, and the function will alter the value to the true size of the compressed data upon successful compression.</p>
 <p><em>uncompressed</em> and <em>uncompressed_length</em> are the buffer you wish to compress. <em>uncompressed_length</em> is a <code>size_t</code>, not a <code>size_t</code>, because the function does not need to modify the value.</p>
 <p>Finally, this function is variadic—it accepts an arbitrary number of options, which you can use to control things like the compression level. Options are key/value pairs of strings, terminated by a <em>NULL</em> sentinel… More on that later, but for now, just know that passing <em>NULL</em> there will use the defaults, which is generally what you want.</p>
@@ -115,15 +119,15 @@ Buffer API</h1>
 <div class="line">uint8_t* compressed = (uint8_t*) malloc (compressed_length);</div>
 <div class="line"></div>
 <div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> res =</div>
-<div class="line">  <a class="code" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (<span class="stringliteral">&quot;deflate&quot;</span>, </div>
-<div class="line">                   compressed, &amp;compressed_length,</div>
-<div class="line">                   (<span class="keyword">const</span> uint8_t*) uncompressed, uncompressed_length,</div>
+<div class="line">  <a class="code" href="group__SquashCodec.html#ga863fa3a9613f0dc6cbf0da906ed71b11">squash_compress</a> (<span class="stringliteral">&quot;deflate&quot;</span>,</div>
+<div class="line">                   &amp;compressed_length, compressed,</div>
+<div class="line">                   uncompressed_length, (<span class="keyword">const</span> uint8_t*) uncompressed,</div>
 <div class="line">                   NULL);</div>
 <div class="line"></div>
 <div class="line"><span class="keywordflow">if</span> (res != <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>) {</div>
 <div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Unable to compress data [%d]: %s\n&quot;</span>,</div>
 <div class="line">           res, <a class="code" href="group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22">squash_status_to_string</a> (res));</div>
-<div class="line">  exit (res);</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">fprintf (stdout, <span class="stringliteral">&quot;Compressed a %lu byte buffer to %lu bytes.\n&quot;</span>,</div>
@@ -133,13 +137,13 @@ Buffer API</h1>
 <div class="line"><span class="keywordtype">char</span>* decompressed = (<span class="keywordtype">char</span>*) malloc (uncompressed_length + 1);</div>
 <div class="line"></div>
 <div class="line">res = <a class="code" href="group__SquashCodec.html#ga02d80d21824d374856a6bbe823f983dd">squash_decompress</a> (<span class="stringliteral">&quot;deflate&quot;</span>,</div>
-<div class="line">                         (uint8_t*) decompressed, &amp;decompressed_length,</div>
-<div class="line">                         compressed, compressed_length, NULL);</div>
+<div class="line">                         &amp;decompressed_length, (uint8_t*) decompressed</div>
+<div class="line">                         compressed_length, compressed, NULL);</div>
 <div class="line"></div>
 <div class="line"><span class="keywordflow">if</span> (res != <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>) {</div>
 <div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Unable to decompress data [%d]: %s\n&quot;</span>,</div>
 <div class="line">           res, <a class="code" href="group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22">squash_status_to_string</a> (res));</div>
-<div class="line">  exit (res);</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line"><span class="comment">/* Notice that we didn&#39;t compress the *NULL* byte at the end of the</span></div>
@@ -148,15 +152,66 @@ Buffer API</h1>
 <div class="line"></div>
 <div class="line"><span class="keywordflow">if</span> (strcmp (decompressed, uncompressed) != 0) {</div>
 <div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Bad decompressed data.\n&quot;</span>);</div>
-<div class="line">  exit (-1);</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
 <div class="line">}</div>
 <div class="line"></div>
 <div class="line">fprintf (stdout, <span class="stringliteral">&quot;Successfully decompressed.\n&quot;</span>);</div>
 </div><!-- fragment --><p>It is worth noting that "Hello, world!" is really too short to compress (it "compresses" from 13 bytes to 15 bytes here), but using a longer string will yield better results. You can find a complete, self-contained example in <a class="el" href="simple_8c-example.html">simple.c</a>.</p>
 <h1><a class="anchor" id="streams"></a>
-Stream API</h1>
-<p>While the buffer API is very easy to use, if you want to compress a lot of data without loading it into memory then the stream API is much more appropriate.</p>
-<p>If you've ever worked with a compression API in the past then the stream API will probably feel pretty familiar to you. The basic idea is that you have a data structure, a <a class="el" href="group__SquashStream.html">SquashStream</a>, and you shuttle data into one buffer and out of another. </p>
+File I/O API</h1>
+<p>While the buffer API is very easy to use it can be a bit limiting. If you want to compress a lot of data without loading it into memory then a streaming API is much more appropriate.</p>
+<p>Squash has two streaming APIs; the first is modeled after the API provided by zlib, which has been copied by many other libraries. It is a bit of a pain to use, but extremely powerful. The second API is a higher-level convenience API which wraps the lower-level API and provides an interface similar to the standard C I/O API (<em>i.e.</em> fopen, fclose, fflush, fread, and fwrite).</p>
+<p>We will not go into detail about the lower-level API now, but if you're interested you can look at the API documentation for <a class="el" href="group__SquashStream.html">SquashStream</a> for details.</p>
+<p>The higher level API is documented in <a class="el" href="group__SquashFile.html">SquashFile</a>, but some of the prototypes are reproduced here:</p>
+<div class="fragment"><div class="line">SquashFile*</div>
+<div class="line"><a class="code" href="group__SquashFile.html#gadeec3a1d8230e071a595e52e1b7c610b">squash_file_open</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* filename,</div>
+<div class="line">                  <span class="keyword">const</span> <span class="keywordtype">char</span>* mode,</div>
+<div class="line">                  <span class="keyword">const</span> <span class="keywordtype">char</span>* codec,</div>
+<div class="line">                  ...);</div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a class="code" href="group__SquashFile.html#ga0bd8fc82940494b89c7b0c41a1b7e80b">squash_file_read</a> (SquashFile* file,</div>
+<div class="line">                  <span class="keywordtype">size_t</span>* decompressed_length,</div>
+<div class="line">                  uint8_t decompressed[]);</div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a class="code" href="group__SquashFile.html#ga154ea0ffdefcf4cd40619acd97cfb699">squash_file_write</a> (SquashFile* file,</div>
+<div class="line">                   <span class="keywordtype">size_t</span> uncompressed_length,</div>
+<div class="line">                   <span class="keyword">const</span> uint8_t uncompressed[]);</div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a class="code" href="group__SquashFile.html#gaf6e6128ad6a1189f186152d796f15152">squash_file_flush</a> (SquashFile* file);</div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a class="code" href="group__SquashFile.html#ga0801887a4605052e5a5154704d499900">squash_file_close</a> (SquashFile* file);</div>
+</div><!-- fragment --><p>Like most of the Squash API, most of these functions return <a class="el" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a> on success and a negative error code on failure. The exception to this is <a class="el" href="group__SquashFile.html#gadeec3a1d8230e071a595e52e1b7c610b">squash_file_open</a> which, like <code>fopen</code>, returns <em>NULL</em> on failure. The <em>mode</em> string is passed verbatim to <code>fopen</code>.</p>
+<p>Going back to our "Hello, world!" example from above, to write a file with the compressed version of "Hello, world!", all you would have to do is something like:</p>
+<div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span>* uncompressed = <span class="stringliteral">&quot;Hello, world!&quot;</span>;</div>
+<div class="line"></div>
+<div class="line">SquashFile* file = <a class="code" href="group__SquashFile.html#gadeec3a1d8230e071a595e52e1b7c610b">squash_file_open</a> (<span class="stringliteral">&quot;hello.gz&quot;</span>, <span class="stringliteral">&quot;w+&quot;</span>, <span class="stringliteral">&quot;gzip&quot;</span>, NULL);</div>
+<div class="line"><span class="keywordflow">if</span> (file == NULL) {</div>
+<div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Unable to open file for writing\n&quot;</span>);</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> res = <a class="code" href="group__SquashFile.html#ga154ea0ffdefcf4cd40619acd97cfb699">squash_file_write</a> (file, strlen (uncompressed), uncompressed);</div>
+<div class="line"><span class="keywordflow">if</span> (res != <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>) {</div>
+<div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Unable to write compressed data [%d]: %s\n&quot;</span>,</div>
+<div class="line">           res, <a class="code" href="group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22">squash_status_to_string</a> (res));</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
+<div class="line">}</div>
+<div class="line"></div>
+<div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a> res = <a class="code" href="group__SquashFile.html#ga0801887a4605052e5a5154704d499900">squash_file_close</a> (file);</div>
+<div class="line"><span class="keywordflow">if</span> (res != <a class="code" href="group__SquashStatus.html#ggaf1729c17cfd40d368052581e23d49275a43b2a0c6816ebe74b7e3f45a8e7cb6f6">SQUASH_OK</a>) {</div>
+<div class="line">  fprintf (stderr, <span class="stringliteral">&quot;Unable to close file [%d]: %s\n&quot;</span>,</div>
+<div class="line">           res, <a class="code" href="group__SquashStatus.html#gae4874f7346b8f0c44289a2fc4928ca22">squash_status_to_string</a> (res));</div>
+<div class="line">  exit (EXIT_FAILURE);</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>If you want to simply splice the contents of one file to another (decompressing of compressing in the process), you can use the <code>squash_splice</code> family of functions, which looks like:</p>
+<div class="fragment"><div class="line"><a class="code" href="group__SquashStatus.html#gaf1729c17cfd40d368052581e23d49275">SquashStatus</a></div>
+<div class="line"><a class="code" href="group__SquashFile.html#gac85112063f9aee5602bff705ca3cbfc4">squash_splice</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* codec,</div>
+<div class="line">               <a class="code" href="group__SquashStream.html#ga5dd4b87e7c353aac8615ba085e665b8e">SquashStreamType</a> stream_type,</div>
+<div class="line">               FILE* fp_out,</div>
+<div class="line">               FILE* fp_in,</div>
+<div class="line">               <span class="keywordtype">size_t</span> length,</div>
+<div class="line">               ...);</div>
+</div><!-- fragment --><p>Beyond just being convenient, this function has the advantage that for codecs which don't implement streaming natively Squash will attempt to memory map the files and pass those addresses directly to the buffer-to-buffer compression function. This eliminates a lot of buffering which, for larger files, can consume significant amounts of memory. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
