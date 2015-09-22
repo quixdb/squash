@@ -37,6 +37,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <string.h>
 
 /* #define SQUASH_MMAP_IO */
 
@@ -131,7 +132,11 @@ squash_mapped_file_init_full (SquashMappedFile* mapped, FILE* fp, size_t length,
   mapped->window_offset = (size_t) offset % page_size;
   mapped->map_length = length + mapped->window_offset;
 
-  mapped->data = mmap (NULL, mapped->map_length, writable ? PROT_READ | PROT_WRITE : PROT_READ, MAP_SHARED, fd, offset - mapped->window_offset);
+  if (writable)
+    mapped->data = mmap (NULL, mapped->map_length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset - mapped->window_offset);
+  else
+    mapped->data = mmap (NULL, mapped->map_length, PROT_READ, MAP_SHARED, fd, offset - mapped->window_offset);
+
   if (mapped->data == MAP_FAILED)
     return false;
 
@@ -938,6 +943,23 @@ squash_splice_stream (FILE* fp_in,
   return res;
 }
 
+static once_flag squash_splice_detect_once = ONCE_FLAG_INIT;
+static int squash_splice_try_mmap = 0;
+
+static void
+squash_splice_detect_enable (void) {
+  char* ev = getenv ("SQUASH_MAP_SPLICE");
+
+  if (ev == NULL || strcmp (ev, "yes") == 0)
+    squash_splice_try_mmap = 2;
+  else if (strcmp (ev, "always") == 0)
+    squash_splice_try_mmap = 3;
+  else if (strcmp (ev, "no") == 0)
+    squash_splice_try_mmap = 1;
+  else
+    squash_splice_try_mmap = 2;
+}
+
 /**
  * @brief compress or decompress the contents of one file to another
  *
@@ -970,11 +992,14 @@ squash_splice_codec_with_options (SquashCodec* codec,
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
   assert (codec != NULL);
 
-  if (codec->impl.create_stream == NULL)
+  call_once (&squash_splice_detect_once, squash_splice_detect_enable);
+
+  if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
     res = squash_splice_map (fp_in, fp_out, length, stream_type, codec, options);
+  }
 
   if (res != SQUASH_OK)
-    return squash_splice_stream (fp_in, fp_out, length, stream_type, codec, options);
+    res = squash_splice_stream (fp_in, fp_out, length, stream_type, codec, options);
 
   return res;
 }
