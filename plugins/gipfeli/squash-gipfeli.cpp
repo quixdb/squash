@@ -152,6 +152,8 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
     res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     res = squash_error (SQUASH_MEMORY);
+  } catch (const std::overflow_error& e) {
+    res = squash_error (SQUASH_BUFFER_FULL);
   } catch (...) {
     res = squash_error (SQUASH_FAILED);
   }
