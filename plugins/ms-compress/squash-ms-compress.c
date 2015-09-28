@@ -162,16 +162,11 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashStatus status = SQUASH_FAILED;
   MSCompStatus res;
   SquashMSCompStream* s = (SquashMSCompStream*) stream;
-  uint8_t nul_buf;
 
   s->mscomp.in = stream->next_in;
   s->mscomp.in_avail = stream->avail_in;
   s->mscomp.out = stream->next_out;
   s->mscomp.out_avail = stream->avail_out;
-
-  if (s->mscomp.in == NULL) {
-    s->mscomp.in = &nul_buf;
-  }
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     res = ms_deflate(&(s->mscomp), squash_ms_comp_flush_from_operation (operation));

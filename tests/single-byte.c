@@ -11,11 +11,8 @@ check_codec (SquashCodec* codec) {
 
   g_assert_cmpint (squash_codec_get_max_compressed_size (codec, 1), <=, sizeof(compressed));
 
-  if (strcmp (squash_codec_get_name (codec), "lzf") == 0 ||
-      strcmp (squash_codec_get_name (codec), "xpress-huffman") == 0)
+  if (strcmp (squash_codec_get_name (codec), "lzf") == 0)
     return;
-
-  fprintf (stderr, "%s:%d: compress (%s, %p[%zu] ← %p[%zu])\n", __FILE__, __LINE__, squash_codec_get_name (codec), compressed, compressed_length, &uncompressed, (size_t) 1);
 
   res = squash_codec_compress_with_options (codec, &compressed_length, compressed, 1, &uncompressed, NULL);
   SQUASH_ASSERT_OK(res);
