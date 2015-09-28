@@ -78,6 +78,7 @@ static void
 single_teardown (struct Single* data, gconstpointer user_data) {
   unlink (data->filename);
   close (data->fd);
+  g_free (data->filename);
 }
 
 static void
@@ -134,6 +135,9 @@ triple_teardown (struct Triple* data, gconstpointer user_data) {
   close (data->fd[0]);
   close (data->fd[1]);
   close (data->fd[2]);
+  g_free (data->filename[0]);
+  g_free (data->filename[1]);
+  g_free (data->filename[2]);
 }
 
 static void
