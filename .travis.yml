@@ -1,12 +1,13 @@
 language: c
+os:
+  - linux
+#  - osx
 compiler:
   - gcc
   - clang
 before_install:
- - sudo apt-get update -qq
- # Remember to keep this synced with build-deps.catalog
- - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && sudo apt-get update && sudo apt-get install -qq gcc-4.8 g++-4.8 ragel cmake make libglib2.0-dev libbz2-dev liblzma-dev liblzo2-dev libsnappy-dev zlib1g-dev && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 && sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-script: git submodule update --init --recursive && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" && make VERBOSE=1 && CTEST_OUTPUT_ON_FAILURE=TRUE make test
+ - ./.travis.sh deps
+script: ./.travis.sh build && ./.travis.sh test
 # notifications:
 #   irc:
 #     channels:

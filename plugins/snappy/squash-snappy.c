@@ -33,7 +33,8 @@
 #include <strings.h>
 
 #if defined(__APPLE__)
-#  include <machine/endian.h>
+#  include <libkern/OSByteOrder.h>
+#  define be32toh(x) OSSwapBigToHostInt32(x)
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragoFly__)
 #  include <sys/endian.h>
 #else

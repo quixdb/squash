@@ -61,6 +61,10 @@ function find_var_decl() {
     fi
 }
 
+function prefix_to_offset() {
+    expr $(echo "${1}" | awk '{ print length }') + 1
+}
+
 function print_help() {
     cat <<EOF >&2
   -h, --help              display this help and exit
@@ -146,78 +150,78 @@ declare -a CMAKE_ARGS=("" "" "")
 while [ $# != 0 ]; do
     case "$1" in
         "--prefix="*)
-            PREFIX="$(echo -n "${1}" | cut -b$(expr length "--prefix=" + 1)-)";;
+            PREFIX="$(echo -n "${1}" | cut -b$(prefix_to_offset "--prefix=")-)";;
         "--prefix")
             PREFIX="${2}"; shift;;
         "--bindir"*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_BINDIR=$(echo -n "${1}" | cut -b$(expr length "--bindir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_BINDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--bindir=")-)");;
         "--bindir=")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_BINDIR=$(echo -n "${2}")");;
         "--sbindir"*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SBINDIR=$(echo -n "${1}" | cut -b$(expr length "--sbindir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SBINDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--sbindir=")-)");;
         "--sbindir=")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SBINDIR=${2}"); shift;;
         "--libexecdir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LIBEXECDIR=$(echo -n "${1}" | cut -b$(expr length "--libexecdir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LIBEXECDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--libexecdir=")-)");;
         "--libexecdir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LIBEXECDIR=${2}"); shift;;
         "--sysconfdir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SYSCONFDIR=$(echo -n "${1}" | cut -b$(expr length "--sysconfdir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SYSCONFDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--sysconfdir=")-)");;
         "--sysconfdir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SYSCONFDIR=${2}"); shift;;
         "--sharedstatedir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SHAREDSTATEDIR=$(echo -n "${1}" | cut -b$(expr length "--sharedstatedir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SHAREDSTATEDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--sharedstatedir=")-)");;
         "--sharedstatedir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_SHAREDSTATEDIR=${2}"); shift;;
         "--localstatedir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALSTATEDIR=$(echo -n "${1}" | cut -b$(expr length "--localstatedir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALSTATEDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--localstatedir=")-)");;
         "--localstatedir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALSTATEDIR=${2}"); shift;;
         "--libdir="*)
-            LIBDIR="$(echo -n "${1}" | cut -b$(expr length "--libdir=" + 1)-)";;
+            LIBDIR="$(echo -n "${1}" | cut -b$(prefix_to_offset "--libdir=")-)";;
         "--libdir")
             LIBDIR="${2}"; shift;;
         "--includedir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INCLUDEDIR=$(echo -n "${1}" | cut -b$(expr length "--includedir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INCLUDEDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--includedir=")-)");;
         "--includedir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INCLUDEDIR=${2}"); shift;;
         "--oldincludedir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_OLDINCLUDEDIR=$(echo -n "${1}" | cut -b$(expr length "--oldincludedir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_OLDINCLUDEDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--oldincludedir=")-)");;
         "--oldincludedir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_OLDINCLUDEDIR=${2}"); shift;;
         "--datarootdir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATAROOTDIR=$(echo -n "${1}" | cut -b$(expr length "--datarootdir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATAROOTDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--datarootdir=")-)");;
         "--datarootdir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATAROOTDIR=${2}"); shift;;
         "--datadir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATADIR=$(echo -n "${1}" | cut -b$(expr length "--datadir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATADIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--datadir=")-)");;
         "--datadir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DATADIR=${2}"); shift;;
         "--infodir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INFODIR=$(echo -n "${1}" | cut -b$(expr length "--infodir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INFODIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--infodir=")-)");;
         "--infodir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_INFODIR=${2}"); shift;;
         "--localedir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALEDIR=$(echo -n "${1}" | cut -b$(expr length "--localedir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALEDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--localedir=")-)");;
         "--localedir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_LOCALEDIR=${2}"); shift;;
         "--mandir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_MANDIR=$(echo -n "${1}" | cut -b$(expr length "--mandir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_MANDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--mandir=")-)");;
         "--mandir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_MANDIR=${2}"); shift;;
         "--docdir="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DOCDIR=$(echo -n "${1}" | cut -b$(expr length "--docdir=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DOCDIR=$(echo -n "${1}" | cut -b$(prefix_to_offset "--docdir=")-)");;
         "--docdir")
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_INSTALL_DOCDIR=${2}"); shift;;
 
         "CC="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_C_COMPILER=$(echo -n "${1}" | cut -b$(expr length "CC=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_C_COMPILER=$(echo -n "${1}" | cut -b$(prefix_to_offset "CC=")-)");;
         "CXX="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_CXX_COMPILER=$(echo -n "${1}" | cut -b$(expr length "CXX=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_CXX_COMPILER=$(echo -n "${1}" | cut -b$(prefix_to_offset "CXX=")-)");;
         "CFLAGS="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_C_FLAGS=$(echo -n "${1}" | cut -b$(expr length "CFLAGS=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_C_FLAGS=$(echo -n "${1}" | cut -b$(prefix_to_offset "CFLAGS=")-)");;
         "CXXFLAGS="*)
-            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_CXX_FLAGS=$(echo -n "${1}" | cut -b$(expr length "CXXFLAGS=" + 1)-)");;
+            CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-DCMAKE_CXX_FLAGS=$(echo -n "${1}" | cut -b$(prefix_to_offset "CXXFLAGS=")-)");;
 
         "--help")
             print_help;;
@@ -233,12 +237,6 @@ while [ $# != 0 ]; do
         "--disable-debug")
             BUILD_TYPE="Release";;
 
-        "--passthrough")
-        ;&
-        "--pass-through")
-        ;&
-        "--passthru")
-        ;&
         "--pass-thru")
             shift;
             while [ $# != 0 ]; do
@@ -247,18 +245,18 @@ while [ $# != 0 ]; do
             done;;
 
         "--enable-"*)
-            find_var_decl $(echo -n "${1}" | cut -b$(expr length "--enable-" + 1)-) "${ENABLE_VARS}" "${0}" "${1}"
+            find_var_decl $(echo -n "${1}" | cut -b$(prefix_to_offset "--enable-")-) "${ENABLE_VARS}" "${0}" "${1}"
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-D${components[2]}=${components[1]}")
             ;;
 
         "--disable-"*)
-            find_var_decl $(echo -n "${1}" | cut -b$(expr length "--disable-" + 1)-) "${DISABLE_VARS}" "${0}" "${1}"
+            find_var_decl $(echo -n "${1}" | cut -b$(prefix_to_offset "--disable-")-) "${DISABLE_VARS}" "${0}" "${1}"
             CMAKE_ARGS=("${CMAKE_ARGS[@]}" "-D${components[2]}=${components[1]}")
             ;;
 
         "--with-"*)
             IFS="=" read -ra WITHARGS <<< "${1}"
-            find_var_decl $(echo -n "${WITHARGS[0]}" | cut -b$(expr length "--with-" + 1)-) "${WITH_VARS}" "${0}" "${WITHARGS[0]}"
+            find_var_decl $(echo -n "${WITHARGS[0]}" | cut -b$(prefix_to_offset "--with-")-) "${WITH_VARS}" "${0}" "${WITHARGS[0]}"
             if [ "x${WITHARGS[1]}" = 'x' ]; then
                 withval="${components[1]}"
             else
