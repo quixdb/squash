@@ -36,8 +36,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 /* #define SQUASH_MMAP_IO */
 
@@ -128,7 +128,7 @@ squash_mapped_file_init_full (SquashMappedFile* mapped, FILE* fp, size_t length,
   }
   mapped->length = length;
 
-  const size_t page_size = (size_t) sysconf (_SC_PAGE_SIZE);
+  const size_t page_size = squash_get_page_size ();
   mapped->window_offset = (size_t) offset % page_size;
   mapped->map_length = length + mapped->window_offset;
 

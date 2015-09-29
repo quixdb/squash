@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,16 +26,6 @@
 
 #include <squash/config.h>
 
-#if defined(HAVE_MMAP)
-#  define _POSIX_SOURCE
-#  define _GNU_SOURCE
-#  include <unistd.h>
-#  if defined(HAVE_MREMAP)
-#    include <sys/types.h>
-#    include <sys/mman.h>
-#endif
-#endif
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,20 +36,10 @@
 
 static size_t
 squash_buffer_npot_page (size_t value) {
-#if defined(_POSIX_SOURCE)
-  static size_t page_size = 0;
-
-  if (page_size == 0) {
-    long ps = sysconf (_SC_PAGE_SIZE);
-    page_size = (ps == -1) ? 8192 : ((size_t) ps);
-  }
+  const size_t page_size = squash_get_page_size ();
 
   if (value < page_size)
     value = page_size;
-#else
-  if (value < 4096)
-    value = 4096;
-#endif
 
   if ((value & (value - 1)) != 0) {
     value -= 1;

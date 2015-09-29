@@ -19,6 +19,7 @@ set (squash_SOURCES
   object.c
   plugin.c
   stream.c
+  util.c
   version.c
   tinycthread/source/tinycthread.c)
 
@@ -56,7 +57,11 @@ else ()
   if (${CLOCK_GETTIME_REQUIRES_RT})
     target_link_libraries (squash${SQUASH_VERSION_API} rt)
   endif ()
-  target_link_libraries (squash${SQUASH_VERSION_API} dl)
+
+  include (FindDlopen)
+  if (${DLOPEN_REQUIRES_DL})
+    target_link_libraries (squash${SQUASH_VERSION_API} dl)
+  endif ()
 endif ()
 
 install (TARGETS squash${SQUASH_VERSION_API}

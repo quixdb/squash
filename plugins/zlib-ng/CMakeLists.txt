@@ -19,9 +19,10 @@ list (APPEND zlibng_sources ${libzlibng_sources})
 
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
+find_program (SED sed DOC "sed executable")
+
 macro(generate_cmakein input output)
-    execute_process(COMMAND sed "/#define ZCONF_H/ a\\\n#cmakedefine Z_HAVE_UNISTD_H\n" -
-                    INPUT_FILE ${input}
+    execute_process(COMMAND ${SED} "/#define ZCONF_H/ a\\\n#cmakedefine Z_HAVE_UNISTD_H\n" ${input}
                     OUTPUT_FILE ${output}
 )
 

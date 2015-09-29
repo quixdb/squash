@@ -31,7 +31,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <endian.h>
+
+#if defined(__APPLE__)
+#  include <machine/endian.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragoFly__)
+#  include <sys/endian.h>
+#else
+#  include <endian.h>
+#endif
 
 #include <squash/squash.h>
 #include <snappy-c.h>
