@@ -62,6 +62,10 @@
   #endif
 #endif
 
+#ifndef SQUASH_FILE_BUF_SIZE
+#  define SQUASH_FILE_BUF_SIZE ((size_t) (1024 * 1024))
+#endif
+
 #include "squash.h"
 
 #include <squash/config.h>
@@ -78,5 +82,6 @@
 #include "mtx-internal.h"
 #include "stream-internal.h"
 #include "util-internal.h"
+#include "mapped-file-internal.h"
 
 #endif /* SQUASH_INTERNAL_H */

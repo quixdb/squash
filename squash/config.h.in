@@ -16,7 +16,27 @@
 #cmakedefine HAVE_FLOCKFILE
 
 #if defined(HAVE_FREAD_UNLOCKED) && defined(HAVE_FWRITE_UNLOCKED) && defined(HAVE_FFLUSH_UNLOCKED) && defined(HAVE_FLOCKFILE)
-#define HAVE_UNLOCKED_IO
+#  define HAVE_UNLOCKED_IO
+#  if !defined(_DEFAULT_SOURCE)
+#    define _DEFAULT_SOURCE
+#  endif
+#  if !defined(_BSD_SOURCE)
+#    define _BSD_SOURCE
+#  endif
+#endif
+
+#if defined(HAVE_UNLOCKED_IO)
+#  define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread_unlocked(ptr,size,mnemb,stream)
+#  define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite_unlocked(ptr,size,mnemb,stream)
+#  define SQUASH_FFLUSH_UNLOCKED(stream) fflush_unlocked(stream)
+#  define SQUASH_FLOCKFILE(filehandle) flockfile(filehandle)
+#  define SQUASH_FUNLOCKFILE(filehandle) funlockfile(filehandle)
+#else
+#  define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread(ptr,size,mnemb,stream)
+#  define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite(ptr,size,mnemb,stream)
+#  define SQUASH_FFLUSH_UNLOCKED(stream) fflush(stream)
+#  define SQUASH_FLOCKFILE(filehandle) do { } while(0)
+#  define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
 #endif
 
 #endif /* _SQUASH_CONFIG_H_ */

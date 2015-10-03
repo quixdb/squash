@@ -17,6 +17,7 @@ set (squash_SOURCES
   buffer-stream.c
   context.c
   object.c
+  mapped-file.c
   plugin.c
   stream.c
   util.c

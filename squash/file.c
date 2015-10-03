@@ -32,46 +32,15 @@
 
 #include "internal.h"
 
-#ifndef SQUASH_FILE_BUF_SIZE
-#  define SQUASH_FILE_BUF_SIZE ((size_t) (1024 * 1024))
-#endif
-
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 #include <string.h>
 #include <unistd.h>
-
-#if defined(HAVE_UNLOCKED_IO)
-#define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread_unlocked(ptr,size,mnemb,stream)
-#define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite_unlocked(ptr,size,mnemb,stream)
-#define SQUASH_FFLUSH_UNLOCKED(stream) fflush_unlocked(stream)
-#define SQUASH_FLOCKFILE(filehandle) flockfile(filehandle)
-#define SQUASH_FUNLOCKFILE(filehandle) funlockfile(filehandle)
-#else
-#define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread(ptr,size,mnemb,stream)
-#define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite(ptr,size,mnemb,stream)
-#define SQUASH_FFLUSH_UNLOCKED(stream) fflush(stream)
-#define SQUASH_FLOCKFILE(filehandle) do { } while(0)
-#define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
-#endif
 
 /* #define SQUASH_MMAP_IO */
 
 /**
  * @cond INTERNAL
  */
-
-typedef struct SquashMappedFile_s {
-  uint8_t* data;
-  size_t length;
-  size_t map_length;
-  size_t window_offset;
-  FILE* fp;
-  bool writable;
-} SquashMappedFile;
-
-static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 
 struct _SquashFile {
   FILE* fp;
@@ -87,88 +56,8 @@ struct _SquashFile {
 #endif
 };
 
-static bool
-squash_mapped_file_init_full (SquashMappedFile* mapped, FILE* fp, size_t length, bool length_is_suggestion, bool writable) {
-  assert (mapped != NULL);
-  assert (fp != NULL);
-
-  if (mapped->data != MAP_FAILED)
-    munmap (mapped->data - mapped->window_offset, mapped->length + mapped->window_offset);
-
-  int fd = fileno (fp);
-  if (fd == -1)
-    return false;
-
-  int ires;
-  struct stat fp_stat;
-
-  ires = fstat (fd, &fp_stat);
-  if (ires == -1 || !S_ISREG(fp_stat.st_mode) || (!writable && fp_stat.st_size == 0))
-    return false;
-
-  off_t offset = ftello (fp);
-  if (offset < 0)
-    return false;
-
-  if (writable) {
-    ires = ftruncate (fd, offset + (off_t) length);
-    if (ires == -1)
-      return false;
-  } else {
-    const size_t remaining = fp_stat.st_size - (size_t) offset;
-    if (remaining > 0) {
-      if (length == 0 || (length > remaining && length_is_suggestion)) {
-        length = remaining;
-      } else if (length > remaining) {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-  mapped->length = length;
-
-  const size_t page_size = squash_get_page_size ();
-  mapped->window_offset = (size_t) offset % page_size;
-  mapped->map_length = length + mapped->window_offset;
-
-  if (writable)
-    mapped->data = mmap (NULL, mapped->map_length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset - mapped->window_offset);
-  else
-    mapped->data = mmap (NULL, mapped->map_length, PROT_READ, MAP_SHARED, fd, offset - mapped->window_offset);
-
-  if (mapped->data == MAP_FAILED)
-    return false;
-
-  mapped->data += mapped->window_offset;
-  mapped->fp = fp;
-  mapped->writable = writable;
-
-  return true;
-}
-
-static bool
-squash_mapped_file_init (SquashMappedFile* mapped, FILE* fp, size_t length, bool writable) {
-  return squash_mapped_file_init_full (mapped, fp, length, false, writable);
-}
-
-static void
-squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
-  if (mapped->data != MAP_FAILED) {
-    munmap (mapped->data - mapped->window_offset, mapped->length + mapped->window_offset);
-    mapped->data = MAP_FAILED;
-
-    if (success) {
-      fseeko (mapped->fp, mapped->length, SEEK_CUR);
-      if (mapped->writable) {
-        ftruncate (fileno (mapped->fp), ftello (mapped->fp));
-      }
-    }
-  }
-}
-
 /**
- * @endcond
+ * @endcond INTERNAL
  */
 
 /**
