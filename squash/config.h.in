@@ -10,4 +10,13 @@
 #cmakedefine HAVE_MMAP
 #cmakedefine HAVE_MREMAP
 
+#cmakedefine HAVE_FREAD_UNLOCKED
+#cmakedefine HAVE_FWRITE_UNLOCKED
+#cmakedefine HAVE_FFLUSH_UNLOCKED
+#cmakedefine HAVE_FLOCKFILE
+
+#if defined(HAVE_FREAD_UNLOCKED) && defined(HAVE_FWRITE_UNLOCKED) && defined(HAVE_FFLUSH_UNLOCKED) && defined(HAVE_FLOCKFILE)
+#define HAVE_UNLOCKED_IO
+#endif
+
 #endif /* _SQUASH_CONFIG_H_ */

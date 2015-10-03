@@ -27,6 +27,9 @@
 #define _FILE_OFFSET_BITS 64
 #define _POSIX_C_SOURCE 200112L
 
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+
 #include "internal.h"
 
 #ifndef SQUASH_FILE_BUF_SIZE
@@ -38,6 +41,20 @@
 #include <sys/mman.h>
 #include <string.h>
 #include <unistd.h>
+
+#if defined(HAVE_UNLOCKED_IO)
+#define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread_unlocked(ptr,size,mnemb,stream)
+#define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite_unlocked(ptr,size,mnemb,stream)
+#define SQUASH_FFLUSH_UNLOCKED(stream) fflush_unlocked(stream)
+#define SQUASH_FLOCKFILE(filehandle) flockfile(filehandle)
+#define SQUASH_FUNLOCKFILE(filehandle) funlockfile(filehandle)
+#else
+#define SQUASH_FREAD_UNLOCKED(ptr,size,mnemb,stream) fread(ptr,size,mnemb,stream)
+#define SQUASH_FWRITE_UNLOCKED(ptr,size,mnemb,stream) fwrite(ptr,size,mnemb,stream)
+#define SQUASH_FFLUSH_UNLOCKED(stream) fflush(stream)
+#define SQUASH_FLOCKFILE(filehandle) do { } while(0)
+#define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
+#endif
 
 /* #define SQUASH_MMAP_IO */
 
@@ -58,6 +75,7 @@ static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 
 struct _SquashFile {
   FILE* fp;
+  mtx_t mtx;
   bool eof;
   SquashStream* stream;
   SquashStatus last_status;
@@ -311,6 +329,11 @@ squash_file_open_codec_with_options (SquashCodec* codec, const char* filename, c
 /**
  * @brief Open an existing stdio file
  *
+ * Note that Squash expects to have exclusive access to @a fp.  When
+ * possible, Squash will acquire @a fp's lock (using flockfile) in
+ * this function and will not release it until the @ref SquashFile
+ * instance is destroyed.
+ *
  * @param fp the stdio file to use
  * @param codec codec to use
  * @param ... options
@@ -416,6 +439,10 @@ squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOption
   file->map = squash_mapped_file_empty;
 #endif
 
+  mtx_init (&(file->mtx), mtx_recursive);
+
+  SQUASH_FLOCKFILE(fp);
+
   return file;
 }
 
@@ -433,6 +460,12 @@ squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOption
  * decompressed_length, but it may be less if there was an error or
  * the end of the input file was reached.
  *
+ * @note Squash can, and frequently will, read more data from the
+ * input file than necessary to produce the requested amount of
+ * decompressed data.  There is no way to know how much input will be
+ * required to produce the reuested output, or even how much input
+ * *was* used.
+ *
  * @param file the file to read from
  * @param decompressed_length number of bytes to attempt to write to @a decompressed
  * @param decompressed buffer to write the decompressed data to
@@ -444,6 +477,37 @@ SquashStatus
 squash_file_read (SquashFile* file,
                   size_t* decompressed_length,
                   uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]) {
+  assert (file != NULL);
+  assert (decompressed_length != NULL);
+  assert (decompressed != NULL);
+
+  squash_file_lock (file);
+  SquashStatus res = squash_file_read_unlocked (file, decompressed_length, decompressed);
+  squash_file_unlock (file);
+
+  return res;
+}
+
+/**
+ * @brief Read from a compressed file
+ *
+ * This function is the same as @ref squash_file_read, except it will
+ * not acquire a lock on the @ref SquashFile instance.  It should be
+ * used only when there is no possibility of other threads accessing
+ * the file, or if you have already acquired the lock with @ref
+ * squash_file_lock.
+ *
+ * @param file the file to read from
+ * @param decompressed_length number of bytes to attempt to write to @a decompressed
+ * @param decompressed buffer to write the decompressed data to
+ * @return the result of the operation
+ * @retval SQUASH_OK successfully read some data
+ * @retval SQUASH_END_OF_STREAM the end of the file was reached
+ */
+SquashStatus
+squash_file_read_unlocked (SquashFile* file,
+                           size_t* decompressed_length,
+                           uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]) {
   SquashStatus res = SQUASH_FAILED;
 
   assert (file != NULL);
@@ -452,8 +516,10 @@ squash_file_read (SquashFile* file,
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_DECOMPRESS, file->options);
-    if (file->stream == NULL)
-      return squash_error (SQUASH_FAILED);
+    if (file->stream == NULL) {
+      res = squash_error (SQUASH_FAILED);
+      goto cleanup;
+    }
   }
   SquashStream* stream = file->stream;
 
@@ -462,7 +528,8 @@ squash_file_read (SquashFile* file,
 
   if (stream->state == SQUASH_STREAM_STATE_FINISHED) {
     *decompressed_length = 0;
-    return SQUASH_END_OF_STREAM;
+    res = SQUASH_END_OF_STREAM;
+    goto cleanup;
   }
 
   file->stream->next_out = decompressed;
@@ -500,7 +567,7 @@ squash_file_read (SquashFile* file,
 #endif
     {
       stream->next_in = file->buf;
-      stream->avail_in = fread (file->buf, 1, SQUASH_FILE_BUF_SIZE, file->fp);
+      stream->avail_in = SQUASH_FREAD_UNLOCKED(file->buf, 1, SQUASH_FILE_BUF_SIZE, file->fp);
     }
 
     if (stream->avail_in == 0) {
@@ -516,6 +583,9 @@ squash_file_read (SquashFile* file,
   }
 
   *decompressed_length = (stream->next_out - decompressed);
+
+ cleanup:
+
   stream->next_out = 0;
   stream->avail_out = 0;
 
@@ -533,8 +603,10 @@ squash_file_write_internal (SquashFile* file,
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_COMPRESS, file->options);
-    if (file->stream == NULL)
-      return squash_error (SQUASH_FAILED);
+    if (file->stream == NULL) {
+      res = squash_error (SQUASH_FAILED);
+      goto cleanup;
+    }
   }
 
   assert (file->stream->next_in == NULL);
@@ -568,11 +640,15 @@ squash_file_write_internal (SquashFile* file,
     }
 
     if (res > 0 && file->stream->avail_out != SQUASH_FILE_BUF_SIZE) {
-      size_t bytes_written = fwrite (file->buf, 1, SQUASH_FILE_BUF_SIZE - file->stream->avail_out, file->fp);
-      if (bytes_written != SQUASH_FILE_BUF_SIZE - file->stream->avail_out)
-        return SQUASH_IO;
+      size_t bytes_written = SQUASH_FWRITE_UNLOCKED(file->buf, 1, SQUASH_FILE_BUF_SIZE - file->stream->avail_out, file->fp);
+      if (bytes_written != SQUASH_FILE_BUF_SIZE - file->stream->avail_out) {
+        res = SQUASH_IO;
+        goto cleanup;
+      }
     }
   } while (res == SQUASH_PROCESSING);
+
+ cleanup:
 
   file->stream->next_in = NULL;
   file->stream->avail_in = 0;
@@ -606,6 +682,32 @@ SquashStatus
 squash_file_write (SquashFile* file,
                    size_t uncompressed_length,
                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
+  squash_file_lock (file);
+  SquashStatus res = squash_file_write_unlocked (file, uncompressed_length, uncompressed);
+  squash_file_unlock (file);
+
+  return res;
+}
+
+/**
+ * @brief Write data to a compressed file without acquiring the lock
+ *
+ * This function is the same as @ref squash_file_write, except it will
+ * not acquire a lock on the @ref SquashFile instance.  It should be
+ * used only when there is no possibility of other threads accessing
+ * the file, or if you have already acquired the lock with @ref
+ * squash_file_lock.
+ *
+ * @param file file to write to
+ * @param uncompressed_length number of bytes of uncompressed data in
+ *   @a uncompressed to attempt to write
+ * @param uncompressed data to write
+ * @return result of the operation
+ */
+SquashStatus
+squash_file_write_unlocked (SquashFile* file,
+                            size_t uncompressed_length,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
   return squash_file_write_internal (file, uncompressed_length, uncompressed, SQUASH_OPERATION_PROCESS);
 }
 
@@ -622,8 +724,34 @@ squash_file_write (SquashFile* file,
  */
 SquashStatus
 squash_file_flush (SquashFile* file) {
+  assert (file != NULL);
+
+  squash_file_lock (file);
+  SquashStatus res = squash_file_flush_unlocked (file);
+  squash_file_unlock (file);
+
+  return res;
+}
+
+/**
+ * @brief immediately write any buffered data to a file without
+ * acquiring the lock
+ * @brief Write data to a compressed file without acquiring the lock
+ *
+ * This function is the same as @ref squash_file_write, except it will
+ * not acquire a lock on the @ref SquashFile instance.  It should be
+ * used only when there is no possibility of other threads accessing
+ * the file, or if you have already acquired the lock with @ref
+ * squash_file_lock.
+ *
+ * @param file file to flush
+ * @returns *TRUE* if flushing succeeeded, *FALSE* if flushing is not
+ *   supported or there was another error.
+ */
+SquashStatus
+squash_file_flush_unlocked (SquashFile* file) {
   SquashStatus res = squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FLUSH);
-  fflush (file->fp);
+  SQUASH_FFLUSH_UNLOCKED(file->fp);
   return res;
 }
 
@@ -884,7 +1012,7 @@ squash_splice_stream (FILE* fp_in,
       while (length == 0 || remaining != 0) {
         const size_t req_size = (length == 0 || remaining > SQUASH_FILE_BUF_SIZE) ? SQUASH_FILE_BUF_SIZE : remaining;
 
-        data_length = fread (data, 1, req_size, fp_in);
+        data_length = SQUASH_FREAD_UNLOCKED(data, 1, req_size, fp_in);
         if (data_length == 0) {
           res = feof (fp_in) ? SQUASH_OK : squash_error (SQUASH_IO);
           goto cleanup;
@@ -910,7 +1038,7 @@ squash_splice_stream (FILE* fp_in,
         }
 
         if (data_length > 0) {
-          size_t bytes_written = fwrite (data, 1, data_length, fp_out);
+          size_t bytes_written = SQUASH_FWRITE_UNLOCKED(data, 1, data_length, fp_out);
           /* fprintf (stderr, "%s:%d: bytes_written: %zu\n", __FILE__, __LINE__, data_length); */
           assert (bytes_written == data_length);
           if (bytes_written == 0) {
@@ -1054,10 +1182,12 @@ squash_file_free (SquashFile* file, FILE** fp) {
   if (file == NULL)
     return SQUASH_OK;
 
+  squash_file_lock (file);
+
   if (file->stream != NULL && file->stream->stream_type == SQUASH_STREAM_COMPRESS)
     res = squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FINISH);
 
-  fflush (file->fp);
+  SQUASH_FFLUSH_UNLOCKED(file->fp);
 
 #if defined(SQUASH_MMAP_IO)
   squash_mapped_file_destroy (&(file->map), false);
@@ -1066,11 +1196,59 @@ squash_file_free (SquashFile* file, FILE** fp) {
   if (fp != NULL)
     *fp = file->fp;
 
+  SQUASH_FUNLOCKFILE(file->fp);
+
   squash_object_unref (file->stream);
   squash_object_unref (file->options);
+
+  squash_file_unlock (file);
+
+  mtx_destroy (&(file->mtx));
+
   free (file);
 
   return res;
+}
+
+/**
+ * @brief Acquire the lock on a file
+ *
+ * @ref squash_file_read, @ref squash_file_write, and @ref
+ * squash_file_flush are thread-safe.  This is accomplished by
+ * acquiring a lock on while each function is operating in order to
+ * ensure exclusive access.
+ *
+ * If, however, the programmer wishes to call a series of functions
+ * and ensure that they are performed without interference, they can
+ * manually acquire the lock with this function and use the unlocked
+ * variants (@ref squash_file_read_unlocked, @ref
+ * squash_file_write_unlocked, and @ref squash_file_flush_unlocked).
+ *
+ * @note This function has nothing to do with the kind of lock
+ * acquired by the [flock](http://linux.die.net/man/2/flock) function.
+ *
+ * @param file the file to acquire the lock on
+ */
+void
+squash_file_lock (SquashFile* file) {
+  assert (file != NULL);
+
+  mtx_lock (&(file->mtx));
+}
+
+/**
+ * @brief Release the lock on a file
+ *
+ * This function releases the lock acquired by @ref squash_file_lock.
+ * If you have not called that function *do not call this one*.
+ *
+ * @param file the file to release the lock on
+ */
+void
+squash_file_unlock (SquashFile* file) {
+  assert (file != NULL);
+
+  mtx_unlock (&(file->mtx));
 }
 
 /**

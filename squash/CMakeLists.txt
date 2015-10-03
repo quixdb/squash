@@ -51,6 +51,17 @@ target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 
 squash_target_add_coverage (squash${SQUASH_VERSION_API})
 
+include(CheckPrototypeExists)
+set (orig_required_definitions ${CMAKE_REQUIRED_DEFINITIONS})
+
+list (APPEND CMAKE_REQUIRED_DEFINITIONS -D_BSD_SOURCE)
+check_symbol_exists ("fread_unlocked" "stdio.h" "HAVE_FREAD_UNLOCKED")
+check_prototype_exists ("fwrite_unlocked" "stdio.h" "HAVE_FWRITE_UNLOCKED")
+check_prototype_exists ("fflush_unlocked" "stdio.h" "HAVE_FFLUSH_UNLOCKED")
+check_prototype_exists ("flockfile" "stdio.h" "HAVE_FLOCKFILE")
+
+set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
+
 if (WIN32)
 else ()
   include (FindClockGettime)

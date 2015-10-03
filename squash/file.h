@@ -104,6 +104,16 @@ SQUASH_API SquashStatus squash_file_free                     (SquashFile* file,
                                                               FILE** fp);
 SQUASH_API bool         squash_file_eof                      (SquashFile* file);
 
+SQUASH_API void         squash_file_lock                     (SquashFile* file);
+SQUASH_API void         squash_file_unlock                   (SquashFile* file);
+SQUASH_API SquashStatus squash_file_read_unlocked            (SquashFile* file,
+                                                              size_t* decompressed_length,
+                                                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]);
+SQUASH_API SquashStatus squash_file_write_unlocked           (SquashFile* file,
+                                                              size_t uncompressed_length,
+                                                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
+SQUASH_API SquashStatus squash_file_flush_unlocked           (SquashFile* file);
+
 SQUASH_END_DECLS
 
 #endif /* SQUASH_FILE_H */
