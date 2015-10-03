@@ -1122,12 +1122,18 @@ squash_splice_codec_with_options (SquashCodec* codec,
 
   call_once (&squash_splice_detect_once, squash_splice_detect_enable);
 
+  SQUASH_FLOCKFILE(fp_in);
+  SQUASH_FLOCKFILE(fp_out);
+
   if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
     res = squash_splice_map (fp_in, fp_out, length, stream_type, codec, options);
   }
 
   if (res != SQUASH_OK)
     res = squash_splice_stream (fp_in, fp_out, length, stream_type, codec, options);
+
+  SQUASH_FUNLOCKFILE(fp_in);
+  SQUASH_FUNLOCKFILE(fp_out);
 
   return res;
 }
