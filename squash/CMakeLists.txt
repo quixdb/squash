@@ -19,6 +19,7 @@ set (squash_SOURCES
   object.c
   mapped-file.c
   plugin.c
+  splice.c
   stream.c
   util.c
   version.c
