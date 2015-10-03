@@ -39,19 +39,9 @@ squash_buffer_npot_page (size_t value) {
   const size_t page_size = squash_get_page_size ();
 
   if (value < page_size)
-    value = page_size;
-
-  if ((value & (value - 1)) != 0) {
-    value -= 1;
-    value |= value >> 1;
-    value |= value >> 2;
-    value |= value >> 4;
-    value |= value >> 8;
-    value |= value >> 16;
-    value++;
-  }
-
-  return value;
+    return page_size;
+  else
+    return squash_npot (value);
 }
 
 static void

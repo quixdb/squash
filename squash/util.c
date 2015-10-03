@@ -54,3 +54,21 @@ squash_get_page_size (void) {
 
   return page_size;
 }
+
+#if defined(__GNUC__)
+__attribute__ ((__const__))
+#endif
+size_t
+squash_npot (size_t v) {
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+#if SIZE_MAX > UINT32_MAX
+  v |= v >> 32;
+#endif
+  v++;
+  return v;
+}
