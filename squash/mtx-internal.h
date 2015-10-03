@@ -57,4 +57,6 @@ SQUASH_BEGIN_DECLS
     assert (mtx_unlock (&(SQUASH_MTX_NAME(name,mtx))) == thrd_success); \
   } while(0);
 
+SQUASH_END_DECLS
+
 #endif /* SQUASH_MTX_INTERNAL_H */
