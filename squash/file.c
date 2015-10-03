@@ -385,8 +385,7 @@ squash_file_read_unlocked (SquashFile* file,
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_DECOMPRESS, file->options);
     if (file->stream == NULL) {
-      res = squash_error (SQUASH_FAILED);
-      goto cleanup;
+      return squash_error (SQUASH_FAILED);
     }
   }
   SquashStream* stream = file->stream;
@@ -396,8 +395,7 @@ squash_file_read_unlocked (SquashFile* file,
 
   if (stream->state == SQUASH_STREAM_STATE_FINISHED) {
     *decompressed_length = 0;
-    res = SQUASH_END_OF_STREAM;
-    goto cleanup;
+    return SQUASH_END_OF_STREAM;
   }
 
   file->stream->next_out = decompressed;
@@ -451,8 +449,6 @@ squash_file_read_unlocked (SquashFile* file,
   }
 
   *decompressed_length = (stream->next_out - decompressed);
-
- cleanup:
 
   stream->next_out = 0;
   stream->avail_out = 0;
