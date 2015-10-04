@@ -1,7 +1,8 @@
 Squash 0.8.0
 ============
 
- * Support for Apple OS X
+ * Preliminary support for Apple OS X
+ * File API is now thread safe, with *_unlocked variants
  * Updated many plugins
  * Assorted bug fixes and enhancements
 
