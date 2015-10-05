@@ -8,6 +8,11 @@ For more information about LZF, see http://liblzf.plan9.de/
 
 - **lzf** — Raw LZF data.
 
+## Options ##
+
+- **level** (integer, 1 or 9, default 1) — 1 is faster, 9 compresses
+  better.
+
 ## License ##
 
 The lzf plugin is licensed under the [MIT

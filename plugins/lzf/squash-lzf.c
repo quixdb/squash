@@ -33,7 +33,21 @@
 #include <squash/squash.h>
 #include <lzf.h>
 
-#include <stdio.h>
+/* No header :( */
+#include <lzf_c_best.c>
+
+enum SquashLzfOptIndex {
+  SQUASH_LZF_OPT_LEVEL = 0,
+};
+
+static SquashOptionInfo squash_lzf_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_ENUM_INT,
+    .info.enum_int = {
+      2, (const int []) { 1, 9 } },
+    .default_value.int_value = 1 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -89,9 +103,14 @@ squash_lzf_compress_buffer (SquashCodec* codec,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                             SquashOptions* options) {
   unsigned int lzf_e;
+  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZF_OPT_LEVEL);
 
-  lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
-                        (void*) compressed, (unsigned int) *compressed_length);
+  if (level == 1)
+    lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
+                          (void*) compressed, (unsigned int) *compressed_length);
+  else
+    lzf_e = lzf_compress_best ((void*) uncompressed, (unsigned int) uncompressed_length,
+                               (void*) compressed, (unsigned int) *compressed_length);
 
   if (lzf_e == 0) {
     return SQUASH_BUFFER_FULL;
@@ -107,6 +126,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("lzf", name) == 0) {
+    impl->options = squash_lzf_options;
     impl->get_max_compressed_size = squash_lzf_get_max_compressed_size;
     impl->decompress_buffer = squash_lzf_decompress_buffer;
     impl->compress_buffer = squash_lzf_compress_buffer;
