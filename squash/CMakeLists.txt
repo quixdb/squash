@@ -34,6 +34,7 @@ set (squash_PUBLIC_HEADERS
   options.h
   plugin.h
   squash.h
+  splice.h
   status.h
   stream.h
   types.h)
