@@ -58,6 +58,18 @@
 #endif
 
 #if defined(__clang__)
+#  if __has_attribute(sentinel)
+#    define SQUASH_SENTINEL __attribute__((__sentinel__))
+#  else
+#    define SQUASH_SENTINEL
+#  endif
+#elif defined(__GNUC__)
+#  define SQUASH_SENTINEL __attribute__((__sentinel__))
+#else
+#  define SQUASH_SENTINEL
+#endif
+
+#if defined(__clang__)
 #  if __has_attribute(nonnull)
 #    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
 #  else
@@ -71,6 +83,8 @@
 #  endif
 #elif defined(__GNUC__)
 #  define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#else
+#  define SQUASH_NONNULL(...)
 #endif
 
 #include <squash/version.h>

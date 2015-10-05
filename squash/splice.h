@@ -35,6 +35,7 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_SENTINEL
 SQUASH_NONNULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice                        (const char* codec,
                                                               SquashStreamType stream_type,
@@ -42,6 +43,7 @@ SQUASH_API SquashStatus squash_splice                        (const char* codec,
                                                               FILE* fp_in,
                                                               size_t length,
                                                               ...);
+SQUASH_SENTINEL
 SQUASH_NONNULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice_codec                  (SquashCodec* codec,
                                                               SquashStreamType stream_type,

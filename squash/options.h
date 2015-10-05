@@ -112,6 +112,7 @@ struct _SquashOptionInfo {
   SquashOptionValue default_value;
 };
 
+SQUASH_SENTINEL
 SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_new           (SquashCodec* codec, ...);
 SQUASH_NONNULL(1, 2)
@@ -128,6 +129,7 @@ SQUASH_API int            squash_options_get_int       (SquashOptions* options, 
 SQUASH_NONNULL(2)
 SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, const char* key);
 
+SQUASH_SENTINEL
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus   squash_options_parse         (SquashOptions* options, ...);
 SQUASH_NONNULL(1, 2)
