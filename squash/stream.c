@@ -187,6 +187,40 @@
  * plugins.
  */
 
+/**
+ * @brief Yield execution back to the main thread
+ * @protected
+ *
+ * This function may only be called inside the processing thread
+ * spawned for thread-based plugins.
+ *
+ * @param stream The stream
+ * @param status Status code to return for the current request
+ * @return The code of the next requested operation
+ */
+static SquashOperation
+squash_stream_yield (SquashStream* stream, SquashStatus status) {
+  SquashStreamPrivate* priv = stream->priv;
+  SquashOperation operation;
+
+  assert (stream != NULL);
+  assert (priv != NULL);
+
+  priv->request = SQUASH_OPERATION_INVALID;
+  priv->result = status;
+
+  cnd_signal (&(priv->result_cnd));
+  mtx_unlock (&(priv->io_mtx));
+  if (status < 0)
+    thrd_exit (status);
+
+  mtx_lock (&(priv->io_mtx));
+  while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
+    cnd_wait (&(priv->request_cnd), &(priv->io_mtx));
+  }
+  return operation;
+}
+
 static SquashStatus
 squash_stream_read_cb (size_t* data_length,
                        uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
@@ -296,40 +330,6 @@ squash_stream_thread_func (SquashStream* stream) {
   mtx_unlock (&(priv->io_mtx));
 
   return 0;
-}
-
-/**
- * @brief Yield execution back to the main thread
- * @protected
- *
- * This function may only be called inside the processing thread
- * spawned for thread-based plugins.
- *
- * @param stream The stream
- * @param status Status code to return for the current request
- * @return The code of the next requested operation
- */
-SquashOperation
-squash_stream_yield (SquashStream* stream, SquashStatus status) {
-  SquashStreamPrivate* priv = stream->priv;
-  SquashOperation operation;
-
-  assert (stream != NULL);
-  assert (priv != NULL);
-
-  priv->request = SQUASH_OPERATION_INVALID;
-  priv->result = status;
-
-  cnd_signal (&(priv->result_cnd));
-  mtx_unlock (&(priv->io_mtx));
-  if (status < 0)
-    thrd_exit (status);
-
-  mtx_lock (&(priv->io_mtx));
-  while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
-    cnd_wait (&(priv->request_cnd), &(priv->io_mtx));
-  }
-  return operation;
 }
 
 static SquashStatus

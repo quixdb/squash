@@ -118,9 +118,6 @@ SQUASH_API void            squash_stream_init                   (void* stream,
 SQUASH_NONNULL(1)
 SQUASH_API void            squash_stream_destroy                (void* stream);
 
-SQUASH_NONNULL(1)
-SQUASH_API SquashOperation squash_stream_yield                  (SquashStream* stream, SquashStatus status);
-
 SQUASH_END_DECLS
 
 #endif /* SQUASH_STREAM_H */
