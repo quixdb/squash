@@ -105,12 +105,23 @@ squash_lzf_compress_buffer (SquashCodec* codec,
   unsigned int lzf_e;
   const int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZF_OPT_LEVEL);
 
-  if (level == 1)
-    lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
-                          (void*) compressed, (unsigned int) *compressed_length);
-  else
-    lzf_e = lzf_compress_best ((void*) uncompressed, (unsigned int) uncompressed_length,
-                               (void*) compressed, (unsigned int) *compressed_length);
+  if (uncompressed_length == 1) {
+    const uint8_t buf[2] = { uncompressed[0], 0x00 };
+
+    if (level == 1)
+      lzf_e = lzf_compress ((void*) buf, (unsigned int) uncompressed_length,
+                            (void*) compressed, (unsigned int) *compressed_length);
+    else
+      lzf_e = lzf_compress_best ((void*) buf, (unsigned int) uncompressed_length,
+                                 (void*) compressed, (unsigned int) *compressed_length);
+  } else {
+    if (level == 1)
+      lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
+                            (void*) compressed, (unsigned int) *compressed_length);
+    else
+      lzf_e = lzf_compress_best ((void*) uncompressed, (unsigned int) uncompressed_length,
+                                 (void*) compressed, (unsigned int) *compressed_length);
+  }
 
   if (lzf_e == 0) {
     return SQUASH_BUFFER_FULL;
