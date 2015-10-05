@@ -13,8 +13,11 @@ set (csc_sources
   csc/src/libcsc/csc_profiler.cpp
   csc/src/libcsc/decomp.cpp)
 
-add_definitions(-D_7Z_TYPES_)
-squash_plugin_add (csc csc_sources)
-target_include_directories (squash${SQUASH_VERSION_API}-plugin-csc PRIVATE csc/src/libcsc)
 
-squash_source_file_add_compile_flag ("csc/src/libcsc/csc_filters.cpp" "-Wno-tautological-compare")
+if ("${ENABLE_CSC}" STREQUAL "yes")
+  add_definitions(-D_7Z_TYPES_)
+  squash_plugin_add (csc csc_sources)
+  target_include_directories (squash${SQUASH_VERSION_API}-plugin-csc PRIVATE csc/src/libcsc)
+
+  squash_source_file_add_compile_flag ("csc/src/libcsc/csc_filters.cpp" "-Wno-tautological-compare")
+endif ()
