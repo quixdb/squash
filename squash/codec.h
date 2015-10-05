@@ -35,8 +35,7 @@ SQUASH_BEGIN_DECLS
 
 typedef enum {
   SQUASH_CODEC_INFO_CAN_FLUSH               = 1 <<  0,
-  SQUASH_CODEC_INFO_RUN_IN_THREAD           = 1 <<  1,
-  SQUASH_CODEC_INFO_DECOMPRESS_SAFE         = 1 <<  2,
+  SQUASH_CODEC_INFO_DECOMPRESS_SAFE         = 1 <<  1,
 
   SQUASH_CODEC_INFO_AUTO_MASK               = 0x00ff0000,
   SQUASH_CODEC_INFO_VALID                   = 1 << 16,
@@ -48,6 +47,13 @@ typedef enum {
 
 #define SQUASH_CODEC_INFO_INVALID ((SquashCodecInfo) 0)
 
+typedef SquashStatus (*SquashReadFunc)  (size_t* data_length,
+                                         uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                                         void* user_data);
+typedef SquashStatus (*SquashWriteFunc) (size_t* data_length,
+                                         const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                                         void* user_data);
+
 struct _SquashCodecImpl {
   SquashCodecInfo           info;
 
@@ -56,6 +62,14 @@ struct _SquashCodecImpl {
   /* Streams */
   SquashStream*           (* create_stream)            (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
   SquashStatus            (* process_stream)           (SquashStream* stream, SquashOperation operation);
+
+  /* Splicing */
+  SquashStatus            (* splice)                   (SquashCodec* codec,
+                                                        SquashOptions* options,
+                                                        SquashStreamType stream_type,
+                                                        SquashReadFunc read_cb,
+                                                        SquashWriteFunc write_cb,
+                                                        void* user_data);
 
   /* Buffers */
   SquashStatus            (* decompress_buffer)        (SquashCodec* codec,

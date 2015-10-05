@@ -155,11 +155,11 @@ squash_bz2_status_to_squash_status (int status) {
     case BZ_FINISH_OK:
       return SQUASH_OK;
     case BZ_OUTBUFF_FULL:
-      return SQUASH_BUFFER_FULL;
+      return squash_error (SQUASH_BUFFER_FULL);
     case BZ_SEQUENCE_ERROR:
-      return SQUASH_STATE;
+      return squash_error (SQUASH_STATE);
     default:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
   }
 }
 

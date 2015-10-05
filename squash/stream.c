@@ -25,6 +25,7 @@
  */
 
 #include <assert.h>
+#include <string.h>
 
 #include "internal.h"
 
@@ -186,10 +187,90 @@
  * plugins.
  */
 
+static SquashStatus
+squash_stream_read_cb (size_t* data_length,
+                       uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                       void* user_data) {
+  assert (user_data != NULL);
+  assert (data_length != NULL);
+
+  SquashStream* s = (SquashStream*) user_data;
+  assert (s->priv != NULL);
+  const size_t requested = *data_length;
+  size_t remaining = *data_length;
+  SquashOperation operation = s->priv->request;
+
+  while (remaining != 0) {
+    const size_t cp_size = (s->avail_in < remaining) ? s->avail_in : remaining;
+
+    if (cp_size != 0) {
+      memcpy (data + (requested - remaining), s->next_in, cp_size);
+      s->next_in += cp_size;
+      s->avail_in -= cp_size;
+      remaining -= cp_size;
+    }
+
+    if (remaining != 0) {
+      if (operation == SQUASH_OPERATION_FINISH || operation == SQUASH_OPERATION_TERMINATE) {
+        break;
+      }
+
+      SquashStatus res = (s->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+      operation = squash_stream_yield (s, res);
+    }
+  }
+
+  *data_length = requested - remaining;
+
+  return SQUASH_OK;
+}
+
+static SquashStatus
+squash_stream_write_cb (size_t* data_length,
+                                 const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                                 void* user_data) {
+  assert (user_data != NULL);
+  assert (data_length != NULL);
+
+  SquashStream* s = (SquashStream*) user_data;
+  assert (s->priv != NULL);
+  const size_t requested = *data_length;
+  size_t remaining = *data_length;
+  SquashOperation operation = s->priv->request;
+
+  while (remaining != 0) {
+    const size_t cp_size = (s->avail_out < remaining) ? s->avail_out : remaining;
+
+    if (cp_size != 0) {
+      memcpy (s->next_out, data + (requested - remaining), cp_size);
+      s->next_out += cp_size;
+      s->avail_out -= cp_size;
+      remaining -= cp_size;
+    }
+
+    if (remaining != 0) {
+      if (operation == SQUASH_OPERATION_TERMINATE)
+        break;
+
+      operation = squash_stream_yield (s, SQUASH_PROCESSING);
+    }
+  }
+
+  *data_length = requested - remaining;
+
+  return SQUASH_OK;
+}
+
 static int
 squash_stream_thread_func (SquashStream* stream) {
+  assert (stream != NULL);
+
   SquashStreamPrivate* priv = stream->priv;
   SquashOperation operation;
+  SquashCodec* codec = stream->codec;
+
+  assert (priv != NULL);
+  assert (codec != NULL);
 
   mtx_lock (&(priv->io_mtx));
   priv->result = SQUASH_OK;
@@ -200,7 +281,12 @@ squash_stream_thread_func (SquashStream* stream) {
   }
   priv->request = SQUASH_OPERATION_INVALID;
 
-  priv->result = stream->codec->impl.process_stream (stream, operation);
+  assert (codec->impl.splice != NULL);
+
+  priv->result = codec->impl.splice (codec, stream->options, stream->stream_type, squash_stream_read_cb, squash_stream_write_cb, stream);
+  if (priv->result == SQUASH_OK)
+    priv->result = SQUASH_END_OF_STREAM;
+
   priv->finished = true;
   cnd_signal (&(priv->result_cnd));
   mtx_unlock (&(priv->io_mtx));
@@ -224,7 +310,12 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
   SquashStreamPrivate* priv = stream->priv;
   SquashOperation operation;
 
+  assert (stream != NULL);
+  assert (priv != NULL);
+
+  priv->request = SQUASH_OPERATION_INVALID;
   priv->result = status;
+
   cnd_signal (&(priv->result_cnd));
   mtx_unlock (&(priv->io_mtx));
   if (status < 0)
@@ -234,7 +325,6 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
   while ((operation = priv->request) == SQUASH_OPERATION_INVALID) {
     cnd_wait (&(priv->request_cnd), &(priv->io_mtx));
   }
-  priv->request = SQUASH_OPERATION_INVALID;
   return operation;
 }
 
@@ -303,7 +393,7 @@ squash_stream_init (void* stream,
   s->user_data = NULL;
   s->destroy_user_data = NULL;
 
-  if (SQUASH_UNLIKELY((codec->impl.info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD)) {
+  if (codec->impl.create_stream == NULL && codec->impl.splice != NULL) {
     s->priv = malloc (sizeof (SquashStreamPrivate));
 
     mtx_init (&(s->priv->io_mtx), mtx_plain);
@@ -504,7 +594,6 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   SquashCodecImpl* impl = NULL;
   SquashStatus res = SQUASH_OK;
   SquashOperation current_operation = SQUASH_OPERATION_PROCESS;
-  SquashStreamPrivate* priv = (SquashStreamPrivate*) stream->priv;
 
   assert (stream != NULL);
   codec = stream->codec;
@@ -599,27 +688,41 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
 
   while (current_operation <= operation) {
     if (current_operation == SQUASH_OPERATION_PROCESS) {
-      /* Process */
       if (stream->avail_in == 0 && stream->state == SQUASH_STREAM_STATE_IDLE) {
         res = SQUASH_OK;
-      } else if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
-        res = squash_stream_send_to_thread (stream, current_operation);
-      } else if (impl->process_stream != NULL) {
-        res = impl->process_stream (stream, current_operation);
       } else {
-        res = squash_buffer_stream_process ((SquashBufferStream*) stream);
+        stream->state = SQUASH_STREAM_STATE_RUNNING;
+
+        if (impl->process_stream != NULL) {
+          res = impl->process_stream (stream, current_operation);
+        } else if (impl->splice != NULL) {
+          res = squash_stream_send_to_thread (stream, current_operation);
+        } else {
+          res = squash_buffer_stream_process ((SquashBufferStream*) stream);
+        }
+      }
+
+      switch ((int) res) {
+        case SQUASH_OK:
+          stream->state = SQUASH_STREAM_STATE_IDLE;
+          break;
+        case SQUASH_PROCESSING:
+          stream->state = SQUASH_STREAM_STATE_RUNNING;
+          break;
+        case SQUASH_END_OF_STREAM:
+          stream->state = SQUASH_STREAM_STATE_FINISHED;
+          break;
+        default:
+          return res;
       }
     } else if (current_operation == SQUASH_OPERATION_FLUSH) {
-      /* Flush */
+      stream->state = SQUASH_STREAM_STATE_FLUSHING;
+
       if (current_operation == operation) {
         if ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH) {
-          if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
-            res = squash_stream_send_to_thread (stream, current_operation);
-          } else if (impl->process_stream == NULL) {
-            return squash_error (SQUASH_INVALID_OPERATION);
-          } else {
-            res = impl->process_stream (stream, current_operation);
-          }
+          assert (impl->process_stream != NULL);
+
+          res = impl->process_stream (stream, current_operation);
         } else {
           /* We aready checked to make sure the stream is flushable if
              the user called flush directly, so if this code is
@@ -629,15 +732,27 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
           res = SQUASH_OK;
         }
       }
+
+      switch ((int) res) {
+        case SQUASH_OK:
+          stream->state = SQUASH_STREAM_STATE_IDLE;
+          break;
+        case SQUASH_PROCESSING:
+          stream->state = SQUASH_STREAM_STATE_FLUSHING;
+          break;
+        case SQUASH_END_OF_STREAM:
+          stream->state = SQUASH_STREAM_STATE_FINISHED;
+          break;
+        default:
+          return res;
+      }
     } else if (current_operation == SQUASH_OPERATION_FINISH) {
-      /* Finish */
+      stream->state = SQUASH_STREAM_STATE_FINISHING;
+
       if (impl->process_stream != NULL) {
-        if ((impl->info & SQUASH_CODEC_INFO_RUN_IN_THREAD) == SQUASH_CODEC_INFO_RUN_IN_THREAD) {
-          if (!(priv->finished))
-            res = squash_stream_send_to_thread (stream, current_operation);
-        } else {
-          res = impl->process_stream (stream, current_operation);
-        }
+        res = impl->process_stream (stream, current_operation);
+      } else if (impl->splice) {
+        res = squash_stream_send_to_thread (stream, current_operation);
       } else {
         res = squash_buffer_stream_finish ((SquashBufferStream*) stream);
       }
@@ -647,6 +762,20 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
          (and correct), so... */
       if (SQUASH_UNLIKELY(res == SQUASH_END_OF_STREAM)) {
         res = SQUASH_OK;
+      }
+
+      switch ((int) res) {
+        case SQUASH_OK:
+          stream->state = SQUASH_STREAM_STATE_FINISHED;
+          break;
+        case SQUASH_PROCESSING:
+          stream->state = SQUASH_STREAM_STATE_FINISHING;
+          break;
+        case SQUASH_END_OF_STREAM:
+          stream->state = SQUASH_STREAM_STATE_FINISHED;
+          break;
+        default:
+          return res;
       }
     }
 
@@ -658,27 +787,12 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
     }
 
     if (res == SQUASH_PROCESSING) {
-      switch (current_operation) {
-        case SQUASH_OPERATION_PROCESS:
-          stream->state = SQUASH_STREAM_STATE_RUNNING;
-          break;
-        case SQUASH_OPERATION_FLUSH:
-          stream->state = SQUASH_STREAM_STATE_FLUSHING;
-          break;
-        case SQUASH_OPERATION_FINISH:
-          stream->state = SQUASH_STREAM_STATE_FINISHING;
-          break;
-        case SQUASH_OPERATION_TERMINATE:
-          squash_assert_unreachable ();
-          break;
-      }
       break;
     } else if (res == SQUASH_END_OF_STREAM || (current_operation == SQUASH_OPERATION_FINISH && res == SQUASH_OK)) {
-      stream->state = SQUASH_STREAM_STATE_FINISHED;
+      assert (stream->state == SQUASH_STREAM_STATE_FINISHED);
       current_operation++;
       break;
     } else if (res == SQUASH_OK) {
-      stream->state = SQUASH_STREAM_STATE_IDLE;
       current_operation++;
     } else {
       break;

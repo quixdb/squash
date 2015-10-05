@@ -85,7 +85,7 @@ static size_t crush_stdio_fread (void* ptr, size_t size, void* user_data)
 	return fread(ptr, 1, size, ((struct CrushStdioData*) user_data)->in);
 }
 
-static size_t crush_stdio_fwrite (void* ptr, size_t size, void* user_data)
+static size_t crush_stdio_fwrite (const void* ptr, size_t size, void* user_data)
 {
 	return fwrite(ptr, 1, size, ((struct CrushStdioData*) user_data)->out);
 }

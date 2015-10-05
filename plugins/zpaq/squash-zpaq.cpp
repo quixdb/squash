@@ -31,23 +31,9 @@
 
 #include <squash/squash.h>
 
-#if !(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L)) && !defined(_Thread_local)
- #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
-  #define _Thread_local __thread
- #else
-  #define _Thread_local __declspec(thread)
- #endif
-#elif defined(__GNUC__) && defined(__GNUC_MINOR__) && (((__GNUC__ << 8) | __GNUC_MINOR__) < ((4 << 8) | 9))
- #define _Thread_local __thread
-#endif
-
 #include "libzpaq.h"
 
 #define SQUASH_ZPAQ_DEFAULT_LEVEL 1
-
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 
 enum SquashZpaqOptIndex {
   SQUASH_ZPAQ_OPT_LEVEL = 0
@@ -63,22 +49,20 @@ typedef struct _SquashZpaqStream SquashZpaqStream;
 
 class SquashZpaqIO: public libzpaq::Reader, public libzpaq::Writer {
 public:
-  SquashZpaqStream* stream;
+  void* user_data_;
+  SquashReadFunc reader_;
+  SquashWriteFunc writer_;
 
   int get ();
   void put (int c);
 
+  int read (char* buf, int n);
   void write (const char* buf, int n);
 
-  SquashZpaqIO(SquashZpaqStream* stream);
-};
-
-struct _SquashZpaqStream {
-  SquashStream base_object;
-
-  SquashZpaqIO* stream;
-
-  SquashOperation operation;
+  SquashZpaqIO(void* user_data, SquashReadFunc reader, SquashWriteFunc writer) :
+    user_data_ (user_data),
+    reader_ (reader),
+    writer_ (writer) { }
 };
 
 extern "C" SQUASH_PLUGIN_EXPORT
@@ -86,45 +70,26 @@ SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, Squas
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_plugin   (SquashPlugin* plugin);
 
-static void               squash_zpaq_stream_init     (SquashZpaqStream* stream,
-                                                       SquashCodec* codec,
-                                                       SquashStreamType stream_type,
-                                                       SquashOptions* options,
-                                                       SquashDestroyNotify destroy_notify);
-static SquashZpaqStream*  squash_zpaq_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void               squash_zpaq_stream_destroy  (void* stream);
-static void               squash_zpaq_stream_free     (void* stream);
-
-static _Thread_local SquashStream* squash_zpaq_thread_stream = NULL;
-
+#if defined(__GNUC__)
+__attribute__((__noreturn__))
+#endif
 void
 libzpaq::error (const char* msg) {
-  SquashStatus status = SQUASH_FAILED;
-  assert (squash_zpaq_thread_stream != NULL);
   if (strcmp (msg, "Out of memory") == 0)
-    status = SQUASH_MEMORY;
-  squash_stream_yield (squash_zpaq_thread_stream, status);
-}
-
-SquashZpaqIO::SquashZpaqIO (SquashZpaqStream* str) {
-  this->stream = str;
+    throw squash_error (SQUASH_MEMORY);
+  else
+    throw squash_error (SQUASH_FAILED);
 }
 
 int SquashZpaqIO::get () {
-  SquashStream* str = (SquashStream*) this->stream;
+  char v;
+  return (this->read(&v, 1)) ? (int) v : -1;
+}
 
-  while (str->avail_in == 0 && this->stream->operation == SQUASH_OPERATION_PROCESS) {
-    this->stream->operation = squash_stream_yield (str, SQUASH_OK);
-  }
-
-  if (str->avail_in == 0) {
-    return -1;
-  } else {
-    int r = str->next_in[0];
-    str->next_in++;
-    str->avail_in--;
-    return r;
-  }
+int SquashZpaqIO::read (char* buf, int length) {
+  size_t l = (size_t) length;
+  this->reader_ (&l, (uint8_t*) buf, this->user_data_);
+  return l;
 }
 
 void SquashZpaqIO::put (int c) {
@@ -133,94 +98,33 @@ void SquashZpaqIO::put (int c) {
 }
 
 void SquashZpaqIO::write (const char* buf, int n) {
-  SquashStream* str = (SquashStream*) this->stream;
-
-  size_t written = 0;
-  size_t remaining = (size_t) n;
-  while (remaining > 0) {
-    const size_t cp_size = (remaining < str->avail_out) ? remaining : str->avail_out;
-
-    memcpy (str->next_out, buf + written, cp_size);
-
-    written += cp_size;
-    remaining -= cp_size;
-    str->next_out += cp_size;
-    str->avail_out -= cp_size;
-
-    if (remaining != 0) {
-      if (this->stream->operation == SQUASH_OPERATION_TERMINATE)
-        break;
-
-      this->stream->operation = squash_stream_yield (str, SQUASH_PROCESSING);
-    }
-  }
-}
-
-static SquashZpaqStream* squash_zpaq_stream_new (SquashCodec* codec,
-                                                 SquashStreamType stream_type,
-                                                 SquashOptions* options) {
-  SquashZpaqStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashZpaqStream*) malloc (sizeof (SquashZpaqStream));
-  squash_zpaq_stream_init (stream, codec, stream_type, options, squash_zpaq_stream_free);
-
-  return stream;
-}
-
-static void
-squash_zpaq_stream_init (SquashZpaqStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
-
-  stream->stream = new SquashZpaqIO(stream);
-  stream->stream->stream = stream;
-}
-
-static void
-squash_zpaq_stream_destroy (void* stream) {
-  SquashZpaqIO* str = ((SquashZpaqStream*) stream)->stream;
-  squash_stream_destroy (stream);
-  delete str;
-}
-
-static void
-squash_zpaq_stream_free (void* stream) {
-  squash_zpaq_stream_destroy (stream);
-  free (stream);
-}
-
-static SquashStream*
-squash_zpaq_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zpaq_stream_new (codec, stream_type, options);
+  size_t s = (size_t) n;
+  SquashStatus res = this->writer_ (&s, (const uint8_t*) buf, this->user_data_);
+  if (res != SQUASH_OK)
+    throw res;
 }
 
 static SquashStatus
-squash_zpaq_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashZpaqStream* s = (SquashZpaqStream*) stream;
-
-  s->operation = operation;
-
+squash_zpaq_splice (SquashCodec* codec,
+                    SquashOptions* options,
+                    SquashStreamType stream_type,
+                    SquashReadFunc read_cb,
+                    SquashWriteFunc write_cb,
+                    void* user_data) {
   try {
-    if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    SquashZpaqIO stream(user_data, read_cb, write_cb);
+    if (stream_type == SQUASH_STREAM_COMPRESS) {
       char level_s[2];
-      snprintf (level_s, sizeof(level_s), "%d", squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_ZPAQ_OPT_LEVEL));
+      snprintf (level_s, sizeof(level_s), "%d", squash_codec_get_option_int_index (codec, options, SQUASH_ZPAQ_OPT_LEVEL));
 
-      squash_zpaq_thread_stream = stream;
-      compress (s->stream, s->stream, level_s);
-      squash_zpaq_thread_stream = NULL;
+      compress (&stream, &stream, level_s);
     } else {
-      squash_zpaq_thread_stream = stream;
-      decompress (s->stream, s->stream);
-      squash_zpaq_thread_stream = NULL;
+      decompress (&stream, &stream);
     }
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
+  } catch (const SquashStatus e) {
+    return e;
   } catch (...) {
     return SQUASH_FAILED;
   }
@@ -251,10 +155,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zpaq", name) == 0) {
-    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     impl->options = squash_zpaq_options;
-    impl->create_stream = squash_zpaq_create_stream;
-    impl->process_stream = squash_zpaq_process_stream;
+    impl->splice = squash_zpaq_splice;
     impl->get_max_compressed_size = squash_zpaq_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;

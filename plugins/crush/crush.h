@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 typedef size_t (*CrushReadFunc)(void* ptr, size_t size, void* user_data);
-typedef size_t (*CrushWriteFunc)(void* ptr, size_t size, void* user_data);
+typedef size_t (*CrushWriteFunc)(const void* ptr, size_t size, void* user_data);
 typedef void (*CrushDestroyNotify)(void* ptr);
 
 typedef struct {

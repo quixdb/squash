@@ -86,6 +86,18 @@
  */
 
 /**
+ * @var _SquashCodecImpl::splice
+ * @brief Splice.
+ *
+ * @param options Options to use
+ * @param stream_type Whether to compress or decompress
+ * @param read_cb Callback to use to read data
+ * @param write_cb Callback to use to write data
+ * @param user_data Date to pass to the callbacks
+ * @return A status code
+ */
+
+/**
  * @var _SquashCodecImpl::get_uncompressed_size
  * @brief Get the buffer's uncompressed size.
  *
@@ -245,14 +257,6 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
 /**
  * @var SquashCodecInfo::SQUASH_CODEC_INFO_CAN_FLUSH
  * @brief Flushing is supported
- */
-
-/**
- * @var SquashCodecInfo::SQUASH_CODEC_INFO_RUN_IN_THREAD
- * @brief The data is processed in a background thread
- *
- * This is an implementation detail for Squash—it should not be
- * important for anyone but plugin authors or Squash maintainers.
  */
 
 /**
@@ -528,6 +532,91 @@ squash_codec_create_stream (SquashCodec* codec, SquashStreamType stream_type, ..
   return squash_codec_create_stream_with_options (codec, stream_type, options);
 }
 
+struct SquashBufferSpliceData {
+  SquashCodec* codec;
+  SquashStreamType stream_type;
+  size_t output_length;
+  uint8_t* output;
+  size_t output_pos;
+  size_t input_length;
+  const uint8_t* input;
+  size_t input_pos;
+  SquashOptions* options;
+};
+
+static SquashStatus
+squash_buffer_splice_read (size_t* data_length,
+                           uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                           void* user_data) {
+  struct SquashBufferSpliceData* ctx = (struct SquashBufferSpliceData*) user_data;
+
+  const size_t requested = *data_length;
+  const size_t available = ctx->input_length - ctx->input_pos;
+  const size_t cp_size = (requested > available) ? available : requested;
+
+  *data_length = cp_size;
+
+  if (cp_size != 0) {
+    memcpy (data, ctx->input + ctx->input_pos, cp_size);
+    ctx->input_pos += cp_size;
+
+    return SQUASH_OK;
+  } else {
+    return SQUASH_END_OF_STREAM;
+  }
+}
+
+static SquashStatus
+squash_buffer_splice_write (size_t* data_length,
+                            const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                            void* user_data) {
+  struct SquashBufferSpliceData* ctx = (struct SquashBufferSpliceData*) user_data;
+
+  const size_t requested = *data_length;
+  const size_t available = ctx->output_length - ctx->output_pos;
+  const size_t cp_size = (requested > available) ? available : requested;
+
+  if (cp_size < requested) {
+    *data_length = 0;
+    return squash_error (SQUASH_BUFFER_FULL);
+  } else {
+    *data_length = cp_size;
+  }
+
+  if (cp_size != 0) {
+    memcpy (ctx->output + ctx->output_pos, data, cp_size);
+    ctx->output_pos += cp_size;
+  }
+
+  return SQUASH_OK;
+}
+
+static SquashStatus
+squash_buffer_splice (SquashCodec* codec,
+                      SquashStreamType stream_type,
+                      size_t* output_length,
+                      uint8_t output[SQUASH_ARRAY_PARAM(*output_length)],
+                      size_t input_length,
+                      const uint8_t input[SQUASH_ARRAY_PARAM(input_length)],
+                      SquashOptions* options) {
+  assert (codec != NULL);
+  assert (output_length != NULL);
+  assert (*output_length != 0);
+  assert (output != NULL);
+  assert (input_length != 0);
+  assert (input != NULL);
+  assert (codec->impl.splice != NULL);
+
+  struct SquashBufferSpliceData data = { codec, stream_type, *output_length, output, 0, input_length, input, 0, options };
+
+  SquashStatus res = codec->impl.splice (codec, options, stream_type, squash_buffer_splice_read, squash_buffer_splice_write, &data);
+
+  if (res > 0)
+    *output_length = data.output_pos;
+
+  return res;
+}
+
 /**
  * @brief Compress a buffer with an existing @ref SquashOptions
  *
@@ -609,6 +698,8 @@ squash_codec_compress_with_options (SquashCodec* codec,
         return status;
       }
     }
+  } else if (impl->splice != NULL) {
+    return squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_length, compressed, uncompressed_length, uncompressed, options);
   } else {
     SquashStatus status;
     SquashStream* stream;

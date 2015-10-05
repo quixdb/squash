@@ -32,6 +32,13 @@
 
 #include "crush.h"
 
+struct SquashCrushData {
+  void* user_data;
+  SquashReadFunc reader;
+  SquashWriteFunc writer;
+  SquashStatus last_res;
+};
+
 enum SquashCrushOptIndex {
   SQUASH_CRUSH_OPT_LEVEL = 0
 };
@@ -46,130 +53,70 @@ static SquashOptionInfo squash_crush_options[] = {
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
-typedef struct SquashCrushStream_s {
-  SquashStream base_object;
-
-  SquashOperation operation;
-
-  CrushContext ctx;
-} SquashCrushStream;
-
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
 
-static void                squash_crush_stream_init     (SquashCrushStream* stream,
-                                                         SquashCodec* codec,
-                                                         SquashStreamType stream_type,
-                                                         SquashOptions* options,
-                                                         SquashDestroyNotify destroy_notify);
-static SquashCrushStream*  squash_crush_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void                squash_crush_stream_destroy  (void* stream);
-static void                squash_crush_stream_free     (void* stream);
-
 static size_t
 squash_crush_reader (void* buffer, size_t size, void* user_data) {
-  uint8_t* buf = buffer;
-  SquashCrushStream* stream = user_data;
+  struct SquashCrushData* data = (struct SquashCrushData*) user_data;
 
-  size_t remaining = size;
-  while (remaining != 0) {
-    const size_t cp_size = (stream->base_object.avail_in < remaining) ? stream->base_object.avail_in : remaining;
+  /* CRUSH doesn't check the return value from write calls, so it
+     doesn't detect that there is a problem.  We need to be able to
+     report the error instead, though, so just act like we have read
+     all the input we want and don't clobber the last status code. */
 
-    memcpy (buf + (size - remaining), stream->base_object.next_in, cp_size);
-    stream->base_object.next_in += cp_size;
-    stream->base_object.avail_in -= cp_size;
-    remaining -= cp_size;
-
-    if (remaining != 0) {
-      if (stream->operation == SQUASH_OPERATION_FINISH || stream->operation == SQUASH_OPERATION_TERMINATE)
-        break;
-
-      stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_OK);
-    }
+  if (data->last_res > 0) {
+    data->last_res = data->reader (&size, buffer, data->user_data);
+    return size;
+  } else {
+    return 0;
   }
-
-  return (size - remaining);
 }
 
 static size_t
-squash_crush_writer (uint8_t* buf, size_t size, SquashCrushStream* stream) {
-  size_t remaining = size;
-  while (remaining != 0) {
-    const size_t cp_size = (stream->base_object.avail_out < remaining) ? stream->base_object.avail_out : remaining;
+squash_crush_writer (const void* buffer, size_t size, void* user_data) {
+  struct SquashCrushData* data = (struct SquashCrushData*) user_data;
 
-    memcpy (stream->base_object.next_out, buf + (size - remaining), cp_size);
-    stream->base_object.next_out += cp_size;
-    stream->base_object.avail_out -= cp_size;
-    remaining -= cp_size;
-
-    if (remaining != 0) {
-      if (stream->operation == SQUASH_OPERATION_TERMINATE)
-        break;
-      stream->operation = squash_stream_yield ((SquashStream*) stream, SQUASH_PROCESSING);
-    }
+  if (data->last_res > 0) {
+    data->last_res = data->writer (&size, buffer, data->user_data);
+    return size;
+  } else {
+    return 0;
   }
-
-  return (size - remaining);
-}
-
-static void
-squash_crush_stream_init (SquashCrushStream* stream,
-                          SquashCodec* codec,
-                          SquashStreamType stream_type,
-                          SquashOptions* options,
-                          SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-
-  crush_init(&(stream->ctx), squash_crush_reader, (CrushWriteFunc) squash_crush_writer, stream, NULL);
-}
-
-static SquashCrushStream*
-squash_crush_stream_new (SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashOptions* options) {
-  SquashCrushStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashCrushStream*) malloc (sizeof (SquashCrushStream));
-  squash_crush_stream_init (stream, codec, stream_type, options, squash_crush_stream_free);
-
-  return stream;
-}
-
-static void
-squash_crush_stream_destroy (void* stream) {
-  crush_destroy (&(((SquashCrushStream*) stream)->ctx));
-
-  squash_stream_destroy (stream);
-}
-
-static void
-squash_crush_stream_free (void* stream) {
-  squash_crush_stream_destroy (stream);
-  free (stream);
-}
-
-static SquashStream*
-squash_crush_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_crush_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
-squash_crush_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashCrushStream* s = (SquashCrushStream*) stream;
+squash_crush_splice (SquashCodec* codec,
+                     SquashOptions* options,
+                     SquashStreamType stream_type,
+                     SquashReadFunc read_cb,
+                     SquashWriteFunc write_cb,
+                     void* user_data) {
+  struct SquashCrushData data = {
+    user_data,
+    read_cb,
+    write_cb,
+    SQUASH_OK
+  };
+  CrushContext ctx;
   int res;
 
-  s->operation = operation;
+  crush_init (&ctx, squash_crush_reader, squash_crush_writer, &data, NULL);
 
-  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    res = crush_compress (&(s->ctx), squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_CRUSH_OPT_LEVEL));
+  if (stream_type == SQUASH_STREAM_COMPRESS) {
+    res = crush_compress (&ctx, squash_codec_get_option_int_index (codec, options, SQUASH_CRUSH_OPT_LEVEL));
   } else {
-    res = crush_decompress (&(s->ctx));
+    res = crush_decompress (&ctx);
   }
 
-  return (res == 0) ? SQUASH_OK : SQUASH_FAILED;
+  crush_destroy (&ctx);
+
+  if (data.last_res < 0)
+    return data.last_res;
+  else if (res != 0)
+    return SQUASH_FAILED;
+  else
+    return SQUASH_OK;
 }
 
 static size_t
@@ -183,10 +130,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("crush", name) == 0) {
-    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     impl->options = squash_crush_options;
-    impl->create_stream = squash_crush_create_stream;
-    impl->process_stream = squash_crush_process_stream;
+    impl->splice = squash_crush_splice;
     impl->get_max_compressed_size = squash_crush_get_max_compressed_size;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
