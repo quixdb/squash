@@ -76,37 +76,49 @@ struct _SquashStream {
   SquashDestroyNotify destroy_user_data;
 };
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new                    (const char* codec,
                                                                  SquashStreamType stream_type,
                                                                  ...);
+SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStream*   squash_stream_newv                   (const char* codec,
                                                                  SquashStreamType stream_type,
                                                                  va_list options);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_newa                   (const char* codec,
                                                                  SquashStreamType stream_type,
                                                                  const char* const* keys,
                                                                  const char* const* values);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new_with_options       (const char* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new_codec              (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  ...);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new_codec_with_options (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options);
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus    squash_stream_process                (SquashStream* stream);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus    squash_stream_flush                  (SquashStream* stream);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus    squash_stream_finish                 (SquashStream* stream);
 
+SQUASH_NONNULL(1, 2)
 SQUASH_API void            squash_stream_init                   (void* stream,
                                                                  SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options,
                                                                  SquashDestroyNotify destroy_notify);
+SQUASH_NONNULL(1)
 SQUASH_API void            squash_stream_destroy                (void* stream);
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashOperation squash_stream_yield                  (SquashStream* stream, SquashStatus status);
 
 SQUASH_END_DECLS

@@ -42,6 +42,7 @@ typedef struct _SquashSList {
 typedef void (*SquashSListForeachDataFunc)(SquashSList* item, void* data);
 typedef void (*SquashSListForeachFunc)(SquashSList* item);
 
+SQUASH_NONNULL(1, 2)
 static inline void
 squash_slist_foreach_data (SquashSList* list, SquashSListForeachDataFunc func, void* data) {
   SquashSList* next;
@@ -51,6 +52,7 @@ squash_slist_foreach_data (SquashSList* list, SquashSListForeachDataFunc func, v
   }
 }
 
+SQUASH_NONNULL(1, 2)
 static inline void
 squash_slist_foreach (SquashSList* list, SquashSListForeachFunc func) {
   SquashSList* next;
@@ -60,6 +62,7 @@ squash_slist_foreach (SquashSList* list, SquashSListForeachFunc func) {
   }
 }
 
+SQUASH_NONNULL(1)
 static inline SquashSList*
 squash_slist_get_last (SquashSList* list) {
   if (list != NULL) {
@@ -71,6 +74,7 @@ squash_slist_get_last (SquashSList* list) {
   return list;
 }
 
+SQUASH_NONNULL(1)
 static inline SquashSList*
 squash_slist_append (SquashSList* list, size_t elem_size) {
   SquashSList* item = (SquashSList*) malloc (elem_size);

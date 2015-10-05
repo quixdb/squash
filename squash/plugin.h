@@ -33,14 +33,19 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus   squash_plugin_init           (SquashPlugin* plugin);
 
+SQUASH_NONNULL(1)
 SQUASH_API const char*    squash_plugin_get_name       (SquashPlugin* plugin);
+SQUASH_NONNULL(1)
 SQUASH_API SquashLicense* squash_plugin_get_licenses   (SquashPlugin* plugin);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashCodec*   squash_plugin_get_codec      (SquashPlugin* plugin, const char* codec);
 
 typedef void (*SquashPluginForeachFunc) (SquashPlugin* plugin, void* data);
 
+SQUASH_NONNULL(1, 2)
 SQUASH_API void           squash_plugin_foreach_codec  (SquashPlugin* plugin, SquashCodecForeachFunc func, void* data);
 
 #if defined _WIN32 || defined __CYGWIN__
@@ -50,7 +55,7 @@ SQUASH_API void           squash_plugin_foreach_codec  (SquashPlugin* plugin, Sq
 #    define SQUASH_PLUGIN_EXPORT __declspec(dllexport)
 #  endif
 #else
-#  if __GNUC__ >= 4
+#  if defined(__GNUC__) && (__GNUC__ >= 4)
 #    define SQUASH_PLUGIN_EXPORT __attribute__ ((visibility ("default")))
 #  else
 #    define SQUASH_PLUGIN_EXPORT

@@ -121,7 +121,7 @@ squash_buffer_stream_consolidate (SquashBufferStream* stream) {
 
     for ( next = NULL ; list != NULL ; list = next ) {
       next = (SquashBufferStreamSList*) list->base.next;
-      squash_buffer_append (stream->input, list->data, (next != NULL) ? SQUASH_BUFFER_STREAM_BUFFER_SIZE : stream->last_pos);
+      squash_buffer_append (stream->input, (next != NULL) ? SQUASH_BUFFER_STREAM_BUFFER_SIZE : stream->last_pos, list->data);
       free (list);
     }
   }

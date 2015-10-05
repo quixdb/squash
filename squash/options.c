@@ -311,6 +311,7 @@ SquashStatus
 squash_options_parse_option (SquashOptions* options, const char* key, const char* value) {
   assert (options != NULL);
   assert (key != NULL);
+  assert (value != NULL);
   assert (options->codec != NULL);
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
@@ -621,6 +622,8 @@ squash_options_init (void* options,
   if (info != NULL) {
     size_t n_options;
     for (n_options = 0 ; info[n_options].name != NULL ; n_options++) { }
+
+    assert (n_options != 0);
 
     o->values = calloc (n_options, sizeof (SquashOptionValue));
     for (size_t c_option = 0 ; c_option < n_options ; c_option++) {

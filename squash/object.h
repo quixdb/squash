@@ -48,7 +48,9 @@ struct _SquashObject {
   SquashDestroyNotify destroy_notify;
 };
 
+SQUASH_NONNULL(1)
 SQUASH_API void         squash_object_init          (void* obj, bool is_floating, SquashDestroyNotify destroy_notify);
+SQUASH_NONNULL(1)
 SQUASH_API void         squash_object_destroy       (void* obj);
 
 SQUASH_END_DECLS

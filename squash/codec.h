@@ -110,102 +110,140 @@ struct _SquashCodecImpl {
 
 typedef void (*SquashCodecForeachFunc) (SquashCodec* codec, void* data);
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus            squash_codec_init                         (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API const char*             squash_codec_get_name                     (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API unsigned int            squash_codec_get_priority                 (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API SquashPlugin*           squash_codec_get_plugin                   (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API const char*             squash_codec_get_extension                (SquashCodec* codec);
 
+SQUASH_NONNULL(1, 3)
 SQUASH_API size_t                  squash_codec_get_uncompressed_size        (SquashCodec* codec,
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]);
+SQUASH_NONNULL(1)
 SQUASH_API size_t                  squash_codec_get_max_compressed_size      (SquashCodec* codec, size_t uncompressed_length);
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*           squash_codec_create_stream                (SquashCodec* codec, SquashStreamType stream_type, ...);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStream*           squash_codec_create_stream_with_options   (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_codec_compress                     (SquashCodec* codec,
                                                                               size_t* compressed_length,
                                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
                                                                               size_t uncompressed_length,
                                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                                                               ...);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_codec_compress_with_options        (SquashCodec* codec,
                                                                               size_t* compressed_length,
                                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
                                                                               size_t uncompressed_length,
                                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                                                               SquashOptions* options);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_codec_decompress                   (SquashCodec* codec,
                                                                               size_t* decompressed_length,
                                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)], ...);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_codec_decompress_with_options      (SquashCodec* codec,
                                                                               size_t* decompressed_length,
                                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                                                               SquashOptions* options);
+SQUASH_NONNULL(1)
 SQUASH_API SquashCodecInfo         squash_codec_get_info                     (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API const SquashOptionInfo* squash_codec_get_option_info              (SquashCodec* codec);
 
+SQUASH_NONNULL(1)
 SQUASH_API const char*             squash_codec_get_option_string            (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               const char* key);
+
+SQUASH_NONNULL(1)
 SQUASH_API bool                    squash_codec_get_option_bool              (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               const char* key);
+
+SQUASH_NONNULL(1)
 SQUASH_API int                     squash_codec_get_option_int               (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               const char* key);
+
+SQUASH_NONNULL(1)
 SQUASH_API size_t                  squash_codec_get_option_size              (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               const char* key);
+
+SQUASH_NONNULL(1)
 SQUASH_API const char*             squash_codec_get_option_string_index      (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               size_t index);
+
+SQUASH_NONNULL(1)
 SQUASH_API bool                    squash_codec_get_option_bool_index        (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               size_t index);
+
+SQUASH_NONNULL(1)
 SQUASH_API int                     squash_codec_get_option_int_index         (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               size_t index);
+
+SQUASH_NONNULL(1)
 SQUASH_API size_t                  squash_codec_get_option_size_index        (SquashCodec* codec,
                                                                               SquashOptions* options,
                                                                               size_t index);
 
 
+SQUASH_NONNULL(1)
 SQUASH_API size_t                  squash_get_max_compressed_size            (const char* codec, size_t uncompressed_length);
+SQUASH_NONNULL(1, 3)
 SQUASH_API size_t                  squash_get_uncompressed_size              (const char* codec,
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]);
 
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_compress                           (const char* codec,
                                                                               size_t* compressed_length,
                                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
                                                                               size_t uncompressed_length,
                                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                                                               ...);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_compress_with_options              (const char* codec,
                                                                               size_t* compressed_length,
                                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
                                                                               size_t uncompressed_length,
                                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
                                                                               SquashOptions* options);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_decompress                         (const char* codec,
                                                                               size_t* decompressed_length,
                                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                                                               ...);
+SQUASH_NONNULL(1, 2, 3, 5)
 SQUASH_API SquashStatus            squash_decompress_with_options            (const char* codec,
                                                                               size_t* decompressed_length,
                                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
                                                                               size_t compressed_length,
                                                                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                                                                               SquashOptions* options);
+SQUASH_NONNULL(1)
 SQUASH_API SquashCodecInfo         squash_get_info                           (const char* codec);
+SQUASH_NONNULL(1)
 SQUASH_API const SquashOptionInfo* squash_get_option_info                    (const char* codec);
 
 SQUASH_END_DECLS

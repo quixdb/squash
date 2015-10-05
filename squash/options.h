@@ -112,22 +112,35 @@ struct _SquashOptionInfo {
   SquashOptionValue default_value;
 };
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_new           (SquashCodec* codec, ...);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashOptions* squash_options_newv          (SquashCodec* codec, va_list options);
+SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_newa          (SquashCodec* codec, const char* const* keys, const char* const* values);
 
+SQUASH_NONNULL(2)
 SQUASH_API const char*    squash_options_get_string    (SquashOptions* options, const char* key);
+SQUASH_NONNULL(2)
 SQUASH_API bool           squash_options_get_bool      (SquashOptions* options, const char* key);
+SQUASH_NONNULL(2)
 SQUASH_API int            squash_options_get_int       (SquashOptions* options, const char* key);
+SQUASH_NONNULL(2)
 SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, const char* key);
 
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus   squash_options_parse         (SquashOptions* options, ...);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashStatus   squash_options_parsev        (SquashOptions* options, va_list options_list);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus   squash_options_parsea        (SquashOptions* options, const char* const* keys, const char* const* values);
 
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_parse_option  (SquashOptions* options, const char* key, const char* value);
 
+SQUASH_NONNULL(1, 2)
 SQUASH_API void           squash_options_init          (void* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
+SQUASH_NONNULL(1)
 SQUASH_API void           squash_options_destroy       (void* options);
 
 SQUASH_END_DECLS

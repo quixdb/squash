@@ -36,57 +36,75 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashFile*  squash_file_open                     (const char* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               ...);
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashFile*  squash_file_open_codec               (SquashCodec* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               ...);
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashFile*  squash_file_open_with_options        (const char* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               SquashOptions* options);
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashFile*  squash_file_open_codec_with_options  (SquashCodec* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               SquashOptions* options);
 
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashFile*  squash_file_steal                    (const char* codec,
                                                               FILE* fp,
                                                               ...);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashFile*  squash_file_steal_codec              (SquashCodec* codec,
                                                               FILE* fp,
                                                               ...);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashFile*  squash_file_steal_with_options       (const char* codec,
                                                               FILE* fp,
                                                               SquashOptions* options);
+SQUASH_NONNULL(1, 2)
 SQUASH_API SquashFile*  squash_file_steal_codec_with_options (SquashCodec* codec,
                                                               FILE* fp,
                                                               SquashOptions* options);
 
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus squash_file_read                     (SquashFile* file,
                                                               size_t* decompressed_length,
                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]);
+SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStatus squash_file_write                    (SquashFile* file,
                                                               size_t uncompressed_length,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
-
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_close                    (SquashFile* file);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_free                     (SquashFile* file,
                                                               FILE** fp);
+SQUASH_NONNULL(1)
 SQUASH_API bool         squash_file_eof                      (SquashFile* file);
 
+SQUASH_NONNULL(1)
 SQUASH_API void         squash_file_lock                     (SquashFile* file);
+SQUASH_NONNULL(1)
 SQUASH_API void         squash_file_unlock                   (SquashFile* file);
+SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus squash_file_read_unlocked            (SquashFile* file,
                                                               size_t* decompressed_length,
                                                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]);
+SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStatus squash_file_write_unlocked           (SquashFile* file,
                                                               size_t uncompressed_length,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
+SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush_unlocked           (SquashFile* file);
 
 SQUASH_END_DECLS

@@ -33,6 +33,7 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_NONNULL(1, 2)
 void            squash_context_add_codec     (SquashContext* context, SquashCodec* codec);
 
 SQUASH_TREE_PROTOTYPES(_SquashCodecRef, tree)

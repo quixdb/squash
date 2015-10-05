@@ -46,15 +46,18 @@ typedef struct SquashMappedFile_s {
 
 static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 
+SQUASH_NONNULL(1, 2)
 bool squash_mapped_file_init_full (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t length,
                                    bool length_is_suggestion,
                                    bool writable);
+SQUASH_NONNULL(1, 2)
 bool squash_mapped_file_init      (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t length,
                                    bool writable);
+SQUASH_NONNULL(1)
 void squash_mapped_file_destroy   (SquashMappedFile* mapped,
                                    bool success);
 

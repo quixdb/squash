@@ -204,10 +204,10 @@ squash_atomic_dec (volatile unsigned int* var) {
  */
 void*
 squash_object_ref (void* obj) {
-  SquashObject* object = (SquashObject*) obj;
+  if (obj == NULL)
+    return NULL;
 
-  if (object == NULL)
-    return object;
+  SquashObject* object = (SquashObject*) obj;
 
   if (object->is_floating) {
     if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
@@ -253,10 +253,10 @@ squash_object_ref_sink (void* obj) {
  */
 void*
 squash_object_unref (void* obj) {
-  SquashObject* object = (SquashObject*) obj;
+  if (obj == NULL)
+    return NULL;
 
-  if (object == NULL)
-    return object;
+  SquashObject* object = (SquashObject*) obj;
 
   unsigned int ref_count = squash_atomic_dec (&(object->ref_count));
 

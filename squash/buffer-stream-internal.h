@@ -53,8 +53,11 @@ typedef struct _SquashBufferStream {
   SquashBuffer* output;
 } SquashBufferStream;
 
+SQUASH_NONNULL(1)
 SquashBufferStream* squash_buffer_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
+SQUASH_NONNULL(1)
 SquashStatus        squash_buffer_stream_process (SquashBufferStream* stream);
+SQUASH_NONNULL(1)
 SquashStatus        squash_buffer_stream_finish  (SquashBufferStream* stream);
 
 SQUASH_END_DECLS

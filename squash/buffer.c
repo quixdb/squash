@@ -46,6 +46,8 @@ squash_buffer_npot_page (size_t value) {
 
 static void
 squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
+  assert (buffer != NULL);
+
   if (allocation > buffer->allocated) {
     allocation = squash_buffer_npot_page (allocation);
     buffer->allocated = allocation;
@@ -73,6 +75,8 @@ squash_buffer_new (size_t preallocated_len) {
 
 void
 squash_buffer_set_size (SquashBuffer* buffer, size_t length) {
+  assert (buffer != NULL);
+
   if (length > buffer->allocated)
     squash_buffer_ensure_allocation (buffer, length);
 
@@ -81,6 +85,8 @@ squash_buffer_set_size (SquashBuffer* buffer, size_t length) {
 
 void
 squash_buffer_clear (SquashBuffer* buffer) {
+  assert (buffer != NULL);
+
   free (buffer->data);
   buffer->data = NULL;
   buffer->allocated = 0;
@@ -88,7 +94,12 @@ squash_buffer_clear (SquashBuffer* buffer) {
 }
 
 void
-squash_buffer_append (SquashBuffer* buffer, uint8_t* data, size_t data_length) {
+squash_buffer_append (SquashBuffer* buffer, size_t data_length, uint8_t data[SQUASH_ARRAY_PARAM(data_length)]) {
+  assert (buffer != NULL);
+
+  if (data_length == 0)
+    return;
+
   const size_t start_pos = buffer->length;
 
   squash_buffer_set_size (buffer, buffer->length + data_length);
@@ -98,6 +109,9 @@ squash_buffer_append (SquashBuffer* buffer, uint8_t* data, size_t data_length) {
 
 void
 squash_buffer_free (SquashBuffer* buffer) {
+  if (buffer == NULL)
+    return;
+
   if (buffer->data != NULL) {
     free (buffer->data);
   }

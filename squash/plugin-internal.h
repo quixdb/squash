@@ -33,10 +33,15 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_NONNULL(1, 2, 3)
 SquashPlugin*   squash_plugin_new        (char* name, char* directory, SquashContext* context);
+SQUASH_NONNULL(1, 2)
 void            squash_plugin_add_codec  (SquashPlugin* plugin, SquashCodec* codec);
+SQUASH_NONNULL(1)
 SquashStatus    squash_plugin_load       (SquashPlugin* plugin);
+SQUASH_NONNULL(1, 2, 3)
 SquashStatus    squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecImpl* impl);
+SQUASH_NONNULL(1, 2)
 int             squash_plugin_compare    (SquashPlugin* a, SquashPlugin* b);
 
 SQUASH_TREE_PROTOTYPES(_SquashPlugin, tree)

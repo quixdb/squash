@@ -57,6 +57,18 @@
 #  define squash_assert_unreachable() assert(false)
 #endif
 
+#if defined(__clang__) && __has_attribute(nonnull)
+#  define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#elif defined(__GNUC__) && (__GNUC__ >= 5)
+#  if defined(NDEBUG)
+#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#  else
+#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__))) __attribute__((__optimize__("no-isolate-erroneous-paths-attribute")))
+#  endif
+#elif defined(__GNUC__)
+#  define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#endif
+
 #include <squash/version.h>
 
 #include "status.h"

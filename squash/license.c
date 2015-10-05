@@ -73,6 +73,9 @@ squash_license_to_string (SquashLicense license) {
 
 SquashLicense
 squash_license_from_string (const char* license) {
+  if (license == NULL)
+    return SQUASH_LICENSE_UNKNOWN;
+
   int i;
   for (i = 0 ; licenses[i].value != SQUASH_LICENSE_UNKNOWN ; i++)
     if (strcasecmp (license, licenses[i].name) == 0)
