@@ -222,7 +222,7 @@ squash_stream_read_cb (size_t* data_length,
 
   *data_length = requested - remaining;
 
-  return SQUASH_OK;
+  return (*data_length != 0) ? SQUASH_OK : SQUASH_END_OF_STREAM;
 }
 
 static SquashStatus
@@ -258,7 +258,11 @@ squash_stream_write_cb (size_t* data_length,
 
   *data_length = requested - remaining;
 
-  return SQUASH_OK;
+  /* If we are terminating, we want to return an error code.  However,
+     don't call squash_error because this may just be from unreffing
+     the stream before it is finished to abandon it. */
+
+  return (*data_length != 0) ? SQUASH_OK : SQUASH_FAILED;
 }
 
 static int

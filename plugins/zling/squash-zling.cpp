@@ -52,24 +52,23 @@ static SquashOptionInfo squash_zling_options[] = {
 typedef struct _SquashZlingStream SquashZlingStream;
 
 struct SquashZlingIO: public baidu::zling::Inputter, public baidu::zling::Outputter {
-  SquashZlingIO (SquashZlingStream* s):
-    stream(s) {}
+public:
+  void* user_data_;
+  SquashReadFunc reader_;
+  SquashWriteFunc writer_;
+
+  SquashZlingIO(void* user_data, SquashReadFunc reader, SquashWriteFunc writer) :
+    user_data_ (user_data),
+    reader_ (reader),
+    writer_ (writer) { }
+
+  bool eof = false;
+  SquashStatus last_res;
 
   size_t GetData(unsigned char* buf, size_t len);
   size_t PutData(unsigned char* buf, size_t len);
   bool   IsEnd();
   bool   IsErr();
-
-private:
-  SquashZlingStream* stream;
-};
-
-struct _SquashZlingStream {
-  SquashStream base_object;
-
-  SquashZlingIO* stream;
-
-  SquashOperation operation;
 };
 
 extern "C" SQUASH_PLUGIN_EXPORT
@@ -77,144 +76,73 @@ SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, Squ
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_plugin    (SquashPlugin* plugin);
 
-static void                squash_zling_stream_init     (SquashZlingStream* stream,
-                                                         SquashCodec* codec,
-                                                         SquashStreamType stream_type,
-                                                         SquashOptions* options,
-                                                         SquashDestroyNotify destroy_notify);
-static SquashZlingStream*  squash_zling_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void                squash_zling_stream_destroy  (void* stream);
-static void                squash_zling_stream_free     (void* stream);
-
 size_t
 SquashZlingIO::GetData (unsigned char* buf, size_t len) {
-  SquashStream* stream = (SquashStream*) this->stream;
+  if (this->IsErr ())
+    return 0;
 
-  while (stream->avail_in == 0 && this->stream->operation == SQUASH_OPERATION_PROCESS) {
-    this->stream->operation = squash_stream_yield (stream, SQUASH_OK);
-  }
+  this->last_res = this->reader_ (&len, (uint8_t*) buf, this->user_data_);
+  if (this->last_res == SQUASH_END_OF_STREAM)
+    this->eof = true;
 
-  if (stream->avail_in == 0) {
-    return -1;
-  } else {
-    const size_t cp_size = stream->avail_in < len ? stream->avail_in : len;
-
-    memcpy (buf, stream->next_in, cp_size);
-    stream->next_in += cp_size;
-    stream->avail_in -= cp_size;
-
-    return cp_size;
-  }
+  return len;
 }
 
 size_t
 SquashZlingIO::PutData(unsigned char* buf, size_t len) {
-  SquashStream* stream = (SquashStream*) this->stream;
+  if (this->IsErr())
+    return 0;
 
-  size_t written = 0;
-  size_t remaining = len;
-  while (remaining > 0) {
-    const size_t cp_size = (remaining < stream->avail_out) ? remaining : stream->avail_out;
+  this->last_res = this->writer_ (&len, (const uint8_t*) buf, this->user_data_);
 
-    memcpy (stream->next_out, buf + written, cp_size);
+  if (this->last_res != SQUASH_OK)
+    return 0;
 
-    written += cp_size;
-    remaining -= cp_size;
-    stream->next_out += cp_size;
-    stream->avail_out -= cp_size;
-
-    if (remaining != 0)
-      this->stream->operation = squash_stream_yield (stream, SQUASH_PROCESSING);
-  }
-
-  return written;
+  return len;
 }
 
 bool
 SquashZlingIO::IsEnd() {
-  SquashStream* stream = (SquashStream*) this->stream;
-
-  while (stream->avail_in == 0 && this->stream->operation == SQUASH_OPERATION_PROCESS) {
-    this->stream->operation = squash_stream_yield (stream, SQUASH_OK);
-  }
-
-  return (this->stream->operation == SQUASH_OPERATION_FINISH && stream->avail_in == 0);
+  return this->eof;
 }
 
 bool
 SquashZlingIO::IsErr() {
-  return false;
-}
-
-static SquashZlingStream* squash_zling_stream_new (SquashCodec* codec,
-                                                   SquashStreamType stream_type,
-                                                   SquashOptions* options) {
-  SquashZlingStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashZlingStream*) malloc (sizeof (SquashZlingStream));
-  squash_zling_stream_init (stream, codec, stream_type, options, squash_zling_stream_free);
-
-  return stream;
-}
-
-static void
-squash_zling_stream_init (SquashZlingStream* stream,
-                          SquashCodec* codec,
-                          SquashStreamType stream_type,
-                          SquashOptions* options,
-                          SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
-
-  stream->stream = new SquashZlingIO(stream);
-}
-
-static void
-squash_zling_stream_destroy (void* stream) {
-  delete ((SquashZlingStream*) stream)->stream;
-
-  squash_stream_destroy (stream);
-}
-
-static void
-squash_zling_stream_free (void* stream) {
-  squash_zling_stream_destroy (stream);
-  free (stream);
-}
-
-static SquashStream*
-squash_zling_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zling_stream_new (codec, stream_type, options);
+  return this->last_res < 0;
 }
 
 static SquashStatus
-squash_zling_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashStatus res = SQUASH_OK;
-  SquashZlingStream* s = (SquashZlingStream*) stream;
-
-  s->operation = operation;
-
+squash_zling_splice (SquashCodec* codec,
+                     SquashOptions* options,
+                     SquashStreamType stream_type,
+                     SquashReadFunc read_cb,
+                     SquashWriteFunc write_cb,
+                     void* user_data) {
   try {
-    if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-      int level = SQUASH_ZLING_DEFAULT_LEVEL;
-      if (stream->options != NULL)
-        level = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_ZLING_OPT_LEVEL);
+    SquashZlingIO stream(user_data, read_cb, write_cb);
+    int zres = 0;
 
-      res = baidu::zling::Encode(s->stream, s->stream, NULL, level) == 0 ?
-        SQUASH_OK : squash_error (SQUASH_FAILED);
+    if (stream_type == SQUASH_STREAM_COMPRESS) {
+      zres = baidu::zling::Encode(&stream, &stream, NULL, squash_codec_get_option_int_index (codec, options, SQUASH_ZLING_OPT_LEVEL));
     } else {
-      res = baidu::zling::Decode(s->stream, s->stream, NULL) == 0 ?
-        SQUASH_OK : squash_error (SQUASH_FAILED);
+      zres = baidu::zling::Decode(&stream, &stream, NULL);
     }
+
+    if (zres == 0)
+      return SQUASH_OK;
+    else if (stream.last_res < 0)
+      return stream.last_res;
+    else
+      return squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
     return squash_error (SQUASH_MEMORY);
+  } catch (const SquashStatus e) {
+    return e;
   } catch (...) {
-    return squash_error (SQUASH_FAILED);
+    return SQUASH_FAILED;
   }
 
-  return res;
+  squash_assert_unreachable ();
 }
 
 static size_t
@@ -238,10 +166,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zling", name) == 0) {
-    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     impl->options = squash_zling_options;
-    impl->create_stream = squash_zling_create_stream;
-    impl->process_stream = squash_zling_process_stream;
+    impl->splice = squash_zling_splice;
     impl->get_max_compressed_size = squash_zling_get_max_compressed_size;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);

@@ -4,6 +4,8 @@ Squash 0.8.0
  * Preliminary support for Apple OS X
  * File API is now thread safe, with *_unlocked variants
  * New 'splice' interface for plugins
+ * Enable zling plugin
+ * Disable csc plugin
  * Updated many plugins
  * Assorted bug fixes and enhancements
 
