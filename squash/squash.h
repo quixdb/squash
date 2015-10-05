@@ -57,8 +57,12 @@
 #  define squash_assert_unreachable() assert(false)
 #endif
 
-#if defined(__clang__) && __has_attribute(nonnull)
-#  define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#if defined(__clang__)
+#  if __has_attribute(nonnull)
+#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+#  else
+#    define SQUASH_NONNULL(...)
+#  endif
 #elif defined(__GNUC__) && (__GNUC__ >= 5)
 #  if defined(NDEBUG)
 #    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
