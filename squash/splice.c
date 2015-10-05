@@ -366,6 +366,74 @@ squash_splice_detect_enable (void) {
     squash_splice_try_mmap = 2;
 }
 
+struct SquashFileSpliceData {
+  FILE* fp_in;
+  FILE* fp_out;
+  size_t length;
+  size_t pos;
+  SquashStreamType stream_type;
+  SquashCodec* codec;
+  SquashOptions* options;
+};
+
+static SquashStatus
+squash_file_splice_read (size_t* data_length,
+                         uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                         void* user_data) {
+  struct SquashFileSpliceData* ctx = (struct SquashFileSpliceData*) user_data;
+
+  size_t requested;
+
+  if (ctx->stream_type == SQUASH_STREAM_COMPRESS && ctx->length != 0) {
+    const size_t remaining = ctx->length - ctx->pos;
+
+    if (remaining == 0) {
+      *data_length = 0;
+      return SQUASH_END_OF_STREAM;
+    }
+
+    requested = (*data_length < remaining) ? *data_length : remaining;
+  } else {
+    requested = *data_length;
+    assert (requested != 0);
+  }
+
+  const size_t bytes_read = SQUASH_FREAD_UNLOCKED(data, 1, requested, ctx->fp_in);
+  *data_length = bytes_read;
+  ctx->pos += bytes_read;
+
+  if (bytes_read == 0) {
+    return feof (ctx->fp_in) ? SQUASH_END_OF_STREAM : squash_error (SQUASH_IO);
+  } else {
+    return SQUASH_OK;
+  }
+}
+
+static SquashStatus
+squash_file_splice_write (size_t* data_length,
+                          const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+                          void* user_data) {
+  struct SquashFileSpliceData* ctx = (struct SquashFileSpliceData*) user_data;
+
+  const size_t requested = *data_length;
+  *data_length = SQUASH_FWRITE_UNLOCKED(data, 1, requested, ctx->fp_out);
+
+  return (*data_length == requested) ? SQUASH_OK : squash_error (SQUASH_IO);
+}
+
+/* I would care more about the absurd name if this were exposed publicly. */
+static SquashStatus
+squash_file_splice (FILE* fp_in,
+                    FILE* fp_out,
+                    size_t length,
+                    SquashStreamType stream_type,
+                    SquashCodec* codec,
+                    SquashOptions* options) {
+  struct SquashFileSpliceData data = { fp_in, fp_out, length, 0, stream_type, codec, options };
+
+  return codec->impl.splice (codec, options, stream_type, squash_file_splice_read, squash_file_splice_write, &data);
+}
+
 /**
  * @brief compress or decompress the contents of one file to another
  *
@@ -403,12 +471,16 @@ squash_splice_codec_with_options (SquashCodec* codec,
   SQUASH_FLOCKFILE(fp_in);
   SQUASH_FLOCKFILE(fp_out);
 
-  if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
-    res = squash_splice_map (fp_in, fp_out, length, stream_type, codec, options);
-  }
+  if (codec->impl.splice != NULL) {
+    res = squash_file_splice (fp_in, fp_out, length, stream_type, codec, options);
+  } else {
+    if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
+      res = squash_splice_map (fp_in, fp_out, length, stream_type, codec, options);
+    }
 
-  if (res != SQUASH_OK)
-    res = squash_splice_stream (fp_in, fp_out, length, stream_type, codec, options);
+    if (res != SQUASH_OK)
+      res = squash_splice_stream (fp_in, fp_out, length, stream_type, codec, options);
+  }
 
   SQUASH_FUNLOCKFILE(fp_in);
   SQUASH_FUNLOCKFILE(fp_out);

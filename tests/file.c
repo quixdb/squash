@@ -10,6 +10,7 @@
 
 #define STREAM_TEST_CODEC "zlib:gzip"
 #define BUFFER_TEST_CODEC "snappy:snappy"
+#define SPLICE_TEST_CODEC "crush:crush"
 
 #define LOREM_IPSUM (const uint8_t*)                                    \
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vulputate " \
@@ -270,8 +271,10 @@ main (int argc, char** argv) {
   g_test_add ("/file/io", struct Single, NULL, single_setup, test_file_io, single_teardown);
   g_test_add ("/file/splice/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
   g_test_add ("/file/splice/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
+  g_test_add ("/file/splice/splice", struct Triple, SPLICE_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
   g_test_add ("/file/splice/partial/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
   g_test_add ("/file/splice/partial/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
+  g_test_add ("/file/splice/partial/splice", struct Triple, SPLICE_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
 
   return g_test_run ();
 }
