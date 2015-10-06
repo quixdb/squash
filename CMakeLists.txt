@@ -9,6 +9,10 @@ include (ExtraWarningFlags)
 include (CheckFunctionExists)
 include (CheckIncludeFile)
 
+if (ENABLE_COVERAGE STREQUAL "yes")
+  include (CodeCoverage)
+endif ()
+
 set (PACKAGE_NAME Squash)
 set (SQUASH_TOP_SRCDIR "${PROJECT_SOURCE_DIR}")
 set (SQUASH_TOP_BUILDDIR "${PROJECT_BINARY_DIR}")
@@ -187,7 +191,7 @@ function (squash_target_add_ldflag target flag)
 endfunction ()
 
 function (squash_target_add_coverage target)
-  if (CMAKE_BUILD_TYPE MATCHES "Coverage")
+  if (ENABLE_COVERAGE STREQUAL "yes")
     foreach (cflag -g -O0 -fprofile-arcs -ftest-coverage)
       squash_target_add_cflag (${target} ${cflag})
     endforeach ()
@@ -247,3 +251,5 @@ add_subdirectory (tests)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+
+SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)

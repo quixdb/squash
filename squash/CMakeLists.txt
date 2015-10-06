@@ -4,7 +4,13 @@ configure_file (version.h.in version.h)
 
 find_package(RAGEL 6.6 REQUIRED)
 
-RAGEL_TARGET(ini ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c)
+# To make lcov happy
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ini.rl
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.rl
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ini.rl)
+
+RAGEL_TARGET(ini ${CMAKE_CURRENT_BINARY_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c)
 
 set (squash_SOURCES
   ${RAGEL_ini_OUTPUTS}
