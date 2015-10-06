@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <limits.h>
 
 #include <squash/squash.h>
 
@@ -235,6 +236,11 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
 
   zlib_stream = &(((SquashZlibStream*) stream)->stream);
 
+#if UINT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(UINT_MAX < stream->avail_in) ||
+      SQUASH_UNLIKELY(UINT_MAX < stream->avail_out))
+    return squash_error (SQUASH_RANGE);
+#endif
   SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream, zlib_stream);
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
@@ -243,6 +249,11 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
     zlib_e = inflate (zlib_stream, squash_operation_to_zlib (operation));
   }
 
+#if SIZE_MAX < UINT_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < zlib_stream->avail_out) ||
+      SQUASH_UNLIKELY(SIZE_MAX < zlib_stream->avail_out))
+    return squash_error (SQUASH_RANGE);
+#endif
   SQUASH_ZLIB_STREAM_COPY_FROM_ZLIB_STREAM(stream, zlib_stream);
 
   switch (zlib_e) {
@@ -299,6 +310,13 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
 static size_t
 squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
   SquashZlibType type = squash_zlib_codec_to_type (codec);
+
+#if SIZE_MAX < ULONG_MAX
+  if (SQUASH_UNLIKELY(uncompressed_length > ULONG_MAX)) {
+    squash_error (SQUASH_BUFFER_TOO_LARGE);
+    return 0;
+  }
+#endif
 
   if (type == SQUASH_ZLIB_TYPE_ZLIB) {
     return (size_t) compressBound ((uLong) uncompressed_length);

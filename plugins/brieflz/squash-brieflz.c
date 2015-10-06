@@ -30,6 +30,7 @@
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <squash/squash.h>
 #include <brieflz.h>
@@ -110,7 +111,16 @@ write_varuint64 (uint8_t *p, size_t p_size, uint64_t v) {
 
 static size_t
 squash_brieflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return (size_t) blz_max_packed_size ((unsigned long) uncompressed_length) + 9;
+#if ULONG_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(ULONG_MAX < uncompressed_length))
+    return (squash_error (SQUASH_RANGE), 0);
+#endif
+  const unsigned long r = blz_max_packed_size ((unsigned long) uncompressed_length) + 9;
+#if SIZE_MAX < ULONG_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < r))
+    return (squash_error (SQUASH_RANGE), 0);
+#endif
+  return (size_t) r;
 }
 
 static size_t
@@ -146,12 +156,23 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
+#if ULONG_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(ULONG_MAX < compressed_length) ||
+      SQUASH_UNLIKELY(ULONG_MAX < original_size))
+    return squash_error (SQUASH_RANGE);
+#endif
+
   size = blz_depack_safe (src, (unsigned long) compressed_length,
                           decompressed, (unsigned long) original_size);
 
   if (size != original_size) {
     return squash_error (SQUASH_FAILED);
   }
+
+#if SIZE_MAX < ULONG_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < size))
+    return squash_error (SQUASH_RANGE);
+#endif
 
   *decompressed_length = size;
 
@@ -168,6 +189,12 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
   uint8_t *dst = compressed;
   void *workmem = NULL;
   size_t size;
+
+#if ULONG_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(ULONG_MAX < uncompressed_length) ||
+      SQUASH_UNLIKELY(ULONG_MAX < *compressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
 
   if ((unsigned long) *compressed_length
     < squash_brieflz_get_max_compressed_size (codec, uncompressed_length)) {
@@ -193,6 +220,11 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
                     workmem);
 
   free(workmem);
+
+#if SIZE_MAX < ULONG_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < size))
+    return squash_error (SQUASH_RANGE);
+#endif
 
   *compressed_length = size;
 

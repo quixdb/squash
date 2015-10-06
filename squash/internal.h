@@ -35,14 +35,6 @@
 #error "You must include internal.h before (or instead of) squash.h"
 #endif
 
-#ifdef __GNUC__
-#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
-#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
-#else
-#  define SQUASH_LIKELY(expr) (expr)
-#  define SQUASH_UNLIKELY(expr) (expr)
-#endif
-
 #ifndef SQUASH_API
   #if defined _WIN32 || defined __CYGWIN__
     #ifdef __GNUC__

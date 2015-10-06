@@ -304,6 +304,14 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   assert (codec_name != NULL);
   lzo_codec = squash_lzo_codec_from_name (codec_name);
 
+#if UINT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(UINT_MAX < compressed_length) ||
+      SQUASH_UNLIKELY(UINT_MAX < *decompressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
+  compressed_len = (lzo_uint) compressed_length;
+  decompressed_len = (lzo_uint) *decompressed_length;
+
   if (lzo_codec->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (lzo_codec->work_mem);
     if (work_mem == NULL) {
@@ -311,18 +319,22 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
     }
   }
 
-  compressed_len = (lzo_uint) compressed_length;
-  decompressed_len = (lzo_uint) *decompressed_length;
   lzo_e = lzo_codec->decompress (compressed, compressed_len,
                                  decompressed, &decompressed_len,
                                  work_mem);
+  free (work_mem);
+
+  if (lzo_e != LZO_E_OK)
+    return squash_lzo_status_to_squash_status (lzo_e);
+
+#if SIZE_MAX < UINT_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_len))
+    return squash_error (SQUASH_RANGE);
+#endif
+
   *decompressed_length = (size_t) decompressed_len;
 
-  if (work_mem != NULL) {
-    free (work_mem);
-  }
-
-  return squash_lzo_status_to_squash_status (lzo_e);
+  return SQUASH_OK;
 }
 
 static SquashStatus
@@ -347,6 +359,14 @@ squash_lzo_compress_buffer (SquashCodec* codec,
 
   compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_codec_get_option_int_index (codec, options, SQUASH_LZO_OPT_LEVEL));
 
+#if UINT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_length) ||
+      SQUASH_UNLIKELY(UINT_MAX < *compressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
+  uncompressed_len = (lzo_uint) uncompressed_length;
+  compressed_len = (lzo_uint) (*compressed_length);
+
   if (compressor->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (compressor->work_mem);
     if (work_mem == NULL) {
@@ -354,18 +374,23 @@ squash_lzo_compress_buffer (SquashCodec* codec,
     }
   }
 
-  uncompressed_len = (lzo_uint) uncompressed_length;
-  compressed_len = (lzo_uint) (*compressed_length);
   lzo_e = compressor->compress (uncompressed, uncompressed_len,
                                 compressed, &compressed_len,
                                 work_mem);
+
+  free (work_mem);
+
+  if (lzo_e != LZO_E_OK)
+    return squash_lzo_status_to_squash_status (lzo_e);
+
+#if SIZE_MAX < UINT_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_len))
+    return squash_error (SQUASH_RANGE);
+#endif
+
   *compressed_length = (size_t) compressed_len;
 
-  if (work_mem != NULL) {
-    free (work_mem);
-  }
-
-  return squash_lzo_status_to_squash_status (lzo_e);
+  return SQUASH_OK;
 }
 
 SquashStatus

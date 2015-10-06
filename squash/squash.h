@@ -87,6 +87,14 @@
 #  define SQUASH_NONNULL(...)
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
+#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
+#else
+#  define SQUASH_LIKELY(expr) (expr)
+#  define SQUASH_UNLIKELY(expr) (expr)
+#endif
+
 #include <squash/version.h>
 
 #include "status.h"

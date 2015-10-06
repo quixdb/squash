@@ -112,6 +112,26 @@
  */
 
 /**
+ * @var SquashStatus::SQUASH_IO
+ * @brief An input/output error occurred
+ *
+ * There is a good chance errno will have additional details, though
+ * it is not guaranteed.
+ */
+
+/**
+ * @var SquashStatus::SQUASH_RANGE
+ * @brief A buffer was too large to be usable
+ *
+ * While Squash uses `size_t` for buffer sizes, not all libraries used
+ * by plugins do.  Many use `int`, `long`, `unsigned int`, etc., which
+ * may be smaller than size_t (or, less likely, larger).
+ *
+ * In the event that converting a value between representations is not
+ * possible @ref SQUASH_RANGE will be returned.
+ */
+
+/**
  * @brief Get a string representation of a status code.
  *
  * @param status The status.
@@ -150,6 +170,8 @@ squash_status_to_string (SquashStatus status) {
       return "Invalid buffer";
     case SQUASH_IO:
       return "I/O error";
+    case SQUASH_RANGE:
+      return "Attempted to convert value outside of valid range";
     default:
       return "Unknown.";
   }

@@ -29,6 +29,7 @@
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <squash/squash.h>
 #include <lz4.h>
@@ -65,6 +66,12 @@ squash_lz4_decompress_buffer (SquashCodec* codec,
                               size_t compressed_length,
                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
                               SquashOptions* options) {
+#if INT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(INT_MAX < compressed_length) ||
+      SQUASH_UNLIKELY(INT_MAX < *decompressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
+
   int lz4_e = LZ4_decompress_safe ((char*) compressed,
                                    (char*) decompressed,
                                    (int) compressed_length,
@@ -73,6 +80,10 @@ squash_lz4_decompress_buffer (SquashCodec* codec,
   if (lz4_e < 0) {
     return SQUASH_FAILED;
   } else {
+#if SIZE_MAX < INT_MAX
+    if (SQUASH_UNLIKELY(SIZE_MAX < lz4_e))
+      return squash_error (SQUASH_RANGE);
+#endif
     *decompressed_length = (size_t) lz4_e;
     return SQUASH_OK;
   }
@@ -129,28 +140,43 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                             SquashOptions* options) {
   int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
 
+#if INT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_length) ||
+      SQUASH_UNLIKELY(INT_MAX < *compressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
+
+  int lz4_r;
+
   if (level == 7) {
-    *compressed_length = LZ4_compress_limitedOutput ((char*) uncompressed,
-                                                     (char*) compressed,
-                                                     (int) uncompressed_length,
-                                                     (int) *compressed_length);
+    lz4_r = LZ4_compress_limitedOutput ((char*) uncompressed,
+                                        (char*) compressed,
+                                        (int) uncompressed_length,
+                                        (int) *compressed_length);
   } else if (level < 7) {
-    *compressed_length = LZ4_compress_fast ((const char*) uncompressed,
-                                            (char*) compressed,
-                                            (int) uncompressed_length,
-                                            (int) *compressed_length,
-                                            squash_lz4_level_to_fast_mode (level));
+    lz4_r = LZ4_compress_fast ((const char*) uncompressed,
+                               (char*) compressed,
+                               (int) uncompressed_length,
+                               (int) *compressed_length,
+                               squash_lz4_level_to_fast_mode (level));
   } else if (level < 17) {
-    *compressed_length = LZ4_compressHC2_limitedOutput ((char*) uncompressed,
-                                                        (char*) compressed,
-                                                        (int) uncompressed_length,
-                                                        (int) *compressed_length,
-                                                        squash_lz4_level_to_hc_level (level));
+    lz4_r = LZ4_compressHC2_limitedOutput ((char*) uncompressed,
+                                           (char*) compressed,
+                                           (int) uncompressed_length,
+                                           (int) *compressed_length,
+                                           squash_lz4_level_to_hc_level (level));
   } else {
     squash_assert_unreachable();
   }
 
-  return (*compressed_length == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
+#if SIZE_MAX < INT_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < lz4_r))
+    return squash_error (SQUASH_RANGE);
+#endif
+
+  *compressed_length = lz4_r;
+
+  return (lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
 }
 
 static SquashStatus
@@ -162,26 +188,41 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                    SquashOptions* options) {
   int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
 
+#if INT_MAX < SIZE_MAX
+  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_length) ||
+      SQUASH_UNLIKELY(INT_MAX < *compressed_length))
+    return squash_error (SQUASH_RANGE);
+#endif
+
   assert (*compressed_length >= LZ4_COMPRESSBOUND(uncompressed_length));
 
+  int lz4_r;
+
   if (level == 7) {
-    *compressed_length = LZ4_compress ((char*) uncompressed,
-                                       (char*) compressed,
-                                       (int) uncompressed_length);
+    lz4_r = LZ4_compress ((char*) uncompressed,
+                          (char*) compressed,
+                          (int) uncompressed_length);
   } else if (level < 7) {
-    *compressed_length = LZ4_compress_fast ((const char*) uncompressed,
-                                            (char*) compressed,
-                                            (int) uncompressed_length,
-                                            (int) *compressed_length,
-                                            squash_lz4_level_to_fast_mode (level));
+    lz4_r = LZ4_compress_fast ((const char*) uncompressed,
+                               (char*) compressed,
+                               (int) uncompressed_length,
+                               (int) *compressed_length,
+                               squash_lz4_level_to_fast_mode (level));
   } else {
-    *compressed_length = LZ4_compressHC2 ((char*) uncompressed,
-                                          (char*) compressed,
-                                          (int) uncompressed_length,
-                                          squash_lz4_level_to_hc_level (level));
+    lz4_r = LZ4_compressHC2 ((char*) uncompressed,
+                             (char*) compressed,
+                             (int) uncompressed_length,
+                             squash_lz4_level_to_hc_level (level));
   }
 
-  return (*compressed_length == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
+#if SIZE_MAX < INT_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < lz4_r))
+    return squash_error (SQUASH_RANGE);
+#endif
+
+  *compressed_length = lz4_r;
+
+  return (lz4_r == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
 }
 
 SquashStatus
