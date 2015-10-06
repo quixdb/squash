@@ -60,7 +60,8 @@ public:
   SquashZlingIO(void* user_data, SquashReadFunc reader, SquashWriteFunc writer) :
     user_data_ (user_data),
     reader_ (reader),
-    writer_ (writer) { }
+    writer_ (writer),
+    last_res (SQUASH_OK) { }
 
   bool eof = false;
   SquashStatus last_res;
