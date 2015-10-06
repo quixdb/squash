@@ -91,10 +91,20 @@ SquashZlingIO::GetData (unsigned char* buf, size_t len) {
 
 size_t
 SquashZlingIO::PutData(unsigned char* buf, size_t len) {
+  const size_t requested = len;
+
   if (this->IsErr())
     return 0;
 
   this->last_res = this->writer_ (&len, (const uint8_t*) buf, this->user_data_);
+
+  /* zling will just keep trying to write if we return 0, so pretend
+     we wrote what it asked.  Set EOF so at least we don't read any
+     more. */
+  if (len == 0 && SQUASH_END_OF_STREAM) {
+    this->eof = true;
+    return requested;
+  }
 
   if (this->last_res != SQUASH_OK)
     return 0;

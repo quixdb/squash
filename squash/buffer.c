@@ -44,15 +44,20 @@ squash_buffer_npot_page (size_t value) {
     return squash_npot (value);
 }
 
-static void
+static bool
 squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
   assert (buffer != NULL);
 
   if (allocation > buffer->allocated) {
     allocation = squash_buffer_npot_page (allocation);
     buffer->allocated = allocation;
-    buffer->data = (uint8_t*) realloc (buffer->data, allocation);
+    uint8_t* mem = (uint8_t*) realloc (buffer->data, allocation);
+    if (mem == NULL)
+      return false;
+    buffer->data = mem;
   }
+
+  return true;
 }
 
 /**
@@ -73,14 +78,17 @@ squash_buffer_new (size_t preallocated_len) {
   return buffer;
 }
 
-void
+bool
 squash_buffer_set_size (SquashBuffer* buffer, size_t length) {
   assert (buffer != NULL);
 
   if (length > buffer->allocated)
-    squash_buffer_ensure_allocation (buffer, length);
+    if (!squash_buffer_ensure_allocation (buffer, length))
+      return false;
 
   buffer->length = length;
+
+  return true;
 }
 
 void
@@ -93,18 +101,21 @@ squash_buffer_clear (SquashBuffer* buffer) {
   buffer->length = 0;
 }
 
-void
+bool
 squash_buffer_append (SquashBuffer* buffer, size_t data_length, uint8_t data[SQUASH_ARRAY_PARAM(data_length)]) {
   assert (buffer != NULL);
 
   if (data_length == 0)
-    return;
+    return true;
 
   const size_t start_pos = buffer->length;
 
-  squash_buffer_set_size (buffer, buffer->length + data_length);
+  if (!squash_buffer_set_size (buffer, buffer->length + data_length))
+    return false;
 
   memcpy (buffer->data + start_pos, data, data_length);
+
+  return true;
 }
 
 void

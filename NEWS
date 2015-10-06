@@ -6,6 +6,8 @@ Squash 0.8.0
  * New 'splice' interface for plugins
  * Enable zling plugin
  * Disable csc plugin
+ * Add nonnull and sentinel attributes
+ * Add support for multiple levels in lzf
  * Updated many plugins
  * Assorted bug fixes and enhancements
 

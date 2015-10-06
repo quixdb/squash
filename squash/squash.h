@@ -103,9 +103,9 @@
 #include "options.h"
 #include "stream.h"
 #include "file.h"
-#include "splice.h"
 #include "license.h"
 #include "codec.h"
+#include "splice.h"
 #include "plugin.h"
 #include "context.h"
 

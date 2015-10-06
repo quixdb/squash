@@ -3,6 +3,7 @@ set (codec_tests
   bounds
   flush
   random-data
+  splice
   stream-compress
   stream-decompress
   stream-single-byte

@@ -66,6 +66,15 @@ SQUASH_API SquashStatus squash_splice_codec_with_options     (SquashCodec* codec
                                                               size_t length,
                                                               SquashOptions* options);
 
+SQUASH_NONNULL(1, 3, 4)
+SQUASH_API SquashStatus squash_splice_custom_codec_with_options (SquashCodec* codec,
+                                                                 SquashStreamType stream_type,
+                                                                 SquashWriteFunc write_cb,
+                                                                 SquashReadFunc read_cb,
+                                                                 void* user_data,
+                                                                 size_t length,
+                                                                 SquashOptions* options);
+
 SQUASH_END_DECLS
 
 #endif /* SQUASH_SPLICE_H */
