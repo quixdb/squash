@@ -14,6 +14,18 @@ check_codec (SquashCodec* codec) {
   size_t decompressed_length;
   size_t real_compressed_length;
 
+  if (strcmp (squash_codec_get_name (codec), "density") == 0) {
+#if defined(GLIB_VERSION_2_38)
+    g_test_skip ("https://github.com/centaurean/density/issues/53");
+#endif
+    return;
+  } else if (strcmp (squash_codec_get_name (codec), "gipfeli") == 0) {
+#if defined(GLIB_VERSION_2_38)
+    g_test_skip ("https://github.com/google/gipfeli/pull/3");
+#endif
+    return;
+  }
+
   uncompressed = malloc (LOREM_IPSUM_LENGTH);
   memcpy (uncompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH);
 

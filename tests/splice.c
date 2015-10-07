@@ -57,6 +57,13 @@ read_cb (size_t* length, uint8_t* buffer, void* user_data) {
 
 void
 check_codec (SquashCodec* codec) {
+  if (strcmp (squash_codec_get_name (codec), "density") == 0) {
+#if defined(GLIB_VERSION_2_38)
+    g_test_skip ("https://github.com/centaurean/density/issues/53");
+#endif
+    return;
+  }
+
   const size_t max_compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
   struct SpliceBuffers data = {
     SQUASH_STREAM_COMPRESS,

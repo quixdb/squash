@@ -2,7 +2,7 @@
 #define __TEST_CODECS_H__
 
 #define GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_26
-#define GLIB_VERSION_MAX_ALLOWED G_ENCODE_VERSION(2,36)
+#define GLIB_VERSION_MAX_ALLOWED G_ENCODE_VERSION(2,38)
 
 #include <glib.h>
 #include <stdlib.h>
