@@ -269,29 +269,29 @@ squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_bz2_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_bz2_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   return
-    uncompressed_length +
-    (uncompressed_length / 100) + ((uncompressed_length % 100) > 0 ? 1 : 0) +
+    uncompressed_size +
+    (uncompressed_size / 100) + ((uncompressed_size % 100) > 0 ? 1 : 0) +
     600;
 }
 
 static SquashStatus
 squash_bz2_decompress_buffer (SquashCodec* codec,
-                              size_t* decompressed_length,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                              size_t compressed_length,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                              size_t* decompressed_size,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              size_t compressed_size,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
   int small = squash_codec_get_option_bool_index (codec, options, SQUASH_BZ2_OPT_SMALL) ? 1 : 0;
-  unsigned int decompressed_length_ui = (unsigned int) *decompressed_length;
+  unsigned int decompressed_size_ui = (unsigned int) *decompressed_size;
   int bz2_res;
 
-  bz2_res = BZ2_bzBuffToBuffDecompress ((char*) decompressed, &decompressed_length_ui,
-                                        (char*) compressed, (unsigned int) compressed_length,
+  bz2_res = BZ2_bzBuffToBuffDecompress ((char*) decompressed, &decompressed_size_ui,
+                                        (char*) compressed, (unsigned int) compressed_size,
                                         small, 0);
   if (bz2_res == BZ_OK) {
-    *decompressed_length = decompressed_length_ui;
+    *decompressed_size = decompressed_size_ui;
   }
 
   return squash_bz2_status_to_squash_status (bz2_res);
@@ -299,21 +299,21 @@ squash_bz2_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_bz2_compress_buffer (SquashCodec* codec,
-                            size_t* compressed_length,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                            size_t uncompressed_length,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                            size_t* compressed_size,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            size_t uncompressed_size,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   int bz2_res;
-  unsigned int compressed_length_ui = (unsigned int) *compressed_length;
+  unsigned int compressed_size_ui = (unsigned int) *compressed_size;
 
-  bz2_res = BZ2_bzBuffToBuffCompress ((char*) compressed, &compressed_length_ui,
-                                      (char*) uncompressed, (unsigned int) uncompressed_length,
+  bz2_res = BZ2_bzBuffToBuffCompress ((char*) compressed, &compressed_size_ui,
+                                      (char*) uncompressed, (unsigned int) uncompressed_size,
                                       squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_LEVEL),
                                       0,
                                       squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_WORK_FACTOR));
   if (bz2_res == BZ_OK) {
-    *compressed_length = compressed_length_ui;
+    *compressed_size = compressed_size_ui;
   }
 
   return squash_bz2_status_to_squash_status (bz2_res);

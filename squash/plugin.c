@@ -106,17 +106,17 @@ squash_plugin_init (SquashPlugin* plugin) {
     HMODULE handle;
 #endif
     char* plugin_file_name;
-    size_t plugin_dir_length;
-    size_t plugin_name_length;
-    size_t plugin_file_name_max_length;
-    size_t squash_version_api_length = strlen (SQUASH_VERSION_API);
+    size_t plugin_dir_size;
+    size_t plugin_name_size;
+    size_t plugin_file_name_max_size;
+    size_t squash_version_api_size = strlen (SQUASH_VERSION_API);
 
-    plugin_dir_length = strlen (plugin->directory);
-    plugin_name_length = strlen (plugin->name);
-    plugin_file_name_max_length = plugin_dir_length + squash_version_api_length + plugin_name_length + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
-    plugin_file_name = (char*) malloc (plugin_file_name_max_length + 1);
+    plugin_dir_size = strlen (plugin->directory);
+    plugin_name_size = strlen (plugin->name);
+    plugin_file_name_max_size = plugin_dir_size + squash_version_api_size + plugin_name_size + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
+    plugin_file_name = (char*) malloc (plugin_file_name_max_size + 1);
 
-    snprintf (plugin_file_name, plugin_file_name_max_length + 1,
+    snprintf (plugin_file_name, plugin_file_name_max_size + 1,
               "%s/libsquash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
 
 #if !defined(_WIN32)

@@ -44,65 +44,65 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 400;
+squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 400;
 }
 
 static size_t
 squash_quicklz_get_uncompressed_size (SquashCodec* codec,
-                                      size_t compressed_length,
-                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                      size_t compressed_size,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   return qlz_size_decompressed ((const char*) compressed);
 }
 
 static SquashStatus
 squash_quicklz_decompress_buffer (SquashCodec* codec,
-                                  size_t* decompressed_length,
-                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                  size_t compressed_length,
-                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                  size_t* decompressed_size,
+                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                  size_t compressed_size,
+                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                   SquashOptions* options) {
   qlz_state_decompress* qlz_s;
-  const size_t decompressed_size = qlz_size_decompressed ((const char*) compressed);
+  const size_t decompressed_s = qlz_size_decompressed ((const char*) compressed);
 
-  if (*decompressed_length < decompressed_size) {
+  if (*decompressed_size < decompressed_s) {
     return SQUASH_BUFFER_FULL;
   }
 
   qlz_s = (qlz_state_decompress*) malloc (sizeof (qlz_state_decompress));
 
-  *decompressed_length = qlz_decompress ((const char*) compressed,
+  *decompressed_size = qlz_decompress ((const char*) compressed,
                                          (void*) decompressed,
                                          qlz_s);
 
   free (qlz_s);
 
-  return (decompressed_size == *decompressed_length) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return (decompressed_s == *decompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_quicklz_compress_buffer (SquashCodec* codec,
-                                size_t* compressed_length,
-                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                size_t uncompressed_length,
-                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                size_t* compressed_size,
+                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                size_t uncompressed_size,
+                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                 SquashOptions* options) {
   qlz_state_compress* qlz_s;
 
-  if (*compressed_length < squash_quicklz_get_max_compressed_size (codec, uncompressed_length)) {
+  if (*compressed_size < squash_quicklz_get_max_compressed_size (codec, uncompressed_size)) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
   qlz_s = (qlz_state_compress*) malloc (sizeof (qlz_state_compress));
 
-  *compressed_length = qlz_compress ((const void*) uncompressed,
+  *compressed_size = qlz_compress ((const void*) uncompressed,
                                      (char*) compressed,
-                                     uncompressed_length,
+                                     uncompressed_size,
                                      qlz_s);
 
   free (qlz_s);
 
-  return (*compressed_length == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+  return (*compressed_size == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus

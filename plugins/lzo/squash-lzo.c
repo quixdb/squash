@@ -282,16 +282,16 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec  (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + uncompressed_length / 16 + 64 + 3;
+squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + uncompressed_size / 16 + 64 + 3;
 }
 
 static SquashStatus
 squash_lzo_decompress_buffer (SquashCodec* codec,
-                              size_t* decompressed_length,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                              size_t compressed_length,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                              size_t* decompressed_size,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              size_t compressed_size,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
   const SquashLZOCodec* lzo_codec;
   const char* codec_name;
@@ -305,12 +305,12 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   lzo_codec = squash_lzo_codec_from_name (codec_name);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < compressed_length) ||
-      SQUASH_UNLIKELY(UINT_MAX < *decompressed_length))
+  if (SQUASH_UNLIKELY(UINT_MAX < compressed_size) ||
+      SQUASH_UNLIKELY(UINT_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
-  compressed_len = (lzo_uint) compressed_length;
-  decompressed_len = (lzo_uint) *decompressed_length;
+  compressed_len = (lzo_uint) compressed_size;
+  decompressed_len = (lzo_uint) *decompressed_size;
 
   if (lzo_codec->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (lzo_codec->work_mem);
@@ -332,17 +332,17 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  *decompressed_length = (size_t) decompressed_len;
+  *decompressed_size = (size_t) decompressed_len;
 
   return SQUASH_OK;
 }
 
 static SquashStatus
 squash_lzo_compress_buffer (SquashCodec* codec,
-                            size_t* compressed_length,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                            size_t uncompressed_length,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                            size_t* compressed_size,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            size_t uncompressed_size,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   const SquashLZOCodec* lzo_codec;
   const SquashLZOCompressor* compressor;
@@ -360,12 +360,12 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_codec_get_option_int_index (codec, options, SQUASH_LZO_OPT_LEVEL));
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_length) ||
-      SQUASH_UNLIKELY(UINT_MAX < *compressed_length))
+  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_size) ||
+      SQUASH_UNLIKELY(UINT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
-  uncompressed_len = (lzo_uint) uncompressed_length;
-  compressed_len = (lzo_uint) (*compressed_length);
+  uncompressed_len = (lzo_uint) uncompressed_size;
+  compressed_len = (lzo_uint) (*compressed_size);
 
   if (compressor->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (compressor->work_mem);
@@ -388,7 +388,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  *compressed_length = (size_t) compressed_len;
+  *compressed_size = (size_t) compressed_len;
 
   return SQUASH_OK;
 }

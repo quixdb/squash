@@ -80,9 +80,9 @@ typedef struct SquashLZ4FStream_s {
 
       uint8_t* output_buffer;
       size_t output_buffer_pos;
-      size_t output_buffer_length;
+      size_t output_buffer_size;
 
-      size_t input_buffer_length;
+      size_t input_buffer_size;
     } comp;
 
     struct {
@@ -171,9 +171,9 @@ squash_lz4f_stream_init (SquashLZ4FStream* stream,
 
     stream->data.comp.output_buffer = NULL;
     stream->data.comp.output_buffer_pos = 0;
-    stream->data.comp.output_buffer_length = 0;
+    stream->data.comp.output_buffer_size = 0;
 
-    stream->data.comp.input_buffer_length = 0;
+    stream->data.comp.input_buffer_size = 0;
 
     stream->data.comp.prefs = (LZ4F_preferences_t) {
       {
@@ -272,8 +272,8 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
   SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
   bool progress = false;
 
-  if (s->data.comp.output_buffer_length != 0) {
-    const size_t buffer_remaining = s->data.comp.output_buffer_length - s->data.comp.output_buffer_pos;
+  if (s->data.comp.output_buffer_size != 0) {
+    const size_t buffer_remaining = s->data.comp.output_buffer_size - s->data.comp.output_buffer_pos;
     const size_t cp_size = (buffer_remaining < stream->avail_out) ? buffer_remaining : stream->avail_out;
 
     memcpy (stream->next_out, s->data.comp.output_buffer + s->data.comp.output_buffer_pos, cp_size);
@@ -282,7 +282,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
     s->data.comp.output_buffer_pos += cp_size;
 
     if (cp_size == buffer_remaining) {
-      s->data.comp.output_buffer_length = 0;
+      s->data.comp.output_buffer_size = 0;
       s->data.comp.output_buffer_pos = 0;
 
       progress = true;
@@ -295,7 +295,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
     if (s->data.comp.state == SQUASH_LZ4F_STATE_INIT) {
       s->data.comp.state = SQUASH_LZ4F_STATE_ACTIVE;
       if (stream->avail_out < 19) {
-        s->data.comp.output_buffer_length =
+        s->data.comp.output_buffer_size =
           LZ4F_compressBegin (s->data.comp.ctx,
                               squash_lz4f_stream_get_output_buffer (stream),
                               squash_lz4f_stream_get_output_buffer_size (stream),
@@ -309,30 +309,30 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
       }
     } else {
       const size_t input_buffer_size = squash_lz4f_get_input_buffer_size (stream);
-      const size_t total_input = stream->avail_in + s->data.comp.input_buffer_length;
-      const size_t output_buffer_max_length = squash_lz4f_stream_get_output_buffer_size (stream);
+      const size_t total_input = stream->avail_in + s->data.comp.input_buffer_size;
+      const size_t output_buffer_max_size = squash_lz4f_stream_get_output_buffer_size (stream);
 
-      if (progress && (total_input < input_buffer_size || stream->avail_out < output_buffer_max_length))
+      if (progress && (total_input < input_buffer_size || stream->avail_out < output_buffer_max_size))
         break;
 
       uint8_t* obuf;
       size_t olen;
 
-      const size_t input_length = (total_input > input_buffer_size) ? (input_buffer_size - s->data.comp.input_buffer_length) : stream->avail_in;
-      if (input_length > 0) {
-        obuf = (output_buffer_max_length > stream->avail_out) ? squash_lz4f_stream_get_output_buffer (stream) : stream->next_out;
-        olen = LZ4F_compressUpdate (s->data.comp.ctx, obuf, output_buffer_max_length, stream->next_in, input_length, NULL);
+      const size_t input_size = (total_input > input_buffer_size) ? (input_buffer_size - s->data.comp.input_buffer_size) : stream->avail_in;
+      if (input_size > 0) {
+        obuf = (output_buffer_max_size > stream->avail_out) ? squash_lz4f_stream_get_output_buffer (stream) : stream->next_out;
+        olen = LZ4F_compressUpdate (s->data.comp.ctx, obuf, output_buffer_max_size, stream->next_in, input_size, NULL);
 
         if (!LZ4F_isError (olen)) {
-          if (input_length + s->data.comp.input_buffer_length == input_buffer_size) {
-            s->data.comp.input_buffer_length = 0;
+          if (input_size + s->data.comp.input_buffer_size == input_buffer_size) {
+            s->data.comp.input_buffer_size = 0;
           } else {
-            s->data.comp.input_buffer_length += input_length;
+            s->data.comp.input_buffer_size += input_size;
             assert (olen == 0);
           }
 
-          stream->next_in += input_length;
-          stream->avail_in -= input_length;
+          stream->next_in += input_size;
+          stream->avail_in -= input_size;
         } else {
           squash_assert_unreachable();
         }
@@ -342,14 +342,14 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
         obuf = (olen > stream->avail_out) ? squash_lz4f_stream_get_output_buffer (stream) : stream->next_out;
         olen = LZ4F_flush (s->data.comp.ctx, obuf, olen, NULL);
 
-        s->data.comp.input_buffer_length = 0;
+        s->data.comp.input_buffer_size = 0;
       } else if (operation == SQUASH_OPERATION_FINISH) {
         assert (stream->avail_in == 0);
         olen = squash_lz4f_stream_get_output_buffer_size (stream);
         obuf = (olen > stream->avail_out) ? squash_lz4f_stream_get_output_buffer (stream) : stream->next_out;
         olen = LZ4F_compressEnd (s->data.comp.ctx, obuf, olen, NULL);
 
-        s->data.comp.input_buffer_length = 0;
+        s->data.comp.input_buffer_size = 0;
       } else if (progress) {
         break;
       } else {
@@ -362,7 +362,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
       } else {
         if (olen != 0) {
           if (obuf == s->data.comp.output_buffer) {
-            s->data.comp.output_buffer_length = olen;
+            s->data.comp.output_buffer_size = olen;
             break;
           } else {
             stream->next_out += olen;
@@ -376,8 +376,8 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
     }
   }
 
-  if (s->data.comp.output_buffer_length != 0) {
-    const size_t buffer_remaining = s->data.comp.output_buffer_length - s->data.comp.output_buffer_pos;
+  if (s->data.comp.output_buffer_size != 0) {
+    const size_t buffer_remaining = s->data.comp.output_buffer_size - s->data.comp.output_buffer_pos;
     const size_t cp_size = (buffer_remaining < stream->avail_out) ? buffer_remaining : stream->avail_out;
 
     memcpy (stream->next_out, s->data.comp.output_buffer + s->data.comp.output_buffer_pos, cp_size);
@@ -386,7 +386,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
     s->data.comp.output_buffer_pos += cp_size;
 
     if (cp_size == buffer_remaining) {
-      s->data.comp.output_buffer_length = 0;
+      s->data.comp.output_buffer_size = 0;
       s->data.comp.output_buffer_pos = 0;
 
       progress = true;
@@ -395,7 +395,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
     }
   }
 
-  return (stream->avail_in == 0 && s->data.comp.output_buffer_length == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+  return (stream->avail_in == 0 && s->data.comp.output_buffer_size == 0) ? SQUASH_OK : SQUASH_PROCESSING;
 }
 
 static SquashStatus
@@ -438,15 +438,15 @@ squash_lz4f_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_lz4f_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_lz4f_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   static const LZ4F_preferences_t prefs = {
     { max64KB, blockLinked, contentChecksumEnabled, },
     0, 0,
   };
 
   const size_t block_size = squash_lz4f_block_size_id_to_size (prefs.frameInfo.blockSizeID);
-  const size_t full_blocks = uncompressed_length / block_size;
-  const size_t last_block = ((uncompressed_length % block_size) == 0) ? block_size : (uncompressed_length % block_size);
+  const size_t full_blocks = uncompressed_size / block_size;
+  const size_t last_block = ((uncompressed_size % block_size) == 0) ? block_size : (uncompressed_size % block_size);
   const size_t block_overhead = 8;
 
   const size_t res =

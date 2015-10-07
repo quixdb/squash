@@ -38,8 +38,8 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus                 squash_plugin_init_codec       (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_ncompress_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 4 + (uncompressed_length / 2);
+squash_ncompress_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 4 + (uncompressed_size / 2);
 }
 
 static SquashStatus
@@ -58,24 +58,24 @@ squash_ncompress_status_to_squash_status (enum CompressStatus status) {
 
 static SquashStatus
 squash_ncompress_decompress_buffer (SquashCodec* codec,
-                                    size_t* decompressed_length,
-                                    uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                    size_t compressed_length,
-                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                    size_t* decompressed_size,
+                                    uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                    size_t compressed_size,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                     SquashOptions* options) {
-  enum CompressStatus res = decompress (decompressed, decompressed_length, compressed, compressed_length);
+  enum CompressStatus res = decompress (decompressed, decompressed_size, compressed, compressed_size);
 
   return squash_ncompress_status_to_squash_status (res);
 }
 
 static SquashStatus
 squash_ncompress_compress_buffer (SquashCodec* codec,
-                                  size_t* compressed_length,
-                                  uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                  size_t uncompressed_length,
-                                  const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                  size_t* compressed_size,
+                                  uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                  size_t uncompressed_size,
+                                  const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                   SquashOptions* options) {
-  enum CompressStatus res = compress (compressed, compressed_length, uncompressed, uncompressed_length);
+  enum CompressStatus res = compress (compressed, compressed_size, uncompressed, uncompressed_size);
 
   return squash_ncompress_status_to_squash_status (res);
 }

@@ -222,16 +222,16 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
 }
 
 static SquashStatus
-squash_stream_read_cb (size_t* data_length,
-                       uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+squash_stream_read_cb (size_t* data_size,
+                       uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
                        void* user_data) {
   assert (user_data != NULL);
-  assert (data_length != NULL);
+  assert (data_size != NULL);
 
   SquashStream* s = (SquashStream*) user_data;
   assert (s->priv != NULL);
-  const size_t requested = *data_length;
-  size_t remaining = *data_length;
+  const size_t requested = *data_size;
+  size_t remaining = *data_size;
   SquashOperation operation = s->priv->request;
 
   while (remaining != 0) {
@@ -254,22 +254,22 @@ squash_stream_read_cb (size_t* data_length,
     }
   }
 
-  *data_length = requested - remaining;
+  *data_size = requested - remaining;
 
-  return (*data_length != 0) ? SQUASH_OK : SQUASH_END_OF_STREAM;
+  return (*data_size != 0) ? SQUASH_OK : SQUASH_END_OF_STREAM;
 }
 
 static SquashStatus
-squash_stream_write_cb (size_t* data_length,
-                                 const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
-                                 void* user_data) {
+squash_stream_write_cb (size_t* data_size,
+                        const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
+                        void* user_data) {
   assert (user_data != NULL);
-  assert (data_length != NULL);
+  assert (data_size != NULL);
 
   SquashStream* s = (SquashStream*) user_data;
   assert (s->priv != NULL);
-  const size_t requested = *data_length;
-  size_t remaining = *data_length;
+  const size_t requested = *data_size;
+  size_t remaining = *data_size;
   SquashOperation operation = s->priv->request;
 
   while (remaining != 0) {
@@ -290,13 +290,13 @@ squash_stream_write_cb (size_t* data_length,
     }
   }
 
-  *data_length = requested - remaining;
+  *data_size = requested - remaining;
 
   /* If we are terminating, we want to return an error code.  However,
      don't call squash_error because this may just be from unreffing
      the stream before it is finished to abandon it. */
 
-  return (*data_length != 0) ? SQUASH_OK : SQUASH_FAILED;
+  return (*data_size != 0) ? SQUASH_OK : SQUASH_FAILED;
 }
 
 static int
@@ -674,7 +674,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
         decompressed output, when using codecs which contain extra
         data at the end, such as a footer or EOS marker.
 
-      * Compression streams writing to a fixed buffer with a length of
+      * Compression streams writing to a fixed buffer with a size of
         less than or equal to max_compressed_size bytes.  This is a
         pretty reasonable thing to do, since you might want to only
         bother using compression if you can achieve a certain ratio.

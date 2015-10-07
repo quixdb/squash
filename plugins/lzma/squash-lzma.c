@@ -375,8 +375,8 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return lzma_stream_buffer_bound (uncompressed_length);
+squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return lzma_stream_buffer_bound (uncompressed_size);
 }
 
 SquashStatus

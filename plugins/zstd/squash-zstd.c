@@ -39,8 +39,8 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_zstd_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return ZSTD_compressBound (uncompressed_length);
+squash_zstd_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return ZSTD_compressBound (uncompressed_size);
 }
 
 static SquashStatus
@@ -71,26 +71,26 @@ squash_zstd_status_from_zstd_error (size_t res) {
 
 static SquashStatus
 squash_zstd_decompress_buffer (SquashCodec* codec,
-                               size_t* decompressed_length,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                               size_t compressed_length,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
-  *decompressed_length = ZSTD_decompress (decompressed, *decompressed_length, compressed, compressed_length);
+  *decompressed_size = ZSTD_decompress (decompressed, *decompressed_size, compressed, compressed_size);
 
-  return squash_zstd_status_from_zstd_error (*decompressed_length);
+  return squash_zstd_status_from_zstd_error (*decompressed_size);
 }
 
 static SquashStatus
 squash_zstd_compress_buffer (SquashCodec* codec,
-                             size_t* compressed_length,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                             size_t uncompressed_length,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  *compressed_length = ZSTD_compress (compressed, *compressed_length, uncompressed, uncompressed_length);
+  *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size);
 
-  return squash_zstd_status_from_zstd_error (*compressed_length);
+  return squash_zstd_status_from_zstd_error (*compressed_size);
 }
 
 SquashStatus

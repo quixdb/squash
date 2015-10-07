@@ -55,46 +55,46 @@ SquashStatus               squash_plugin_init_codec     (SquashCodec* codec,
                                                          SquashCodecImpl* impl);
 
 static size_t
-squash_pithy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return pithy_MaxCompressedLength (uncompressed_length);
+squash_pithy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return pithy_MaxCompressedLength (uncompressed_size);
 }
 
 static size_t
 squash_pithy_get_uncompressed_size (SquashCodec* codec,
-                                    size_t compressed_length,
-                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                    size_t compressed_size,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   size_t uncompressed_size = 0;
 
-  pithy_GetDecompressedLength ((const char*) compressed, compressed_length, &uncompressed_size);
+  pithy_GetDecompressedLength ((const char*) compressed, compressed_size, &uncompressed_size);
 
   return uncompressed_size;
 }
 
 static SquashStatus
 squash_pithy_compress_buffer (SquashCodec* codec,
-                              size_t* compressed_length,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                              size_t uncompressed_length,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                              size_t* compressed_size,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              size_t uncompressed_size,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   const int level = squash_codec_get_option_int_index (codec, options, SQUASH_PITHY_OPT_LEVEL);
-  *compressed_length = pithy_Compress ((const char*) uncompressed, uncompressed_length, (char*) compressed, *compressed_length, level);
-  return (*compressed_length != 0) ? SQUASH_OK : SQUASH_FAILED;
+  *compressed_size = pithy_Compress ((const char*) uncompressed, uncompressed_size, (char*) compressed, *compressed_size, level);
+  return (*compressed_size != 0) ? SQUASH_OK : SQUASH_FAILED;
 }
 
 static SquashStatus
 squash_pithy_decompress_buffer (SquashCodec* codec,
-                                size_t* decompressed_length,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                size_t compressed_length,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                size_t* decompressed_size,
+                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                size_t compressed_size,
+                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
-  size_t outlen = squash_pithy_get_uncompressed_size(codec, compressed_length, compressed);
-  if (*decompressed_length < outlen)
+  size_t outlen = squash_pithy_get_uncompressed_size(codec, compressed_size, compressed);
+  if (*decompressed_size < outlen)
     return SQUASH_BUFFER_FULL;
 
-  if (pithy_Decompress ((const char*) compressed, compressed_length, (char*) decompressed, outlen)) {
-    *decompressed_length = outlen;
+  if (pithy_Decompress ((const char*) compressed, compressed_size, (char*) decompressed, outlen)) {
+    *decompressed_size = outlen;
     return SQUASH_OK;
   } else {
     return SQUASH_FAILED;

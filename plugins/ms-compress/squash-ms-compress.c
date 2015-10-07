@@ -245,31 +245,31 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_ms_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return ms_max_compressed_size (squash_ms_format_from_codec (codec), uncompressed_length);
+squash_ms_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return ms_max_compressed_size (squash_ms_format_from_codec (codec), uncompressed_size);
 }
 
 static SquashStatus
 squash_ms_compress_buffer (SquashCodec* codec,
-                           size_t* compressed_length,
-                           uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                           size_t uncompressed_length,
-                           const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                           size_t* compressed_size,
+                           uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                           size_t uncompressed_size,
+                           const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                            SquashOptions* options) {
   MSCompStatus status = ms_compress (squash_ms_format_from_codec (codec),
-                                     uncompressed, uncompressed_length, compressed, compressed_length);
+                                     uncompressed, uncompressed_size, compressed, compressed_size);
   return squash_ms_status_to_squash_status (status);
 }
 
 static SquashStatus
 squash_ms_decompress_buffer (SquashCodec* codec,
-                             size_t* decompressed_length,
-                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                             size_t compressed_length,
-                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                             size_t* decompressed_size,
+                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                             size_t compressed_size,
+                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                              SquashOptions* options) {
   MSCompStatus status = ms_decompress (squash_ms_format_from_codec (codec),
-                                       compressed, compressed_length, decompressed, decompressed_length);
+                                       compressed, compressed_size, decompressed, decompressed_size);
   return squash_ms_status_to_squash_status (status);
 }
 

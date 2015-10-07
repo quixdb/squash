@@ -53,30 +53,30 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_fastlz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  size_t max_compressed_size = uncompressed_length +
-    (uncompressed_length / 20) + ((uncompressed_length % 20 == 0) ? uncompressed_length / 20 : 0);
+squash_fastlz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  size_t max_compressed_size = uncompressed_size +
+    (uncompressed_size / 20) + ((uncompressed_size % 20 == 0) ? uncompressed_size / 20 : 0);
 
   return (max_compressed_size < 66) ? 66 : max_compressed_size;
 }
 
 static SquashStatus
 squash_fastlz_decompress_buffer (SquashCodec* codec,
-                                 size_t* decompressed_length,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                 size_t compressed_length,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                 size_t* decompressed_size,
+                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                 size_t compressed_size,
+                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
 #if INT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(INT_MAX < compressed_length) ||
-      SQUASH_UNLIKELY(INT_MAX < *decompressed_length))
+  if (SQUASH_UNLIKELY(INT_MAX < compressed_size) ||
+      SQUASH_UNLIKELY(INT_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
   int fastlz_e = fastlz_decompress ((const void*) compressed,
-                                    (int) compressed_length,
+                                    (int) compressed_size,
                                     (void*) decompressed,
-                                    (int) *decompressed_length);
+                                    (int) *decompressed_size);
 
   if (fastlz_e < 0) {
     return squash_error (SQUASH_FAILED);
@@ -87,27 +87,27 @@ squash_fastlz_decompress_buffer (SquashCodec* codec,
     if (SQUASH_UNLIKELY(SIZE_MAX < fastlz_e))
       return squash_error (SQUASH_RANGE);
 #endif
-    *decompressed_length = (size_t) fastlz_e;
+    *decompressed_size = (size_t) fastlz_e;
     return SQUASH_OK;
   }
 }
 
 static SquashStatus
 squash_fastlz_compress_buffer (SquashCodec* codec,
-                               size_t* compressed_length,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                               size_t uncompressed_length,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                               size_t* compressed_size,
+                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                               size_t uncompressed_size,
+                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
 #if INT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_length) ||
-      SQUASH_UNLIKELY(INT_MAX < *compressed_length))
+  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size) ||
+      SQUASH_UNLIKELY(INT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
   const int fastlz_e = fastlz_compress_level (squash_codec_get_option_int_index (codec, options, SQUASH_FASTLZ_OPT_LEVEL),
                                               (const void*) uncompressed,
-                                              (int) uncompressed_length,
+                                              (int) uncompressed_size,
                                               (void*) compressed);
 
 #if SIZE_MAX < INT_MAX
@@ -115,7 +115,7 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  *compressed_length = (size_t) fastlz_e;
+  *compressed_size = (size_t) fastlz_e;
 
   return (fastlz_e == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }

@@ -385,20 +385,20 @@ squash_strndup(const char* s, size_t n) {
 
 static void
 squash_context_check_directory_for_plugin (SquashContext* context, const char* directory_name, const char* plugin_name) {
-  size_t directory_name_length = strlen (directory_name);
-  size_t plugin_name_length = strlen (plugin_name);
+  size_t directory_name_size = strlen (directory_name);
+  size_t plugin_name_size = strlen (plugin_name);
 
-  size_t codecs_file_name_length = directory_name_length + (plugin_name_length * 2) + 10;
-  char* codecs_file_name = (char*) malloc (codecs_file_name_length + 1);
-  snprintf (codecs_file_name, codecs_file_name_length, "%s/%s/squash.ini",
+  size_t codecs_file_name_size = directory_name_size + (plugin_name_size * 2) + 10;
+  char* codecs_file_name = (char*) malloc (codecs_file_name_size + 1);
+  snprintf (codecs_file_name, codecs_file_name_size, "%s/%s/squash.ini",
             directory_name, plugin_name);
 
   FILE* codecs_file = fopen (codecs_file_name, "r");
 
   if (codecs_file != NULL) {
-    size_t plugin_directory_name_length = directory_name_length + plugin_name_length + 1;
-    char* plugin_directory_name = (char*) malloc (plugin_directory_name_length + 1);
-    snprintf (plugin_directory_name, plugin_directory_name_length + 1, "%s/%s",
+    size_t plugin_directory_name_size = directory_name_size + plugin_name_size + 1;
+    char* plugin_directory_name = (char*) malloc (plugin_directory_name_size + 1);
+    snprintf (plugin_directory_name, plugin_directory_name_size + 1, "%s/%s",
               directory_name, plugin_name);
 
     SquashPlugin* plugin = squash_context_add_plugin (context, squash_strndup (plugin_name, 32), plugin_directory_name);
@@ -451,20 +451,20 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 #else
   WIN32_FIND_DATA entry;
   TCHAR* directory_query = NULL;
-  size_t directory_query_length;
+  size_t directory_query_size;
   HANDLE directory_handle = INVALID_HANDLE_VALUE;
 
-  StringCchLength (directory_name, MAX_PATH, &directory_query_length);
-  directory_query_length += 3;
+  StringCchSize (directory_name, MAX_PATH, &directory_query_size);
+  directory_query_size += 3;
 
-  if (directory_query_length > MAX_PATH) {
+  if (directory_query_size > MAX_PATH) {
     return;
   }
 
-  directory_query = (TCHAR*) malloc (directory_query_length * sizeof(TCHAR));
+  directory_query = (TCHAR*) malloc (directory_query_size * sizeof(TCHAR));
 
-  StringCchCopy (directory_query, directory_query_length, directory_name);
-  StringCchCat (directory_query, directory_query_length, TEXT("\\*"));
+  StringCchCopy (directory_query, directory_query_size, directory_name);
+  StringCchCat (directory_query, directory_query_size, TEXT("\\*"));
 
   directory_handle = FindFirstFile (directory_query, &entry);
 

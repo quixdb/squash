@@ -37,8 +37,8 @@ SQUASH_BEGIN_DECLS
 
 typedef struct SquashMappedFile_s {
   uint8_t* data;
-  size_t length;
-  size_t map_length;
+  size_t size;
+  size_t map_size;
   size_t window_offset;
   FILE* fp;
   bool writable;
@@ -49,13 +49,13 @@ static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 SQUASH_NONNULL(1, 2)
 bool squash_mapped_file_init_full (SquashMappedFile* mapped,
                                    FILE* fp,
-                                   size_t length,
-                                   bool length_is_suggestion,
+                                   size_t size,
+                                   bool size_is_suggestion,
                                    bool writable);
 SQUASH_NONNULL(1, 2)
 bool squash_mapped_file_init      (SquashMappedFile* mapped,
                                    FILE* fp,
-                                   size_t length,
+                                   size_t size,
                                    bool writable);
 SQUASH_NONNULL(1)
 void squash_mapped_file_destroy   (SquashMappedFile* mapped,

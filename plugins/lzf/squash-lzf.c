@@ -53,34 +53,34 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_lzf_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   const size_t res =
 #if LZF_VERSION >= 0x0106
-    LZF_MAX_COMPRESSED_SIZE(uncompressed_length) + 1;
+    LZF_MAX_COMPRESSED_SIZE(uncompressed_size) + 1;
 #else
-    ((((uncompressed_length) * 33) >> 5 ) + 1) + 1;
+    ((((uncompressed_size) * 33) >> 5 ) + 1) + 1;
 #endif
     return (res > 4) ? (res + 2) : 4;
 }
 
 static SquashStatus
 squash_lzf_decompress_buffer (SquashCodec* codec,
-                              size_t* decompressed_length,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                              size_t compressed_length,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                              size_t* decompressed_size,
+                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              size_t compressed_size,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
   SquashStatus res = SQUASH_OK;
   unsigned int lzf_e;
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < compressed_length) ||
-      SQUASH_UNLIKELY(UINT_MAX < *decompressed_length))
+  if (SQUASH_UNLIKELY(UINT_MAX < compressed_size) ||
+      SQUASH_UNLIKELY(UINT_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
-  lzf_e = (size_t) lzf_decompress ((void*) compressed, (unsigned int) compressed_length,
-                                   (void*) decompressed, (unsigned int) *decompressed_length);
+  lzf_e = (size_t) lzf_decompress ((void*) compressed, (unsigned int) compressed_size,
+                                   (void*) decompressed, (unsigned int) *decompressed_size);
 
   if (lzf_e == 0) {
     switch (errno) {
@@ -99,7 +99,7 @@ squash_lzf_decompress_buffer (SquashCodec* codec,
     if (SQUASH_UNLIKELY(SIZE_MAX < lzf_e))
       return squash_error (SQUASH_RANGE);
 #endif
-    *decompressed_length = (size_t) lzf_e;
+    *decompressed_size = (size_t) lzf_e;
   }
 
   return res;
@@ -107,36 +107,36 @@ squash_lzf_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_lzf_compress_buffer (SquashCodec* codec,
-                            size_t* compressed_length,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                            size_t uncompressed_length,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                            size_t* compressed_size,
+                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            size_t uncompressed_size,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   unsigned int lzf_e;
   const int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZF_OPT_LEVEL);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_length) ||
-      SQUASH_UNLIKELY(UINT_MAX < *compressed_length))
+  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_size) ||
+      SQUASH_UNLIKELY(UINT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (uncompressed_length == 1) {
+  if (uncompressed_size == 1) {
     const uint8_t buf[2] = { uncompressed[0], 0x00 };
 
     if (level == 1)
-      lzf_e = lzf_compress ((void*) buf, (unsigned int) uncompressed_length,
-                            (void*) compressed, (unsigned int) *compressed_length);
+      lzf_e = lzf_compress ((void*) buf, (unsigned int) uncompressed_size,
+                            (void*) compressed, (unsigned int) *compressed_size);
     else
-      lzf_e = lzf_compress_best ((void*) buf, (unsigned int) uncompressed_length,
-                                 (void*) compressed, (unsigned int) *compressed_length);
+      lzf_e = lzf_compress_best ((void*) buf, (unsigned int) uncompressed_size,
+                                 (void*) compressed, (unsigned int) *compressed_size);
   } else {
     if (level == 1)
-      lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_length,
-                            (void*) compressed, (unsigned int) *compressed_length);
+      lzf_e = lzf_compress ((void*) uncompressed, (unsigned int) uncompressed_size,
+                            (void*) compressed, (unsigned int) *compressed_size);
     else
-      lzf_e = lzf_compress_best ((void*) uncompressed, (unsigned int) uncompressed_length,
-                                 (void*) compressed, (unsigned int) *compressed_length);
+      lzf_e = lzf_compress_best ((void*) uncompressed, (unsigned int) uncompressed_size,
+                                 (void*) compressed, (unsigned int) *compressed_size);
   }
 
   if (lzf_e == 0) {
@@ -146,7 +146,7 @@ squash_lzf_compress_buffer (SquashCodec* codec,
     if (SQUASH_UNLIKELY(SIZE_MAX < lzf_e))
       return squash_error (SQUASH_RANGE);
 #endif
-    *compressed_length = (size_t) lzf_e;
+    *compressed_size = (size_t) lzf_e;
   }
 
   return SQUASH_OK;

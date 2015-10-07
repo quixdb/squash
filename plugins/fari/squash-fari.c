@@ -38,19 +38,19 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_fari_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 8 + (uncompressed_length / 48);
+squash_fari_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 8 + (uncompressed_size / 48);
 }
 
 static SquashStatus
 squash_fari_decompress_buffer (SquashCodec* codec,
-                               size_t* decompressed_length,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                               size_t compressed_length,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   int fari_e = (size_t) fa_decompress ((const unsigned char*) compressed, (unsigned char*) decompressed,
-                                       compressed_length, decompressed_length);
+                                       compressed_size, decompressed_size);
 
   switch (fari_e) {
     case 0:
@@ -70,13 +70,13 @@ squash_fari_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_fari_compress_buffer (SquashCodec* codec,
-                             size_t* compressed_length,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                             size_t uncompressed_length,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   int fari_e = fa_compress ((const unsigned char*) uncompressed, (unsigned char*) compressed,
-                            uncompressed_length, compressed_length);
+                            uncompressed_size, compressed_size);
 
   return fari_e == 0 ? SQUASH_OK : SQUASH_FAILED;
 }

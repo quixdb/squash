@@ -37,19 +37,19 @@ typedef struct _SquashBuffer SquashBuffer;
 
 struct _SquashBuffer {
   uint8_t* data;
-  size_t length;
+  size_t size;
   size_t allocated;
 };
 
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
 SQUASH_NONNULL(1)
-bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_length, uint8_t data[SQUASH_ARRAY_PARAM(data_length)]);
+bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
 SQUASH_NONNULL(1)
 void          squash_buffer_clear          (SquashBuffer* buffer);
 SQUASH_NONNULL(1)
 void          squash_buffer_free           (SquashBuffer* buffer);
 SQUASH_NONNULL(1)
-bool          squash_buffer_set_size       (SquashBuffer* buffer, size_t length);
+bool          squash_buffer_set_size       (SquashBuffer* buffer, size_t size);
 
 SQUASH_END_DECLS
 

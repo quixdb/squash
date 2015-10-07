@@ -120,9 +120,9 @@ squash_crush_splice (SquashCodec* codec,
 }
 
 static size_t
-squash_crush_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_crush_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   return
-    uncompressed_length + 4 + (uncompressed_length / 7) + ((uncompressed_length % 7) == 0 ? 0 : 1);
+    uncompressed_size + 4 + (uncompressed_size / 7) + ((uncompressed_size % 7) == 0 ? 0 : 1);
 }
 
 SquashStatus

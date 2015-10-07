@@ -72,21 +72,21 @@ squash_buffer_new (size_t preallocated_len) {
   SquashBuffer* buffer = (SquashBuffer*) malloc (sizeof (SquashBuffer));
 
   buffer->data = preallocated_len > 0 ? (uint8_t*) malloc (preallocated_len) : NULL;
-  buffer->length = 0;
+  buffer->size = 0;
   buffer->allocated = preallocated_len;
 
   return buffer;
 }
 
 bool
-squash_buffer_set_size (SquashBuffer* buffer, size_t length) {
+squash_buffer_set_size (SquashBuffer* buffer, size_t size) {
   assert (buffer != NULL);
 
-  if (length > buffer->allocated)
-    if (!squash_buffer_ensure_allocation (buffer, length))
+  if (size > buffer->allocated)
+    if (!squash_buffer_ensure_allocation (buffer, size))
       return false;
 
-  buffer->length = length;
+  buffer->size = size;
 
   return true;
 }
@@ -98,22 +98,22 @@ squash_buffer_clear (SquashBuffer* buffer) {
   free (buffer->data);
   buffer->data = NULL;
   buffer->allocated = 0;
-  buffer->length = 0;
+  buffer->size = 0;
 }
 
 bool
-squash_buffer_append (SquashBuffer* buffer, size_t data_length, uint8_t data[SQUASH_ARRAY_PARAM(data_length)]) {
+squash_buffer_append (SquashBuffer* buffer, size_t data_size, uint8_t data[SQUASH_ARRAY_PARAM(data_size)]) {
   assert (buffer != NULL);
 
-  if (data_length == 0)
+  if (data_size == 0)
     return true;
 
-  const size_t start_pos = buffer->length;
+  const size_t start_pos = buffer->size;
 
-  if (!squash_buffer_set_size (buffer, buffer->length + data_length))
+  if (!squash_buffer_set_size (buffer, buffer->size + data_size))
     return false;
 
-  memcpy (buffer->data + start_pos, data, data_length);
+  memcpy (buffer->data + start_pos, data, data_size);
 
   return true;
 }

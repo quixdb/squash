@@ -48,15 +48,15 @@ static void              squash_copy_stream_free     (void* stream);
 
 
 static size_t
-squash_copy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length;
+squash_copy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size;
 }
 
 static size_t
 squash_copy_get_uncompressed_size (SquashCodec* codec,
-                                   size_t compressed_length,
-                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
-  return compressed_length;
+                                   size_t compressed_size,
+                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+  return compressed_size;
 }
 
 static SquashCopyStream*
@@ -114,32 +114,32 @@ squash_copy_process_stream (SquashStream* stream, SquashOperation operation) {
 
 static SquashStatus
 squash_copy_compress_buffer (SquashCodec* codec,
-                             size_t* compressed_length,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                             size_t uncompressed_length,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  if (*compressed_length < uncompressed_length)
+  if (*compressed_size < uncompressed_size)
     return squash_error (SQUASH_BUFFER_FULL);
 
-  memcpy (compressed, uncompressed, uncompressed_length);
-  *compressed_length = uncompressed_length;
+  memcpy (compressed, uncompressed, uncompressed_size);
+  *compressed_size = uncompressed_size;
 
   return SQUASH_OK;
 }
 
 static SquashStatus
 squash_copy_decompress_buffer (SquashCodec* codec,
-                               size_t* decompressed_length,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                               size_t compressed_length,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
-  if (*decompressed_length < compressed_length)
+  if (*decompressed_size < compressed_size)
     return squash_error (SQUASH_BUFFER_FULL);
 
-  memcpy (decompressed, compressed, compressed_length);
-  *decompressed_length = compressed_length;
+  memcpy (decompressed, compressed, compressed_size);
+  *decompressed_size = compressed_size;
 
   return SQUASH_OK;
 }

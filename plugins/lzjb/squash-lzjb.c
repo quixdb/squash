@@ -38,29 +38,29 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec       (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_lzjb_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return LZJB_MAX_COMPRESSED_SIZE(uncompressed_length);
+squash_lzjb_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return LZJB_MAX_COMPRESSED_SIZE(uncompressed_size);
 }
 
 static SquashStatus
 squash_lzjb_compress_buffer (SquashCodec* codec,
-                             size_t* compressed_length,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                             size_t uncompressed_length,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  *compressed_length = lzjb_compress (uncompressed, compressed, uncompressed_length, *compressed_length);
-  return (*compressed_length != uncompressed_length) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  *compressed_size = lzjb_compress (uncompressed, compressed, uncompressed_size, *compressed_size);
+  return (*compressed_size != uncompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_lzjb_decompress_buffer (SquashCodec* codec,
-                               size_t* decompressed_length,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                               size_t compressed_length,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
-  LZJBResult res = lzjb_decompress (compressed, decompressed, compressed_length, decompressed_length);
+  LZJBResult res = lzjb_decompress (compressed, decompressed, compressed_size, decompressed_size);
   switch (res) {
     case LZJB_OK:
       return SQUASH_OK;

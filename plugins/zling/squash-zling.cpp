@@ -157,9 +157,9 @@ squash_zling_splice (SquashCodec* codec,
 }
 
 static size_t
-squash_zling_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_zling_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   return
-    uncompressed_length + 288 + (uncompressed_length / 8);
+    uncompressed_size + 288 + (uncompressed_size / 8);
 }
 
 extern "C" SquashStatus

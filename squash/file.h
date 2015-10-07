@@ -80,12 +80,12 @@ SQUASH_API SquashFile*  squash_file_steal_codec_with_options (SquashCodec* codec
 
 SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus squash_file_read                     (SquashFile* file,
-                                                              size_t* decompressed_length,
-                                                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]);
+                                                              size_t* decompressed_size,
+                                                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]);
 SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStatus squash_file_write                    (SquashFile* file,
-                                                              size_t uncompressed_length,
-                                                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
+                                                              size_t uncompressed_size,
+                                                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]);
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 SQUASH_NONNULL(1)
@@ -102,12 +102,12 @@ SQUASH_NONNULL(1)
 SQUASH_API void         squash_file_unlock                   (SquashFile* file);
 SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus squash_file_read_unlocked            (SquashFile* file,
-                                                              size_t* decompressed_length,
-                                                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]);
+                                                              size_t* decompressed_size,
+                                                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]);
 SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStatus squash_file_write_unlocked           (SquashFile* file,
-                                                              size_t uncompressed_length,
-                                                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]);
+                                                              size_t uncompressed_size,
+                                                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]);
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush_unlocked           (SquashFile* file);
 

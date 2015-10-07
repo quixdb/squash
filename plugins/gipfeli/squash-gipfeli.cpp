@@ -38,12 +38,12 @@ extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_gipfeli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_gipfeli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   size_t ret;
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
 
-  ret = compressor->MaxCompressedLength (uncompressed_length);
+  ret = compressor->MaxCompressedLength (uncompressed_size);
 
   delete compressor;
 
@@ -52,23 +52,23 @@ squash_gipfeli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
 
 static size_t
 squash_gipfeli_get_uncompressed_size (SquashCodec* codec,
-                                      size_t compressed_length,
-                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                      size_t compressed_size,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
-  std::string compressed_str((const char*) compressed, compressed_length);
+  std::string compressed_str((const char*) compressed, compressed_size);
 
-  size_t uncompressed_length = 0;
-  bool success = compressor->GetUncompressedLength (compressed_str, &uncompressed_length);
+  size_t uncompressed_size = 0;
+  bool success = compressor->GetUncompressedLength (compressed_str, &uncompressed_size);
 
   delete compressor;
 
-  return success ? uncompressed_length : 0;
+  return success ? uncompressed_size : 0;
 }
 
 class CheckedByteArraySink : public util::compression::Sink {
  public:
-  explicit CheckedByteArraySink(char* dest, size_t dest_length) : dest_(dest), remaining_(dest_length) {}
+  explicit CheckedByteArraySink(char* dest, size_t dest_size) : dest_(dest), remaining_(dest_size) {}
   virtual ~CheckedByteArraySink() {}
   virtual void Append(const char* data, size_t n) {
     if (n > remaining_) {
@@ -96,32 +96,32 @@ class CheckedByteArraySink : public util::compression::Sink {
 
 static SquashStatus
 squash_gipfeli_decompress_buffer (SquashCodec* codec,
-                                  size_t* decompressed_length,
-                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                  size_t compressed_length,
-                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                  size_t* decompressed_size,
+                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                  size_t compressed_size,
+                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                   SquashOptions* options) {
   util::compression::Compressor* compressor =
     util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) decompressed);
-  util::compression::ByteArraySource source((const char*) compressed, compressed_length);
+  util::compression::ByteArraySource source((const char*) compressed, compressed_size);
   SquashStatus res = SQUASH_OK;
 
   if (compressor == NULL)
     return squash_error (SQUASH_MEMORY);
 
-  std::string compressed_str((const char*) compressed, compressed_length);
-  size_t uncompressed_length;
-  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_length)) {
+  std::string compressed_str((const char*) compressed, compressed_size);
+  size_t uncompressed_size;
+  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_size)) {
     res = squash_error (SQUASH_FAILED);
     goto cleanup;
   }
 
-  if (uncompressed_length > *decompressed_length) {
+  if (uncompressed_size > *decompressed_size) {
     res = squash_error (SQUASH_BUFFER_FULL);
     goto cleanup;
   } else {
-    *decompressed_length = uncompressed_length;
+    *decompressed_size = uncompressed_size;
   }
 
   if (!compressor->UncompressStream (&source, &sink)) {
@@ -137,18 +137,18 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_gipfeli_compress_buffer (SquashCodec* codec,
-                                size_t* compressed_length,
-                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                size_t uncompressed_length,
-                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                size_t* compressed_size,
+                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                size_t uncompressed_size,
+                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                 SquashOptions* options) {
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
-  CheckedByteArraySink sink((char*) compressed, *compressed_length);
-  util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
+  CheckedByteArraySink sink((char*) compressed, *compressed_size);
+  util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_size);
   SquashStatus res;
 
   try {
-    *compressed_length = compressor->CompressStream (&source, &sink);
+    *compressed_size = compressor->CompressStream (&source, &sink);
     res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     res = squash_error (SQUASH_MEMORY);
@@ -160,7 +160,7 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
 
   delete compressor;
 
-  if (res == SQUASH_OK && *compressed_length == 0)
+  if (res == SQUASH_OK && *compressed_size == 0)
     res = squash_error (SQUASH_FAILED);
 
   return res;
@@ -168,18 +168,18 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
-                                       size_t* compressed_length,
-                                       uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                       size_t uncompressed_length,
-                                       const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                       size_t* compressed_size,
+                                       uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                       size_t uncompressed_size,
+                                       const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                        SquashOptions* options) {
   util::compression::Compressor* compressor = util::compression::NewGipfeliCompressor();
   util::compression::UncheckedByteArraySink sink((char*) compressed);
-  util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_length);
+  util::compression::ByteArraySource source((const char*) uncompressed, uncompressed_size);
   SquashStatus res;
 
   try {
-    *compressed_length = compressor->CompressStream (&source, &sink);
+    *compressed_size = compressor->CompressStream (&source, &sink);
     res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     res = squash_error (SQUASH_MEMORY);
@@ -191,7 +191,7 @@ squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
 
   delete compressor;
 
-  if (res == SQUASH_OK && *compressed_length == 0)
+  if (res == SQUASH_OK && *compressed_size == 0)
     res = squash_error (SQUASH_FAILED);
 
   return res;

@@ -103,7 +103,7 @@
  *
  * @param codec The codec.
  * @param compressed Compressed data.
- * @param compressed_length Compressed data length (in bytes).
+ * @param compressed_size Size of compressed data (in bytes).
  * @return Size of the uncompressed data, or 0 if unknown.
  *
  * @see squash_codec_get_uncompressed_size
@@ -114,7 +114,7 @@
  * @brief Get the maximum compressed size.
  *
  * @param codec The codec.
- * @param uncompressed_length Size of the uncompressed data.
+ * @param uncompressed_size Size of the uncompressed data.
  * @returns The maximum buffer size necessary to contain the
  *   compressed data.
  *
@@ -127,10 +127,10 @@
  *
  * @param codec The codec.
  * @param compressed The compressed data.
- * @param compressed_length The length of the compressed data.
+ * @param compressed_size Size of the compressed data.
  * @param uncompressed Buffer in which to store the uncompressed data.
- * @param uncompressed_length Location of the buffer size on input,
- *   used to store the length of the uncompressed data on output.
+ * @param uncompressed_size Location of the buffer size on input,
+ *   used to store the size of the uncompressed data on output.
  * @param options Decompression options (or *NULL*)
  *
  * @see squash_codec_decompress_with_options
@@ -142,10 +142,10 @@
  *
  * @param codec The codec.
  * @param uncompressed The uncompressed data.
- * @param uncompressed_length The length of the uncompressed data.
+ * @param uncompressed_size The size of the uncompressed data.
  * @param compressed Buffer in which to store the compressed data.
- * @param compressed_length Location of the buffer size on input,
- *   used to store the length of the compressed data on output.
+ * @param compressed_size Location of the buffer size on input,
+ *   used to store the size of the compressed data on output.
  * @param options Compression options (or *NULL*)
  *
  * @see squash_codec_compress_with_options
@@ -156,15 +156,15 @@
  * @brief Compress a buffer.
  *
  * Plugins implementing this function can be sure that @a compressed
- * is at least as long as the maximum compressed length for a buffer
- * of @a uncompressed_length bytes.
+ * is at least as long as the maximum compressed size for a buffer
+ * of @a uncompressed_size bytes.
  *
  * @param codec The codec.
  * @param uncompressed The uncompressed data.
- * @param uncompressed_length The length of the uncompressed data.
+ * @param uncompressed_size The size of the uncompressed data.
  * @param compressed Buffer in which to store the compressed data.
- * @param compressed_length Location of the buffer size on input,
- *   used to store the length of the compressed data on output.
+ * @param compressed_size Location of the buffer size on input,
+ *   used to store the size of the compressed data on output.
  * @param options Compression options (or *NULL*)
  *
  * @see squash_codec_compress_with_options
@@ -278,7 +278,7 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
 
 /**
  * @var SquashCodecInfo::SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE
- * @brief The compressed data encodes the length of the uncompressed
+ * @brief The compressed data encodes the size of the uncompressed
  *   data without having to decompress it.
  */
 
@@ -380,22 +380,22 @@ squash_codec_get_impl (SquashCodec* codec) {
  *
  * @param codec The codec
  * @param compressed The compressed data
- * @param compressed_length The length of the compressed data
+ * @param compressed_size The size of the compressed data
  * @return The uncompressed size, or *0* if unknown
  */
 size_t
 squash_codec_get_uncompressed_size (SquashCodec* codec,
-                                    size_t compressed_length,
-                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                    size_t compressed_size,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   SquashCodecImpl* impl = NULL;
 
   assert (codec != NULL);
-  assert (compressed_length > 0);
+  assert (compressed_size > 0);
   assert (compressed != NULL);
 
   impl = squash_codec_get_impl (codec);
   if (impl != NULL && impl->get_uncompressed_size != NULL) {
-    return impl->get_uncompressed_size (codec, compressed_length, compressed);
+    return impl->get_uncompressed_size (codec, compressed_size, compressed);
   } else {
     return 0;
   }
@@ -403,25 +403,25 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
 
 size_t
 squash_get_uncompressed_size (const char* codec,
-                              size_t compressed_length,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                              size_t compressed_size,
+                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   assert (codec != NULL);
-  assert (compressed_length > 0);
+  assert (compressed_size > 0);
   assert (compressed != NULL);
 
   SquashCodec* codec_real = squash_get_codec (codec);
   if (codec_real == NULL)
     return 0;
 
-  return squash_codec_get_uncompressed_size (codec_real, compressed_length, compressed);
+  return squash_codec_get_uncompressed_size (codec_real, compressed_size, compressed);
 }
 
 /**
  * @brief Get the maximum buffer size necessary to store compressed data.
  *
  * Typically the return value will be some percentage larger than the
- * uncompressed length, plus a few bytes.  For example, for bzip2 it
- * is the uncompressed length plus 1%, plus an additional 600 bytes.
+ * uncompressed size, plus a few bytes.  For example, for bzip2 it
+ * is the uncompressed size plus 1%, plus an additional 600 bytes.
  *
  * @warning The result of this function is not guaranteed to be
  * correct for use with the @ref SquashStream API—it should only be
@@ -429,19 +429,19 @@ squash_get_uncompressed_size (const char* codec,
  * ::squash_codec_compress and ::squash_codec_compress_with_options.
  *
  * @param codec The codec
- * @param uncompressed_length Size of the uncompressed data in bytes
+ * @param uncompressed_size Size of the uncompressed data in bytes
  * @return The maximum size required to store a compressed buffer
- *   representing @a uncompressed_length of uncompressed data.
+ *   representing @a uncompressed_size of uncompressed data.
  */
 size_t
-squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   SquashCodecImpl* impl = NULL;
 
   assert (codec != NULL);
 
   impl = squash_codec_get_impl (codec);
   if (impl != NULL && impl->get_max_compressed_size != NULL) {
-    return impl->get_max_compressed_size (codec, uncompressed_length);
+    return impl->get_max_compressed_size (codec, uncompressed_size);
   } else {
     return 0;
   }
@@ -451,8 +451,8 @@ squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
  * @brief Get the maximum buffer size necessary to store compressed data.
  *
  * Typically the return value will be some percentage larger than the
- * uncompressed length, plus a few bytes.  For example, for bzip2 it
- * is the uncompressed length plus 1%, plus an additional 600 bytes.
+ * uncompressed size, plus a few bytes.  For example, for bzip2 it
+ * is the uncompressed size plus 1%, plus an additional 600 bytes.
  *
  * @warning The result of this function is not guaranteed to be
  * correct for use with the @ref SquashStream API—it should only be
@@ -460,20 +460,20 @@ squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_le
  * ::squash_codec_compress and ::squash_codec_compress_with_options.
  *
  * @param codec The name of the codec
- * @param uncompressed_length Size of the uncompressed data in bytes
+ * @param uncompressed_size Size of the uncompressed data in bytes
  * @return The maximum size required to store a compressed buffer
- *   representing @a uncompressed_length of uncompressed data.
+ *   representing @a uncompressed_size of uncompressed data.
  * @see squash_codec_get_max_compressed_size
  */
 size_t
-squash_get_max_compressed_size (const char* codec, size_t uncompressed_length) {
+squash_get_max_compressed_size (const char* codec, size_t uncompressed_size) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
   if (codec_real == NULL) {
     return 0;
   }
 
-  return squash_codec_get_max_compressed_size (codec_real, uncompressed_length);
+  return squash_codec_get_max_compressed_size (codec_real, uncompressed_size);
 }
 
 /**
@@ -535,26 +535,26 @@ squash_codec_create_stream (SquashCodec* codec, SquashStreamType stream_type, ..
 struct SquashBufferSpliceData {
   SquashCodec* codec;
   SquashStreamType stream_type;
-  size_t output_length;
+  size_t output_size;
   uint8_t* output;
   size_t output_pos;
-  size_t input_length;
+  size_t input_size;
   const uint8_t* input;
   size_t input_pos;
   SquashOptions* options;
 };
 
 static SquashStatus
-squash_buffer_splice_read (size_t* data_length,
-                           uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+squash_buffer_splice_read (size_t* data_size,
+                           uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
                            void* user_data) {
   struct SquashBufferSpliceData* ctx = (struct SquashBufferSpliceData*) user_data;
 
-  const size_t requested = *data_length;
-  const size_t available = ctx->input_length - ctx->input_pos;
+  const size_t requested = *data_size;
+  const size_t available = ctx->input_size - ctx->input_pos;
   const size_t cp_size = (requested > available) ? available : requested;
 
-  *data_length = cp_size;
+  *data_size = cp_size;
 
   if (cp_size != 0) {
     memcpy (data, ctx->input + ctx->input_pos, cp_size);
@@ -567,20 +567,20 @@ squash_buffer_splice_read (size_t* data_length,
 }
 
 static SquashStatus
-squash_buffer_splice_write (size_t* data_length,
-                            const uint8_t data[SQUASH_ARRAY_PARAM(*data_length)],
+squash_buffer_splice_write (size_t* data_size,
+                            const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
                             void* user_data) {
   struct SquashBufferSpliceData* ctx = (struct SquashBufferSpliceData*) user_data;
 
-  const size_t requested = *data_length;
-  const size_t available = ctx->output_length - ctx->output_pos;
+  const size_t requested = *data_size;
+  const size_t available = ctx->output_size - ctx->output_pos;
   const size_t cp_size = (requested > available) ? available : requested;
 
   if (cp_size < requested) {
-    *data_length = 0;
+    *data_size = 0;
     return squash_error (SQUASH_BUFFER_FULL);
   } else {
-    *data_length = cp_size;
+    *data_size = cp_size;
   }
 
   if (cp_size != 0) {
@@ -594,25 +594,25 @@ squash_buffer_splice_write (size_t* data_length,
 static SquashStatus
 squash_buffer_splice (SquashCodec* codec,
                       SquashStreamType stream_type,
-                      size_t* output_length,
-                      uint8_t output[SQUASH_ARRAY_PARAM(*output_length)],
-                      size_t input_length,
-                      const uint8_t input[SQUASH_ARRAY_PARAM(input_length)],
+                      size_t* output_size,
+                      uint8_t output[SQUASH_ARRAY_PARAM(*output_size)],
+                      size_t input_size,
+                      const uint8_t input[SQUASH_ARRAY_PARAM(input_size)],
                       SquashOptions* options) {
   assert (codec != NULL);
-  assert (output_length != NULL);
-  assert (*output_length != 0);
+  assert (output_size != NULL);
+  assert (*output_size != 0);
   assert (output != NULL);
-  assert (input_length != 0);
+  assert (input_size != 0);
   assert (input != NULL);
   assert (codec->impl.splice != NULL);
 
-  struct SquashBufferSpliceData data = { codec, stream_type, *output_length, output, 0, input_length, input, 0, options };
+  struct SquashBufferSpliceData data = { codec, stream_type, *output_size, output, 0, input_size, input, 0, options };
 
   SquashStatus res = codec->impl.splice (codec, options, stream_type, squash_buffer_splice_read, squash_buffer_splice_write, &data);
 
   if (res > 0)
-    *output_length = data.output_pos;
+    *output_size = data.output_pos;
 
   return res;
 }
@@ -622,20 +622,20 @@ squash_buffer_splice (SquashCodec* codec,
  *
  * @param codec The codec to use
  * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_length Location storing the size of the
+ * @param[in,out] compressed_size Location storing the size of the
  *   @a compressed buffer on input, replaced with the actual size of
  *   the compressed data
  * @param uncompressed The uncompressed data
- * @param uncompressed_length Length of the uncompressed data (in bytes)
+ * @param uncompressed_size Size of the uncompressed data (in bytes)
  * @param options Compression options
  * @return A status code
  */
 SquashStatus
 squash_codec_compress_with_options (SquashCodec* codec,
-                                    size_t* compressed_length,
-                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                    size_t uncompressed_length,
-                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                    size_t* compressed_size,
+                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                    size_t uncompressed_size,
+                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                     SquashOptions* options) {
   SquashCodecImpl* impl = NULL;
 
@@ -653,43 +653,43 @@ squash_codec_compress_with_options (SquashCodec* codec,
 
   if (impl->compress_buffer ||
       impl->compress_buffer_unsafe) {
-    size_t max_compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
+    size_t max_compressed_size = squash_codec_get_max_compressed_size (codec, uncompressed_size);
 
-    if (*compressed_length >= max_compressed_length) {
+    if (*compressed_size >= max_compressed_size) {
       if (impl->compress_buffer_unsafe != NULL) {
         return impl->compress_buffer_unsafe (codec,
-                                              compressed_length, compressed,
-                                              uncompressed_length, uncompressed,
+                                              compressed_size, compressed,
+                                              uncompressed_size, uncompressed,
                                               options);
       } else {
         return impl->compress_buffer (codec,
-                                       compressed_length, compressed,
-                                       uncompressed_length, uncompressed,
+                                       compressed_size, compressed,
+                                       uncompressed_size, uncompressed,
                                        options);
       }
     } else if (impl->compress_buffer != NULL) {
       return impl->compress_buffer (codec,
-                                     compressed_length, compressed,
-                                     uncompressed_length, uncompressed,
+                                     compressed_size, compressed,
+                                     uncompressed_size, uncompressed,
                                      options);
     } else {
       SquashStatus status;
-      uint8_t* tmp_buf = malloc (max_compressed_length);
+      uint8_t* tmp_buf = malloc (max_compressed_size);
       if (tmp_buf == NULL)
         return squash_error (SQUASH_MEMORY);
 
       status = impl->compress_buffer_unsafe (codec,
-                                              &max_compressed_length, tmp_buf,
-                                              uncompressed_length, uncompressed,
+                                              &max_compressed_size, tmp_buf,
+                                              uncompressed_size, uncompressed,
                                               options);
       if (status == SQUASH_OK) {
-        if (*compressed_length < max_compressed_length) {
-          *compressed_length = max_compressed_length;
+        if (*compressed_size < max_compressed_size) {
+          *compressed_size = max_compressed_size;
           free (tmp_buf);
           return squash_error (SQUASH_BUFFER_FULL);
         } else {
-          *compressed_length = max_compressed_length;
-          memcpy (compressed, tmp_buf, max_compressed_length);
+          *compressed_size = max_compressed_size;
+          memcpy (compressed, tmp_buf, max_compressed_size);
           free (tmp_buf);
           return SQUASH_OK;
         }
@@ -699,7 +699,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
       }
     }
   } else if (impl->splice != NULL) {
-    return squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_length, compressed, uncompressed_length, uncompressed, options);
+    return squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_size, compressed, uncompressed_size, uncompressed, options);
   } else {
     SquashStatus status;
     SquashStream* stream;
@@ -709,9 +709,9 @@ squash_codec_compress_with_options (SquashCodec* codec,
       return squash_error (SQUASH_FAILED);
 
     stream->next_in = uncompressed;
-    stream->avail_in = uncompressed_length;
+    stream->avail_in = uncompressed_size;
     stream->next_out = compressed;
-    stream->avail_out = *compressed_length;
+    stream->avail_out = *compressed_size;
 
     do {
       status = squash_stream_process (stream);
@@ -731,7 +731,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
       return status;
     }
 
-    *compressed_length = stream->total_out;
+    *compressed_size = stream->total_out;
     squash_object_unref (stream);
     return status;
   }
@@ -742,20 +742,20 @@ squash_codec_compress_with_options (SquashCodec* codec,
  *
  * @param codec The codec to use
  * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_length Location storing the size of the
+ * @param[in,out] compressed_size Location storing the size of the
  *   @a compressed buffer on input, replaced with the actual size of
  *   the compressed data
  * @param uncompressed The uncompressed data
- * @param uncompressed_length Length of the uncompressed data (in bytes)
+ * @param uncompressed_size Size of the uncompressed data (in bytes)
  * @param ... A variadic list of key/value option pairs, followed by
  *   *NULL*
  * @return A status code
  */
 SquashStatus squash_codec_compress (SquashCodec* codec,
-                                    size_t* compressed_length,
-                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                                    size_t uncompressed_length,
-                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                                    size_t* compressed_size,
+                                    uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                    size_t uncompressed_size,
+                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                     ...) {
   SquashOptions* options;
   va_list ap;
@@ -767,8 +767,8 @@ SquashStatus squash_codec_compress (SquashCodec* codec,
   va_end (ap);
 
   return squash_codec_compress_with_options (codec,
-                                             compressed_length, compressed,
-                                             uncompressed_length, uncompressed,
+                                             compressed_size, compressed,
+                                             uncompressed_size, uncompressed,
                                              options);
 }
 
@@ -777,20 +777,20 @@ SquashStatus squash_codec_compress (SquashCodec* codec,
  *
  * @param codec The codec to use
  * @param[out] decompressed Location to store the decompressed data
- * @param[in,out] decompressed_length Location storing the size of the
+ * @param[in,out] decompressed_size Location storing the size of the
  *   @a decompressed buffer on input, replaced with the actual size of
  *   the decompressed data
  * @param compressed The compressed data
- * @param compressed_length Length of the compressed data (in bytes)
+ * @param compressed_size Size of the compressed data (in bytes)
  * @param options Compression options
  * @return A status code
  */
 SquashStatus
 squash_codec_decompress_with_options (SquashCodec* codec,
-                                      size_t* decompressed_length,
-                                      uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                      size_t compressed_length,
-                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                      size_t* decompressed_size,
+                                      uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                      size_t compressed_size,
+                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                       SquashOptions* options) {
   SquashCodecImpl* impl = NULL;
 
@@ -806,8 +806,8 @@ squash_codec_decompress_with_options (SquashCodec* codec,
   if (impl->decompress_buffer != NULL) {
     SquashStatus res;
     res = impl->decompress_buffer (codec,
-                                   decompressed_length, decompressed,
-                                   compressed_length, compressed,
+                                   decompressed_size, decompressed,
+                                   compressed_size, compressed,
                                    squash_object_ref (options));
     squash_object_unref (options);
     return res;
@@ -817,9 +817,9 @@ squash_codec_decompress_with_options (SquashCodec* codec,
 
     stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_DECOMPRESS, options);
     stream->next_in = compressed;
-    stream->avail_in = compressed_length;
+    stream->avail_in = compressed_size;
     stream->next_out = decompressed;
-    stream->avail_out = *decompressed_length;
+    stream->avail_out = *decompressed_size;
 
     do {
       status = squash_stream_process (stream);
@@ -827,14 +827,14 @@ squash_codec_decompress_with_options (SquashCodec* codec,
 
     if (status == SQUASH_END_OF_STREAM) {
       status = SQUASH_OK;
-      *decompressed_length = stream->total_out;
+      *decompressed_size = stream->total_out;
     } else if (status == SQUASH_OK) {
       do {
         status = squash_stream_finish (stream);
       } while (status == SQUASH_PROCESSING);
 
       if (status == SQUASH_OK) {
-        *decompressed_length = stream->total_out;
+        *decompressed_size = stream->total_out;
       }
     }
 
@@ -850,9 +850,9 @@ squash_codec_decompress_with_options (SquashCodec* codec,
  *
  * @param codec The codec to use
  * @param[out] decompressed The decompressed data
- * @param[in,out] decompressed_length Length of the decompressed data (in bytes)
+ * @param[in,out] decompressed_size Size of the decompressed data (in bytes)
  * @param compressed Location to store the compressed data
- * @param[in,out] compressed_length Location storing the size of the
+ * @param[in,out] compressed_size Location storing the size of the
  *   @a compressed buffer on input, replaced with the actual size of
  *   the compressed data
  * @param ... A variadic list of key/value option pairs, followed by
@@ -861,10 +861,10 @@ squash_codec_decompress_with_options (SquashCodec* codec,
  */
 SquashStatus
 squash_codec_decompress (SquashCodec* codec,
-                         size_t* decompressed_length,
-                         uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                         size_t compressed_length,
-                         const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                         size_t* decompressed_size,
+                         uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                         size_t compressed_size,
+                         const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                          ...) {
   SquashOptions* options;
   va_list ap;
@@ -877,8 +877,8 @@ squash_codec_decompress (SquashCodec* codec,
   va_end (ap);
 
   res = squash_codec_decompress_with_options (codec,
-                                              decompressed_length, decompressed,
-                                              compressed_length, compressed,
+                                              decompressed_size, decompressed,
+                                              compressed_size, compressed,
                                               options);
 
   return res;
@@ -889,21 +889,21 @@ squash_codec_decompress (SquashCodec* codec,
  *
  * @param codec The name of the codec to use
  * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_length Location storing the size of the
+ * @param[in,out] compressed_size Location storing the size of the
  *   @a compressed buffer on input, replaced with the actual size of
  *   the compressed data
  * @param uncompressed The uncompressed data
- * @param uncompressed_length Length of the uncompressed data (in bytes)
+ * @param uncompressed_size Size of the uncompressed data (in bytes)
  * @param ... A variadic list of key/value option pairs, followed by
  *   *NULL*
  * @return A status code
  */
 SquashStatus
 squash_compress (const char* codec,
-                 size_t* compressed_length,
-                 uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                 size_t uncompressed_length,
-                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                 size_t* compressed_size,
+                 uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                 size_t uncompressed_size,
+                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                  ...) {
   SquashOptions* options;
   va_list ap;
@@ -917,8 +917,8 @@ squash_compress (const char* codec,
   va_end (ap);
 
   return squash_codec_compress_with_options (codec_real,
-                                             compressed_length, compressed,
-                                             uncompressed_length, uncompressed,
+                                             compressed_size, compressed,
+                                             uncompressed_size, uncompressed,
                                              options);
 }
 
@@ -927,20 +927,20 @@ squash_compress (const char* codec,
  *
  * @param codec The name of the codec to use
  * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_length Location storing the size of the
+ * @param[in,out] compressed_size Location storing the size of the
  *   @a compressed buffer on input, replaced with the actual size of
  *   the compressed data
  * @param uncompressed The uncompressed data
- * @param uncompressed_length Length of the uncompressed data (in bytes)
+ * @param uncompressed_size Size of the uncompressed data (in bytes)
  * @param options Compression options, or *NULL* to use the defaults
  * @return A status code
  */
 SquashStatus
 squash_compress_with_options (const char* codec,
-                              size_t* compressed_length,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                              size_t uncompressed_length,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                              size_t* compressed_size,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              size_t uncompressed_size,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
@@ -948,8 +948,8 @@ squash_compress_with_options (const char* codec,
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_compress_with_options (codec_real,
-                                             compressed_length, compressed,
-                                             uncompressed_length, uncompressed,
+                                             compressed_size, compressed,
+                                             uncompressed_size, uncompressed,
                                              options);
 }
 
@@ -958,21 +958,21 @@ squash_compress_with_options (const char* codec,
  *
  * @param codec The name of the codec to use
  * @param[out] decompressed Location to store the decompressed data
- * @param[in,out] decompressed_length Location storing the size of the
+ * @param[in,out] decompressed_size Location storing the size of the
  *   @a decompressed buffer on input, replaced with the actual size of
  *   the decompressed data
  * @param compressed The compressed data
- * @param compressed_length Length of the compressed data (in bytes)
+ * @param compressed_size Size of the compressed data (in bytes)
  * @param ... A variadic list of key/value option pairs, followed by
  *   *NULL*
  * @return A status code
  */
 SquashStatus
 squash_decompress (const char* codec,
-                   size_t* decompressed_length,
-                   uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                   size_t compressed_length,
-                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                   size_t* decompressed_size,
+                   uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                   size_t compressed_size,
+                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                    ...) {
   SquashOptions* options;
   va_list ap;
@@ -986,8 +986,8 @@ squash_decompress (const char* codec,
   va_end (ap);
 
   return squash_codec_decompress_with_options (codec_real,
-                                            decompressed_length, decompressed,
-                                            compressed_length, compressed,
+                                            decompressed_size, decompressed,
+                                            compressed_size, compressed,
                                             options);
 }
 
@@ -996,19 +996,19 @@ squash_decompress (const char* codec,
  *
  * @param codec The name of the codec to use
  * @param[out] decompressed Location to store the decompressed data
- * @param[in,out] decompressed_length Location storing the size of the
+ * @param[in,out] decompressed_size Location storing the size of the
  *   @a decompressed buffer on input, replaced with the actual size of
  *   the decompressed data
  * @param compressed The compressed data
- * @param compressed_length Length of the compressed data (in bytes)
+ * @param compressed_size Size of the compressed data (in bytes)
  * @param options Decompression options, or *NULL* to use the defaults
  * @return A status code
  */
 SquashStatus squash_decompress_with_options (const char* codec,
-                                             size_t* decompressed_length,
-                                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                             size_t compressed_length,
-                                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                             size_t* decompressed_size,
+                                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                             size_t compressed_size,
+                                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                              SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
@@ -1016,8 +1016,8 @@ SquashStatus squash_decompress_with_options (const char* codec,
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_decompress_with_options (codec_real,
-                                               decompressed_length, decompressed,
-                                               compressed_length, compressed,
+                                               decompressed_size, decompressed,
+                                               compressed_size, compressed,
                                                options);
 }
 

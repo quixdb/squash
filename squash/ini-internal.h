@@ -34,7 +34,7 @@
 typedef bool (* SquashIniParserCallback) (const char* section,
                                           const char* key,
                                           const char* value,
-                                          size_t value_length,
+                                          size_t value_size,
                                           void* user_data);
 
 SQUASH_NONNULL(1, 2)

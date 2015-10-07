@@ -280,16 +280,16 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_lzham_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 10;
+squash_lzham_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 10;
 }
 
 static SquashStatus
 squash_lzham_compress_buffer (SquashCodec* codec,
-                              size_t* compressed_length,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                              size_t uncompressed_length,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                              size_t* compressed_size,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              size_t uncompressed_size,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   lzham_compress_status_t status;
   lzham_compress_params params;
@@ -297,8 +297,8 @@ squash_lzham_compress_buffer (SquashCodec* codec,
   squash_lzham_compress_apply_options (codec, &params, options);
 
   status = lzham_compress_memory (&params,
-                                  compressed, compressed_length,
-                                  uncompressed, uncompressed_length,
+                                  compressed, compressed_size,
+                                  uncompressed, uncompressed_size,
                                   NULL);
 
   if (status != LZHAM_COMP_STATUS_SUCCESS) {
@@ -310,10 +310,10 @@ squash_lzham_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_lzham_decompress_buffer (SquashCodec* codec,
-                                size_t* decompressed_length,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                size_t compressed_length,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                size_t* decompressed_size,
+                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                size_t compressed_size,
+                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   lzham_decompress_status_t status;
   lzham_decompress_params params;
@@ -321,8 +321,8 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
   squash_lzham_decompress_apply_options (codec, &params, options);
 
   status = lzham_decompress_memory (&params,
-                                    decompressed, decompressed_length,
-                                    compressed, compressed_length,
+                                    decompressed, decompressed_size,
+                                    compressed, compressed_size,
                                     NULL);
 
   switch ((int) status) {

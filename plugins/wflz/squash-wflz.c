@@ -86,17 +86,17 @@ SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   const char* codec_name = squash_codec_get_name (codec);
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_length))
+  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
   const uint32_t res = codec_name[4] == '\0' ?
-    wfLZ_GetMaxCompressedSize ((uint32_t) uncompressed_length) :
-    wfLZ_GetMaxChunkCompressedSize ((uint32_t) uncompressed_length, SQUASH_WFLZ_MIN_CHUNK_SIZE);
+    wfLZ_GetMaxCompressedSize ((uint32_t) uncompressed_size) :
+    wfLZ_GetMaxChunkCompressedSize ((uint32_t) uncompressed_size, SQUASH_WFLZ_MIN_CHUNK_SIZE);
 
 #if SIZE_MAX < UINT32_MAX
   if (SQUASH_UNLIKELY(SIZE_MAX < res))
@@ -108,9 +108,9 @@ squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
 
 static size_t
 squash_wflz_get_uncompressed_size (SquashCodec* codec,
-                                   size_t compressed_length,
-                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
-  if (compressed_length < 12)
+                                   size_t compressed_size,
+                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+  if (compressed_size < 12)
     return 0;
 
   const uint32_t res = wfLZ_GetDecompressedSize (compressed);
@@ -125,21 +125,21 @@ squash_wflz_get_uncompressed_size (SquashCodec* codec,
 
 static SquashStatus
 squash_wflz_compress_buffer (SquashCodec* codec,
-                             size_t* compressed_length,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                             size_t uncompressed_length,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
   const uint32_t swap = ((uint32_t) squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
   const int level = squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_LEVEL);
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_length))
+  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (*compressed_length < wfLZ_GetMaxCompressedSize ((uint32_t) uncompressed_length)) {
+  if (*compressed_size < wfLZ_GetMaxCompressedSize ((uint32_t) uncompressed_size)) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
@@ -148,15 +148,15 @@ squash_wflz_compress_buffer (SquashCodec* codec,
 
   if (codec_name[4] == '\0') {
     if (level == 1) {
-      wres = wfLZ_CompressFast (uncompressed, (uint32_t) uncompressed_length,
+      wres = wfLZ_CompressFast (uncompressed, (uint32_t) uncompressed_size,
                                 compressed, work_mem, swap);
     } else {
-      wres = wfLZ_Compress (uncompressed, (uint32_t) uncompressed_length,
+      wres = wfLZ_Compress (uncompressed, (uint32_t) uncompressed_size,
                             compressed, work_mem, swap);
     }
   } else {
     wres =
-      wfLZ_ChunkCompress ((uint8_t*) uncompressed, (uint32_t) uncompressed_length,
+      wfLZ_ChunkCompress ((uint8_t*) uncompressed, (uint32_t) uncompressed_size,
                           squash_codec_get_option_size_index (codec, options, SQUASH_WFLZ_OPT_CHUNK_SIZE),
                           compressed, work_mem, swap, level == 1 ? 1 : 0);
   }
@@ -168,37 +168,37 @@ squash_wflz_compress_buffer (SquashCodec* codec,
   }
 #endif
 
-  *compressed_length = (size_t) wres;
+  *compressed_size = (size_t) wres;
 
   free (work_mem);
 
-  return (*compressed_length > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return (*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_wflz_decompress_buffer (SquashCodec* codec,
-                               size_t* decompressed_length,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                               size_t compressed_length,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
-  uint32_t decompressed_size;
+  uint32_t decompressed_s;
 
-  if (compressed_length < 12)
+  if (compressed_size < 12)
     return squash_error (SQUASH_BUFFER_EMPTY);
 
-  decompressed_size = wfLZ_GetDecompressedSize (compressed);
+  decompressed_s = wfLZ_GetDecompressedSize (compressed);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_size))
+  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_s))
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (decompressed_size == 0)
+  if (decompressed_s == 0)
     return squash_error (SQUASH_INVALID_BUFFER);
 
-  if (decompressed_size > *decompressed_length)
+  if (decompressed_s > *decompressed_size)
     return squash_error (SQUASH_BUFFER_FULL);
 
   if (codec_name[4] == '\0') {
@@ -209,17 +209,17 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
     uint8_t* compressed_block;
 
     while ( (compressed_block = wfLZ_ChunkDecompressLoop ((uint8_t*) compressed, &chunk)) != NULL ) {
-      const uint32_t chunk_length = wfLZ_GetDecompressedSize (compressed_block);
+      const uint32_t chunk_size = wfLZ_GetDecompressedSize (compressed_block);
 
-      if ((dest + chunk_length) > (decompressed + *decompressed_length))
+      if ((dest + chunk_size) > (decompressed + *decompressed_size))
         return squash_error (SQUASH_BUFFER_FULL);
 
       wfLZ_Decompress (compressed_block, dest);
-      dest += chunk_length;
+      dest += chunk_size;
     }
   }
 
-  *decompressed_length = decompressed_size;
+  *decompressed_size = decompressed_s;
 
   return SQUASH_OK;
 }

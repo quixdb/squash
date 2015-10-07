@@ -317,15 +317,15 @@ squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOption
 /**
  * @brief Read from a compressed file
  *
- * Attempt to read @a decompressed_length bytes of decompressed data
+ * Attempt to read @a decompressed_size bytes of decompressed data
  * into the @a decompressed buffer.  The number of bytes of compressed
  * data read from the input file may be **significantly** more, or less,
- * than @a decompressed_length.
+ * than @a decompressed_size.
  *
  * The number of decompressed bytes successfully read from the file
  * will be stored in @a decompressed_read after this function is
  * execute.  This value will never be greater than @a
- * decompressed_length, but it may be less if there was an error or
+ * decompressed_size, but it may be less if there was an error or
  * the end of the input file was reached.
  *
  * @note Squash can, and frequently will, read more data from the
@@ -335,7 +335,7 @@ squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOption
  * *was* used.
  *
  * @param file the file to read from
- * @param decompressed_length number of bytes to attempt to write to @a decompressed
+ * @param decompressed_size number of bytes to attempt to write to @a decompressed
  * @param decompressed buffer to write the decompressed data to
  * @return the result of the operation
  * @retval SQUASH_OK successfully read some data
@@ -343,14 +343,14 @@ squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOption
  */
 SquashStatus
 squash_file_read (SquashFile* file,
-                  size_t* decompressed_length,
-                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]) {
+                  size_t* decompressed_size,
+                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]) {
   assert (file != NULL);
-  assert (decompressed_length != NULL);
+  assert (decompressed_size != NULL);
   assert (decompressed != NULL);
 
   squash_file_lock (file);
-  SquashStatus res = squash_file_read_unlocked (file, decompressed_length, decompressed);
+  SquashStatus res = squash_file_read_unlocked (file, decompressed_size, decompressed);
   squash_file_unlock (file);
 
   return res;
@@ -366,7 +366,7 @@ squash_file_read (SquashFile* file,
  * squash_file_lock.
  *
  * @param file the file to read from
- * @param decompressed_length number of bytes to attempt to write to @a decompressed
+ * @param decompressed_size number of bytes to attempt to write to @a decompressed
  * @param decompressed buffer to write the decompressed data to
  * @return the result of the operation
  * @retval SQUASH_OK successfully read some data
@@ -374,12 +374,12 @@ squash_file_read (SquashFile* file,
  */
 SquashStatus
 squash_file_read_unlocked (SquashFile* file,
-                           size_t* decompressed_length,
-                           uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)]) {
+                           size_t* decompressed_size,
+                           uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]) {
   SquashStatus res = SQUASH_FAILED;
 
   assert (file != NULL);
-  assert (decompressed_length != NULL);
+  assert (decompressed_size != NULL);
   assert (decompressed != NULL);
 
   if (file->stream == NULL) {
@@ -394,12 +394,12 @@ squash_file_read_unlocked (SquashFile* file,
   assert (stream->avail_out == 0);
 
   if (stream->state == SQUASH_STREAM_STATE_FINISHED) {
-    *decompressed_length = 0;
+    *decompressed_size = 0;
     return SQUASH_END_OF_STREAM;
   }
 
   file->stream->next_out = decompressed;
-  file->stream->avail_out = *decompressed_length;
+  file->stream->avail_out = *decompressed_size;
 
   while (stream->avail_out != 0) {
     if (file->last_status < 0) {
@@ -428,7 +428,7 @@ squash_file_read_unlocked (SquashFile* file,
 
     if (squash_mapped_file_init_full(&(file->map), file->fp, SQUASH_FILE_BUF_SIZE, true, false)) {
       stream->next_in = file->map.data;
-      stream->avail_in = file->map.length;
+      stream->avail_in = file->map.size;
     } else
 #endif
     {
@@ -448,7 +448,7 @@ squash_file_read_unlocked (SquashFile* file,
     }
   }
 
-  *decompressed_length = (stream->next_out - decompressed);
+  *decompressed_size = (stream->next_out - decompressed);
 
   stream->next_out = 0;
   stream->avail_out = 0;
@@ -458,8 +458,8 @@ squash_file_read_unlocked (SquashFile* file,
 
 static SquashStatus
 squash_file_write_internal (SquashFile* file,
-                            size_t uncompressed_length,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                            size_t uncompressed_size,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOperation operation) {
   SquashStatus res;
 
@@ -479,10 +479,10 @@ squash_file_write_internal (SquashFile* file,
   assert (file->stream->avail_out == 0);
 
   file->stream->next_in = uncompressed;
-  file->stream->avail_in = uncompressed_length;
+  file->stream->avail_in = uncompressed_size;
 
   file->stream->next_in = uncompressed;
-  file->stream->avail_in = uncompressed_length;
+  file->stream->avail_in = uncompressed_size;
 
   do {
     file->stream->next_out = file->buf;
@@ -528,7 +528,7 @@ squash_file_write_internal (SquashFile* file,
  * Attempt to write the compressed equivalent of @a uncompressed to a
  * file.  The number of bytes of compressed data written to the output
  * file may be **significantly** more, or less, than the @a
- * uncompressed_length.
+ * uncompressed_size.
  *
  * @note It is likely the compressed data will actually be buffered,
  * not immediately written to the file.  For codecs which support
@@ -537,17 +537,17 @@ squash_file_write_internal (SquashFile* file,
  * or @ref squash_file_free is called.
  *
  * @param file file to write to
- * @param uncompressed_length number of bytes of uncompressed data in
+ * @param uncompressed_size number of bytes of uncompressed data in
  *   @a uncompressed to attempt to write
  * @param uncompressed data to write
  * @return result of the operation
  */
 SquashStatus
 squash_file_write (SquashFile* file,
-                   size_t uncompressed_length,
-                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
+                   size_t uncompressed_size,
+                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]) {
   squash_file_lock (file);
-  SquashStatus res = squash_file_write_unlocked (file, uncompressed_length, uncompressed);
+  SquashStatus res = squash_file_write_unlocked (file, uncompressed_size, uncompressed);
   squash_file_unlock (file);
 
   return res;
@@ -563,16 +563,16 @@ squash_file_write (SquashFile* file,
  * squash_file_lock.
  *
  * @param file file to write to
- * @param uncompressed_length number of bytes of uncompressed data in
+ * @param uncompressed_size number of bytes of uncompressed data in
  *   @a uncompressed to attempt to write
  * @param uncompressed data to write
  * @return result of the operation
  */
 SquashStatus
 squash_file_write_unlocked (SquashFile* file,
-                            size_t uncompressed_length,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
-  return squash_file_write_internal (file, uncompressed_length, uncompressed, SQUASH_OPERATION_PROCESS);
+                            size_t uncompressed_size,
+                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]) {
+  return squash_file_write_internal (file, uncompressed_size, uncompressed, SQUASH_OPERATION_PROCESS);
 }
 
 /**

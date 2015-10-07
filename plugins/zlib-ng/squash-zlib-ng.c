@@ -308,18 +308,18 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   SquashZlibType type = squash_zlib_codec_to_type (codec);
 
 #if SIZE_MAX < ULONG_MAX
-  if (SQUASH_UNLIKELY(uncompressed_length > ULONG_MAX)) {
+  if (SQUASH_UNLIKELY(uncompressed_size > ULONG_MAX)) {
     squash_error (SQUASH_BUFFER_TOO_LARGE);
     return 0;
   }
 #endif
 
   if (type == SQUASH_ZLIB_TYPE_ZLIB) {
-    return (size_t) compressBound ((uLong) uncompressed_length);
+    return (size_t) compressBound ((uLong) uncompressed_size);
   } else {
     z_stream stream = { 0, };
     size_t max_compressed_size;
@@ -342,7 +342,7 @@ squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_len
       return 0;
     }
 
-    max_compressed_size = (size_t) deflateBound (&stream, (uLong) uncompressed_length);
+    max_compressed_size = (size_t) deflateBound (&stream, (uLong) uncompressed_size);
 
     deflateEnd (&stream);
 

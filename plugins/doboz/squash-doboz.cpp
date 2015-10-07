@@ -39,19 +39,19 @@ extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static size_t
-squash_doboz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return (size_t) doboz::Compressor::getMaxCompressedSize ((uint64_t) uncompressed_length);
+squash_doboz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return (size_t) doboz::Compressor::getMaxCompressedSize ((uint64_t) uncompressed_size);
 }
 
 static size_t
 squash_doboz_get_uncompressed_size (SquashCodec* codec,
-                                    size_t compressed_length,
-                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)]) {
+                                    size_t compressed_size,
+                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)]) {
   doboz::Decompressor decompressor;
   doboz::CompressionInfo compression_info;
   doboz::Result e;
 
-  e = decompressor.getCompressionInfo (compressed, compressed_length, compression_info);
+  e = decompressor.getCompressionInfo (compressed, compressed_size, compression_info);
 
   return (e == doboz::RESULT_OK) ? compression_info.uncompressedSize : 0;
 }
@@ -80,17 +80,17 @@ squash_doboz_status (doboz::Result status) {
 
 static SquashStatus
 squash_doboz_compress_buffer (SquashCodec* codec,
-                              size_t* compressed_length,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                              size_t uncompressed_length,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                              size_t* compressed_size,
+                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              size_t uncompressed_size,
+                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   doboz::Result doboz_e;
   doboz::Compressor compressor;
   size_t compressed_size;
 
   try {
-    doboz_e = compressor.compress ((void*) uncompressed, uncompressed_length, (void*) compressed, *compressed_length, compressed_size);
+    doboz_e = compressor.compress ((void*) uncompressed, uncompressed_size, (void*) compressed, *compressed_size, compressed_size);
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
   } catch (...) {
@@ -100,24 +100,24 @@ squash_doboz_compress_buffer (SquashCodec* codec,
   if (doboz_e != doboz::RESULT_OK) {
     return squash_doboz_status (doboz_e);
   }
-  *compressed_length = compressed_size;
+  *compressed_size = compressed_size;
 
   return SQUASH_OK;
 }
 
 static SquashStatus
 squash_doboz_decompress_buffer (SquashCodec* codec,
-                                size_t* decompressed_length,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                size_t compressed_length,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                size_t* decompressed_size,
+                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                size_t compressed_size,
+                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   doboz::Result doboz_e;
   doboz::Decompressor decompressor;
   doboz::CompressionInfo compression_info;
 
   try {
-    doboz_e = decompressor.decompress ((void*) compressed, compressed_length, (void*) decompressed, *decompressed_length);
+    doboz_e = decompressor.decompress ((void*) compressed, compressed_size, (void*) decompressed, *decompressed_size);
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
   } catch (...) {
@@ -128,10 +128,10 @@ squash_doboz_decompress_buffer (SquashCodec* codec,
     return squash_doboz_status (doboz_e);
   }
 
-  if (decompressor.getCompressionInfo (compressed, compressed_length, compression_info) != doboz::RESULT_OK) {
+  if (decompressor.getCompressionInfo (compressed, compressed_size, compression_info) != doboz::RESULT_OK) {
     return SQUASH_FAILED;
   }
-  *decompressed_length = (size_t) compression_info.uncompressedSize;
+  *decompressed_size = (size_t) compression_info.uncompressedSize;
 
   return SQUASH_OK;
 }

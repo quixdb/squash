@@ -45,11 +45,11 @@ typedef enum {
 } SquashDensityAction;
 
 static size_t
-squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length +
+squash_density_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size +
     32 +
-    ((uncompressed_length / 256) * 8) +
-    (((uncompressed_length % 256) == 0) * 8);
+    ((uncompressed_size / 256) * 8) +
+    (((uncompressed_size % 256) == 0) * 8);
 }
 
 enum SquashDensityOptIndex {
@@ -77,15 +77,15 @@ typedef struct SquashDensityStream_s {
   DENSITY_STREAM_STATE state;
 
   uint8_t buffer[DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE];
-  size_t buffer_length;
+  size_t buffer_size;
   size_t buffer_pos;
   bool buffer_active;
 
   uint8_t input_buffer[SQUASH_DENSITY_INPUT_MULTIPLE];
-  size_t input_buffer_length;
+  size_t input_buffer_size;
   bool input_buffer_active;
 
-  size_t active_input_length;
+  size_t active_input_size;
 
   bool output_invalid;
 } SquashDensityStream;
@@ -127,14 +127,14 @@ squash_density_stream_init (SquashDensityStream* stream,
   stream->stream = density_stream_create (NULL, NULL);
   stream->next = SQUASH_DENSITY_ACTION_INIT;
 
-  stream->buffer_length = 0;
+  stream->buffer_size = 0;
   stream->buffer_pos = 0;
   stream->buffer_active = false;
 
-  stream->input_buffer_length = 0;
+  stream->input_buffer_size = 0;
   stream->input_buffer_active = false;
 
-  stream->active_input_length = 0;
+  stream->active_input_size = 0;
 
   stream->output_invalid = false;
 }
@@ -176,7 +176,7 @@ squash_density_level_to_mode (int level) {
 static bool
 squash_density_flush_internal_buffer (SquashStream* stream) {
   SquashDensityStream* s = (SquashDensityStream*) stream;
-  const size_t buffer_remaining = s->buffer_length - s->buffer_pos;
+  const size_t buffer_remaining = s->buffer_size - s->buffer_pos;
   const size_t cp_size = (stream->avail_out < buffer_remaining) ? stream->avail_out : buffer_remaining;
 
   if (cp_size > 0) {
@@ -185,8 +185,8 @@ squash_density_flush_internal_buffer (SquashStream* stream) {
     stream->avail_out -= cp_size;
     s->buffer_pos += cp_size;
 
-    if (s->buffer_pos == s->buffer_length) {
-      s->buffer_length = 0;
+    if (s->buffer_pos == s->buffer_size) {
+      s->buffer_size = 0;
       s->buffer_pos = 0;
       return true;
     } else {
@@ -203,19 +203,19 @@ static SquashStatus
 squash_density_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashDensityStream* s = (SquashDensityStream*) stream;
 
-  if (s->buffer_length > 0) {
+  if (s->buffer_size > 0) {
     squash_density_flush_internal_buffer (stream);
     return SQUASH_PROCESSING;
   }
 
   if (s->next == SQUASH_DENSITY_ACTION_INIT) {
-    s->active_input_length = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
+    s->active_input_size = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
     if (stream->avail_out < DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE) {
       s->buffer_active = true;
-      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, s->buffer, DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE);
+      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_size, s->buffer, DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE);
     } else {
       s->buffer_active = false;
-      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_length, stream->next_out, stream->avail_out);
+      s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_size, stream->next_out, stream->avail_out);
     }
     if (s->state != DENSITY_STREAM_STATE_READY)
       return squash_error (SQUASH_FAILED);
@@ -223,32 +223,32 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
 
   switch (s->state) {
     case DENSITY_STREAM_STATE_STALL_ON_INPUT:
-      if (s->input_buffer_length != 0 ||
+      if (s->input_buffer_size != 0 ||
           (stream->avail_in < SQUASH_DENSITY_INPUT_MULTIPLE && stream->stream_type == SQUASH_STREAM_COMPRESS && operation == SQUASH_OPERATION_PROCESS)) {
-        const size_t remaining = SQUASH_DENSITY_INPUT_MULTIPLE - s->input_buffer_length;
+        const size_t remaining = SQUASH_DENSITY_INPUT_MULTIPLE - s->input_buffer_size;
         const size_t cp_size = remaining < stream->avail_in ? remaining : stream->avail_in;
         if (cp_size != 0) {
-          memcpy (s->input_buffer + s->input_buffer_length, stream->next_in, cp_size);
-          s->input_buffer_length += cp_size;
+          memcpy (s->input_buffer + s->input_buffer_size, stream->next_in, cp_size);
+          s->input_buffer_size += cp_size;
           stream->next_in += cp_size;
           stream->avail_in -= cp_size;
           assert (cp_size != 0);
         }
       }
 
-      if (s->input_buffer_length != 0) {
-        if (s->input_buffer_length == SQUASH_DENSITY_INPUT_MULTIPLE || operation != SQUASH_OPERATION_PROCESS) {
-          s->active_input_length = s->input_buffer_length;
+      if (s->input_buffer_size != 0) {
+        if (s->input_buffer_size == SQUASH_DENSITY_INPUT_MULTIPLE || operation != SQUASH_OPERATION_PROCESS) {
+          s->active_input_size = s->input_buffer_size;
           s->input_buffer_active = true;
-          density_stream_update_input (s->stream, s->input_buffer, s->input_buffer_length);
+          density_stream_update_input (s->stream, s->input_buffer, s->input_buffer_size);
           s->state = DENSITY_STREAM_STATE_READY;
         } else {
           assert (stream->avail_in == 0);
           return SQUASH_OK;
         }
       } else {
-        s->active_input_length = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
-        density_stream_update_input (s->stream, stream->next_in, s->active_input_length);
+        s->active_input_size = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
+        density_stream_update_input (s->stream, stream->next_in, s->active_input_size);
         s->state = DENSITY_STREAM_STATE_READY;
       }
       break;
@@ -259,17 +259,17 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           total_bytes_written += written;
 
           if (s->buffer_active) {
-            s->buffer_length = written;
+            s->buffer_size = written;
             s->buffer_pos = 0;
 
-            const size_t cp_size = s->buffer_length < stream->avail_out ? s->buffer_length : stream->avail_out;
+            const size_t cp_size = s->buffer_size < stream->avail_out ? s->buffer_size : stream->avail_out;
             memcpy (stream->next_out, s->buffer, cp_size);
             stream->next_out += cp_size;
             stream->avail_out -= cp_size;
             s->buffer_pos += cp_size;
-            if (s->buffer_pos == s->buffer_length) {
+            if (s->buffer_pos == s->buffer_size) {
               s->buffer_pos = 0;
-              s->buffer_length = 0;
+              s->buffer_size = 0;
             }
           } else {
             assert (written <= stream->avail_out);
@@ -356,15 +356,15 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
 
   if (s->state == DENSITY_STREAM_STATE_STALL_ON_INPUT) {
     if (s->input_buffer_active) {
-      assert (s->active_input_length == s->input_buffer_length);
+      assert (s->active_input_size == s->input_buffer_size);
       s->input_buffer_active = false;
-      s->input_buffer_length = 0;
+      s->input_buffer_size = 0;
     } else {
-      assert (s->active_input_length <= stream->avail_in);
-      stream->next_in += s->active_input_length;
-      stream->avail_in -= s->active_input_length;
+      assert (s->active_input_size <= stream->avail_in);
+      stream->next_in += s->active_input_size;
+      stream->avail_in -= s->active_input_size;
     }
-    s->active_input_length = 0;
+    s->active_input_size = 0;
   } else if (s->state == DENSITY_STREAM_STATE_STALL_ON_OUTPUT) {
     {
       if (!s->output_invalid) {
@@ -372,17 +372,17 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         total_bytes_written += written;
 
         if (s->buffer_active) {
-          s->buffer_length = written;
+          s->buffer_size = written;
           s->buffer_pos = 0;
 
-          const size_t cp_size = s->buffer_length < stream->avail_out ? s->buffer_length : stream->avail_out;
+          const size_t cp_size = s->buffer_size < stream->avail_out ? s->buffer_size : stream->avail_out;
           memcpy (stream->next_out, s->buffer, cp_size);
           stream->next_out += cp_size;
           stream->avail_out -= cp_size;
           s->buffer_pos += cp_size;
-          if (s->buffer_pos == s->buffer_length) {
+          if (s->buffer_pos == s->buffer_size) {
             s->buffer_pos = 0;
-            s->buffer_length = 0;
+            s->buffer_size = 0;
           }
         } else {
           assert (written <= stream->avail_out);

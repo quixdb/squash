@@ -154,26 +154,26 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
     size_t decompressed_size;
 
     if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-      size_t compressed_size = squash_codec_get_max_compressed_size (stream->base_object.codec, stream->input->length);
+      size_t compressed_size = squash_codec_get_max_compressed_size (stream->base_object.codec, stream->input->size);
       stream->output = squash_buffer_new (compressed_size);
       res = squash_codec_compress_with_options (stream->base_object.codec,
                                                 &compressed_size, stream->output->data,
-                                                stream->input->length, stream->input->data,
+                                                stream->input->size, stream->input->data,
                                                 stream->base_object.options);
 
       if (res != SQUASH_OK) {
         return res;
       }
 
-      stream->output->length = compressed_size;
+      stream->output->size = compressed_size;
     } else if (stream->base_object.stream_type == SQUASH_STREAM_DECOMPRESS) {
       if (stream->base_object.codec->impl.get_uncompressed_size != NULL) {
-        decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->length, stream->input->data);
+        decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->size, stream->input->data);
         stream->output = squash_buffer_new (decompressed_size);
         squash_buffer_set_size (stream->output, decompressed_size);
         res = squash_codec_decompress_with_options (stream->base_object.codec,
                                                     &decompressed_size, stream->output->data,
-                                                    stream->input->length, stream->input->data, NULL);
+                                                    stream->input->size, stream->input->data, NULL);
 
         if (res != SQUASH_OK) {
           return res;
@@ -183,7 +183,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
            should really try to change your application to use the
            buffer API or use a container codec which does contain size
            information (e.g., zlib or gzip instead of deflate). */
-        decompressed_size = stream->input->length;
+        decompressed_size = stream->input->size;
 
         /* Round decompressed_size up the the next highest power of
            two. */
@@ -208,8 +208,8 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
             squash_buffer_clear (stream->output);
           squash_buffer_set_size (stream->output, decompressed_size);
           res = squash_codec_decompress_with_options (stream->base_object.codec,
-                                                      &(stream->output->length), stream->output->data,
-                                                      stream->input->length, stream->input->data, NULL);
+                                                      &(stream->output->size), stream->output->data,
+                                                      stream->input->size, stream->input->data, NULL);
           decompressed_size <<= 1;
         }
       }
@@ -218,12 +218,12 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
     }
   }
 
-  size_t copy_size = MIN(stream->output->length - stream->base_object.total_out, stream->base_object.avail_out);
+  size_t copy_size = MIN(stream->output->size - stream->base_object.total_out, stream->base_object.avail_out);
   memcpy (stream->base_object.next_out, stream->output->data + stream->base_object.total_out, copy_size);
   stream->base_object.next_out += copy_size;
   stream->base_object.avail_out -= copy_size;
 
-  return ((stream->base_object.total_out + copy_size) == stream->output->length) ?
+  return ((stream->base_object.total_out + copy_size) == stream->output->size) ?
     SQUASH_OK :
     SQUASH_PROCESSING;
 }

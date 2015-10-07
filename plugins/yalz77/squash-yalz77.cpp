@@ -53,16 +53,16 @@ extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_plugin (SquashPlugin* plugin);
 
 static size_t
-squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 4;
+squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 4;
 }
 
 static SquashStatus
 squash_yalz77_compress_buffer (SquashCodec* codec,
-                               size_t* compressed_length,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                               size_t uncompressed_length,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                               size_t* compressed_size,
+                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                               size_t uncompressed_size,
+                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
 
   const size_t searchlen = squash_codec_get_option_size_index (codec, options, SQUASH_YALZ77_OPT_SEARCH_LENGTH);
@@ -70,13 +70,13 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
 
   try {
     lz77::compress_t compress(searchlen, blocksize);
-    std::string res = compress.feed(uncompressed, uncompressed + uncompressed_length);
+    std::string res = compress.feed(uncompressed, uncompressed + uncompressed_size);
 
-    if (res.size() > *compressed_length)
+    if (res.size() > *compressed_size)
       return SQUASH_FAILED;
 
     memcpy(compressed, res.c_str(), res.size());
-    *compressed_length = res.size();
+    *compressed_size = res.size();
     return SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
@@ -87,19 +87,19 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_yalz77_decompress_buffer (SquashCodec* codec,
-                                 size_t* decompressed_length,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                 size_t compressed_length,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                 size_t* decompressed_size,
+                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                 size_t compressed_size,
+                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
   try {
-    lz77::decompress_t decompress(*decompressed_length);
+    lz77::decompress_t decompress(*decompressed_size);
     std::string remaining;
-    bool done = decompress.feed(compressed, compressed + compressed_length, remaining);
+    bool done = decompress.feed(compressed, compressed + compressed_size, remaining);
     const std::string& res = decompress.result();
 
     memcpy(decompressed, res.c_str(), res.size());
-    *decompressed_length = res.size();
+    *decompressed_size = res.size();
     return (done && remaining.empty()) ? SQUASH_OK : SQUASH_FAILED;
   } catch (std::length_error& e) {
     return SQUASH_BUFFER_FULL;

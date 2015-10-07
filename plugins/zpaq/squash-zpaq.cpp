@@ -86,8 +86,8 @@ int SquashZpaqIO::get () {
   return (this->read(&v, 1)) ? (int) v : -1;
 }
 
-int SquashZpaqIO::read (char* buf, int length) {
-  size_t l = (size_t) length;
+int SquashZpaqIO::read (char* buf, int size) {
+  size_t l = (size_t) size;
   this->reader_ (&l, (uint8_t*) buf, this->user_data_);
   return l;
 }
@@ -133,10 +133,10 @@ squash_zpaq_splice (SquashCodec* codec,
 }
 
 static size_t
-squash_zpaq_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_zpaq_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   return
-    uncompressed_length +
-    ((uncompressed_length / 100) * 1) + ((uncompressed_length % 100) > 0 ? 1 : 0) +
+    uncompressed_size +
+    ((uncompressed_size / 100) * 1) + ((uncompressed_size % 100) > 0 ? 1 : 0) +
     377;
 }
 

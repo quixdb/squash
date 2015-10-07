@@ -273,20 +273,20 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
 }
 
 static size_t
-squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
-  return uncompressed_length + 5;
+squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return uncompressed_size + 5;
 }
 
 static SquashStatus
 squash_brotli_decompress_buffer (SquashCodec* codec,
-                                 size_t* decompressed_length,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
-                                 size_t compressed_length,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                 size_t* decompressed_size,
+                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                 size_t compressed_size,
+                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
   try {
-    BrotliResult res = BrotliDecompressBuffer (compressed_length, compressed,
-                                               decompressed_length, decompressed);
+    BrotliResult res = BrotliDecompressBuffer (compressed_size, compressed,
+                                               decompressed_size, decompressed);
     return squash_brotli_status_to_squash_status (res);
   } catch (const std::bad_alloc& e) {
     return squash_error (SQUASH_MEMORY);
@@ -297,18 +297,18 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
 
 static SquashStatus
 squash_brotli_compress_buffer (SquashCodec* codec,
-                               size_t* compressed_length,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
-                               size_t uncompressed_length,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                               size_t* compressed_size,
+                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                               size_t uncompressed_size,
+                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
   brotli::BrotliParams params;
   params.quality = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_LEVEL);
   params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
   try {
     int res = brotli::BrotliCompressBuffer (params,
-                                            uncompressed_length, uncompressed,
-                                            compressed_length, compressed);
+                                            uncompressed_size, uncompressed,
+                                            compressed_size, compressed);
     return (res == 1) ? SQUASH_OK : squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
     return squash_error (SQUASH_MEMORY);

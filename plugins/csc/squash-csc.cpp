@@ -151,10 +151,10 @@ squash_csc_splice (SquashCodec* codec,
 }
 
 static size_t
-squash_csc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_length) {
+squash_csc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   // TODO: this could probably be improved
   return
-    uncompressed_length + 64 + (uncompressed_length / 128);
+    uncompressed_size + 64 + (uncompressed_size / 128);
 }
 
 extern "C" SquashStatus
