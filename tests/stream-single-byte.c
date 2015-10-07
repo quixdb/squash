@@ -60,8 +60,8 @@ check_codec (SquashCodec* codec) {
 
     decompressed_length = LOREM_IPSUM_LENGTH;
     res = squash_codec_decompress (codec, &decompressed_length, decompressed, stream->total_out, compressed, NULL);
-    g_assert (res == SQUASH_OK);
-    g_assert (decompressed_length == LOREM_IPSUM_LENGTH);
+    g_assert_cmpint (res, ==, SQUASH_OK);
+    g_assert_cmpint (decompressed_length, ==, LOREM_IPSUM_LENGTH);
     g_assert (memcpy (decompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH));
 
     squash_object_unref (stream);

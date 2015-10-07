@@ -11,6 +11,7 @@ set (plugins_available
   fari
   fastlz
   gipfeli
+  heatshrink
   lz4
   lzf
   lzg

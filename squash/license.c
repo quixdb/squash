@@ -47,6 +47,7 @@ const struct { SquashLicense value; const char* name; } licenses[] = {
   { SQUASH_LICENSE_CDDL,          "CDDL" },
   { SQUASH_LICENSE_MSPL,          "MsPL" },
   { SQUASH_LICENSE_MPL,           "MPL" },
+  { SQUASH_LICENSE_ISC,           "ISC" },
   { SQUASH_LICENSE_LGPL2P1,       "LGPLv2.1" },
   { SQUASH_LICENSE_LGPL2P1_PLUS,  "LGPLv2.1+" },
   { SQUASH_LICENSE_LGPL3,         "LGPLv3" },

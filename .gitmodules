@@ -83,3 +83,6 @@
 [submodule "plugins/brieflz/brieflz"]
 	path = plugins/brieflz/brieflz
 	url = https://github.com/jibsen/brieflz.git
+[submodule "plugins/heatshrink/heatshrink"]
+	path = plugins/heatshrink/heatshrink
+	url = https://github.com/atomicobject/heatshrink.git
