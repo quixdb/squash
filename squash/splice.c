@@ -467,6 +467,8 @@ squash_splice_codec_with_options (SquashCodec* codec,
 
   call_once (&squash_splice_detect_once, squash_splice_detect_enable);
 
+  squash_object_ref (options);
+
   SQUASH_FLOCKFILE(fp_in);
   SQUASH_FLOCKFILE(fp_out);
 
@@ -483,6 +485,8 @@ squash_splice_codec_with_options (SquashCodec* codec,
 
   SQUASH_FUNLOCKFILE(fp_in);
   SQUASH_FUNLOCKFILE(fp_out);
+
+  squash_object_unref (options);
 
   return res;
 }
@@ -648,6 +652,7 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
       res = SQUASH_OK;
 
   cleanup_stream:
+    squash_object_unref (stream);
     free (in_buf);
     free (out_buf);
   } else {
