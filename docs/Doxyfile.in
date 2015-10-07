@@ -757,6 +757,8 @@ INPUT                  = @SQUASH_TOP_SRCDIR@/squash \
                          @SQUASH_TOP_BUILDDIR@/squash/version.h \
                          @SQUASH_TOP_SRCDIR@/docs/index.md \
                          @SQUASH_TOP_SRCDIR@/docs/user-guide.md \
+                         @SQUASH_TOP_SRCDIR@/docs/internals.md \
+                         @SQUASH_TOP_SRCDIR@/docs/plugin-guide.md \
                          @SQUASH_TOP_SRCDIR@/docs/building.md \
                          @SQUASH_DOXYGEN_PLUGIN_DOCS@
 
