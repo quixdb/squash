@@ -252,4 +252,6 @@ add_subdirectory (tests)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
-SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
+if (ENABLE_COVERAGE STREQUAL "yes")
+  SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
+endif ()
