@@ -260,9 +260,27 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
  */
 
 /**
- * @var SquashCodecInfo::SQUASH_CODEC_INFO_DECOMPRESS_SAFE
- * @brief The codec will not write outside of the buffer supplied to
- *   it during decompression.
+ * @var SquashCodecInfo::SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE
+ * @brief The codec is not safe to use when decompressing untrusted
+ *   data.
+ *
+ * By default, codecs are assumed to be safe.
+ *
+ * Currently, in order for a plugin to be distributed with Squash it
+ * must be free from crashes (which, of course, are often
+ * exploitable).  At first glance you might think this would prevent
+ * any unsafe plugin from being distributed with Squash, but that
+ * isn't quite true.
+ *
+ * ZPAQ is not considered safe.  It allows a compressed stream to
+ * embed a program (written in ZPAQL) which is used to decompress the
+ * archive.  Since it is impossible to determine whether the program
+ * will eventually terminate, it is possible to create a ZPAQL program
+ * with an infinite loop.
+ *
+ * Note that this restriction only applies to plugins distributed with
+ * Squash.  It is possible (and encouraged) for people to distribute
+ * Squash plugins separately from Squash.
  */
 
 /**

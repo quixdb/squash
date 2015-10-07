@@ -35,7 +35,7 @@ SQUASH_BEGIN_DECLS
 
 typedef enum {
   SQUASH_CODEC_INFO_CAN_FLUSH               = 1 <<  0,
-  SQUASH_CODEC_INFO_DECOMPRESS_SAFE         = 1 <<  1,
+  SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE       = 1 <<  1,
 
   SQUASH_CODEC_INFO_AUTO_MASK               = 0x00ff0000,
   SQUASH_CODEC_INFO_VALID                   = 1 << 16,
