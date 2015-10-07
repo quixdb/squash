@@ -72,7 +72,7 @@ class CheckedByteArraySink : public util::compression::Sink {
   virtual ~CheckedByteArraySink() {}
   virtual void Append(const char* data, size_t n) {
     if (n > remaining_) {
-      throw std::overflow_error("buffer too small");
+      throw std::length_error("buffer too small");
     }
 
     if (data != dest_) {
@@ -152,7 +152,7 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
     res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     res = squash_error (SQUASH_MEMORY);
-  } catch (const std::overflow_error& e) {
+  } catch (const std::length_error& e) {
     res = squash_error (SQUASH_BUFFER_FULL);
   } catch (...) {
     res = squash_error (SQUASH_FAILED);
@@ -183,7 +183,7 @@ squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
     res = SQUASH_OK;
   } catch (const std::bad_alloc& e) {
     res = squash_error (SQUASH_MEMORY);
-  } catch (const std::overflow_error& e) {
+  } catch (const std::length_error& e) {
     res = squash_error (SQUASH_BUFFER_FULL);
   } catch (...) {
     res = squash_error (SQUASH_FAILED);
