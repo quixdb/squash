@@ -61,9 +61,10 @@ public:
     user_data_ (user_data),
     reader_ (reader),
     writer_ (writer),
+    eof (false),
     last_res (SQUASH_OK) { }
 
-  bool eof = false;
+  bool eof;
   SquashStatus last_res;
 
   size_t GetData(unsigned char* buf, size_t len);

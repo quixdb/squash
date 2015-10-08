@@ -8,4 +8,5 @@ squash_source_file_add_compile_flag_ex ("zpaq/libzpaq.cpp" "-include \"${CMAKE_C
 
 foreach (file ${zpaq_sources})
   squash_source_file_add_compile_flag ("${file}" "-Wno-cast-align")
+  squash_source_file_add_compile_flag ("${file}" "-Wno-shift-negative-value")
 endforeach ()

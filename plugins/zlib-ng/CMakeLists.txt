@@ -39,6 +39,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 squash_plugin_add (zlib-ng zlibng_sources)
 squash_plugin_add_include_directories (zlib-ng zlib-ng)
 
-foreach (file ${libzlib_sources})
-  squash_source_file_add_compile_flag ("${file}" "-Wno-implicit-function-declaration")
+foreach (file ${libzlibng_sources})
+  squash_source_file_add_compile_flag ("${file}" "-Wno-shift-negative-value")
 endforeach ()
