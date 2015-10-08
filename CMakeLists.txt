@@ -2,12 +2,14 @@ cmake_minimum_required (VERSION 2.8.7)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project (squash)
-enable_testing ()
 
+include (CTest)
 include (GNUInstallDirs)
 include (ExtraWarningFlags)
 include (CheckFunctionExists)
 include (CheckIncludeFile)
+
+enable_testing ()
 
 if (ENABLE_COVERAGE STREQUAL "yes")
   include (CodeCoverage)

@@ -1,3 +1,5 @@
+enable_testing ()
+
 set (codec_tests
   buffer
   bounds
