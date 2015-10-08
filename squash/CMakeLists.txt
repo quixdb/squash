@@ -55,6 +55,14 @@ if (CFLAG__fvisibility_hidden)
   squash_target_add_ldflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
 endif ()
 
+if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
+  CHECK_CXX_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CFLAG__Wno_tautological_pointer_compare")
+
+  if (CFLAG__Wno_tautological_pointer_compare)
+    squash_target_add_cflag (squash${SQUASH_VERSION_API} "-Wno-tautological-pointer-compare")
+  endif ()
+endif ()
+
 find_package (Threads)
 target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 

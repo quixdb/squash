@@ -58,10 +58,6 @@
 #  define SQUASH_FILE_BUF_SIZE ((size_t) (1024 * 1024))
 #endif
 
-#if defined(__clang__) && !defined(NDEBUG)
-#  pragma clang diagnostic ignored "-Wtautological-pointer-compare"
-#endif
-
 #include "squash.h"
 
 #include <squash/config.h>
