@@ -8,9 +8,15 @@ case "${1}" in
     "deps")
         case "${TRAVIS_OS_NAME}" in
             "linux")
+                sudo apt-get update -qq
+                sudo apt-get install -qq python-software-properties
                 sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
                 sudo apt-get update -qq
                 sudo apt-get install -qq \
+                     git \
+                     cmake \
+                     build-essential \
+                     libglib2.0-dev \
                      gcc-4.8 \
                      g++-4.8 \
                      gdb \
