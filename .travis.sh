@@ -4,28 +4,6 @@
 # not possible to perform different before_install steps depending on
 # the operating system.  You should not be using this script.
 
-CC=gcc-4.8
-CXX=g++-4.8
-
-case "${COMPILER}" in
-    "clang")
-        CC=clang
-        CXX=clang++
-        ;;
-    "gcc-5")
-        CC=gcc-5
-        CXX=g++-5
-        ;;
-    "gcc-4.8")
-        CC=gcc-4.8
-        CXX=g++-4.8
-        ;;
-    "gcc-4.6")
-        CC=gcc-4.6
-        CXX=g++-4.6
-        ;;
-esac
-
 case "${1}" in
     "deps")
         case "${TRAVIS_OS_NAME}" in
@@ -35,16 +13,27 @@ case "${1}" in
                 sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
                 sudo apt-get update -qq
                 sudo apt-get install -qq \
-                     git \
                      cmake \
                      build-essential \
                      libglib2.0-dev \
-                     gcc-4.8 \
-                     g++-4.8 \
-                     gcc-5 \
-                     g++-5 \
                      gdb \
                      ragel
+
+                case "${COMPILER}" in
+                    "gcc-5")
+                        sudo apt-get install -qq gcc-5 g++-5
+                        ;;
+                    "gcc-4.8")
+                        sudo apt-get install -qq gcc-4.8 g++-4.8
+                        ;;
+                esac
+
+                case "${BUILD_TYPE}" in
+                    "coverage")
+                        sudo apt-get install -qq python-pip lcov
+                        sudo pip install cpp-coveralls
+                        ;;
+                esac
                 ;;
             "osx")
                 brew update
@@ -79,20 +68,43 @@ case "${1}" in
                 ;;
         esac
 
-        git submodule update --init --recursive
-        mkdir build && cd build
-        /bin/bash -x ../autogen.sh CC="${CC}" CXX="${CXX}" ${CONFIGURE_FLAGS} CFLAGS="${COMMON_COMPILER_FLAGS}" CXXFLAGS="${COMMON_COMPILER_FLAGS}"
-        make VERBOSE=1
-
-        case "${BUILD_TYPE}" in
-            "coverage")
-                make coverage
+        case "${COMPILER}" in
+            "clang")
+                CC=clang
+                CXX=clang++
+                ;;
+            "gcc-4.6")
+                CC=gcc-4.6
+                CXX=g++-4.6
+                GCOV=gcov-4.6
+                ;;
+            "gcc-4.8")
+                CC=gcc-4.8
+                CXX=g++-4.8
+                GCOV=gcov-4.8
+                ;;
+            "gcc-5")
+                CC=gcc-5
+                CXX=g++-5
+                GCOV=gcov-5
+                ;;
+            *)
+                CC=gcc-5
+                CXX=g++-5
+                GCOV=gcov-5
                 ;;
         esac
+
+        git submodule update --init --recursive
+        /bin/bash -x ./autogen.sh \
+                  CC="${CC}" \
+                  CXX="${CXX}" \
+                  ${CONFIGURE_FLAGS} \
+                  CFLAGS="${COMMON_COMPILER_FLAGS}" \
+                  CXXFLAGS="${COMMON_COMPILER_FLAGS}"
+        make VERBOSE=1
         ;;
     "test")
-        cd build
-
         case "${TRAVIS_OS_NAME}" in
             "linux")
                 ulimit -c unlimited
@@ -103,6 +115,12 @@ case "${1}" in
                 ;;
             "osx")
                 CTEST_OUTPUT_ON_FAILURE=TRUE make test
+                ;;
+        esac
+
+        case "${BUILD_TYPE}" in
+            "coverage")
+                coveralls --gcov "${GCOV}" -e CMakeFiles -e plugins -e examples -e tests -e squash/tinycthread
                 ;;
         esac
         ;;
