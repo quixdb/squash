@@ -3,18 +3,22 @@ os:
   - linux
 #  - osx
 env:
-  - COMPILER=gcc-5 BUILD_TYPE=regular
-  - COMPILER=gcc-5 BUILD_TYPE=asan
-#  - COMPILER=gcc-5 BUILD_TYPE=ubsan
-#  - COMPILER=gcc-5 BUILD_TYPE=tsan
-#  - COMPILER=gcc-5 BUILD_TYPE=coverage
-  - COMPILER=clang BUILD_TYPE=regular
-  - COMPILER=gcc-4.8 BUILD_TYPE=regular
-global:
-  - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
+  matrix:
+    - COMPILER=gcc-5 BUILD_TYPE=regular
+    - COMPILER=gcc-5 BUILD_TYPE=asan
+#    - COMPILER=gcc-5 BUILD_TYPE=ubsan
+#    - COMPILER=gcc-5 BUILD_TYPE=tsan
+#    - COMPILER=gcc-5 BUILD_TYPE=coverage
+    - COMPILER=clang BUILD_TYPE=regular
+    - COMPILER=gcc-4.8 BUILD_TYPE=regular
+  global:
+    # Coveralls.io
+    - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
+    # Coverity Scan
+    - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
 before_install:
  - ./.travis.sh deps
-script: ./.travis.sh build && ./.travis.sh test
+script: ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test
 # notifications:
 #   irc:
 #     channels:

@@ -4,6 +4,40 @@
 # not possible to perform different before_install steps depending on
 # the operating system.  You should not be using this script.
 
+case "${COMPILER}" in
+    "clang")
+        export CC=clang
+        export CXX=clang++
+        export GCOV=gcov
+        ;;
+    "gcc-4.6")
+        export CC=gcc-4.6
+        export CXX=g++-4.6
+        export GCOV=gcov-4.6
+        ;;
+    "gcc-4.8")
+        export CC=gcc-4.8
+        export CXX=g++-4.8
+        export GCOV=gcov-4.8
+        ;;
+    "gcc-5")
+        export CC=gcc-5
+        export CXX=g++-5
+        export GCOV=gcov-5
+        ;;
+    *)
+        export CC=gcc-5
+        export CXX=g++-5
+        export GCOV=gcov-5
+        ;;
+esac
+
+if [ "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "regular" -a "${COMPILER}" = "gcc-5" ]; then
+    BUILD_TYPE=coverity
+    COVERITY_SCAN_PROJECT_NAME="quixdb/squash"
+    COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
+fi
+
 case "${1}" in
     "deps")
         case "${TRAVIS_OS_NAME}" in
@@ -33,6 +67,45 @@ case "${1}" in
                         sudo apt-get install -qq python-pip lcov
                         sudo pip install cpp-coveralls
                         ;;
+                    "coverity")
+                        PLATFORM=`uname`
+                        TOOL_ARCHIVE=/tmp/cov-analysis-${PLATFORM}.tgz
+                        TOOL_URL=https://scan.coverity.com/download/${PLATFORM}
+                        SCAN_URL="https://scan.coverity.com"
+
+                        # Verify upload is permitted
+                        AUTH_RES=`curl -s --form project="$COVERITY_SCAN_PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
+                        if [ "$AUTH_RES" = "Access denied" ]; then
+                            curl -s "http://code.coeusgroup.com/test?name=${COVERITY_SCAN_PROJECT_NAME}&token=${COVERITY_SCAN_TOKEN}"
+                            echo -e "\033[33;1mCoverity Scan API access denied. Check COVERITY_SCAN_PROJECT_NAME and COVERITY_SCAN_TOKEN.\033[0m"
+                            exit 1
+                        else
+                            AUTH=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['upload_permitted']"`
+                            if [ "$AUTH" = "true" ]; then
+                                echo -e "\033[33;1mCoverity Scan analysis authorized per quota.\033[0m"
+                            else
+                                WHEN=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['next_upload_permitted_at']"`
+                                echo -e "\033[33;1mCoverity Scan analysis NOT authorized until $WHEN.\033[0m"
+                                exit 1
+                            fi
+                        fi
+
+                        if [ ! -d $COVERITY_TOOL_BASE ]; then
+                            # Download Coverity Scan Analysis Tool
+                            if [ ! -e $TOOL_ARCHIVE ]; then
+                                echo "\033[33;1mDownloading Coverity Scan Analysis Tool...\033[0m"
+                                wget -nv -O $TOOL_ARCHIVE $TOOL_URL --post-data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN"
+                            fi
+
+                            # Extract Coverity Scan Analysis Tool
+                            echo "\033[33;1mExtracting Coverity Scan Analysis Tool...\033[0m"
+                            mkdir -p "${COVERITY_TOOL_BASE}" && (cd "${COVERITY_TOOL_BASE}" && tar zxf "${TOOL_ARCHIVE}")
+                        fi
+
+                        export PATH="$(find $COVERITY_TOOL_BASE -type d -name 'cov-analysis*')/bin:$PATH"
+
+                        cov-configure --comptype gcc --compiler $(which "${CC}")
+                        ;;
                 esac
                 ;;
             "osx")
@@ -47,7 +120,8 @@ case "${1}" in
                 ;;
         esac
         ;;
-    "build")
+
+    "configure")
         COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer"
         case "${BUILD_TYPE}" in
             "asan")
@@ -68,42 +142,39 @@ case "${1}" in
                 ;;
         esac
 
-        case "${COMPILER}" in
-            "clang")
-                CC=clang
-                CXX=clang++
-                ;;
-            "gcc-4.6")
-                CC=gcc-4.6
-                CXX=g++-4.6
-                GCOV=gcov-4.6
-                ;;
-            "gcc-4.8")
-                CC=gcc-4.8
-                CXX=g++-4.8
-                GCOV=gcov-4.8
-                ;;
-            "gcc-5")
-                CC=gcc-5
-                CXX=g++-5
-                GCOV=gcov-5
-                ;;
-            *)
-                CC=gcc-5
-                CXX=g++-5
-                GCOV=gcov-5
-                ;;
-        esac
-
         git submodule update --init --recursive
         /bin/bash -x ./autogen.sh \
-                  CC="${CC}" \
-                  CXX="${CXX}" \
                   ${CONFIGURE_FLAGS} \
                   CFLAGS="${COMMON_COMPILER_FLAGS}" \
                   CXXFLAGS="${COMMON_COMPILER_FLAGS}"
-        make VERBOSE=1
         ;;
+
+    "make")
+        case "${BUILD_TYPE}" in
+            "coverity")
+                export PATH="$(find $COVERITY_TOOL_BASE -type d -name 'cov-analysis*')/bin:$PATH"
+
+                cov-build --dir cov-int make VERBOSE=1
+                # cov-import-scm --dir cov-int --scm git --log cov-int/scm_log.txt || true
+
+                tar czf squash.tgz cov-int
+
+                curl \
+                    --silent --write-out "\n%{http_code}\n" \
+                    --form project="${COVERITY_SCAN_PROJECT_NAME}" \
+                    --form token="${COVERITY_SCAN_TOKEN}" \
+                    --form email="evan@coeus-group.com" \
+                    --form file="@squash.tgz" \
+                    --form version="${TRAVIS_BUILD_NUMBER}/$(git rev-parse --short HEAD)" \
+                    --form description="Travis CI build" \
+                    "https://scan.coverity.com/builds"
+                ;;
+            *)
+                make VERBOSE=1
+                ;;
+        esac
+        ;;
+
     "test")
         case "${TRAVIS_OS_NAME}" in
             "linux")
