@@ -4,13 +4,14 @@ os:
 #  - osx
 env:
   matrix:
-    - COMPILER=gcc-5 BUILD_TYPE=regular
+    - COMPILER=gcc-5 BUILD_TYPE=debug
     - COMPILER=gcc-5 BUILD_TYPE=asan
 #    - COMPILER=gcc-5 BUILD_TYPE=ubsan
 #    - COMPILER=gcc-5 BUILD_TYPE=tsan
 #    - COMPILER=gcc-5 BUILD_TYPE=coverage
-    - COMPILER=clang BUILD_TYPE=regular
-    - COMPILER=gcc-4.8 BUILD_TYPE=regular
+    - COMPILER=clang BUILD_TYPE=debug
+    - COMPILER=gcc-4.8 BUILD_TYPE=debug
+    - COMPILER=gcc-5 BUILD_TYPE=release
   global:
     # Coveralls.io
     - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="

@@ -32,7 +32,7 @@ case "${COMPILER}" in
         ;;
 esac
 
-if [ "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "regular" -a "${COMPILER}" = "gcc-5" ]; then
+if [ "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${COMPILER}" = "gcc-5" ]; then
     BUILD_TYPE=coverity
     COVERITY_SCAN_PROJECT_NAME="quixdb/squash"
     COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
@@ -137,6 +137,9 @@ case "${1}" in
 
         CONFIGURE_FLAGS="--disable-external"
         case "${BUILD_TYPE}" in
+            "release")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --disable-debug"
+                ;;
             "coverage")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --enable-coverage"
                 ;;
