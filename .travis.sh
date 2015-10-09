@@ -32,7 +32,7 @@ case "${COMPILER}" in
         ;;
 esac
 
-if [ "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${COMPILER}" = "gcc-5" ]; then
+if [ "${TRAVIS_BRANCH}" = "coverity" -a "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${COMPILER}" = "gcc-5" ]; then
     BUILD_TYPE=coverity
     COVERITY_SCAN_PROJECT_NAME="quixdb/squash"
     COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
@@ -122,7 +122,7 @@ case "${1}" in
         ;;
 
     "configure")
-        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer"
+        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
         case "${BUILD_TYPE}" in
             "asan")
                 COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -fsanitize=address"
