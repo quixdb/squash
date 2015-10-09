@@ -514,10 +514,12 @@ squash_file_write_internal (SquashFile* file,
 
  cleanup:
 
-  file->stream->next_in = NULL;
-  file->stream->avail_in = 0;
-  file->stream->next_out = NULL;
-  file->stream->avail_out = 0;
+  if (file->stream != NULL) {
+    file->stream->next_in = NULL;
+    file->stream->avail_in = 0;
+    file->stream->next_out = NULL;
+    file->stream->avail_out = 0;
+  }
 
   return res;
 }

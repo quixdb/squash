@@ -102,7 +102,7 @@ SquashZlingIO::PutData(unsigned char* buf, size_t len) {
   /* zling will just keep trying to write if we return 0, so pretend
      we wrote what it asked.  Set EOF so at least we don't read any
      more. */
-  if (len == 0 && SQUASH_END_OF_STREAM) {
+  if (len == 0 && this->last_res == SQUASH_END_OF_STREAM) {
     this->eof = true;
     return requested;
   }

@@ -107,9 +107,13 @@ squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
     mapped->data = MAP_FAILED;
 
     if (success) {
-      fseeko (mapped->fp, mapped->size, SEEK_CUR);
-      if (mapped->writable) {
-        ftruncate (fileno (mapped->fp), ftello (mapped->fp));
+      const int sres = fseeko (mapped->fp, mapped->size, SEEK_CUR);
+      if (sres != -1) {
+        if (mapped->writable) {
+          const off64_t pos = ftello (mapped->fp);
+          if (pos != -1)
+            ftruncate (fileno (mapped->fp), pos);
+        }
       }
     }
   }

@@ -666,13 +666,16 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
       const size_t old_size = buffer->size;
       const size_t read_request = limit_input ? (size - old_size): SQUASH_SPLICE_BUF_SIZE;
 
-      if (!squash_buffer_set_size (buffer, old_size + read_request))
-        return squash_error (SQUASH_MEMORY);
+      if (!squash_buffer_set_size (buffer, old_size + read_request)) {
+        res = squash_error (SQUASH_MEMORY);
+        goto cleanup_buffer;
+      }
 
       size_t bytes_read = read_request;
       res = read_cb (&bytes_read, buffer->data + old_size, user_data);
-      if (SQUASH_UNLIKELY(res < 0))
-        return res;
+      if (SQUASH_UNLIKELY(res < 0)) {
+        goto cleanup_buffer;
+      }
 
       assert (bytes_read <= read_request);
 
@@ -712,6 +715,9 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
         }
 
         res = squash_codec_decompress_with_options (codec, &out_data_size, out_data, buffer->size, buffer->data, options);
+        if (res != SQUASH_OK) {
+          goto cleanup_buffer;
+        }
       } else {
         /* TODO: I think this is the third time I've written this code.
            I should probably add a squash_codec_decompress_dynamic (or

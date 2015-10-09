@@ -148,9 +148,15 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   size_t bytes_written;
   int ires;
 
-  FILE* uncompressed = fdopen (dup (data->fd[0]), "w+b");
-  FILE* compressed = fdopen (dup (data->fd[1]), "w+b");
-  FILE* decompressed = fdopen (dup (data->fd[2]), "w+b");
+  ires = dup (data->fd[0]);
+  g_assert (ires != -1);
+  FILE* uncompressed = fdopen (ires, "w+b");
+  ires = dup (data->fd[1]);
+  g_assert (ires != -1);
+  FILE* compressed = fdopen (ires, "w+b");
+  ires = dup (data->fd[2]);
+  g_assert (ires != -1);
+  FILE* decompressed = fdopen (ires, "w+b");
 
   bytes_written = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
   g_assert_cmpint (bytes_written, ==, LOREM_IPSUM_LENGTH);
@@ -199,10 +205,17 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
   size_t bytes;
   size_t len1, len2;
+  int ires;
 
-  FILE* uncompressed = fdopen (dup (data->fd[0]), "w+b");
-  FILE* compressed = fdopen (dup (data->fd[1]), "w+b");
-  FILE* decompressed = fdopen (dup (data->fd[2]), "w+b");
+  ires = dup (data->fd[0]);
+  g_assert (ires != -1);
+  FILE* uncompressed = fdopen (ires, "w+b");
+  ires = dup (data->fd[1]);
+  g_assert (ires != -1);
+  FILE* compressed = fdopen (ires, "w+b");
+  ires = dup (data->fd[2]);
+  g_assert (ires != -1);
+  FILE* decompressed = fdopen (ires, "w+b");
 
   for (len1 = 0 ; len1 < (size_t) LOREM_IPSUM_LENGTH ; len1++)
     filler[len1] = (uint8_t) g_test_rand_int_range (0x00, 0xff);

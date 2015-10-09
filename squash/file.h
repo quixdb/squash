@@ -90,7 +90,6 @@ SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_close                    (SquashFile* file);
-SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_free                     (SquashFile* file,
                                                               FILE** fp);
 SQUASH_NONNULL(1)
