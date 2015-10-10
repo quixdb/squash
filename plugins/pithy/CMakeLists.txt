@@ -1,6 +1,7 @@
-set (pithy_sources
-  squash-pithy.c
-  pithy/pithy.c)
+include (SquashPlugin)
 
-squash_plugin_add (pithy pithy_sources)
-squash_plugin_add_include_directories (pithy pithy)
+squash_plugin (
+  NAME pithy
+  SOURCES squash-pithy.c
+  EMBED_SOURCES pithy/pithy.c
+  INCLUDE_DIRS pithy)

@@ -3,7 +3,49 @@
 DISABLE_VARS="external|yes|FORCE_IN_TREE_DEPENDENCIES"
 DISABLE_FORCE_IN_TREE_DEPENDENCIES_DOC="force in-tree dependencies, even when a system library is available"
 
-ENABLE_VARS="coverage|yes|ENABLE_COVERAGE csc|yes|ENABLE_CSC doboz|yes|ENABLE_DOBOZ"
+for plugin in \
+    brieflz \
+    brotli \
+    bsc \
+    bzip2 \
+    copy \
+    crush \
+    density \
+    fari \
+    fastlz \
+    gipfeli \
+    heatshrink \
+    lz4 \
+    lzf \
+    lzg \
+    lzham \
+    lzjb \
+    lzma \
+    lzo \
+    ms-compress \
+    ncompress \
+    pithy \
+    quicklz \
+    snappy \
+    wflz \
+    yalz77 \
+    zlib \
+    zlib-ng \
+    zling \
+    zpaq \
+    zstd; do
+  NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
+  DISABLE_VARS="${DISABLE_VARS} ${plugin}|no|ENABLE_${NAME_UC}"
+  declare DISABLE_ENABLE_${NAME_UC}_DOC="disable the ${plugin} plugin"
+done
+
+ENABLE_VARS="coverage|yes|ENABLE_COVERAGE"
 ENABLE_ENABLE_COVERAGE_DOC="enable coverage analysis"
-ENABLE_ENABLE_DOBOZ_DOC="enable doboz plugin (disabled due to bugs)"
-ENABLE_ENABLE_CSC_DOC="enable csc plugin (disabled due to bugs)"
+
+for plugin in \
+    csc \
+    doboz; do
+  NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
+  ENABLE_VARS="${ENABLE_VARS} ${plugin}|no|ENABLE_${NAME_UC}"
+  declare ENABLE_ENABLE_${NAME_UC}_DOC="enable the ${plugin} plugin (disabled due to bugs)"
+done

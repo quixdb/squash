@@ -100,7 +100,7 @@ squash_mapped_file_init (SquashMappedFile* mapped, FILE* fp, size_t size, bool w
   return squash_mapped_file_init_full (mapped, fp, size, false, writable);
 }
 
-void
+bool
 squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
   if (mapped->data != MAP_FAILED) {
     munmap (mapped->data - mapped->window_offset, mapped->size + mapped->window_offset);
@@ -108,13 +108,21 @@ squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
 
     if (success) {
       const int sres = fseeko (mapped->fp, mapped->size, SEEK_CUR);
-      if (sres != -1) {
+      if (SQUASH_LIKELY(sres != -1)) {
         if (mapped->writable) {
           const off64_t pos = ftello (mapped->fp);
-          if (pos != -1)
-            ftruncate (fileno (mapped->fp), pos);
+          if (SQUASH_LIKELY(pos != -1)) {
+            const int tr = ftruncate (fileno (mapped->fp), pos);
+            return SQUASH_LIKELY(tr != -1) ? true : false;
+          } else {
+            return false;
+          }
         }
+      } else {
+        return false;
       }
     }
   }
+
+  return true;
 }

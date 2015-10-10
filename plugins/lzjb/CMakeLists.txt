@@ -1,6 +1,7 @@
-set (lzjb_sources
-  squash-lzjb.c
-  lzjb/lzjb.c)
+include (SquashPlugin)
 
-squash_plugin_add (lzjb lzjb_sources)
-squash_plugin_add_include_directories (lzjb lzjb)
+squash_plugin (
+  NAME lzjb
+  SOURCES squash-lzjb.c
+  EMBED_SOURCES lzjb/lzjb.c
+  INCLUDE_DIRS lzjb)

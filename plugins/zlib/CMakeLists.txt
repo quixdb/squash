@@ -1,9 +1,10 @@
-set (zlib_sources squash-zlib.c)
+include (SquashPlugin)
 
-include (FindZLIB)
-
-if (NOT ZLIB_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
-  set (libzlib_sources
+squash_plugin (
+  NAME zlib
+  SOURCES squash-zlib.c
+  EXTERNAL_PKG zlib
+  EMBED_SOURCES
     zlib/adler32.c
     zlib/compress.c
     zlib/crc32.c
@@ -18,14 +19,15 @@ if (NOT ZLIB_FOUND OR "${FORCE_IN_TREE_DEPENDENCIES}" STREQUAL "yes")
     zlib/inftrees.c
     zlib/trees.c
     zlib/uncompr.c
-    zlib/zutil.c)
-  list (APPEND zlib_sources ${libzlib_sources})
-  squash_plugin_add (zlib zlib_sources)
-  squash_plugin_add_include_directories (zlib zlib)
+    zlib/zutil.c
+  INCLUDE_DIRS
+    zlib
+  COMPILER_FLAGS
+    -Wno-implicit-function-declaration)
 
-  foreach (file ${libzlib_sources})
-    squash_source_file_add_compile_flag ("${file}" "-Wno-implicit-function-declaration")
-  endforeach ()
-else ()
-  squash_plugin_add_for_package(zlib ZLIB zlib_sources)
-endif ()
+#   foreach (file ${libzlib_sources})
+#     squash_source_file_add_compile_flag ("${file}" "-Wno-implicit-function-declaration")
+#   endforeach ()
+# else ()
+#   squash_plugin_add_for_package(zlib ZLIB zlib_sources)
+# endif ()

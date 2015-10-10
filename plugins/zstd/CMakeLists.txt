@@ -1,5 +1,6 @@
-set (zstd_sources
-  squash-zstd.c
-  zstd/lib/zstd.c)
+include (SquashPlugin)
 
-squash_plugin_add (zstd zstd_sources)
+squash_plugin (
+  NAME zstd
+  SOURCES squash-zstd.c
+  EMBED_SOURCES zstd/lib/zstd.c)

@@ -1,3 +1,5 @@
+include (RequireStandard)
+
 add_definitions (-DSQUASH_COMPILATION)
 
 configure_file (version.h.in version.h)
@@ -47,21 +49,16 @@ set (squash_PUBLIC_HEADERS
   stream.h
   types.h)
 
-squash_source_file_set_c99 (squash_SOURCES)
-
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
-add_extra_warning_cflags (TARGET squash${SQUASH_VERSION_API})
-
-if (CFLAG__fvisibility_hidden)
-  squash_target_add_cflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
-  squash_target_add_ldflag (squash${SQUASH_VERSION_API} -fvisibility=hidden)
-endif ()
+target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
+squash_set_target_visibility (squash${SQUASH_VERSION_API} hidden)
+target_require_standard (squash${SQUASH_VERSION_API} "c99")
 
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   CHECK_CXX_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CFLAG__Wno_tautological_pointer_compare")
 
   if (CFLAG__Wno_tautological_pointer_compare)
-    squash_target_add_cflag (squash${SQUASH_VERSION_API} "-Wno-tautological-pointer-compare")
+    target_add_compiler_flags (squash${SQUASH_VERSION_API} "-Wno-tautological-pointer-compare")
   endif ()
 endif ()
 

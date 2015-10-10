@@ -156,6 +156,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   int zlib_e = 0;
   SquashZlibStream* stream;
   int window_bits;
+  fprintf (stderr, "%s:%d: I was here\n", __FILE__, __LINE__);
 
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
@@ -184,6 +185,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   } else {
     squash_assert_unreachable();
   }
+  fprintf (stderr, "%s:%d: I was here: %d / %d\n", __FILE__, __LINE__, zlib_e, Z_OK);
 
   if (zlib_e != Z_OK) {
     stream = squash_object_unref (stream);
@@ -194,6 +196,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
 static SquashStream*
 squash_zlib_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
+  fprintf (stderr, "%s:%d: I was here\n", __FILE__, __LINE__);
   return (SquashStream*) squash_zlib_stream_new (codec, stream_type, options);
 }
 

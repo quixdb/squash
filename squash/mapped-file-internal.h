@@ -58,7 +58,7 @@ bool squash_mapped_file_init      (SquashMappedFile* mapped,
                                    size_t size,
                                    bool writable);
 SQUASH_NONNULL(1)
-void squash_mapped_file_destroy   (SquashMappedFile* mapped,
+bool squash_mapped_file_destroy   (SquashMappedFile* mapped,
                                    bool success);
 
 SQUASH_END_DECLS

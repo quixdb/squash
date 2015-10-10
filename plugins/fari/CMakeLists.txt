@@ -1,7 +1,7 @@
-set (fari_sources
-  squash-fari.c
-  FastARI/FastAri.c)
+include (SquashPlugin)
 
-add_definitions(-DFA_USE_EOF)
-
-squash_plugin_add (fari fari_sources)
+squash_plugin (
+  NAME fari
+  SOURCES squash-fari.c
+  EMBED_SOURCES FastARI/FastAri.c
+  EMBED_DEFINES FA_USE_EOF)

@@ -1,6 +1,7 @@
-set (quicklz_sources
-  squash-quicklz.c
-  quicklz.c)
+include (SquashPlugin)
 
-squash_plugin_add (quicklz quicklz_sources)
-add_definitions (-DQLZ_MEMORY_SAFE)
+squash_plugin (
+  NAME quicklz
+  SOURCES squash-quicklz.c
+  EMBED_SOURCES quicklz.c
+  EMBED_DEFINES QLZ_MEMORY_SAFE)

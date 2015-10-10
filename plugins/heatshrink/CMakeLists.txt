@@ -1,7 +1,9 @@
-set (heatshrink_sources
-  squash-heatshrink.c
-  heatshrink/heatshrink_encoder.c
-  heatshrink/heatshrink_decoder.c)
+include (SquashPlugin)
 
-# squash_plugin_add (heatshrink heatshrink_sources)
-# squash_source_file_set_c99 (heatshrink_sources)
+squash_plugin(
+  NAME heatshrink
+  DEFAULT_DISABLED
+  SOURCES squash-heatshrink.c
+  EMBED_SOURCES
+    heatshrink/heatshrink_encoder.c
+    heatshrink/heatshrink_decoder.c)

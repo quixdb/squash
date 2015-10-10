@@ -1,7 +1,7 @@
-set (brieflz_sources
-  squash-brieflz.c
-  brieflz/brieflz.c
-  brieflz/depacks.c)
+include (SquashPlugin)
 
-squash_plugin_add (brieflz brieflz_sources)
-squash_plugin_add_include_directories (brieflz brieflz)
+SQUASH_PLUGIN(
+  SOURCES squash-brieflz.c
+  NAME brieflz
+  EMBED_SOURCES brieflz/brieflz.c brieflz/depacks.c
+  INCLUDE_DIRS brieflz)

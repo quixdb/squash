@@ -1,10 +1,12 @@
-set (doboz_sources
-  squash-doboz.cpp
-  doboz/Source/Doboz/Compressor.cpp
-  doboz/Source/Doboz/Decompressor.cpp
-  doboz/Source/Doboz/Dictionary.cpp)
+include (SquashPlugin)
 
-if ("${ENABLE_DOBOZ}" STREQUAL "yes")
-  add_definitions(-D__STDC_LIMIT_MACROS)
-  squash_plugin_add (doboz doboz_sources)
-endif ()
+squash_plugin(
+  NAME doboz
+  DEFAULT_DISABLED
+  SOURCES squash-doboz.cpp
+  EMBED_SOURCES
+    doboz/Source/Doboz/Compressor.cpp
+    doboz/Source/Doboz/Decompressor.cpp
+    doboz/Source/Doboz/Dictionary.cpp
+  DEFINES
+    __STDC_LIMIT_MACROS)

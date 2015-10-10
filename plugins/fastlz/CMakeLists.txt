@@ -1,5 +1,6 @@
-set (fastlz_sources
-  squash-fastlz.c
-  fastlz/fastlz.c)
+include (SquashPlugin)
 
-squash_plugin_add (fastlz fastlz_sources)
+squash_plugin (
+  NAME fastlz
+  SOURCES squash-fastlz.c
+  EMBED_SOURCES fastlz/fastlz.c)

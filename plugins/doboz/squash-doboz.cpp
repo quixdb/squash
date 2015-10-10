@@ -87,10 +87,10 @@ squash_doboz_compress_buffer (SquashCodec* codec,
                               SquashOptions* options) {
   doboz::Result doboz_e;
   doboz::Compressor compressor;
-  size_t compressed_size;
+  size_t compressed_size_out;
 
   try {
-    doboz_e = compressor.compress ((void*) uncompressed, uncompressed_size, (void*) compressed, *compressed_size, compressed_size);
+    doboz_e = compressor.compress ((void*) uncompressed, uncompressed_size, (void*) compressed, *compressed_size, compressed_size_out);
   } catch (const std::bad_alloc& e) {
     return SQUASH_MEMORY;
   } catch (...) {
@@ -100,7 +100,7 @@ squash_doboz_compress_buffer (SquashCodec* codec,
   if (doboz_e != doboz::RESULT_OK) {
     return squash_doboz_status (doboz_e);
   }
-  *compressed_size = compressed_size;
+  *compressed_size = compressed_size_out;
 
   return SQUASH_OK;
 }

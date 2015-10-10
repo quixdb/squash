@@ -1,5 +1,6 @@
-set (ncompress_sources
-  squash-ncompress.c
-  compress.c)
+include (SquashPlugin)
 
-squash_plugin_add (ncompress ncompress_sources)
+squash_plugin (
+  NAME ncompress
+  SOURCES squash-ncompress.c
+  EMBED_SOURCES compress.c)

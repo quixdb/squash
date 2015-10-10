@@ -8,6 +8,7 @@ include (GNUInstallDirs)
 include (ExtraWarningFlags)
 include (CheckFunctionExists)
 include (CheckIncludeFile)
+include (AddCompilerFlags)
 
 enable_testing ()
 
@@ -48,10 +49,6 @@ include_directories ("${PROJECT_SOURCE_DIR}")
 
 set (SQUASH_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
 
-CHECK_FUNCTION_EXISTS(fdopen            HAVE_FDOPEN)
-CHECK_FUNCTION_EXISTS(mmap              HAVE_MMAP)
-CHECK_FUNCTION_EXISTS(mremap            HAVE_MREMAP)
-
 configure_file (
     "${PROJECT_SOURCE_DIR}/squash/config.h.in"
     "${PROJECT_BINARY_DIR}/squash/config.h")
@@ -67,23 +64,42 @@ configure_file (
 
 set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
-check_c_compiler_flag (-fvisibility=hidden CFLAG__fvisibility_hidden)
-check_cxx_compiler_flag (-fvisibility=hidden CXXFLAG__fvisibility_hidden)
-check_c_compiler_flag (-fvisibility-inlines-hidden CFLAG__fvisibility_inlines_hidden)
-check_cxx_compiler_flag (-fvisibility-inlines-hidden CXXFLAG__fvisibility_inlines_hidden)
+# This only works with gcc/clang at the moment.
+function (squash_set_target_visibility target visibility)
+  set (flag "-fvisibility=${visibility}")
+  string (REGEX REPLACE "[-=]+" "_" abbrev_test_name "${flag}")
 
-include (CheckCCompilerFlag)
-set (OPTIMIZE_CFLAGS "")
+  CHECK_C_COMPILER_FLAG ("-fvisibility=${visibility}" "CFLAG_${abbrev_test_name}")
+  CHECK_CXX_COMPILER_FLAG ("-fvisibility=${visibility}" "CXXFLAG_${abbrev_test_name}")
+
+  if (CFLAG_${abbrev_test_name})
+    target_add_compiler_flags (${target} ${flag})
+    set_property (TARGET ${target} APPEND PROPERTY LINKER_FLAGS "${flag}")
+  endif ()
+
+  unset (flag)
+  unset (abbrev_test_name)
+endfunction (squash_set_target_visibility)
 
 if (CMAKE_BUILD_TYPE MATCHES "Release")
   foreach (flag
       -O3
       -flto
       -DNDEBUG)
+    string (REGEX REPLACE "[^a-zA-Z0-9]+" "_" test_name "CFLAG_${flag}")
+    CHECK_C_COMPILER_FLAG (${flag} ${test_name})
+    if (${test_name})
+      set (CMAKE_C_COMPILER_FLAGS "${flag} ${CMAKE_C_COMPILER_FLAGS}")
+    endif ()
+  endforeach ()
+elseif (NOT ENABLE_COVERAGE STREQUAL "yes")
+  foreach (flag
+      -g
+      -O2)
     string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
     CHECK_C_COMPILER_FLAG (${flag} ${test_name})
     if (${test_name})
-      set (OPTIMIZE_CFLAGS "${OPTIMIZE_CFLAGS} ${flag}")
+      set (CMAKE_C_COMPILER_FLAGS "${flag} ${CMAKE_C_COMPILER_FLAGS}")
     endif ()
   endforeach ()
 endif ()
@@ -94,7 +110,6 @@ endif ()
 ## This will probably be removed when Ubuntu bumps their LTS server
 ## release (and Travis upgrades).
 ####
-
 if (${CMAKE_VERSION} VERSION_LESS 2.8.11)
   function (target_include_directories target scope items)
     foreach (argn RANGE 2 ${ARGC})
@@ -105,152 +120,19 @@ if (${CMAKE_VERSION} VERSION_LESS 2.8.11)
   endfunction ()
 endif ()
 
-####
-## Helper functions
-####
-
-function (squash_plugin_add name sources)
-  add_library(squash${SQUASH_VERSION_API}-plugin-${name} SHARED ${${sources}})
-  target_link_libraries (squash${SQUASH_VERSION_API}-plugin-${name} squash${SQUASH_VERSION_API})
-
-  # Mostly so we can use the plugins uninstalled
-  configure_file (squash.ini squash.ini)
-
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash.ini
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
-
-  install(TARGETS squash${SQUASH_VERSION_API}-plugin-${name}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins/${name})
-
-  set (squash_enabled_plugins "${squash_enabled_plugins};${name}" CACHE INTERNAL "enabled plugins" FORCE)
-
-  if (CFLAG__fvisibility_hidden)
-    set_property (TARGET squash${SQUASH_VERSION_API}-plugin-${name} APPEND PROPERTY COMPILE_FLAGS -fvisibility=hidden)
-    set_property (TARGET squash${SQUASH_VERSION_API}-plugin-${name} APPEND PROPERTY LINK_FLAGS -fvisibility=hidden)
+if (ENABLE_COVERAGE STREQUAL "yes")
+  if (CMAKE_BUILD_TYPE MATCHES "Release")
+    message (WARNING "Coverage anaysis requires a debugging build")
   endif ()
-
-  if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
-    CHECK_CXX_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CFLAG__Wno_tautological_pointer_compare")
-    CHECK_C_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CXXFLAG__Wno_tautological_pointer_compare")
-
-    foreach (file ${${sources}})
-      if ("${file}" MATCHES "^squash-${name}.c$")
-        add_extra_warning_cflags (SOURCE "${file}")
-        if (CFLAG__Wno_tautological_pointer_compare)
-          squash_source_file_add_compile_flag ("${file}" "-Wno-tautological-pointer-compare")
-        endif ()
-      elseif ("${file}" MATCHES "^squash-${name}.(cpp|cc|cxx)$")
-        add_extra_warning_cxxflags (SOURCE "${file}")
-        if (CXXFLAG__Wno_tautological_pointer_compare)
-          squash_source_file_add_compile_flag ("${file}" "-Wno-tautological-pointer-compare")
-        endif ()
-      endif ()
-
-      squash_source_file_add_compile_flag (${file} "${OPTIMIZE_CFLAGS}")
-    endforeach ()
-  endif ()
-endfunction (squash_plugin_add)
-
-macro (squash_plugin_add_link_libraries plugin libs)
-  target_link_libraries (squash${SQUASH_VERSION_API}-plugin-${plugin} ${libs})
-endmacro (squash_plugin_add_link_libraries)
-
-macro (squash_plugin_add_include_directories plugin)
-  set (dirs ${ARGV})
-  list (REMOVE_AT dirs 0)
-  target_include_directories (squash${SQUASH_VERSION_API}-plugin-${plugin} PRIVATE ${dirs})
-endmacro (squash_plugin_add_include_directories)
-
-macro (squash_plugin_add_for_package plugin package sources)
-  find_package (${package})
-  string (TOUPPER ${package} package_uc)
-
-  if (${package_uc}_FOUND)
-    squash_plugin_add (${plugin} ${sources})
-
-    if (${package_uc}_LIBRARIES)
-      squash_plugin_add_link_libraries (${plugin} ${${package_uc}_LIBRARIES})
-    endif ()
-
-    if (${package_uc}_INCLUDE_DIRS)
-      squash_plugin_add_include_directories (${plugin} ${${package_uc}_INCLUDE_DIRS})
-    endif ()
-  endif (${package_uc}_FOUND)
-endmacro (squash_plugin_add_for_package)
-
-function (squash_target_add_cflag target flag)
-  get_target_property (existing ${target} COMPILE_FLAGS)
-  if (${existing} STREQUAL "existing-NOTFOUND")
-    set_target_properties (${target}
-      PROPERTIES COMPILE_FLAGS "${flag}")
-  else ()
-    set_target_properties (${target}
-      PROPERTIES COMPILE_FLAGS "${existing} ${flag}")
-  endif ()
-endfunction ()
-
-function (squash_target_add_ldflag target flag)
-  get_target_property (existing ${target} LINK_FLAGS)
-  if (${existing} STREQUAL "existing-NOTFOUND")
-    set_target_properties (${target}
-      PROPERTIES LINK_FLAGS "${flag}")
-  else ()
-    set_target_properties (${target}
-      PROPERTIES LINK_FLAGS "${existing} ${flag}")
-  endif ()
-endfunction ()
+endif ()
 
 function (squash_target_add_coverage target)
   if (ENABLE_COVERAGE STREQUAL "yes")
-    foreach (cflag -g -O0 -fprofile-arcs -ftest-coverage)
-      squash_target_add_cflag (${target} ${cflag})
-    endforeach ()
-
-    foreach (cflag -fprofile-arcs -ftest-coverage)
-      squash_target_add_ldflag (${target} ${cflag})
-    endforeach ()
+    target_add_compiler_flags (${target} -g -O0 -fprofile-arcs -ftest-coverage)
+    set_property (TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -fprofile-arcs")
+    set_property (TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -ftest-coverage")
   endif ()
-endfunction ()
-
-function (squash_source_file_add_compile_flag_ex file flag)
-  get_source_file_property (existing ${file} COMPILE_FLAGS)
-  if ("${existing}" STREQUAL "NOTFOUND")
-    set_source_files_properties (${file}
-      PROPERTIES COMPILE_FLAGS "${flag}")
-  else ()
-    set_source_files_properties (${file}
-      PROPERTIES COMPILE_FLAGS "${existing} ${flag}")
-  endif ()
-endfunction ()
-
-function (squash_source_file_add_compile_flag file flag)
-  if ("${flag}" STREQUAL "")
-    return ()
-  endif ()
-
-  if ("${file}" MATCHES ".c$")
-    string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
-    CHECK_C_COMPILER_FLAG (${flag} ${test_name})
-  elseif ("${file}" MATCHES ".(cpp|cc|cxx)$")
-    string (REGEX REPLACE "[-=]+" "_" test_name "CXXFLAG_${flag}")
-    CHECK_CXX_COMPILER_FLAG (${flag} ${test_name})
-  else ()
-    return ()
-  endif ()
-
-  if (NOT ${test_name})
-    return ()
-  endif ()
-
-  squash_source_file_add_compile_flag_ex ("${file}" "${flag}")
-endfunction ()
-
-function (squash_source_file_set_c99 files)
-  foreach (file ${${files}})
-    squash_source_file_add_compile_flag ("${file}" "-std=c99")
-  endforeach (file)
-endfunction (squash_source_file_set_c99)
+endfunction (squash_target_add_coverage)
 
 add_subdirectory (squash)
 add_subdirectory (plugins)

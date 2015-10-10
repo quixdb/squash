@@ -1,10 +1,14 @@
-set (lz4_sources
-  squash-lz4.c
-  squash-lz4f.c
-  lz4/lib/lz4.c
-  lz4/lib/lz4hc.c
-  lz4/lib/lz4frame.c
-  lz4/lib/xxhash.c)
+include (SquashPlugin)
 
-squash_plugin_add (lz4 lz4_sources)
-squash_plugin_add_include_directories (lz4 lz4/lib)
+squash_plugin (
+  NAME lz4
+  SOURCES
+    squash-lz4.c
+    squash-lz4f.c
+  EMBED_SOURCES
+    lz4/lib/lz4.c
+    lz4/lib/lz4hc.c
+    lz4/lib/lz4frame.c
+    lz4/lib/xxhash.c
+  INCLUDE_DIRS
+    lz4/lib)

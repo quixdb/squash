@@ -1,5 +1,6 @@
-set (crush_sources
-  squash-crush.c
-  crush.c)
+include (SquashPlugin)
 
-squash_plugin_add (crush crush_sources)
+squash_plugin (
+  NAME crush
+  SOURCES squash-crush.c
+  EMBED_SOURCES crush.c)

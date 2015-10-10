@@ -1,23 +1,21 @@
-set (csc_sources
-  squash-csc.cpp
-  csc/src/libcsc/csc_analyzer.cpp
-  csc/src/libcsc/csc_coder.cpp
-  csc/src/libcsc/csc_dec.cpp
-  csc/src/libcsc/csc_enc.cpp
-  csc/src/libcsc/csc_encoder_main.cpp
-  csc/src/libcsc/csc_filters.cpp
-  csc/src/libcsc/csc_lz.cpp
-  csc/src/libcsc/csc_memio.cpp
-  csc/src/libcsc/csc_mf.cpp
-  csc/src/libcsc/csc_model.cpp
-  csc/src/libcsc/csc_profiler.cpp
-  csc/src/libcsc/decomp.cpp)
+include (SquashPlugin)
 
-
-if ("${ENABLE_CSC}" STREQUAL "yes")
-  add_definitions(-D_7Z_TYPES_)
-  squash_plugin_add (csc csc_sources)
-  target_include_directories (squash${SQUASH_VERSION_API}-plugin-csc PRIVATE csc/src/libcsc)
-
-  squash_source_file_add_compile_flag ("csc/src/libcsc/csc_filters.cpp" "-Wno-tautological-compare")
-endif ()
+squash_plugin (
+  NAME csc
+  DEFAULT_DISABLED
+  SOURCES squash-csc.cpp
+  EMBED_SOURCES
+    csc/src/libcsc/csc_analyzer.cpp
+    csc/src/libcsc/csc_coder.cpp
+    csc/src/libcsc/csc_dec.cpp
+    csc/src/libcsc/csc_enc.cpp
+    csc/src/libcsc/csc_encoder_main.cpp
+    csc/src/libcsc/csc_filters.cpp
+    csc/src/libcsc/csc_lz.cpp
+    csc/src/libcsc/csc_memio.cpp
+    csc/src/libcsc/csc_mf.cpp
+    csc/src/libcsc/csc_model.cpp
+    csc/src/libcsc/csc_profiler.cpp
+    csc/src/libcsc/decomp.cpp
+  DEFINES _7Z_TYPES_
+  INCLUDE_DIRS csc/src/libcsc)

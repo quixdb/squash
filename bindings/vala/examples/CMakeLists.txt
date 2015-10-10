@@ -14,7 +14,7 @@ if (VALA_FOUND AND GLIB_FOUND)
     PACKAGES squash-${SQUASH_VERSION_API})
 
   add_executable("compress-stream" ${compress_stream_C_SOURCES})
-  squash_target_add_cflag ("compress-stream" "-w")
+  target_add_compiler_flags ("compress-stream" "-w")
   target_link_libraries ("compress-stream" squash${SQUASH_VERSION_API})
   target_link_libraries ("compress-stream" ${GLIB_LIBRARIES})
   target_include_directories ("compress-stream" PRIVATE ${GLIB_INCLUDE_DIRS})

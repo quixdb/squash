@@ -1,4 +1,5 @@
-set (copy_sources
-  squash-copy.c)
+include (SquashPlugin)
 
-squash_plugin_add (copy copy_sources)
+squash_plugin(
+  NAME copy
+  SOURCES squash-copy.c)

@@ -34,6 +34,8 @@
 #include <lz4.h>
 #include <lz4frame_static.h>
 
+SquashStatus squash_plugin_init_lz4f (SquashCodec* codec, SquashCodecImpl* impl);
+
 #define SQUASH_LZ4F_DICT_SIZE ((size_t) 65536)
 
 enum SquashLZ4FOptIndex {
@@ -134,6 +136,7 @@ squash_lz4f_get_status (size_t res) {
       return squash_error (SQUASH_BUFFER_FULL);
     case LZ4F_ERROR_decompressionFailed:
     case LZ4F_ERROR_srcPtr_wrong:
+    case LZ4F_ERROR_maxCode:
       return squash_error (SQUASH_FAILED);
     default:
       squash_assert_unreachable ();
@@ -225,14 +228,15 @@ squash_lz4f_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 static size_t
 squash_lz4f_block_size_id_to_size (blockSizeID_t blkid) {
   switch (blkid) {
-    case max64KB:
+    case LZ4F_max64KB:
       return  64 * 1024;
-    case max256KB:
+    case LZ4F_max256KB:
       return 256 * 1024;
-    case max1MB:
+    case LZ4F_max1MB:
       return   1 * 1024 * 1024;
-    case max4MB:
+    case LZ4F_max4MB:
       return   4 * 1024 * 1024;
+    case LZ4F_default:
     default:
       squash_assert_unreachable();
       break;
@@ -241,8 +245,6 @@ squash_lz4f_block_size_id_to_size (blockSizeID_t blkid) {
 
 static size_t
 squash_lz4f_get_input_buffer_size (SquashStream* stream) {
-  SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
-
   return squash_lz4f_block_size_id_to_size (squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_LZ4F_OPT_BLOCK_SIZE));
 }
 

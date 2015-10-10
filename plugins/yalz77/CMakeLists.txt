@@ -1,5 +1,8 @@
-set (yalz77_sources
-  squash-yalz77.cpp)
+include (SquashPlugin)
 
-squash_plugin_add (yalz77 yalz77_sources)
-squash_plugin_add_include_directories (yalz77 yalz77)
+squash_plugin (
+  NAME yalz77
+  SOURCES squash-yalz77.cpp
+  INCLUDE_DIRS yalz77
+  COMPILER_FLAGS
+    -Wno-aggregate-return)
