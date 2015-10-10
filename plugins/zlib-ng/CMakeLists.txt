@@ -38,5 +38,7 @@ squash_plugin(
     zlib-ng/zutil.c
   INCLUDE_DIRS
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng)
+    ${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng
+  EMBED_COMPILER_FLAGS
+    -Wno-shift-negative-value)
 list (APPEND zlibng_sources ${libzlibng_sources})

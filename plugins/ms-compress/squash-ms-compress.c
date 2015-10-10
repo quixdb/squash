@@ -95,7 +95,23 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = malloc (sizeof (SquashMSCompStream));
+  if (stream == NULL)
+    return (squash_error (SQUASH_MEMORY), NULL);
+
   squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_free);
+
+  MSCompStatus status;
+  MSCompFormat format = squash_ms_format_from_codec (codec);
+  if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
+    status = ms_deflate_init (format, &(stream->mscomp));
+  } else {
+    status = ms_inflate_init (format, &(stream->mscomp));
+  }
+
+  if (status != MSCOMP_OK) {
+    squash_object_unref (stream);
+    return (squash_error (squash_ms_status_to_squash_status (status)), NULL);
+  }
 
   return stream;
 }
@@ -107,15 +123,6 @@ squash_ms_stream_init (SquashMSCompStream* stream,
                        SquashOptions* options,
                        SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
-
-  MSCompStatus status;
-  MSCompFormat format = squash_ms_format_from_codec (codec);
-  if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    status = ms_deflate_init (format, &(stream->mscomp));
-  } else {
-    status = ms_inflate_init (format, &(stream->mscomp));
-  }
-  assert (status == MSCOMP_OK);
 }
 
 static void

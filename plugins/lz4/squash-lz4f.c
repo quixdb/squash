@@ -146,26 +146,15 @@ squash_lz4f_get_status (size_t res) {
 static SquashLZ4FStream*
 squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashLZ4FStream* stream;
+  LZ4F_errorCode_t ec;
 
   assert (codec != NULL);
 
   stream = (SquashLZ4FStream*) malloc (sizeof (SquashLZ4FStream));
+  if (stream == NULL)
+    return (squash_error (SQUASH_MEMORY), NULL);
+
   squash_lz4f_stream_init (stream, codec, stream_type, options, squash_lz4f_stream_free);
-
-  return stream;
-}
-
-#define SQUASH_LZ4F_STREAM_IS_HC(s) \
-  (((((SquashStream*) s)->options) != NULL) && (((SquashOptions*) (((SquashStream*) s)->options))->hc))
-
-static void
-squash_lz4f_stream_init (SquashLZ4FStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  LZ4F_errorCode_t ec;
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     ec = LZ4F_createCompressionContext(&(stream->data.comp.ctx), LZ4F_VERSION);
@@ -192,24 +181,38 @@ squash_lz4f_stream_init (SquashLZ4FStream* stream,
     ec = LZ4F_createDecompressionContext(&(stream->data.decomp.ctx), LZ4F_VERSION);
   }
 
-  assert (!LZ4F_isError (ec));
+  if (LZ4F_isError (ec)) {
+    squash_object_unref (stream);
+    return (squash_error (SQUASH_FAILED), NULL);
+  }
+
+  return stream;
+}
+
+#define SQUASH_LZ4F_STREAM_IS_HC(s) \
+  (((((SquashStream*) s)->options) != NULL) && (((SquashOptions*) (((SquashStream*) s)->options))->hc))
+
+static void
+squash_lz4f_stream_init (SquashLZ4FStream* stream,
+                         SquashCodec* codec,
+                         SquashStreamType stream_type,
+                         SquashOptions* options,
+                         SquashDestroyNotify destroy_notify) {
+  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 }
 
 static void
 squash_lz4f_stream_destroy (void* stream) {
   SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
-  LZ4F_errorCode_t ec;
 
   if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_COMPRESS) {
-    ec = LZ4F_freeCompressionContext(s->data.comp.ctx);
+    LZ4F_freeCompressionContext(s->data.comp.ctx);
 
     if (s->data.comp.output_buffer != NULL)
       free (s->data.comp.output_buffer);
   } else {
-    ec = LZ4F_freeDecompressionContext(s->data.decomp.ctx);
+    LZ4F_freeDecompressionContext(s->data.decomp.ctx);
   }
-
-  assert (!LZ4F_isError (ec));
 
   squash_stream_destroy (stream);
 }

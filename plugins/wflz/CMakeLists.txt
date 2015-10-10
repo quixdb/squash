@@ -6,4 +6,5 @@ squash_plugin (
   EMBED_SOURCES wflz/wfLZ.c
   EMBED_DEFINES WF_LZ_NO_UNALIGNED_ACCESS
   COMPILER_FLAGS
-    -Wno-strict-prototypes)
+    -Wno-strict-prototypes
+    -Wno-undef)
