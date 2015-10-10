@@ -25,6 +25,6 @@ function (target_require_standard target standard)
     endif ()
   else ()
     # TODO: make this portable
-    set_property (TARGET COMPILE_FLAGS APPEND_STRING "-std=${standard}")
+    set_property (TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS "-std=${standard}")
   endif ()
 endfunction ()
