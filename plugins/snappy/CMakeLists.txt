@@ -15,5 +15,6 @@ squash_plugin (
     snappy/snappy-sinksource.cc
     snappy/snappy-stubs-internal.cc
     snappy/snappy.cc
-  INCLUDE_DIRS
-    ${CMAKE_CURRENT_BINARY_DIR})
+  EMBED_INCLUDE_DIRS
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/snappy)
