@@ -8,7 +8,7 @@ configure_file (snappy-stubs-public.h.in snappy-stubs-public.h)
 
 squash_plugin (
   NAME snappy
-  SOURCES squash-snappy.c crc32.c
+  SOURCES squash-snappy.c
   EXTERNAL_PKG_PREFIX "SNAPPY"
   EMBED_SOURCES
     snappy/snappy-c.cc
