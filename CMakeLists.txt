@@ -111,7 +111,7 @@ endif ()
 ## release (and Travis upgrades).
 ####
 if (${CMAKE_VERSION} VERSION_LESS 2.8.11)
-  function (target_include_directories target scope items)
+  function (target_include_directories)
     foreach (argn RANGE 2 ${ARGC})
       if (${argn} LESS ${ARGC})
         include_directories (${ARGV${argn}})
