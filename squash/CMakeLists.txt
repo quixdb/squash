@@ -52,7 +52,7 @@ set (squash_PUBLIC_HEADERS
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
 squash_set_target_visibility (squash${SQUASH_VERSION_API} hidden)
-target_require_standard (squash${SQUASH_VERSION_API} "c99")
+target_require_c_standard (squash${SQUASH_VERSION_API} "c99")
 
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   CHECK_CXX_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CFLAG__Wno_tautological_pointer_compare")

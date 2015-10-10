@@ -3,7 +3,7 @@ include (SquashPlugin)
 squash_plugin (
   NAME density
   SOURCES squash-density
-  STANDARD c99
+  C_STANDARD c99
   EMBED_SOURCES
     density/src/block_decode.c
     density/src/block_encode.c

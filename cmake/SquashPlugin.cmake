@@ -3,7 +3,7 @@ include (RequireStandard)
 
 function (SQUASH_PLUGIN)
   set (options EXTRA_WARNINGS DEFAULT_DISABLED)
-  set (oneValueArgs NAME EXTERNAL_PKG EXTERNAL_PKG_PREFIX STANDARD)
+  set (oneValueArgs NAME EXTERNAL_PKG EXTERNAL_PKG_PREFIX C_STANDARD CXX_STANDARD)
   set (multiValueArgs SOURCES EMBED_SOURCES LIBRARIES LDFLAGS COMPILER_FLAGS EMBED_COMPILER_FLAGS INCLUDE_DIRS EMBED_INCLUDE_DIRS DEFINES EMBED_DEFINES)
   cmake_parse_arguments(SQUASH_PLUGIN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
   unset (options)
@@ -60,8 +60,11 @@ function (SQUASH_PLUGIN)
 
   target_add_compiler_flags (${PLUGIN_TARGET} ${SQUASH_PLUGIN_COMPILER_FLAGS})
 
-  if (NOT "${SQUASH_PLUGIN_STANDARD}" STREQUAL "")
-    target_require_standard (${PLUGIN_TARGET} ${SQUASH_PLUGIN_STANDARD})
+  if (NOT "${SQUASH_PLUGIN_C_STANDARD}" STREQUAL "")
+    target_require_c_standard (${PLUGIN_TARGET} ${SQUASH_PLUGIN_C_STANDARD})
+  endif ()
+  if (NOT "${SQUASH_PLUGIN_CXX_STANDARD}" STREQUAL "")
+    target_require_cxx_standard (${PLUGIN_TARGET} ${SQUASH_PLUGIN_CXX_STANDARD})
   endif ()
 
   if (${EMBED})

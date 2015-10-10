@@ -97,7 +97,7 @@ endif ()
 squash_plugin (
   NAME lzma
   SOURCES squash-lzma.c
-  STANDARD c99
+  C_STANDARD c99
   EXTERNAL_PKG liblzma
   EMBED_SOURCES
     xz/src/common/tuklib_physmem.c

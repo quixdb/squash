@@ -3,7 +3,7 @@ include (SquashPlugin)
 squash_plugin (
   NAME brotli
   SOURCES squash-brotli.cpp
-  STANDARD c++11
+  CXX_STANDARD c++11
   EMBED_SOURCES
     brotli/dec/bit_reader.c
     brotli/dec/decode.c
