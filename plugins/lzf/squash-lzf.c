@@ -121,8 +121,9 @@ squash_lzf_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (uncompressed_size == 1) {
-    const uint8_t buf[2] = { uncompressed[0], 0x00 };
+  if (uncompressed_size < 8) {
+    uint8_t buf[8] = { 0, };
+    memcpy (buf, uncompressed, uncompressed_size);
 
     if (level == 1)
       lzf_e = lzf_compress ((void*) buf, (unsigned int) uncompressed_size,

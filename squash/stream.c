@@ -775,9 +775,6 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
         case SQUASH_PROCESSING:
           stream->state = SQUASH_STREAM_STATE_FINISHING;
           break;
-        case SQUASH_END_OF_STREAM:
-          stream->state = SQUASH_STREAM_STATE_FINISHED;
-          break;
         default:
           return res;
       }

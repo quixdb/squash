@@ -114,7 +114,7 @@ squash_zpaq_splice (SquashCodec* codec,
   try {
     SquashZpaqIO stream(user_data, read_cb, write_cb);
     if (stream_type == SQUASH_STREAM_COMPRESS) {
-      char level_s[2];
+      char level_s[3] = { 0, };
       snprintf (level_s, sizeof(level_s), "%d", squash_codec_get_option_int_index (codec, options, SQUASH_ZPAQ_OPT_LEVEL));
 
       compress (&stream, &stream, level_s);
