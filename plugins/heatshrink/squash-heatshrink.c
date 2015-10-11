@@ -84,7 +84,27 @@ squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, 
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = (SquashHeatshrinkStream*) malloc (sizeof (SquashHeatshrinkStream));
+  if (stream == NULL)
+    return (squash_error (SQUASH_MEMORY), NULL);
+
   squash_heatshrink_stream_init (stream, codec, stream_type, options, squash_heatshrink_stream_free);
+
+  const uint8_t window_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
+  const uint8_t lookahead_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_LOOKAHEAD_SIZE);
+
+  if (stream_type == SQUASH_STREAM_COMPRESS) {
+    stream->ctx.comp = heatshrink_encoder_alloc (window_size, lookahead_size);
+    if (stream->ctx.comp == NULL) {
+      squash_object_unref (stream);
+      return (squash_error (SQUASH_MEMORY), NULL);
+    }
+  } else {
+    stream->ctx.decomp = heatshrink_decoder_alloc (256, window_size, lookahead_size);
+    if (stream->ctx.decomp == NULL) {
+      squash_object_unref (stream);
+      return (squash_error (SQUASH_MEMORY), NULL);
+    }
+  }
 
   return stream;
 }
@@ -95,21 +115,18 @@ squash_heatshrink_stream_init (SquashHeatshrinkStream* stream,
                                SquashStreamType stream_type,
                                SquashOptions* options,
                                SquashDestroyNotify destroy_notify) {
-  SquashHeatshrinkStream* s = (SquashHeatshrinkStream*) stream;
-
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-
-  const uint8_t window_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
-  const uint8_t lookahead_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
-
-  if (stream_type == SQUASH_STREAM_COMPRESS)
-    s->ctx.comp = heatshrink_encoder_alloc (window_size, lookahead_size);
-  else
-    s->ctx.decomp = heatshrink_decoder_alloc (256, window_size, lookahead_size);
 }
 
 static void
 squash_heatshrink_stream_destroy (void* stream) {
+  const SquashHeatshrinkStream* s = (SquashHeatshrinkStream*) stream;
+
+  if (s->base_object.stream_type == SQUASH_STREAM_COMPRESS)
+    heatshrink_encoder_free (s->ctx.comp);
+  else
+    heatshrink_decoder_free (s->ctx.decomp);
+
   squash_stream_destroy (stream);
 }
 
