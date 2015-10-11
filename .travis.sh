@@ -26,6 +26,7 @@ case "${COMPILER}" in
         export GCOV=gcov-5
         ;;
     *)
+        COMPILER="gcc-5"
         export CC=gcc-5
         export CXX=g++-5
         export GCOV=gcov-5
@@ -113,6 +114,18 @@ case "${1}" in
                 brew install \
                      ragel \
                      glib
+
+                case "${COMPILER}" in
+                    "gcc-4.6")
+                        which gcc-4.6 || brew install homebrew/versions/gcc46
+                        ;;
+                    "gcc-4.8")
+                        which gcc-4.8 || brew install homebrew/versions/gcc48
+                        ;;
+                    "gcc-5")
+                        which gcc-5 || brew install homebrew/versions/gcc5
+                        ;;
+                esac
                 ;;
             *)
                 echo "Unknown OS!"

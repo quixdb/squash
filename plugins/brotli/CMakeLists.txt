@@ -26,19 +26,6 @@ squash_plugin (
     -Wno-sign-compare
   INCLUDE_DIRS brotli)
 
-# if (NOT "${DISABLE_BROTLI}" STREQUAL "yes")
-#   squash_plugin_add (brotli brotli_sources)
-#   squash_plugin_add_include_directories (brotli brotli)
-
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#   # CMake 3.2
-#   # set_target_properties("squash${SQUASH_VERSION_API}-plugin-${plugin}" PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
-
-#   foreach (file ${brotli_sources})
-#     squash_source_file_add_compile_flag ("${file}" "-Wno-shadow")
-#     squash_source_file_add_compile_flag ("${file}" "-Wno-sign-compare")
-#     squash_source_file_add_compile_flag ("${file}" "-Wno-cast-align")
-#   endforeach ()
-
-#   squash_source_file_add_compile_flag ("brotli/enc/static_dict.cc" "-Wno-tautological-constant-out-of-range-compare")
+# if (CMAKE_HOST_APPLE)
+#   set_property (TARGET squash${SQUASH_VERSION_API}-plugin-brotli APPEND_STRING PROPERTY COMPILE_FLAGS "-stdlib=libc++")
 # endif ()
