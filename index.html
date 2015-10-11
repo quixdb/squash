@@ -148,12 +148,13 @@
         <li><a href="http://libbsc.com/">libbsc</a></li>
         <li><a href="http://bzip.org/">bzip2</a></li>
         <li><a href="http://compressme.net/">CRUSH</a></li>
-        <li><a href="https://github.com/fusiyuan2010/CSC">CSC</a></li>
+        <li><a href="https://github.com/fusiyuan2010/CSC">CSC</a> **</li>
         <li><a href="https://github.com/centaurean/density">DENSITY</a></li>
-        <!-- <li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a></li> -->
+        <li><a href="https://bitbucket.org/attila_afra/doboz">Doboz</a> **</li>
         <li><a href="https://github.com/davidcatt/FastARI">FastARI</a></li>
         <li><a href="http://fastlz.org/">FastLZ</a></li>
         <li><a href="https://github.com/google/gipfeli">Gipfeli</a></li>
+        <li><a href="https://github.com/atomicobject/heatshrink">heatshrink</a> *</li>
         <li><a href="https://cyan4973.github.io/lz4/">LZ4</a></li>
         <li><a href="http://liblzf.plan9.de/">LZF</a></li>
         <li><a href="http://liblzg.bitsnbites.eu/">liblzg</a></li>
@@ -169,10 +170,16 @@
         <li><a href="https://github.com/ShaneWF/wflz">wfLZ</a></li>
         <li><a href="https://bitbucket.org/tkatchev/yalz77">yalz77</a></li>
         <li><a href="http://zlib.net/">zlib</a></li>
-        <!-- <li><a href="https://github.com/richox/libzling">zling</a></li> -->
+        <li><a href="https://github.com/Dead2/zlib-ng/">zlib-ng</a></li>
+        <li><a href="https://github.com/richox/libzling">zling</a> *</li>
         <li><a href="http://mattmahoney.net/dc/zpaq.html">ZPAQ</a></li>
         <li><a href="https://github.com/Cyan4973/zstd">Zstandard</a></li>
       </ul>
+
+      <p class="text-right">
+	<small>* Currently only available or enabled in git; it will be generally available in the next release.</small><br />
+	<small>** Currently disabled pending bug fixes in upstream library.</small>
+      </p>
 
       <p>
         The number of codecs to choose from can be a bit overwhelming.
@@ -197,7 +204,8 @@
 
       <ul>
         <li>C — <a href="api/c/index.html">API Reference</a></li>
-        <li><a href="http://wiki.gnome.org/Projects/Vala">Vala</a></li>
+        <li><a href="https://github.com/quixdb/squash/tree/master/bindings/vala">Vala</a></li>
+        <li><a href="https://github.com/Dr-Emann/rust-squash-sys">Rust</a></li>
       </ul>
 
       <p>
@@ -215,7 +223,7 @@
 
       <h3 id="releases">Releases <a style="color: #ed7129" href="https://github.com/quixdb/squash/releases.atom"><i class="fa fa-rss-square"></i></a></h3>
 
-      <dl class="release-list">
+      <dl id="release-list">
 	<dt>
 	  <a href="https://github.com/quixdb/squash/releases/download/v0.7.0/squash-0.7.0.tar.bz2">Squash 0.7.0 <i class="fa fa-download"></i></a> —
 	  2015-09-20 —
@@ -277,6 +285,10 @@
       </p>
 
       <h3 id="git">Git</h3>
+
+      <p>
+	<a href="https://travis-ci.org/quixdb/squash"><img src="https://travis-ci.org/quixdb/squash.svg?branch=master" alt="Build Status" /></a>
+      </p>
 
       <dl>
         <dt>Repository</dt>
