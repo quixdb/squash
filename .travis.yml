@@ -8,7 +8,7 @@ env:
     - COMPILER=gcc-5 BUILD_TYPE=asan
 #    - COMPILER=gcc-5 BUILD_TYPE=ubsan
 #    - COMPILER=gcc-5 BUILD_TYPE=tsan
-#    - COMPILER=gcc-5 BUILD_TYPE=coverage
+    - COMPILER=gcc-5 BUILD_TYPE=coverage
     - COMPILER=clang BUILD_TYPE=debug
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
     - COMPILER=gcc-5 BUILD_TYPE=release
