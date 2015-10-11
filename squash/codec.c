@@ -42,6 +42,16 @@
 #include "tinycthread/source/tinycthread.h"
 
 /**
+ * @defgroup SquashCodecImplementation Codec implementation
+ * @brief A codec, as implemented by a plugin
+ *
+ * If you are not writing a plugin **you should not be using this
+ * structure**.
+ *
+ * @{
+ */
+
+/**
  * @struct _SquashCodecImpl
  * @brief Function table for plugins
  *
@@ -208,6 +218,10 @@
 /**
  * @var _SquashCodecImpl::_reserved8
  * @brief Reserved for future use.
+ */
+
+/**
+ * @}
  */
 
 int

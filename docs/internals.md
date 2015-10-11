@@ -1,9 +1,9 @@
 # Internals
 
-Squash primarily a library which offers a single interface for a large
-number of implementations of general-purpose compression algorithms.
-These implementations are implemented as plugins which are only loaded
-as needed.
+Squash is primarily a library which offers a single interface for a
+large number of implementations of general-purpose compression
+algorithms.  Squash uses a different plugin to interface with each
+external library, and plugins are loaded on-demand.
 
 This document is intended primarily for those who want, or need, a
 deeper understanding of how Squash works.  If you simply wish to use

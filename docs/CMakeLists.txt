@@ -1,7 +1,7 @@
 find_package (Doxygen)
 
 set (SQUASH_DOXYGEN_PLUGIN_DOCS)
-foreach (plugin ${squash_enabled_plugins})
+foreach (plugin ${SQUASH_ENABLED_PLUGINS})
   set (SQUASH_DOXYGEN_PLUGIN_DOCS
     "${SQUASH_DOXYGEN_PLUGIN_DOCS} ${SQUASH_TOP_SRCDIR}/plugins/${plugin}/${plugin}.md")
 endforeach ()
