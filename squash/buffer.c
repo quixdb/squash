@@ -128,3 +128,27 @@ squash_buffer_free (SquashBuffer* buffer) {
   }
   free (buffer);
 }
+
+uint8_t*
+squash_buffer_release (SquashBuffer* buffer,
+                       size_t* size) {
+  uint8_t* data = buffer->data;
+  if (size != NULL)
+    *size = buffer->size;
+
+  free (buffer);
+
+  return data;
+}
+
+void
+squash_buffer_steal (SquashBuffer* buffer,
+                     size_t data_size,
+                     size_t data_allocated,
+                     uint8_t data[SQUASH_ARRAY_PARAM(data_allocated)]) {
+  squash_buffer_clear (buffer);
+
+  buffer->data = data;
+  buffer->allocated = data_allocated;
+  buffer->size = data_size;
+}

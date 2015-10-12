@@ -1395,6 +1395,40 @@ squash_codec_get_option_size_index (SquashCodec* codec,
     return codec->impl.options[index].default_value.size_value;
 }
 
+SquashStatus
+squash_codec_decompress_to_buffer (SquashCodec* codec,
+                                   SquashBuffer* decompressed,
+                                   size_t compressed_size,
+                                   uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                   SquashOptions* options) {
+  SquashStatus res;
+
+  assert (codec != NULL);
+  assert (decompressed != NULL);
+  assert (compressed != NULL);
+
+  uint8_t* decompressed_data = NULL;
+  size_t decompressed_alloc = squash_npot (compressed_size) << 1;
+  size_t decompressed_size;
+  do {
+    decompressed_alloc <<= 1;
+    decompressed_size = decompressed_alloc;
+    free (decompressed_data);
+    decompressed_data = malloc (decompressed_alloc);
+    if (SQUASH_UNLIKELY(decompressed_data == NULL))
+      return squash_error (SQUASH_MEMORY);
+
+    res = squash_codec_decompress_with_options(codec, &decompressed_size, decompressed_data, compressed_size, compressed, options);
+  } while (res == SQUASH_BUFFER_FULL);
+
+  if (SQUASH_LIKELY(res == SQUASH_OK))
+    squash_buffer_steal (decompressed, decompressed_size, decompressed_alloc, decompressed_data);
+  else
+    free (decompressed_data);
+
+  return res;
+}
+
 /**
  * @}
  */

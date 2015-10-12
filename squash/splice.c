@@ -719,28 +719,11 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
           goto cleanup_buffer;
         }
       } else {
-        /* TODO: I think this is the third time I've written this code.
-           I should probably add a squash_codec_decompress_dynamic (or
-           something) which just decompresses an input buffer to a
-           SquashBuffer. */
-        out_data_size = squash_npot (buffer->size) << 3;
-        assert (out_data == NULL);
-        do {
-          size_t c = out_data_size;
-          free (out_data);
-          out_data = malloc (c);
-          if (out_data == NULL) {
-            res = squash_error (SQUASH_MEMORY);
-            goto cleanup_buffer;
-          }
-
-          res = squash_codec_decompress_with_options(codec, &c, out_data, buffer->size, buffer->data, options);
-          if (res == SQUASH_BUFFER_FULL) {
-            out_data_size <<= 1;
-          } else if (res == SQUASH_OK) {
-            out_data_size = c;
-          }
-        } while (res == SQUASH_BUFFER_FULL);
+        SquashBuffer* decompressed_buffer = squash_buffer_new (0);
+        res = squash_codec_decompress_to_buffer (codec, decompressed_buffer, buffer->size, buffer->data, options);
+        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+          goto cleanup_buffer;
+        out_data = squash_buffer_release (decompressed_buffer, &out_data_size);
       }
     }
 

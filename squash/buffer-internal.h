@@ -33,14 +33,6 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef struct _SquashBuffer SquashBuffer;
-
-struct _SquashBuffer {
-  uint8_t* data;
-  size_t size;
-  size_t allocated;
-};
-
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
 SQUASH_NONNULL(1)
 bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
@@ -50,6 +42,14 @@ SQUASH_NONNULL(1)
 void          squash_buffer_free           (SquashBuffer* buffer);
 SQUASH_NONNULL(1)
 bool          squash_buffer_set_size       (SquashBuffer* buffer, size_t size);
+SQUASH_NONNULL(1)
+void          squash_buffer_steal          (SquashBuffer* buffer,
+                                            size_t data_size,
+                                            size_t data_allocated,
+                                            uint8_t data[SQUASH_ARRAY_PARAM(data_allocated)]);
+SQUASH_NONNULL(1)
+uint8_t*      squash_buffer_release        (SquashBuffer* buffer,
+                                            size_t* size);
 
 SQUASH_END_DECLS
 

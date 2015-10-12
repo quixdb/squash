@@ -84,6 +84,12 @@ typedef struct _SquashCodecRef {
   SQUASH_TREE_ENTRY(_SquashCodecRef) tree;
 } SquashCodecRef;
 
+typedef struct _SquashBuffer {
+  uint8_t* data;
+  size_t size;
+  size_t allocated;
+} SquashBuffer;
+
 SQUASH_END_DECLS
 
 #endif /* SQUASH_TYPES_INTERNAL_H */
