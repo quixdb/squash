@@ -35,7 +35,7 @@ SQUASH_BEGIN_DECLS
 
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
 SQUASH_NONNULL(1)
-bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
+bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, const uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
 SQUASH_NONNULL(1)
 void          squash_buffer_clear          (SquashBuffer* buffer);
 SQUASH_NONNULL(1)

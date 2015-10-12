@@ -41,24 +41,17 @@ squash_buffer_stream_init (void* stream,
 
   squash_stream_init (stream, codec, stream_type, options, destroy_notify);
 
-  s->head = NULL;
-  s->last = NULL;
-  s->last_pos = 0;
-  s->input = NULL;
+  s->input = squash_buffer_new (0);
   s->output = NULL;
+  s->output_pos = 0;
 }
 
 static void
 squash_buffer_stream_destroy (void* stream) {
   SquashBufferStream* s = (SquashBufferStream*) stream;
 
-  squash_slist_foreach ((SquashSList*) s->head, (SquashSListForeachFunc) free);
-  if (s->input != NULL) {
-    squash_buffer_free (s->input);
-  }
-  if (s->output != NULL) {
-    squash_buffer_free (s->output);
-  }
+  squash_buffer_free (s->input);
+  squash_buffer_free (s->output);
 
   squash_stream_destroy (stream);
 }
@@ -88,142 +81,127 @@ squash_buffer_stream_process (SquashBufferStream* stream) {
   if (stream->base_object.avail_in == 0)
     return SQUASH_OK;
 
-  while (stream->base_object.avail_in > 0) {
-    if (stream->last_pos == SQUASH_BUFFER_STREAM_BUFFER_SIZE ||
-        stream->last == NULL) {
-      stream->last = SQUASH_SLIST_APPEND(stream->last, SquashBufferStreamSList);
-      stream->last_pos = 0;
-
-      if (stream->head == NULL) {
-        stream->head = stream->last;
-      }
-    }
-
-    const size_t copy_size = MIN(SQUASH_BUFFER_STREAM_BUFFER_SIZE - stream->last_pos, stream->base_object.avail_in);
-    memcpy (stream->last->data + stream->last_pos, stream->base_object.next_in, copy_size);
-    stream->base_object.next_in += copy_size;
-    stream->base_object.avail_in -= copy_size;
-    stream->last_pos += copy_size;
+  const bool s = squash_buffer_append (stream->input, stream->base_object.avail_in, stream->base_object.next_in);
+  if (SQUASH_LIKELY(s)) {
+    stream->base_object.next_in += stream->base_object.avail_in;
+    stream->base_object.avail_in = 0;
+  } else {
+    return squash_error (SQUASH_FAILED);
   }
 
   return SQUASH_OK;
 }
 
-static void
-squash_buffer_stream_consolidate (SquashBufferStream* stream) {
-  if (stream->input == NULL) {
-    stream->input = squash_buffer_new (stream->base_object.total_in);
-  }
-
-  {
-    SquashBufferStreamSList* next;
-    SquashBufferStreamSList* list = stream->head;
-
-    for ( next = NULL ; list != NULL ; list = next ) {
-      next = (SquashBufferStreamSList*) list->base.next;
-      squash_buffer_append (stream->input, (next != NULL) ? SQUASH_BUFFER_STREAM_BUFFER_SIZE : stream->last_pos, list->data);
-      free (list);
-    }
-  }
-
-  stream->head = NULL;
-  stream->last = NULL;
-  stream->last_pos = 0;
-}
-
 SquashStatus
 squash_buffer_stream_finish (SquashBufferStream* stream) {
+  SquashStream* s = (SquashStream*) stream;
+  SquashCodec* codec = s->codec;
   SquashStatus res;
 
-  if (stream->base_object.avail_out == 0) {
-    return squash_error (SQUASH_BUFFER_FULL);
-  }
+  SquashBuffer* input = stream->input;
+  SquashBuffer* output = stream->output;
 
-  if (stream->input == NULL) {
-    if (stream->base_object.avail_in > 0) {
-      squash_buffer_stream_process (stream);
-    }
-    squash_buffer_stream_consolidate (stream);
-  } else {
-    if (stream->base_object.avail_in > 0) {
-      return squash_error (SQUASH_STATE);
-    }
-  }
+  if (SQUASH_UNLIKELY(input->size == 0))
+    return squash_error (SQUASH_FAILED);
 
-  if (stream->output == NULL) {
-    size_t decompressed_size;
+  /* Squash should handle making sure process is called until the
+     input buffer is cleared. */
+  assert (s->avail_in == 0);
 
-    if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-      size_t compressed_size = squash_codec_get_max_compressed_size (stream->base_object.codec, stream->input->size);
-      stream->output = squash_buffer_new (compressed_size);
-      res = squash_codec_compress_with_options (stream->base_object.codec,
-                                                &compressed_size, stream->output->data,
-                                                stream->input->size, stream->input->data,
-                                                stream->base_object.options);
-
-      if (res != SQUASH_OK) {
-        return res;
-      }
-
-      stream->output->size = compressed_size;
-    } else if (stream->base_object.stream_type == SQUASH_STREAM_DECOMPRESS) {
-      if (stream->base_object.codec->impl.get_uncompressed_size != NULL) {
-        decompressed_size = squash_codec_get_uncompressed_size (stream->base_object.codec, stream->input->size, stream->input->data);
-        stream->output = squash_buffer_new (decompressed_size);
-        squash_buffer_set_size (stream->output, decompressed_size);
-        res = squash_codec_decompress_with_options (stream->base_object.codec,
-                                                    &decompressed_size, stream->output->data,
-                                                    stream->input->size, stream->input->data, NULL);
-
-        if (res != SQUASH_OK) {
+  /* If output is non-null we have already performed the
+     compression/decompression, and are just working on writting the
+     output buffer to the stream. */
+  if (output == NULL) {
+    if (s->stream_type == SQUASH_STREAM_COMPRESS) {
+      size_t compressed_size = squash_codec_get_max_compressed_size (codec, input->size);
+      if (s->avail_out >= compressed_size) {
+        /* There is enough room available in next_out to hold the full
+           contents of the compressed data, so write directly to
+           it. */
+        res = squash_codec_compress_with_options(codec, &compressed_size, s->next_out, input->size, input->data, s->options);
+        if (SQUASH_UNLIKELY(res != SQUASH_OK))
           return res;
-        }
+
+        s->next_out += compressed_size;
+        s->avail_out -= compressed_size;
+
+        return SQUASH_OK;
       } else {
-        /* Yes, this is horrible.  If you're hitting this code you
-           should really try to change your application to use the
-           buffer API or use a container codec which does contain size
-           information (e.g., zlib or gzip instead of deflate). */
-        decompressed_size = stream->input->size;
+        /* Write the compressed data into an internal buffer. */
+        stream->output = output = squash_buffer_new (compressed_size);
+        if (SQUASH_UNLIKELY(output == NULL))
+          return squash_error (SQUASH_MEMORY);
 
-        /* Round decompressed_size up the the next highest power of
-           two. */
-        decompressed_size--;
-        decompressed_size |= decompressed_size >> 1;
-        decompressed_size |= decompressed_size >> 2;
-        decompressed_size |= decompressed_size >> 4;
-        decompressed_size |= decompressed_size >> 8;
-        decompressed_size |= decompressed_size >> 16;
-        decompressed_size++;
+        res = squash_codec_compress_with_options (codec, &compressed_size, output->data, input->size, input->data, s->options);
+        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+          return res;
 
-        /* A bit more, to (hopefully) catch all but the most highly
-           compressed data. */
-        decompressed_size <<= 2;
-
-        stream->output = squash_buffer_new (decompressed_size);
-
-        res = SQUASH_BUFFER_FULL;
-        while ( res == SQUASH_BUFFER_FULL ) {
-          /* free/malloc instead of realloc (avoid a copy) */
-          if (stream->output->allocated < decompressed_size)
-            squash_buffer_clear (stream->output);
-          squash_buffer_set_size (stream->output, decompressed_size);
-          res = squash_codec_decompress_with_options (stream->base_object.codec,
-                                                      &(stream->output->size), stream->output->data,
-                                                      stream->input->size, stream->input->data, NULL);
-          decompressed_size <<= 1;
-        }
+        output->size = compressed_size;
       }
     } else {
-      squash_assert_unreachable();
+      size_t decompressed_size = squash_codec_get_uncompressed_size (codec, input->size, input->data);
+      if (decompressed_size != 0) {
+        /* We know the decompressed size. */
+        if (s->avail_out >= decompressed_size) {
+          /* And there is enough room in next_out to hold it, so write directly to next_out */
+          res = squash_codec_decompress_with_options (codec, &decompressed_size, s->next_out, input->size, input->data, s->options);
+          if (SQUASH_UNLIKELY(res != SQUASH_OK))
+            return res;
+
+          s->next_out += decompressed_size;
+          s->avail_out -= decompressed_size;
+
+          return SQUASH_OK;
+        } else {
+          /* But there isn't enough room in next_out, so we have to buffer. */
+          stream->output = output = squash_buffer_new (decompressed_size);
+          if (SQUASH_UNLIKELY(output == NULL))
+            return squash_error (SQUASH_MEMORY);
+
+          res = squash_codec_decompress_with_options (codec, &decompressed_size, output->data, input->size, input->data, s->options);
+          if (SQUASH_UNLIKELY(res != SQUASH_OK))
+            return res;
+
+          output->size = decompressed_size;
+        }
+      } else {
+        /* If we have >= npot(compressed_size) << 3 bytes in next_out,
+           first attempt to decompress directly to next_out.  If it
+           works, it saves us a malloc and a memcpy. */
+        decompressed_size = squash_npot (input->size) << 3;
+        decompressed_size = 1;
+        if (decompressed_size <= s->avail_out) {
+          decompressed_size = s->avail_out;
+          res = squash_codec_decompress_with_options (codec, &decompressed_size, s->next_out, input->size, input->data, s->options);
+          if (res == SQUASH_OK) {
+            s->next_out += decompressed_size;
+            s->avail_out -= decompressed_size;
+
+            return SQUASH_OK;
+          }
+        }
+
+        stream->output = output = squash_buffer_new (0);
+        if (SQUASH_UNLIKELY(output == NULL))
+          return squash_error (SQUASH_MEMORY);
+
+        res = squash_codec_decompress_to_buffer(codec, output, input->size, input->data, s->options);
+        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+          return res;
+      }
     }
   }
 
-  size_t copy_size = MIN(stream->output->size - stream->base_object.total_out, stream->base_object.avail_out);
-  memcpy (stream->base_object.next_out, stream->output->data + stream->base_object.total_out, copy_size);
-  stream->base_object.next_out += copy_size;
-  stream->base_object.avail_out -= copy_size;
+  assert (output != NULL);
 
-  return ((stream->base_object.total_out + copy_size) == stream->output->size) ?
-    SQUASH_OK :
-    SQUASH_PROCESSING;
+  const size_t remaining = output->size - stream->output_pos;
+  const size_t cp_size = (remaining < s->avail_out) ? remaining : s->avail_out;
+  if (SQUASH_LIKELY(cp_size != 0)) {
+    memcpy (s->next_out, output->data + stream->output_pos, cp_size);
+    s->next_out += cp_size;
+    s->avail_out -= cp_size;
+    stream->output_pos += cp_size;
+  }
+
+  return (stream->output_pos == output->size) ? SQUASH_OK : SQUASH_PROCESSING;
 }

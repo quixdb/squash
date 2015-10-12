@@ -102,7 +102,7 @@ squash_buffer_clear (SquashBuffer* buffer) {
 }
 
 bool
-squash_buffer_append (SquashBuffer* buffer, size_t data_size, uint8_t data[SQUASH_ARRAY_PARAM(data_size)]) {
+squash_buffer_append (SquashBuffer* buffer, size_t data_size, const uint8_t data[SQUASH_ARRAY_PARAM(data_size)]) {
   assert (buffer != NULL);
 
   if (data_size == 0)

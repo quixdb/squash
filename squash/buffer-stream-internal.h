@@ -45,12 +45,9 @@ typedef struct _SquashBufferStreamSList {
 typedef struct _SquashBufferStream {
   SquashStream base_object;
 
-  SquashBufferStreamSList* head;
-  SquashBufferStreamSList* last;
-  size_t last_pos;
-
   SquashBuffer* input;
   SquashBuffer* output;
+  size_t output_pos;
 } SquashBufferStream;
 
 SQUASH_NONNULL(1)
