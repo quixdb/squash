@@ -750,6 +750,56 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
   return res;
 }
 
+SquashStatus
+squash_splice_custom (const char* codec,
+                      SquashStreamType stream_type,
+                      SquashWriteFunc write_cb,
+                      SquashReadFunc read_cb,
+                      void* user_data,
+                      size_t size,
+                      ...) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+  if (codec_real == NULL)
+    return squash_error (SQUASH_NOT_FOUND);
+
+  va_list ap;
+  va_start (ap, size);
+  SquashOptions* options = squash_options_newv (codec_real, ap);
+  va_end (ap);
+
+  return squash_splice_custom_codec_with_options (codec_real, stream_type, write_cb, read_cb, user_data, size, options);
+}
+
+SquashStatus squash_splice_custom_codec (SquashCodec* codec,
+                                         SquashStreamType stream_type,
+                                         SquashWriteFunc write_cb,
+                                         SquashReadFunc read_cb,
+                                         void* user_data,
+                                         size_t size,
+                                         ...) {
+  va_list ap;
+  va_start (ap, size);
+  SquashOptions* options = squash_options_newv (codec, ap);
+  va_end (ap);
+
+  return squash_splice_custom_codec_with_options (codec, stream_type, write_cb, read_cb, user_data, size, options);
+
+}
+
+SquashStatus squash_splice_custom_with_options (const char* codec,
+                                                SquashStreamType stream_type,
+                                                SquashWriteFunc write_cb,
+                                                SquashReadFunc read_cb,
+                                                void* user_data,
+                                                size_t size,
+                                                SquashOptions* options) {
+  SquashCodec* codec_real = squash_get_codec (codec);
+  if (codec_real == NULL)
+    return squash_error (SQUASH_NOT_FOUND);
+
+  return squash_splice_custom_codec_with_options (codec_real, stream_type, write_cb, read_cb, user_data, size, options);
+}
+
 /**
  * @}
  */
