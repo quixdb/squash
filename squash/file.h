@@ -94,6 +94,8 @@ SQUASH_API SquashStatus squash_file_free                     (SquashFile* file,
                                                               FILE** fp);
 SQUASH_NONNULL(1)
 SQUASH_API bool         squash_file_eof                      (SquashFile* file);
+SQUASH_NONNULL(1)
+SQUASH_API SquashStatus squash_file_error                    (SquashFile* file);
 
 SQUASH_NONNULL(1)
 SQUASH_API void         squash_file_lock                     (SquashFile* file);

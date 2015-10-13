@@ -376,16 +376,17 @@ SquashStatus
 squash_file_read_unlocked (SquashFile* file,
                            size_t* decompressed_size,
                            uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]) {
-  SquashStatus res = SQUASH_FAILED;
-
   assert (file != NULL);
   assert (decompressed_size != NULL);
   assert (decompressed != NULL);
 
+  if (SQUASH_UNLIKELY(file->last_status < 0))
+    return file->last_status;
+
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_DECOMPRESS, file->options);
     if (file->stream == NULL) {
-      return squash_error (SQUASH_FAILED);
+      return file->last_status = squash_error (SQUASH_FAILED);
     }
   }
   SquashStream* stream = file->stream;
@@ -403,7 +404,6 @@ squash_file_read_unlocked (SquashFile* file,
 
   while (stream->avail_out != 0) {
     if (file->last_status < 0) {
-      res = file->last_status;
       break;
     }
 
@@ -412,9 +412,9 @@ squash_file_read_unlocked (SquashFile* file,
 
     if (file->last_status == SQUASH_PROCESSING) {
       if (stream->state < SQUASH_STREAM_STATE_FINISHING) {
-        res = file->last_status = squash_stream_process (stream);
+        file->last_status = squash_stream_process (stream);
       } else {
-        res = file->last_status = squash_stream_finish (stream);
+        file->last_status = squash_stream_finish (stream);
       }
 
       continue;
@@ -438,13 +438,13 @@ squash_file_read_unlocked (SquashFile* file,
 
     if (stream->avail_in == 0) {
       if (feof (file->fp)) {
-        res = file->last_status = squash_stream_finish (stream);
+        file->last_status = squash_stream_finish (stream);
       } else {
-        res = SQUASH_IO;
+        file->last_status = squash_error (SQUASH_IO);
         break;
       }
     } else {
-      res = file->last_status = squash_stream_process (stream);
+      file->last_status = squash_stream_process (stream);
     }
   }
 
@@ -453,7 +453,7 @@ squash_file_read_unlocked (SquashFile* file,
   stream->next_out = 0;
   stream->avail_out = 0;
 
-  return res;
+  return file->last_status;
 }
 
 static SquashStatus
@@ -464,6 +464,9 @@ squash_file_write_internal (SquashFile* file,
   SquashStatus res;
 
   assert (file != NULL);
+
+  if (SQUASH_UNLIKELY(file->last_status < 0))
+    return file->last_status;
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_COMPRESS, file->options);
@@ -521,7 +524,7 @@ squash_file_write_internal (SquashFile* file,
     file->stream->avail_out = 0;
   }
 
-  return res;
+  return file->last_status = res;
 }
 
 /**
@@ -633,6 +636,20 @@ squash_file_eof (SquashFile* file) {
 }
 
 /**
+ * @brief Retrieve the last return value
+ *
+ * This will return the result of the previous function called on this
+ * file.
+ *
+ * @param file file to examine
+ * @return last status code returned by a function on @a file
+ */
+SquashStatus
+squash_file_error (SquashFile* file) {
+  return file->last_status;
+}
+
+/**
  * @brief Close a file
  *
  * If @a file is a compressor the stream will finish compressing,
@@ -656,8 +673,14 @@ SquashStatus
 squash_file_close (SquashFile* file) {
   FILE* fp = NULL;
   SquashStatus res = squash_file_free (file, &fp);
-  if (fp != NULL)
-    fclose (fp);
+  if (res > SQUASH_OK)
+    res = SQUASH_OK;
+
+  if (fp != NULL) {
+    const SquashStatus cres = SQUASH_LIKELY(fclose (fp) == 0) ? SQUASH_OK : squash_error (SQUASH_IO);
+    if (SQUASH_LIKELY(res > 0))
+      res = cres;
+  }
   return res;
 }
 
@@ -679,15 +702,16 @@ SquashStatus
 squash_file_free (SquashFile* file, FILE** fp) {
   SquashStatus res = SQUASH_OK;
 
-  if (file == NULL)
+  if (SQUASH_UNLIKELY(file == NULL)) {
+    if (fp != NULL)
+      *fp = NULL;
     return SQUASH_OK;
+  }
 
   squash_file_lock (file);
 
   if (file->stream != NULL && file->stream->stream_type == SQUASH_STREAM_COMPRESS)
     res = squash_file_write_internal (file, 0, NULL, SQUASH_OPERATION_FINISH);
-
-  SQUASH_FFLUSH_UNLOCKED(file->fp);
 
 #if defined(SQUASH_MMAP_IO)
   squash_mapped_file_destroy (&(file->map), false);
