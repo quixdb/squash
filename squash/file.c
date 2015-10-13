@@ -562,6 +562,7 @@ SquashStatus
 squash_file_printf (SquashFile* file,
                     const char* format,
                     ...) {
+  SquashStatus res = SQUASH_OK;
   va_list ap;
   int size;
   char buf[256];
@@ -572,15 +573,16 @@ squash_file_printf (SquashFile* file,
   if (size >= (int) sizeof (buf)) {
     heap_buf = malloc (size);
     if (heap_buf == NULL)
-      return squash_error (SQUASH_MEMORY);
+      res = squash_error (SQUASH_MEMORY);
 
     const int written = vsnprintf (heap_buf, size, format, ap);
     if (SQUASH_UNLIKELY(written != size - 1))
-      return squash_error (SQUASH_FAILED);
+      res = squash_error (SQUASH_FAILED);
   }
   va_end (ap);
 
-  SquashStatus res = squash_file_write (file, size, (uint8_t*) ((heap_buf == NULL) ? buf : heap_buf));
+  if (SQUASH_LIKELY(res == SQUASH_OK))
+    res = squash_file_write (file, size, (uint8_t*) ((heap_buf == NULL) ? buf : heap_buf));
 
   free (heap_buf);
 
