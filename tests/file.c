@@ -25,7 +25,7 @@ single_teardown (struct Single* data, gconstpointer user_data) {
 static void
 test_file_io (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open_codec_with_options (codec, data->filename, "w+", NULL);
+  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+", NULL);
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
@@ -33,7 +33,7 @@ test_file_io (struct Single* data, gconstpointer user_data) {
 
   squash_file_close (file);
 
-  file = squash_file_open_codec_with_options (codec, data->filename, "rb", NULL);
+  file = squash_file_open_codec (codec, data->filename, "rb", NULL);
   g_assert (file != NULL);
 
   uint8_t decompressed[LOREM_IPSUM_LENGTH];
@@ -112,13 +112,13 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
 
   g_assert_cmpint (ftello (compressed), ==, offset);
 
-  SquashStatus res = squash_splice_codec_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
+  SquashStatus res = squash_splice_codec (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
   g_assert (res == SQUASH_OK);
 
   ires = fseek (compressed, offset, SEEK_SET);
   g_assert_cmpint (ires, ==, 0);
 
-  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
+  res = squash_splice_codec (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
   g_assert (res == SQUASH_OK);
 
   g_assert_cmpint (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
@@ -171,13 +171,13 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   len1 = (size_t) g_test_rand_int_range (128, LOREM_IPSUM_LENGTH - 1);
   len2 = (size_t) g_test_rand_int_range (64, len1 - 1);
 
-  SquashStatus res = squash_splice_codec_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, len1, NULL);
+  SquashStatus res = squash_splice_codec (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, len1, NULL);
   g_assert_cmpint (res, ==, SQUASH_OK);
   g_assert_cmpint (ftello (uncompressed), ==, len1);
   rewind (uncompressed);
   rewind (compressed);
 
-  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
+  res = squash_splice_codec (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
   g_assert (res == SQUASH_OK);
   g_assert_cmpint (ftello (decompressed), ==, (off_t) len1);
   rewind (compressed);
@@ -190,7 +190,7 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   rewind (decompressed);
 
   memcpy (decompressed_data, filler, sizeof (decompressed_data));
-  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, len2, NULL);
+  res = squash_splice_codec (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, len2, NULL);
   g_assert_cmpint (res, ==, SQUASH_OK);
 
   fclose (uncompressed);
@@ -201,7 +201,7 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
 static void
 test_file_printf (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open_codec_with_options (codec, data->filename, "w+", NULL);
+  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+", NULL);
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_printf (file, "Hello, %s\n", "world");
@@ -209,7 +209,7 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
 
   squash_file_close (file);
 
-  file = squash_file_open_codec_with_options (codec, data->filename, "rb", NULL);
+  file = squash_file_open_codec (codec, data->filename, "rb", NULL);
   g_assert (file != NULL);
 
   uint8_t decompressed[64];

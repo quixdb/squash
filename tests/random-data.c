@@ -26,7 +26,7 @@ check_codec (SquashCodec* codec) {
     compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
     g_assert (compressed_length > 0);
 
-    res = squash_codec_compress_with_options (codec, &compressed_length, compressed_data, uncompressed_length, (uint8_t*) uncompressed_data, NULL);
+    res = squash_codec_compress (codec, &compressed_length, compressed_data, uncompressed_length, (uint8_t*) uncompressed_data, NULL);
     SQUASH_ASSERT_OK(res);
     g_assert (compressed_length > 0);
     g_assert (compressed_length <= squash_codec_get_max_compressed_size (codec, uncompressed_length));
@@ -35,7 +35,7 @@ check_codec (SquashCodec* codec) {
     // g_message ("%zu -> %zu (%zu)", uncompressed_length, compressed_length, compressed_length - uncompressed_length);
 
     decompressed_length = uncompressed_length;
-    res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
+    res = squash_codec_decompress (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
     SQUASH_ASSERT_OK(res);
     g_assert (decompressed_length == uncompressed_length);
 
@@ -56,7 +56,7 @@ check_codec (SquashCodec* codec) {
        make sure it doesn't crash. */
     compressed_length = uncompressed_length;
     memcpy (compressed_data, uncompressed_data, uncompressed_length);
-    squash_codec_decompress_with_options (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
+    squash_codec_decompress (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
   }
 
   free (compressed_data);

@@ -80,7 +80,7 @@ check_codec (SquashCodec* codec) {
   const size_t slen1 = (size_t) g_test_rand_int_range (1024, 2048);
   const size_t slen2 = (size_t) g_test_rand_int_range ( 512, 1024);
 
-  SquashStatus res = squash_splice_custom_codec_with_options (codec, SQUASH_STREAM_COMPRESS, write_cb, read_cb, &data, slen1, NULL);
+  SquashStatus res = squash_splice_custom_codec (codec, SQUASH_STREAM_COMPRESS, write_cb, read_cb, &data, slen1, NULL);
   SQUASH_ASSERT_OK (res);
 
   {
@@ -103,7 +103,7 @@ check_codec (SquashCodec* codec) {
   data.output_length = slen2;
   data.output_pos = 0;
 
-  res = squash_splice_custom_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, write_cb, read_cb, &data, slen2, NULL);
+  res = squash_splice_custom_codec (codec, SQUASH_STREAM_DECOMPRESS, write_cb, read_cb, &data, slen2, NULL);
   SQUASH_ASSERT_OK (res);
   g_assert_cmpint (data.output_pos, ==, slen2);
 

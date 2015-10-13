@@ -7,7 +7,7 @@ buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
                                          size_t compressed_length,
                                          const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
   size_t step_size = g_test_rand_int_range (64, 255);
-  SquashStream* stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_DECOMPRESS, NULL);
+  SquashStream* stream = squash_codec_create_stream (codec, SQUASH_STREAM_DECOMPRESS, NULL);
   SquashStatus res = SQUASH_OK;
 
 	stream->next_out = decompressed;
@@ -53,7 +53,7 @@ check_codec (SquashCodec* codec) {
   uint8_t* compressed = (uint8_t*) malloc (compressed_length);
   SquashStatus res;
 
-  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
+  res = squash_codec_compress (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK(res);
 
   if ((squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) {

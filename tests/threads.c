@@ -13,10 +13,10 @@ compress_buffer_thread_func (SquashCodec* codec) {
   for ( ; i < 8 ; i++ ) {
     compressed_length = max_compressed_length;
 
-    res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
+    res = squash_codec_compress (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
     SQUASH_ASSERT_OK(res);
 
-    res = squash_codec_decompress_with_options (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
+    res = squash_codec_decompress (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
     SQUASH_ASSERT_OK(res);
     g_assert (decompressed_length == LOREM_IPSUM_LENGTH);
 

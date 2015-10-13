@@ -9,10 +9,10 @@ check_codec (SquashCodec* codec) {
   SquashStatus res;
   size_t pos = 0;
 
-  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
+  res = squash_codec_compress (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK(res);
 
-  res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
+  res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
   g_assert_cmpint (LOREM_IPSUM_LENGTH, ==, uncompressed_length);
   SQUASH_ASSERT_OK(res);
 
@@ -25,7 +25,7 @@ check_codec (SquashCodec* codec) {
 
   if (strcmp ("lz4", squash_codec_get_name (codec)) != 0) {
     uncompressed_length = LOREM_IPSUM_LENGTH - 1;
-    res = squash_codec_decompress_with_options (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
+    res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
     g_assert_cmpint (res, ==, SQUASH_BUFFER_FULL);
   }
 

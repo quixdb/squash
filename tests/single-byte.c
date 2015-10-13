@@ -14,10 +14,10 @@ check_codec (SquashCodec* codec) {
   if (strcmp (squash_codec_get_name (codec), "lzf") == 0)
     return;
 
-  res = squash_codec_compress_with_options (codec, &compressed_length, compressed, 1, &uncompressed, NULL);
+  res = squash_codec_compress (codec, &compressed_length, compressed, 1, &uncompressed, NULL);
   SQUASH_ASSERT_OK(res);
 
-  res = squash_codec_decompress_with_options (codec, &decompressed_length, &decompressed, compressed_length, compressed, NULL);
+  res = squash_codec_decompress (codec, &decompressed_length, &decompressed, compressed_length, compressed, NULL);
   SQUASH_ASSERT_OK(res);
   g_assert (decompressed_length == 1);
 
