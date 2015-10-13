@@ -198,9 +198,47 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   fclose (decompressed);
 }
 
+static void
+test_file_printf (struct Single* data, gconstpointer user_data) {
+  SquashCodec* codec = (SquashCodec*) user_data;
+  SquashFile* file = squash_file_open_codec_with_options (codec, data->filename, "w+", NULL);
+  g_assert (file != NULL);
+
+  SquashStatus res = squash_file_printf (file, "Hello, %s\n", "world");
+  g_assert (res == SQUASH_OK);
+
+  squash_file_close (file);
+
+  file = squash_file_open_codec_with_options (codec, data->filename, "rb", NULL);
+  g_assert (file != NULL);
+
+  uint8_t decompressed[64];
+  size_t total_read = 0;
+  do {
+    size_t bytes_read = 256;
+    res = squash_file_read (file, &bytes_read, decompressed + total_read);
+    assert (res > 0);
+    total_read += bytes_read;
+  } while (!squash_file_eof (file));
+
+  g_assert_cmpint (total_read, ==, strlen ("Hello, world\n"));
+  g_assert_cmpstr ((char*) decompressed, ==, "Hello, world\n");
+
+  squash_file_close (file);
+}
+
 void
 squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
-  gchar* test_name =
+  gchar* test_name;
+
+  test_name =
+    g_strdup_printf ("/file/printf/%s/%s",
+                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                     squash_codec_get_name (codec));
+  g_test_add (test_name, struct Single, codec, single_setup, test_file_printf, single_teardown);
+  g_free (test_name);
+
+  test_name =
     g_strdup_printf ("/file/io/%s/%s",
                      squash_plugin_get_name (squash_codec_get_plugin (codec)),
                      squash_codec_get_name (codec));

@@ -86,6 +86,14 @@ SQUASH_NONNULL(1, 3)
 SQUASH_API SquashStatus squash_file_write                    (SquashFile* file,
                                                               size_t uncompressed_size,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]);
+
+#if defined(__GNUC__)
+__attribute__((__format__ (__printf__, 2, 3)))
+#endif
+SQUASH_NONNULL(1, 2)
+SQUASH_API SquashStatus squash_file_printf                   (SquashFile* file,
+                                                              const char* format,
+                                                              ...);
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 SQUASH_NONNULL(1)
