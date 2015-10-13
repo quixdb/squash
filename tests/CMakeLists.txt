@@ -3,6 +3,7 @@ enable_testing ()
 set (codec_tests
   buffer
   bounds
+  file
   flush
   random-data
   splice
@@ -34,12 +35,4 @@ if (GLIB_FOUND)
     target_add_extra_warning_flags (${test})
     add_test (${test} ${test} --squash-plugins=${PROJECT_BINARY_DIR}/plugins)
   endforeach (test)
-
-  source_file_add_compiler_flags ("test-codecs.c" "-Wno-unknown-attributes")
-
-  add_executable ("file" "file.c")
-  target_link_libraries ("file" squash${SQUASH_VERSION_API})
-  squash_target_add_glib ("file")
-  target_add_extra_warning_flags ("file")
-  add_test ("file" "file" --squash-plugins=${PROJECT_BINARY_DIR}/plugins)
 endif (GLIB_FOUND)

@@ -112,4 +112,6 @@ static inline void squash__assert (bool e, const char* expr, const char* file, i
 
 void check_codec (SquashCodec* codec);
 
+void squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data);
+
 #endif /* __TEST_CODECS_H__ */

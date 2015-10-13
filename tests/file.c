@@ -1,66 +1,6 @@
-#define GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_26
-#define GLIB_VERSION_MAX_ALLOWED GLIB_VERSION_2_26
-
-#include <glib.h>
-#include <squash/squash.h>
+#include "test-codecs.h"
 
 #include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-
-#define STREAM_TEST_CODEC "zlib:gzip"
-#define BUFFER_TEST_CODEC "snappy:snappy"
-#define SPLICE_TEST_CODEC "crush:crush"
-
-#define LOREM_IPSUM (const uint8_t*)                                    \
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vulputate " \
-  "lectus nisl, vitae ultricies justo dictum nec. Vestibulum ante ipsum " \
-  "primis in faucibus orci luctus et ultrices posuere cubilia Curae; "  \
-  "Suspendisse suscipit quam a lectus adipiscing, sed tempor purus "    \
-  "cursus. Vivamus id nulla eget elit eleifend molestie. Integer "      \
-  "sollicitudin lorem enim, eu eleifend orci facilisis sed. Pellentesque " \
-  "sodales luctus enim vel viverra. Cras interdum vel nisl in "         \
-  "facilisis. Curabitur sollicitudin tortor vel congue "                \
-  "auctor. Suspendisse egestas orci vitae neque placerat blandit.\n"    \
-  "\n"                                                                  \
-  "Aenean sed nisl ultricies, vulputate lorem a, suscipit nulla. Donec " \
-  "egestas volutpat neque a eleifend. Nullam porta semper "             \
-  "nunc. Pellentesque adipiscing molestie magna, quis pulvinar metus "  \
-  "gravida sit amet. Vestibulum mollis et sapien eu posuere. Quisque "  \
-  "tristique dignissim ante et aliquet. Phasellus vulputate condimentum " \
-  "nulla in vulputate.\n"                                               \
-  "\n"                                                                  \
-  "Nullam volutpat tellus at nisi auctor, vitae mattis nibh viverra. Nunc " \
-  "vitae lectus tristique, ultrices nibh quis, lobortis elit. Curabitur " \
-  "at vestibulum nisi, nec facilisis ante. Nulla pharetra blandit lacus, " \
-  "at sodales nulla placerat eget. Nulla congue varius tortor, sit amet " \
-  "tempor est mattis nec. Praesent vitae tristique ipsum, rhoncus "     \
-  "tristique lorem. Sed et erat tristique ligula accumsan fringilla eu in " \
-  "urna. Donec dapibus hendrerit neque nec venenatis. In euismod sapien " \
-  "ipsum, auctor consectetur mi dapibus hendrerit.\n"                   \
-  "\n"                                                                  \
-  "Phasellus sagittis rutrum velit, in sodales nibh imperdiet a. Integer " \
-  "vitae arcu blandit nibh laoreet scelerisque eu sit amet eros. Aenean " \
-  "odio felis, aliquam in eros at, ornare luctus magna. In semper "     \
-  "tincidunt nunc, sollicitudin gravida nunc laoreet eu. Cras eu tempor " \
-  "sapien, ut dignissim elit. Proin eleifend arcu tempus, semper erat et, " \
-  "accumsan erat. Praesent vulputate diam mi, eget mollis leo "         \
-  "pellentesque eget. Aliquam eu tortor posuere, posuere velit sed, "   \
-  "suscipit eros. Nam eu leo vitae mauris condimentum lobortis non quis " \
-  "mauris. Nulla venenatis fringilla urna nec venenatis. Nam eget velit " \
-  "nulla. Proin ut malesuada felis. Suspendisse vitae nunc neque. Donec " \
-  "faucibus tempor lacinia. Vivamus ac vulputate sapien, eget lacinia " \
-  "nisl.\n"                                                             \
-  "\n"                                                                  \
-  "Curabitur eu dolor molestie, ullamcorper lorem quis, egestas "       \
-  "urna. Suspendisse in arcu sed justo blandit condimentum. Ut auctor, " \
-  "sem quis condimentum mattis, est purus pulvinar elit, quis viverra " \
-  "nibh metus ac diam. Etiam aliquet est eu dui fermentum consequat. Cras " \
-  "auctor diam eget bibendum sagittis. Aenean elementum purus sit amet " \
-  "sem euismod, non varius felis dictum. Aliquam tempus pharetra ante a " \
-  "sagittis. Curabitur ut urna felis. Etiam sed vulputate nisi. Praesent " \
-  "at libero eleifend, sagittis quam a, varius sapien."
-#define LOREM_IPSUM_LENGTH ((size_t) 2725)
 
 struct Single {
   char* filename;
@@ -84,7 +24,8 @@ single_teardown (struct Single* data, gconstpointer user_data) {
 
 static void
 test_file_io (struct Single* data, gconstpointer user_data) {
-  SquashFile* file = squash_file_open (STREAM_TEST_CODEC, data->filename, "w+", NULL);
+  SquashCodec* codec = (SquashCodec*) user_data;
+  SquashFile* file = squash_file_open_codec_with_options (codec, data->filename, "w+", NULL);
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
@@ -92,7 +33,7 @@ test_file_io (struct Single* data, gconstpointer user_data) {
 
   squash_file_close (file);
 
-  file = squash_file_open (STREAM_TEST_CODEC, data->filename, "rb", NULL);
+  file = squash_file_open_codec_with_options (codec, data->filename, "rb", NULL);
   g_assert (file != NULL);
 
   uint8_t decompressed[LOREM_IPSUM_LENGTH];
@@ -143,6 +84,7 @@ triple_teardown (struct Triple* data, gconstpointer user_data) {
 
 static void
 test_file_splice (struct Triple* data, gconstpointer user_data) {
+  SquashCodec* codec = (SquashCodec*) user_data;
   const uint8_t offset_buf[4096] = { 0, };
   size_t offset;
   size_t bytes_written;
@@ -170,13 +112,13 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
 
   g_assert_cmpint (ftello (compressed), ==, offset);
 
-  SquashStatus res = squash_splice ((char*) user_data, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
+  SquashStatus res = squash_splice_codec_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
   g_assert (res == SQUASH_OK);
 
   ires = fseek (compressed, offset, SEEK_SET);
   g_assert_cmpint (ires, ==, 0);
 
-  res = squash_splice ((char*) user_data, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
+  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
   g_assert (res == SQUASH_OK);
 
   g_assert_cmpint (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
@@ -201,6 +143,7 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
 
 static void
 test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
+  SquashCodec* codec = (SquashCodec*) user_data;
   uint8_t filler[LOREM_IPSUM_LENGTH] = { 0, };
   uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
   size_t bytes;
@@ -228,13 +171,13 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   len1 = (size_t) g_test_rand_int_range (128, LOREM_IPSUM_LENGTH - 1);
   len2 = (size_t) g_test_rand_int_range (64, len1 - 1);
 
-  SquashStatus res = squash_splice ((char*) user_data, SQUASH_STREAM_COMPRESS, compressed, uncompressed, len1, NULL);
+  SquashStatus res = squash_splice_codec_with_options (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, len1, NULL);
   g_assert_cmpint (res, ==, SQUASH_OK);
   g_assert_cmpint (ftello (uncompressed), ==, len1);
   rewind (uncompressed);
   rewind (compressed);
 
-  res = squash_splice ((char*) user_data, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
+  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
   g_assert (res == SQUASH_OK);
   g_assert_cmpint (ftello (decompressed), ==, (off_t) len1);
   rewind (compressed);
@@ -247,7 +190,7 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   rewind (decompressed);
 
   memcpy (decompressed_data, filler, sizeof (decompressed_data));
-  res = squash_splice ((char*) user_data, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, len2, NULL);
+  res = squash_splice_codec_with_options (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, len2, NULL);
   g_assert_cmpint (res, ==, SQUASH_OK);
 
   fclose (uncompressed);
@@ -255,39 +198,26 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   fclose (decompressed);
 }
 
-static gchar* squash_plugins_dir = NULL;
+void
+squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
+  gchar* test_name =
+    g_strdup_printf ("/file/io/%s/%s",
+                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                     squash_codec_get_name (codec));
+  g_test_add (test_name, struct Single, codec, single_setup, test_file_io, single_teardown);
+  g_free (test_name);
 
-static GOptionEntry options[] = {
-  { "squash-plugins", 0, 0, G_OPTION_ARG_STRING, &squash_plugins_dir, "Path to the Squash plugins directory", "DIR" },
-  { NULL }
-};
+  test_name =
+    g_strdup_printf ("/file/splice/full/%s/%s",
+                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                     squash_codec_get_name (codec));
+  g_test_add (test_name, struct Triple, codec, triple_setup, test_file_splice, triple_teardown);
+  g_free (test_name);
 
-int
-main (int argc, char** argv) {
-  GError *error = NULL;
-  GOptionContext *context;
-
-  g_test_init (&argc, &argv, NULL);
-
-  context = g_option_context_new ("- Squash unit test");
-  g_option_context_add_main_entries (context, options, NULL);
-  g_option_context_set_ignore_unknown_options (context, FALSE);
-  if (!g_option_context_parse (context, &argc, &argv, &error)) {
-    g_error ("Option parsing failed: %s\n", error->message);
-  }
-  g_option_context_free (context);
-
-  if (squash_plugins_dir != NULL) {
-    g_setenv ("SQUASH_PLUGINS", squash_plugins_dir, TRUE);
-  }
-
-  g_test_add ("/file/io", struct Single, NULL, single_setup, test_file_io, single_teardown);
-  g_test_add ("/file/splice/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
-  g_test_add ("/file/splice/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
-  g_test_add ("/file/splice/splice", struct Triple, SPLICE_TEST_CODEC, triple_setup, test_file_splice, triple_teardown);
-  g_test_add ("/file/splice/partial/buffer", struct Triple, BUFFER_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
-  g_test_add ("/file/splice/partial/stream", struct Triple, STREAM_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
-  g_test_add ("/file/splice/partial/splice", struct Triple, SPLICE_TEST_CODEC, triple_setup, test_file_splice_partial, triple_teardown);
-
-  return g_test_run ();
+  test_name =
+    g_strdup_printf ("/file/splice/partial/%s/%s",
+                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                     squash_codec_get_name (codec));
+  g_test_add (test_name, struct Triple, codec, triple_setup, test_file_splice_partial, triple_teardown);
+  g_free (test_name);
 }

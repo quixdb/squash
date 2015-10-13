@@ -73,3 +73,12 @@ check_codec (SquashCodec* codec) {
   free (compressed);
   free (decompressed);
 }
+
+void
+squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
+  gchar* test_name = g_strdup_printf ("/stream-decompress/%s/%s",
+                                      squash_plugin_get_name (squash_codec_get_plugin (codec)),
+                                      squash_codec_get_name (codec));
+  g_test_add_data_func (test_name, codec, (GTestDataFunc) check_codec);
+  g_free (test_name);
+}
