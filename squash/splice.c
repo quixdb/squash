@@ -721,8 +721,10 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
       } else {
         SquashBuffer* decompressed_buffer = squash_buffer_new (0);
         res = squash_codec_decompress_to_buffer (codec, decompressed_buffer, buffer->size, buffer->data, options);
-        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+        if (SQUASH_UNLIKELY(res != SQUASH_OK)) {
+          squash_buffer_free (decompressed_buffer);
           goto cleanup_buffer;
+        }
         out_data = squash_buffer_release (decompressed_buffer, &out_data_size);
       }
     }
