@@ -13,8 +13,14 @@ https://cyan4973.github.io/lz4/
 
 ### lz4 ###
 
-- **level** (integer, 7-14, default 7) — higher level corresponds to
+- **level** (integer, 1-14, default 7) — higher level corresponds to
   better compression ratio but slower compression speed.
+  - **1** — LZ4 fast mode (LZ4_compress_fast) acceleration 32
+  - **2** — LZ4 fast mode acceleration 24
+  - **3** — LZ4 fast mode acceleration 17
+  - **4** — LZ4 fast mode acceleration 8
+  - **5** — LZ4 fast mode acceleration 4
+  - **6** — LZ4 fast mode acceleration 2
   - **7** — The default algorithm (LZ4_compress)
   - **8** — LZ4HC level 2
   - **9** — LZ4HC level 4
