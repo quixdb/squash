@@ -246,12 +246,6 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
       if (0 != processed) {
         stream->next_out += processed;
         stream->avail_out -= processed;
-      } else if (SQUASH_OPERATION_FINISH == operation) {
-        HSD_finish_res hsf = heatshrink_decoder_finish (s->ctx.decomp);
-        if (hsf < 0)
-          return squash_error (SQUASH_FAILED);
-
-        return (HSDR_FINISH_MORE == hsf) ? SQUASH_PROCESSING : SQUASH_OK;
       }
 
       if (HSDR_POLL_MORE == hsp)
