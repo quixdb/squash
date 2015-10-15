@@ -50,10 +50,10 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
 
   if (allocation > buffer->allocated) {
     allocation = squash_buffer_npot_page (allocation);
-    buffer->allocated = allocation;
     uint8_t* mem = (uint8_t*) realloc (buffer->data, allocation);
     if (mem == NULL)
       return false;
+    buffer->allocated = allocation;
     buffer->data = mem;
   }
 
@@ -65,15 +65,21 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
  * @private
  *
  * @param preallocated_len Size of data (in bytes) to pre-allocate
- * @return A new buffer
+ * @return A new buffer, or *NULL* if the requested size could not be
+ *   allocated
  */
 SquashBuffer*
 squash_buffer_new (size_t preallocated_len) {
   SquashBuffer* buffer = (SquashBuffer*) malloc (sizeof (SquashBuffer));
+  if (SQUASH_UNLIKELY(buffer == NULL))
+    return NULL;
 
-  buffer->data = preallocated_len > 0 ? (uint8_t*) malloc (preallocated_len) : NULL;
+  buffer->data = NULL;
   buffer->size = 0;
-  buffer->allocated = preallocated_len;
+  buffer->allocated = 0;
+  const bool allocated = squash_buffer_ensure_allocation (buffer, preallocated_len);
+  if (SQUASH_UNLIKELY(!allocated))
+    return (free (buffer), NULL);
 
   return buffer;
 }
