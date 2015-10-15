@@ -669,6 +669,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
                                     size_t uncompressed_size,
                                     const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                     SquashOptions* options) {
+  SquashStatus res = SQUASH_OK;
   SquashCodecImpl* impl = NULL;
 
   assert (codec != NULL);
@@ -676,12 +677,18 @@ squash_codec_compress_with_options (SquashCodec* codec,
   assert (compressed != NULL);
   assert (uncompressed != NULL);
 
-  impl = squash_codec_get_impl (codec);
-  if (impl == NULL)
-    return squash_error (SQUASH_UNABLE_TO_LOAD);
+  squash_object_ref (options);
 
-  if (compressed == uncompressed)
-    return squash_error (SQUASH_INVALID_BUFFER);
+  impl = squash_codec_get_impl (codec);
+  if (impl == NULL) {
+    res = squash_error (SQUASH_UNABLE_TO_LOAD);
+    goto cleanup;
+  }
+
+  if (compressed == uncompressed) {
+    res = squash_error (SQUASH_INVALID_BUFFER);
+    goto cleanup;
+  }
 
   if (impl->compress_buffer ||
       impl->compress_buffer_unsafe) {
@@ -689,56 +696,64 @@ squash_codec_compress_with_options (SquashCodec* codec,
 
     if (*compressed_size >= max_compressed_size) {
       if (impl->compress_buffer_unsafe != NULL) {
-        return impl->compress_buffer_unsafe (codec,
-                                              compressed_size, compressed,
-                                              uncompressed_size, uncompressed,
-                                              options);
+        res = impl->compress_buffer_unsafe (codec,
+                                            compressed_size, compressed,
+                                            uncompressed_size, uncompressed,
+                                            options);
+        goto cleanup;
       } else {
-        return impl->compress_buffer (codec,
-                                       compressed_size, compressed,
-                                       uncompressed_size, uncompressed,
-                                       options);
-      }
-    } else if (impl->compress_buffer != NULL) {
-      return impl->compress_buffer (codec,
+        res = impl->compress_buffer (codec,
                                      compressed_size, compressed,
                                      uncompressed_size, uncompressed,
                                      options);
+        goto cleanup;
+      }
+    } else if (impl->compress_buffer != NULL) {
+      res = impl->compress_buffer (codec,
+                                   compressed_size, compressed,
+                                   uncompressed_size, uncompressed,
+                                   options);
+      goto cleanup;
     } else {
-      SquashStatus status;
       uint8_t* tmp_buf = malloc (max_compressed_size);
-      if (tmp_buf == NULL)
-        return squash_error (SQUASH_MEMORY);
+      if (tmp_buf == NULL) {
+        res = squash_error (SQUASH_MEMORY);
+        goto cleanup;
+      }
 
-      status = impl->compress_buffer_unsafe (codec,
-                                              &max_compressed_size, tmp_buf,
-                                              uncompressed_size, uncompressed,
-                                              options);
-      if (status == SQUASH_OK) {
+      res = impl->compress_buffer_unsafe (codec,
+                                          &max_compressed_size, tmp_buf,
+                                          uncompressed_size, uncompressed,
+                                          options);
+      if (res == SQUASH_OK) {
         if (*compressed_size < max_compressed_size) {
           *compressed_size = max_compressed_size;
           free (tmp_buf);
-          return squash_error (SQUASH_BUFFER_FULL);
+          res = squash_error (SQUASH_BUFFER_FULL);
+          goto cleanup;
         } else {
           *compressed_size = max_compressed_size;
           memcpy (compressed, tmp_buf, max_compressed_size);
           free (tmp_buf);
-          return SQUASH_OK;
+          res = SQUASH_OK;
+          goto cleanup;
         }
       } else {
         free (tmp_buf);
-        return status;
+        goto cleanup;
       }
     }
   } else if (impl->splice != NULL) {
-    return squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_size, compressed, uncompressed_size, uncompressed, options);
+    res = squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_size, compressed, uncompressed_size, uncompressed, options);
+    goto cleanup;
   } else {
-    SquashStatus status;
     SquashStream* stream;
 
     stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_COMPRESS, options);
-    if (stream == NULL)
-      return squash_error (SQUASH_FAILED);
+    if (stream == NULL) {
+      res = squash_error (SQUASH_FAILED);
+      goto cleanup;
+    }
 
     stream->next_in = uncompressed;
     stream->avail_in = uncompressed_size;
@@ -746,27 +761,32 @@ squash_codec_compress_with_options (SquashCodec* codec,
     stream->avail_out = *compressed_size;
 
     do {
-      status = squash_stream_process (stream);
-    } while (status == SQUASH_PROCESSING);
+      res = squash_stream_process (stream);
+    } while (res == SQUASH_PROCESSING);
 
-    if (status != SQUASH_OK) {
+    if (res != SQUASH_OK) {
       squash_object_unref (stream);
-      return status;
+      goto cleanup;
     }
 
     do {
-      status = squash_stream_finish (stream);
-    } while (status == SQUASH_PROCESSING);
+      res = squash_stream_finish (stream);
+    } while (res == SQUASH_PROCESSING);
 
-    if (status != SQUASH_OK) {
+    if (res != SQUASH_OK) {
       squash_object_unref (stream);
-      return status;
+      goto cleanup;
     }
 
     *compressed_size = stream->total_out;
     squash_object_unref (stream);
-    return status;
+    goto cleanup;
   }
+
+ cleanup:
+
+  squash_object_unref (options);
+  return res;
 }
 
 /**
