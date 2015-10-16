@@ -158,6 +158,12 @@ case "${1}" in
                 ;;
         esac
 
+        case "${TRAVIS_OS_NAME}" in
+            "osx")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --disable-ms-compress --disable-ncompress --disable-lzham"
+                ;;
+        esac
+
         git submodule update --init --recursive
         /bin/bash -x ./autogen.sh \
                   ${CONFIGURE_FLAGS} \

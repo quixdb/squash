@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 os:
   - linux
-#  - osx
+  - osx
 env:
   matrix:
     - COMPILER=gcc-5 BUILD_TYPE=debug
