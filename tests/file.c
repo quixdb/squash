@@ -221,7 +221,12 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
     total_read += bytes_read;
   } while (!squash_file_eof (file));
 
-  g_assert_cmpint (total_read, ==, strlen ("Hello, world\n"));
+  static const size_t read_desired = 13; /* strlen ("Hello, world\n") */
+
+  g_assert_cmpint (total_read, ==, read_desired);
+  /* Note that we don't store the trailing null byte, so we need to
+     add it back in here. */
+  decompressed[read_desired] = 0x00;
   g_assert_cmpstr ((char*) decompressed, ==, "Hello, world\n");
 
   squash_file_close (file);
