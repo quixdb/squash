@@ -94,11 +94,13 @@ else ()
   list (APPEND lzma_embed_defines MYTHREAD_POSIX)
 endif ()
 
+find_package(LZMA)
+
 squash_plugin (
   NAME lzma
   SOURCES squash-lzma.c
   C_STANDARD c99
-  EXTERNAL_PKG liblzma
+  EXTERNAL_PKG_PREFIX LZMA
   EMBED_SOURCES
     xz/src/common/tuklib_physmem.c
     xz/src/common/tuklib_cpucores.c

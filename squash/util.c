@@ -29,10 +29,14 @@
 
 #include "internal.h"
 
-#include <unistd.h>
-#if !defined(_SC_PAGESIZE)
-#include <sys/types.h>
-#include <sys/sysctl.h>
+#if !defined(_WIN32)
+#  include <unistd.h>
+#  if !defined(_SC_PAGESIZE)
+#    include <sys/types.h>
+#    include <sys/sysctl.h>
+#  endif
+#else
+#  include <windows.h>
 #endif
 
 size_t
@@ -40,7 +44,11 @@ squash_get_page_size (void) {
   static size_t page_size = 0;
 
   if (SQUASH_UNLIKELY(page_size == 0)) {
-#if defined(_SC_PAGESIZE)
+#if defined(_WIN32)
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    page_size = si.dwPageSize;
+#elif defined(_SC_PAGESIZE)
     const long ps = sysconf (_SC_PAGESIZE);
     page_size = SQUASH_UNLIKELY(ps == -1) ? 8192 : ((size_t) ps);
 #else

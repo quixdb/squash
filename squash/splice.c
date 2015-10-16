@@ -146,6 +146,7 @@ squash_splice_with_options (const char* codec, SquashStreamType stream_type, FIL
   return squash_splice_codec_with_options (codec_i, stream_type, fp_out, fp_in, size, options);
 }
 
+#if !defined(_WIN32)
 static SquashStatus
 squash_splice_map (FILE* fp_in, FILE* fp_out, size_t size, SquashStreamType stream_type, SquashCodec* codec, SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
@@ -198,6 +199,7 @@ squash_splice_map (FILE* fp_in, FILE* fp_out, size_t size, SquashStreamType stre
 
   return res;
 }
+#endif /* !defined(_WIN32) */
 
 static SquashStatus
 squash_splice_stream (FILE* fp_in,
@@ -472,6 +474,7 @@ squash_splice_codec_with_options (SquashCodec* codec,
   SQUASH_FLOCKFILE(fp_in);
   SQUASH_FLOCKFILE(fp_out);
 
+#if !defined(_WIN32)
   if (codec->impl.splice != NULL) {
     res = squash_file_splice (fp_in, fp_out, size, stream_type, codec, options);
   } else {
@@ -482,6 +485,9 @@ squash_splice_codec_with_options (SquashCodec* codec,
     if (res != SQUASH_OK)
       res = squash_splice_stream (fp_in, fp_out, size, stream_type, codec, options);
   }
+#else
+  res = squash_file_splice (fp_in, fp_out, size, stream_type, codec, options);
+#endif
 
   SQUASH_FUNLOCKFILE(fp_in);
   SQUASH_FUNLOCKFILE(fp_out);

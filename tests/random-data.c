@@ -32,7 +32,7 @@ check_codec (SquashCodec* codec) {
     g_assert (compressed_length <= squash_codec_get_max_compressed_size (codec, uncompressed_length));
 
     // Helpful when adding new codecs which don't document this…
-    // g_message ("%zu -> %zu (%zu)", uncompressed_length, compressed_length, compressed_length - uncompressed_length);
+    g_message ("%" G_GSIZE_FORMAT " -> %" G_GSIZE_FORMAT " (%" G_GSIZE_FORMAT ")", uncompressed_length, compressed_length, compressed_length - uncompressed_length);
 
     decompressed_length = uncompressed_length;
     res = squash_codec_decompress (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
@@ -44,7 +44,7 @@ check_codec (SquashCodec* codec) {
       size_t pos;
       for (pos = 0 ; pos < decompressed_length ; pos++ ) {
         if (uncompressed_data[pos] != decompressed_data[pos]) {
-          fprintf (stderr, "failed at %zu of %zu\n", pos, decompressed_length);
+          fprintf (stderr, "failed at %" G_GSIZE_FORMAT " of %" G_GSIZE_FORMAT "\n", pos, decompressed_length);
           break;
         }
       }

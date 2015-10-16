@@ -74,6 +74,9 @@
 #include "mtx-internal.h"
 #include "stream-internal.h"
 #include "util-internal.h"
-#include "mapped-file-internal.h"
+
+#if !defined(_WIN32)
+#  include "mapped-file-internal.h"
+#endif
 
 #endif /* SQUASH_INTERNAL_H */

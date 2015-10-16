@@ -27,13 +27,17 @@ set (squash_SOURCES
   buffer-stream.c
   context.c
   object.c
-  mapped-file.c
   plugin.c
   splice.c
   stream.c
   util.c
   version.c
   tinycthread/source/tinycthread.c)
+
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  list (APPEND squash_SOURCES
+    mapped-file.c)
+endif ()
 
 set (squash_PUBLIC_HEADERS
   context.h

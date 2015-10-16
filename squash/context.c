@@ -454,8 +454,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
   size_t directory_query_size;
   HANDLE directory_handle = INVALID_HANDLE_VALUE;
 
-  StringCchSize (directory_name, MAX_PATH, &directory_query_size);
-  directory_query_size += 3;
+  directory_query_size = strlen (directory_name) + 3;
 
   if (directory_query_size > MAX_PATH) {
     return;

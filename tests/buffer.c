@@ -18,7 +18,7 @@ check_codec (SquashCodec* codec) {
 
   for (pos = 0 ; pos < uncompressed_length && pos < LOREM_IPSUM_LENGTH ; pos++) {
     if (uncompressed[pos] != LOREM_IPSUM[pos]) {
-      g_error ("Decompressed data differs from the original at offset %zu", pos);
+      g_error ("Decompressed data differs from the original at offset %" G_GSIZE_FORMAT, pos);
     }
   }
   g_assert (pos == uncompressed_length && pos == LOREM_IPSUM_LENGTH);

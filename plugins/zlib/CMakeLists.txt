@@ -1,9 +1,11 @@
 include (SquashPlugin)
 
+find_package (ZLIB)
+
 squash_plugin (
   NAME zlib
   SOURCES squash-zlib.c
-  EXTERNAL_PKG zlib
+  EXTERNAL_PKG_PREFIX ZLIB
   EMBED_SOURCES
     zlib/adler32.c
     zlib/compress.c
@@ -24,10 +26,3 @@ squash_plugin (
     zlib
   COMPILER_FLAGS
     -Wno-implicit-function-declaration)
-
-#   foreach (file ${libzlib_sources})
-#     squash_source_file_add_compile_flag ("${file}" "-Wno-implicit-function-declaration")
-#   endforeach ()
-# else ()
-#   squash_plugin_add_for_package(zlib ZLIB zlib_sources)
-# endif ()

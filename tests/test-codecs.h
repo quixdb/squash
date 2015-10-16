@@ -21,7 +21,7 @@
     if ((expr) != (expected)) {                       \
       fprintf (stderr, "%s:%d: %s != %s\n",           \
                __FILE__, __LINE__, #expr, #expected); \
-      exit (SIGTRAP);                                 \
+      abort ();                                       \
     }                                                 \
   } while (0)
 
@@ -32,7 +32,7 @@ squash__assert_status (SquashStatus value, SquashStatus status, const char* file
                file, line,
                squash_status_to_string (value), value,
                squash_status_to_string (status), status);
-      exit (SIGTRAP);
+      abort ();
   }
 }
 
@@ -46,14 +46,14 @@ squash__assert_status (SquashStatus value, SquashStatus status, const char* file
   do {                                                                  \
     if ((expr) < 0) {                                                   \
       fprintf (stderr, "%s:%d: %s (%d)\n",__FILE__, __LINE__, squash_status_to_string ((expr)), (expr)); \
-      exit (SIGTRAP);                                                   \
+      abort ();                                                   \
     }                                                                   \
   } while (0)
 
 static inline void squash__assert (bool e, const char* expr, const char* file, int line) {
   if (!e) {
     fprintf (stderr, "%s:%d: assertion (%s) failed\n", file, line, expr);
-    exit (SIGTRAP);
+    abort ();
   }
 }
 
