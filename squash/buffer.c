@@ -49,7 +49,10 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
   assert (buffer != NULL);
 
   if (allocation > buffer->allocated) {
-    allocation = squash_buffer_npot_page (allocation);
+    const size_t next_allocation = squash_buffer_npot_page (allocation);
+    /* To catch very very large requests */
+    if (SQUASH_LIKELY(next_allocation > allocation))
+      allocation = next_allocation;
     uint8_t* mem = (uint8_t*) realloc (buffer->data, allocation);
     if (mem == NULL)
       return false;
