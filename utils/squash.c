@@ -286,7 +286,7 @@ int main (int argc, char** argv) {
   if ( strcmp (input_name, "-") == 0 ) {
     input = stdin;
   } else {
-    input = fopen (input_name, "r");
+    input = fopen (input_name, "rb");
     if ( input == NULL ) {
       perror ("Unable to open input file");
       exit (EXIT_FAILURE);
@@ -301,13 +301,15 @@ int main (int argc, char** argv) {
                           S_IRUSR | S_IWUSR
 #if !defined(_WIN32)
                           | S_IRGRP | S_IROTH
+#else
+                          | O_BINARY
 #endif
 );
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
       exit (EXIT_FAILURE);
     }
-    output = fdopen (output_fd, "w");
+    output = fdopen (output_fd, "wb");
     if ( output == NULL ) {
       perror ("Unable to open output");
       exit (EXIT_FAILURE);
