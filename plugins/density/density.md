@@ -13,31 +13,14 @@ https://github.com/centaurean/density
 
 Includes excerpts from the DENSITY README.
 
-- **level** (integer, 1 or 9, default 1)
-  - 1 — Chameleon algorithm: "This is a dictionary lookup based
-    compression algorithm. It is designed for absolute speed and
-    usually reaches a ~60% compression ratio on compressible
-    data. Decompression is just as fast. This algorithm is a great
-    choice when main concern is speed."
-  - 7 — Cheetah algorithm: "This algorithm was developed in
-    conjunction with [Piotr Tarsa](https://github.com/tarsa). It uses
-    swapped double dictionary lookups and predictions. It can be
-    extremely good with highly compressible data (ratio reaching ~5%
-    or less). On typical compressible data compression ratio is ~50%
-    or less. It is still extremely fast for both compression and
-    decompression and is a great, efficient all-rounder algorithm."
+- **level** (integer, 1, 7, or 9, default 1)
+  - 1 — Chameleon algorithm: "This is a dictionary lookup based compression algorithm. It is designed for absolute speed and usually reaches a ~60% compression ratio on compressible data. Decompression is just as fast. This algorithm is a great choice when main concern is speed."
+  - 7 — Cheetah algorithm: "This algorithm was developed in conjunction with [Piotr Tarsa](https://github.com/tarsa). It uses swapped double dictionary lookups and predictions. It can be extremely good with highly compressible data (ratio reaching ~5% or less). On typical compressible data compression ratio is ~50% or less. It is still extremely fast for both compression and decompression and is a great, efficient all-rounder algorithm."
+  - 9 — Lion algorithm: "Lion is a multiform compression algorithm, just like a variable geometry aircraft it adapts to the incoming data and tries to offer the most efficient compression technique available.
 
-  - 9 — Lion algorithm: "Lion is a multiform compression algorithm,
-    just like a variable geometry aircraft it adapts to the incoming
-    data and tries to offer the most efficient compression technique
-    available.
+    It uses swapped double dictionary lookups, multiple predictions, shifting sub-word dictionary lookups, symbol and forms rank entropy coding.
 
-    It uses swapped double dictionary lookups, multiple predictions,
-    shifting sub-word dictionary lookups, symbol and forms rank
-    entropy coding.
-
-    Lion provides the best compression ratio of all three algorithms
-    under any circumstance, and is still very fast."
+    Lion provides the best compression ratio of all three algorithms under any circumstance, and is still very fast."
 - **checksum** (boolean, default false) — whether or not to include a
   checksum (SpookyHash) for integrity checks during decompression.
 
