@@ -127,6 +127,11 @@ squash_buffer_append (SquashBuffer* buffer, size_t data_size, const uint8_t data
   return true;
 }
 
+bool
+squash_buffer_append_c (SquashBuffer* buffer, char c) {
+  return squash_buffer_append (buffer, 1, (uint8_t*) &c);
+}
+
 void
 squash_buffer_free (SquashBuffer* buffer) {
   if (buffer == NULL)

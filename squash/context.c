@@ -488,9 +488,17 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 #endif /* defined(_WIN32) */
 }
 
+#if !defined(SQUASH_SEARCH_PATH_SEPARATOR)
+#  if !defined(_WIN32)
+#    define SQUASH_SEARCH_PATH_SEPARATOR ':'
+#  else
+#    define SQUASH_SEARCH_PATH_SEPARATOR ';'
+#  endif
+#endif
+
 static void
 squash_context_find_plugins (SquashContext* context) {
-  char* directories;
+  const char* directories;
 
   assert (context != NULL);
 
@@ -500,20 +508,54 @@ squash_context_find_plugins (SquashContext* context) {
   directories = secure_getenv ("SQUASH_PLUGINS");
 #endif
   if (directories == NULL)
-    directories = strdup (SQUASH_SEARCH_PATH);
-  else
-    directories = strdup (directories);
+    directories = SQUASH_SEARCH_PATH;
 
-  char* saveptr = NULL;
-  char* directory_name = NULL;
+  SquashBuffer* sb = squash_buffer_new (32);
+  bool quoted = false;
+  bool escaped = false;
 
-  for ( directory_name = SQUASH_STRTOK_R (directories, ":", &saveptr) ;
-        directory_name != NULL ;
-        directory_name = SQUASH_STRTOK_R (NULL, ":", &saveptr) ) {
-    squash_context_find_plugins_in_directory (context, directory_name);
+  for (const char* p = directories ; *p != 0x00 ; p++) {
+    if (escaped) {
+      squash_buffer_append_c (sb, *p);
+      escaped = false;
+    } else if (quoted) {
+      switch (*p) {
+        case '"':
+          quoted = false;
+          break;
+        case '\\':
+          escaped = true;
+          break;
+        default:
+          squash_buffer_append_c (sb, *p);
+          break;
+      }
+    } else {
+      switch (*p) {
+        case SQUASH_SEARCH_PATH_SEPARATOR:
+          if (sb->size != 0) {
+            squash_buffer_append_c (sb, 0);
+            squash_context_find_plugins_in_directory (context, (char*) sb->data);
+            squash_buffer_clear (sb);
+          }
+          break;
+        case '\\':
+          escaped = true;
+          break;
+        case '"':
+          quoted = true;
+          break;
+        default:
+          squash_buffer_append_c (sb, *p);
+          break;
+      }
+    }
   }
 
-  free (directories);
+  squash_buffer_append_c (sb, 0);
+  squash_context_find_plugins_in_directory (context, (char*) sb->data);
+
+  squash_buffer_free (sb);
 }
 
 /**
