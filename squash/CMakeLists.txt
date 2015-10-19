@@ -2,8 +2,6 @@ include (RequireStandard)
 
 add_definitions (-DSQUASH_COMPILATION)
 
-configure_file (version.h.in version.h)
-
 find_package(RAGEL 6.6 REQUIRED)
 
 # To make lcov happy
@@ -79,7 +77,10 @@ check_prototype_exists ("fread_unlocked" "stdio.h" "HAVE_FREAD_UNLOCKED")
 check_prototype_exists ("fwrite_unlocked" "stdio.h" "HAVE_FWRITE_UNLOCKED")
 check_prototype_exists ("fflush_unlocked" "stdio.h" "HAVE_FFLUSH_UNLOCKED")
 check_prototype_exists ("flockfile" "stdio.h" "HAVE_FLOCKFILE")
+set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
 
+list (APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_prototype_exists ("secure_getenv" "stdlib.h" "HAVE_SECURE_GETENV")
 set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
 
 if (WIN32)
@@ -100,3 +101,6 @@ install (TARGETS squash${SQUASH_VERSION_API}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${squash_PUBLIC_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/version.h
   DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash)
+
+configure_file (version.h.in version.h)
+configure_file (config.h.in config.h)

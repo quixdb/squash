@@ -26,6 +26,7 @@
 
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
+#define _GNU_SOURCE
 #define _POSIX_SOURCE
 #define _POSIX_C_SOURCE 200809L
 
@@ -493,24 +494,26 @@ squash_context_find_plugins (SquashContext* context) {
 
   assert (context != NULL);
 
+#if defined(HAVE_SECURE_GETENV)
   directories = getenv ("SQUASH_PLUGINS");
-
-  if (directories != NULL) {
-    char* saveptr = NULL;
-    char* directory_name = NULL;
-
+#else
+  directories = secure_getenv ("SQUASH_PLUGINS");
+#endif
+  if (directories == NULL)
+    directories = strdup (SQUASH_SEARCH_PATH);
+  else
     directories = strdup (directories);
 
-    for ( directory_name = SQUASH_STRTOK_R (directories, ":", &saveptr) ;
-          directory_name != NULL ;
-          directory_name = SQUASH_STRTOK_R (NULL, ":", &saveptr) ) {
-      squash_context_find_plugins_in_directory (context, directory_name);
-    }
+  char* saveptr = NULL;
+  char* directory_name = NULL;
 
-    free (directories);
-  } else {
-    squash_context_find_plugins_in_directory (context, SQUASH_PLUGIN_DIR);
+  for ( directory_name = SQUASH_STRTOK_R (directories, ":", &saveptr) ;
+        directory_name != NULL ;
+        directory_name = SQUASH_STRTOK_R (NULL, ":", &saveptr) ) {
+    squash_context_find_plugins_in_directory (context, directory_name);
   }
+
+  free (directories);
 }
 
 /**

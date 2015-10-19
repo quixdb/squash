@@ -1,19 +1,17 @@
-#ifndef _SQUASH_CONFIG_H_
-#define _SQUASH_CONFIG_H_
+#ifndef SQUASH_CONFIG_H
+#define SQUASH_CONFIG_H
 
 #define SQUASH_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}"
-#define SQUASH_PLUGIN_DIR "${SQUASH_PLUGIN_DIR}"
-
+#define SQUASH_PLUGIN_DIR "${SQUASH_PLUGIN_DIRECTORY}"
+#define SQUASH_SEARCH_PATH "${SQUASH_SEARCH_PATH}"
 #define SQUASH_SHARED_LIBRARY_SUFFIX "${CMAKE_SHARED_LIBRARY_SUFFIX}"
-
-#cmakedefine HAVE_FDOPEN
-#cmakedefine HAVE_MMAP
-#cmakedefine HAVE_MREMAP
 
 #cmakedefine HAVE_FREAD_UNLOCKED
 #cmakedefine HAVE_FWRITE_UNLOCKED
 #cmakedefine HAVE_FFLUSH_UNLOCKED
 #cmakedefine HAVE_FLOCKFILE
+
+#cmakedefine HAVE_SECURE_GETENV
 
 #if defined(HAVE_FREAD_UNLOCKED) && defined(HAVE_FWRITE_UNLOCKED) && defined(HAVE_FFLUSH_UNLOCKED) && defined(HAVE_FLOCKFILE)
 #  define HAVE_UNLOCKED_IO
@@ -39,4 +37,4 @@
 #  define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
 #endif
 
-#endif /* _SQUASH_CONFIG_H_ */
+#endif /* SQUASH_CONFIG_H */

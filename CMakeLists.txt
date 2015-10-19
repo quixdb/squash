@@ -47,15 +47,16 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}")
 
-set (SQUASH_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
+if ("${PLUGIN_DIRECTORY}" STREQUAL "")
+  set (PLUGIN_DIRECTORY ${CMAKE_INSTALL_FULL_LIBDIR}/squash/${SQUASH_VERSION_API}/plugins)
+endif ()
 
-configure_file (
-    "${PROJECT_SOURCE_DIR}/squash/config.h.in"
-    "${PROJECT_BINARY_DIR}/squash/config.h")
+if ("${SEARCH_PATH}" STREQUAL "")
+  set (SEARCH_PATH "${PLUGIN_DIRECTORY}")
+endif ()
 
-configure_file (
-    "${PROJECT_SOURCE_DIR}/squash/version.h.in"
-    "${PROJECT_BINARY_DIR}/squash/version.h")
+set (SQUASH_PLUGIN_DIRECTORY "${PLUGIN_DIRECTORY}")
+set (SQUASH_SEARCH_PATH "${SEARCH_PATH}")
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/squash.pc.in"

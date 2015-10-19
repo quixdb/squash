@@ -137,7 +137,7 @@ EOF
         if [ "x${!var_doc_name}" = 'x' ]; then
             printf "  --with-%-16s enable %s support\n" "${param}" "${components[0]}"
         else
-            printf "  --with-%-16s %s\n" "${components[0]}" "${!var_doc_name}"
+            printf "  --with-%-16s %s\n" "${param}" "${!var_doc_name}"
         fi
     done
 
