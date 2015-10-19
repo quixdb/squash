@@ -79,3 +79,21 @@ At this point, all you need to do is call `make`, and likely `make
 install`, just as you would for any other project.  If you encounter
 an error at this point please file a bug—all misconfigurations should
 be detected by `configure`/`cmake`.
+
+## CMake arguments
+
+The `configure` wrapper script which comes with Squash provides
+documentation of useful options which you can view by passing `--help`
+to the script.  In the event you cannot use that script (for example,
+if you are on a system without bash), you can still call CMake
+directly, but there is no documentation of the variables Squash uses.
+
+Each plugin can be disabled (or, if disabled by default, enabled) by
+passing `-DENABLE_PLUGIN_NAME=yes|no`.  "PLUGIN_NAME" is the name of
+the plugin converted to uppercase with all non-alphanumeric characters
+replaced with an underscore.  For example, to disable the ms-compress
+plugin you would pass `-DENABLE_MS_COMPRESS=no`.
+
+If you would like to use the in-tree copies of various libraries
+shipped with Squash, even when the library in question is installed
+system-wide, you can pass `-DFORCE_IN_TREE_DEPENDENCIES=yes`.
