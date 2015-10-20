@@ -150,6 +150,7 @@ int main (int argc, char** argv) {
   int opt;
   int optc = 0;
   char* tmp_string;
+  int retval = EXIT_SUCCESS;
 
   option_keys = (char**) malloc (sizeof (char*));
   option_values = (char**) malloc (sizeof (char*));
@@ -162,7 +163,8 @@ int main (int argc, char** argv) {
         codec = squash_get_codec (optarg);
         if ( codec == NULL ) {
           fprintf (stderr, "Unable to find codec '%s'\n", optarg);
-          exit (EXIT_FAILURE);
+          retval = EXIT_FAILURE;
+          goto cleanup;
         }
         break;
       case 'k':
@@ -214,10 +216,10 @@ int main (int argc, char** argv) {
     else
       squash_foreach_plugin (list_plugins_foreach_cb, NULL);
 
-    exit (EXIT_SUCCESS);
+    goto cleanup;
   } else if (list_codecs) {
     squash_foreach_codec (list_codecs_foreach_cb, NULL);
-    exit (EXIT_SUCCESS);
+    goto cleanup;
   }
 
   if ( optind < argc ) {
@@ -235,7 +237,8 @@ int main (int argc, char** argv) {
     }
   } else {
     fprintf (stderr, "You must provide an input file name.\n");
-    exit (EXIT_FAILURE);
+    retval = EXIT_FAILURE;
+    goto cleanup;
   }
 
   if ( optind < argc ) {
@@ -275,12 +278,14 @@ int main (int argc, char** argv) {
 
   if ( codec == NULL ) {
     fprintf (stderr, "Unable to determine codec.  Please pass -c \"codec\", or -L to see a list of available codecs.\n");
-    exit (EXIT_FAILURE);
+    res = EXIT_FAILURE;
+    goto cleanup;
   }
 
   if ( output_name == NULL ) {
     fprintf (stderr, "Unable to determine output file.\n");
-    exit (EXIT_FAILURE);
+    retval = EXIT_FAILURE;
+    goto cleanup;
   }
 
   if ( strcmp (input_name, "-") == 0 ) {
@@ -289,7 +294,8 @@ int main (int argc, char** argv) {
     input = fopen (input_name, "rb");
     if ( input == NULL ) {
       perror ("Unable to open input file");
-      exit (EXIT_FAILURE);
+      retval = EXIT_FAILURE;
+      goto cleanup;
     }
   }
 
@@ -307,12 +313,14 @@ int main (int argc, char** argv) {
 );
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
-      exit (EXIT_FAILURE);
+      retval = EXIT_FAILURE;
+      goto cleanup;
     }
     output = fdopen (output_fd, "wb");
     if ( output == NULL ) {
       perror ("Unable to open output");
-      exit (EXIT_FAILURE);
+      retval = EXIT_FAILURE;
+      goto cleanup;
     }
   }
 
@@ -324,7 +332,8 @@ int main (int argc, char** argv) {
     fprintf (stderr, "Failed to %s: %s\n",
              (direction == SQUASH_STREAM_COMPRESS) ? "compress" : "decompress",
              squash_status_to_string (res));
-    exit (EXIT_FAILURE);
+    retval = EXIT_FAILURE;
+    goto cleanup;
   }
 
   if ( !keep && input != stdin ) {
@@ -332,6 +341,14 @@ int main (int argc, char** argv) {
       perror ("Unable to remove input file");
     }
   }
+
+ cleanup:
+
+  if (input != stdin)
+    fclose (stdin);
+
+  if (output != stdout)
+    fclose (stdout);
 
   if (option_keys != NULL) {
     for (opt = 0 ; option_keys[opt] != NULL ; opt++) {
@@ -349,5 +366,5 @@ int main (int argc, char** argv) {
 
   free (output_name);
 
-  return EXIT_SUCCESS;
+  return retval;
 }
