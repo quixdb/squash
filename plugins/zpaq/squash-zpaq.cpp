@@ -27,7 +27,12 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined(_MSC_VER)
 #include <strings.h>
+#else
+#define snprintf _snprintf
+#endif
 
 #include <squash/squash.h>
 

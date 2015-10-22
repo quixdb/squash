@@ -1,12 +1,18 @@
-#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#if !defined(_MSC_VER)
+#include <unistd.h>
+#include <strings.h>
+#else
+#define strcasecmp _stricmp
+#define snprintf _snprintf
+#endif
 
 #if !defined(EXIT_SUCCESS)
 #define EXIT_SUCCESS (0)

@@ -79,4 +79,10 @@
 #  include "mapped-file-internal.h"
 #endif
 
+#if defined(_MSC_VER)
+#define strcasecmp _stricmp
+#define snprintf _snprintf
+#define strtok_r strtok_s
+#endif
+
 #endif /* SQUASH_INTERNAL_H */

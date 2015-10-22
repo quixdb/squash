@@ -35,11 +35,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <unistd.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <stdio.h>
+
+#if !defined(_MSC_VER)
+#include <unistd.h>
 #include <strings.h>
+#endif
 
 #if !defined(_WIN32)
   #include <dirent.h>

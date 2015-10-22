@@ -28,8 +28,11 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
-#include <strings.h>
 #include <string.h>
+
+#if !defined(_MSC_VER)
+#include <strings.h>
+#endif
 
 #include "internal.h"
 

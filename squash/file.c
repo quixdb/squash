@@ -34,7 +34,10 @@
 
 #include <sys/stat.h>
 #include <string.h>
+
+#if !defined(_MSC_VER)
 #include <unistd.h>
+#endif
 
 /* #define SQUASH_MMAP_IO */
 
