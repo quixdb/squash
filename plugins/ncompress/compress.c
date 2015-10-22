@@ -47,7 +47,11 @@
 #   define BYTEORDER 1234
 #  endif
 # else
-#  warning Unable to figure out byteorder, defaulting to slow byte swapping
+#  ifdef _MSC_VER
+#   pragma message("Unable to figure out byteorder, defaulting to slow byte swapping")
+#  else
+#   warning Unable to figure out byteorder, defaulting to slow byte swapping
+#  endif
 #  define BYTEORDER 0000
 # endif
 #endif
