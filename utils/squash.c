@@ -310,11 +310,10 @@ int main (int argc, char** argv) {
   } else {
     int output_fd = open (output_name,
                           O_RDWR | O_CREAT | (force ? O_TRUNC : O_EXCL),
-                          S_IRUSR | S_IWUSR
 #if !defined(_WIN32)
-                          | S_IRGRP | S_IROTH
+                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 #else
-                          | O_BINARY
+                          O_BINARY
 #endif
 );
     if ( output_fd < 0 ) {
