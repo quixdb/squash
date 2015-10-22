@@ -38,10 +38,6 @@
 #define inline __inline
 #endif
 
-#if defined(_MSC_VER)
-#define inline __inline
-#endif
-
 SQUASH_BEGIN_DECLS
 
 typedef struct _SquashSList {
