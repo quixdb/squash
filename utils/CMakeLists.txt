@@ -1,4 +1,4 @@
-add_executable (squash squash.c)
+add_executable (squash squash.c parg.c)
 target_add_extra_warning_flags (squash)
 target_link_libraries (squash squash${SQUASH_VERSION_API})
 

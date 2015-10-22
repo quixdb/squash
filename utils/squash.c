@@ -14,6 +14,8 @@
 #define snprintf _snprintf
 #endif
 
+#include "parg.h"
+
 #if !defined(EXIT_SUCCESS)
 #define EXIT_SUCCESS (0)
 #endif
@@ -157,18 +159,24 @@ int main (int argc, char** argv) {
   int optc = 0;
   char* tmp_string;
   int retval = EXIT_SUCCESS;
+  struct parg_state ps;
+  int optend;
 
   option_keys = (char**) malloc (sizeof (char*));
   option_values = (char**) malloc (sizeof (char*));
   *option_keys = NULL;
   *option_values = NULL;
 
-  while ( (opt = getopt(argc, argv, "c:ko:123456789LPfdhb:V")) != -1 ) {
+  optend = parg_reorder (argc, argv, "c:ko:123456789LPfdhb:V", NULL);
+
+  parg_init(&ps);
+
+  while ( (opt = parg_getopt (&ps, optend, argv, "c:ko:123456789LPfdhb:V")) != -1 ) {
     switch ( opt ) {
       case 'c':
-        codec = squash_get_codec (optarg);
+        codec = squash_get_codec (ps.optarg);
         if ( codec == NULL ) {
-          fprintf (stderr, "Unable to find codec '%s'\n", optarg);
+          fprintf (stderr, "Unable to find codec '%s'\n", ps.optarg);
           retval = EXIT_FAILURE;
           goto cleanup;
         }
@@ -177,7 +185,7 @@ int main (int argc, char** argv) {
         keep = true;
         break;
       case 'o':
-        parse_option (&option_keys, &option_values, optarg);
+        parse_option (&option_keys, &option_values, ps.optarg);
         break;
       case '1':
       case '2':
@@ -228,8 +236,8 @@ int main (int argc, char** argv) {
     goto cleanup;
   }
 
-  if ( optind < argc ) {
-    input_name = argv[optind++];
+  if ( ps.optind < argc ) {
+    input_name = argv[ps.optind++];
 
     if ( (direction == SQUASH_STREAM_DECOMPRESS) && codec == NULL ) {
       char* extension;
@@ -247,8 +255,8 @@ int main (int argc, char** argv) {
     goto cleanup;
   }
 
-  if ( optind < argc ) {
-    output_name = strdup (argv[optind++]);
+  if ( ps.optind < argc ) {
+    output_name = strdup (argv[ps.optind++]);
 
     if ( codec == NULL && direction == SQUASH_STREAM_COMPRESS ) {
       const char* extension = strrchr (output_name, '.');
@@ -278,7 +286,7 @@ int main (int argc, char** argv) {
     }
   }
 
-  if ( optind < argc ) {
+  if ( ps.optind < argc ) {
     fprintf (stderr, "Too many arguments.\n");
   }
 
