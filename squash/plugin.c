@@ -116,8 +116,13 @@ squash_plugin_init (SquashPlugin* plugin) {
     plugin_file_name_max_size = plugin_dir_size + squash_version_api_size + plugin_name_size + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
     plugin_file_name = (char*) malloc (plugin_file_name_max_size + 1);
 
+#if defined(_MSC_VER)
+    snprintf (plugin_file_name, plugin_file_name_max_size + 1,
+              "%s/squash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#else
     snprintf (plugin_file_name, plugin_file_name_max_size + 1,
               "%s/libsquash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#endif
 
 #if !defined(_WIN32)
     handle = dlopen (plugin_file_name, RTLD_LAZY);
