@@ -503,9 +503,9 @@ squash_context_find_plugins (SquashContext* context) {
   assert (context != NULL);
 
 #if defined(HAVE_SECURE_GETENV)
-  directories = getenv ("SQUASH_PLUGINS");
-#else
   directories = secure_getenv ("SQUASH_PLUGINS");
+#else
+  directories = getenv ("SQUASH_PLUGINS");
 #endif
   if (directories == NULL)
     directories = SQUASH_SEARCH_PATH;
