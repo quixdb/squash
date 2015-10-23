@@ -1,0 +1,15 @@
+version: 0.8.0-{build}
+
+environment:
+  matrix:
+  - GENERATOR: Visual Studio 14 2015
+  - GENERATOR: Visual Studio 14 2015 Win64
+
+configuration: Debug
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "%GENERATOR%" -DENABLE_GIPFELI=no -DENABLE_BROTLI=no -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_SNAPPY=no -DENABLE_ZLING=no ..
+
+build_script: cmake --build . --config %CONFIGURATION%
