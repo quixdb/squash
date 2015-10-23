@@ -41,11 +41,9 @@ enum SquashBrotliOptionIndex {
    least, I can't figure out how to do it), so there is some extra
    code in the init_plugin func to finish it off. */
 static SquashOptionInfo squash_brotli_options[] = {
-  { .name = (char*) "level",
-    .type = SQUASH_OPTION_TYPE_RANGE_INT },
-  { .name = (char*) "mode",
-    .type = SQUASH_OPTION_TYPE_ENUM_STRING },
-  { NULL, SQUASH_OPTION_TYPE_NONE, }
+  { "level", SQUASH_OPTION_TYPE_RANGE_INT },
+  { "mode", SQUASH_OPTION_TYPE_ENUM_STRING },
+  { NULL, SQUASH_OPTION_TYPE_NONE }
 };
 
 typedef struct SquashBrotliStream_s {
@@ -323,14 +321,14 @@ squash_plugin_init_plugin (SquashPlugin* plugin) {
   squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].default_value.int_value = 11;
   squash_brotli_options[SQUASH_BROTLI_OPT_LEVEL].info.range_int = level_range;
 
-  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_GENERIC;
-  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string = {
-    (const SquashOptionInfoEnumStringMap []) {
+  static const SquashOptionInfoEnumStringMap option_strings[] = {
       { "generic", brotli::BrotliParams::MODE_GENERIC },
       { "text", brotli::BrotliParams::MODE_TEXT },
       { "font", brotli::BrotliParams::MODE_FONT },
-      { NULL, 0 } }
+      { NULL, 0 }
   };
+  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].default_value.int_value = brotli::BrotliParams::MODE_GENERIC;
+  squash_brotli_options[SQUASH_BROTLI_OPT_MODE].info.enum_string.values = option_strings;
 
   return SQUASH_OK;
 }
