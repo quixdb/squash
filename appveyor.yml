@@ -8,6 +8,7 @@ environment:
 configuration: Debug
 
 before_build:
+  - git submodule update --init --recursive
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "%GENERATOR%" -DENABLE_GIPFELI=no -DENABLE_BROTLI=no -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_SNAPPY=no -DENABLE_ZLING=no ..
