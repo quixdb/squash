@@ -1,3 +1,5 @@
+/* IWYU pragma: private, include "internal.h" */
+
 #ifndef SQUASH_CONFIG_H
 #define SQUASH_CONFIG_H
 

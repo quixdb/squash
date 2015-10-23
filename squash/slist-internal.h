@@ -23,6 +23,7 @@
  * Authors:
  *   Evan Nemerson <evan@nemerson.com>
  */
+/* IWYU pragma: private, include "internal.h" */
 
 #ifndef SQUASH_SLIST_INTERNAL_H
 #define SQUASH_SLIST_INTERNAL_H

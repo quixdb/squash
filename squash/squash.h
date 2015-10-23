@@ -23,6 +23,7 @@
  * Authors:
  *   Evan Nemerson <evan@nemerson.com>
  */
+/* IWYU pragma: private, include <squash/squash.h> */
 
 #ifndef SQUASH_H
 #define SQUASH_H
