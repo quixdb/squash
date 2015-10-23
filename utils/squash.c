@@ -351,14 +351,16 @@ int main (int argc, char** argv) {
   }
 
   if ( !keep && input != stdin ) {
+    fclose (input);
     if ( unlink (input_name) != 0 ) {
       perror ("Unable to remove input file");
     }
+    input = NULL;
   }
 
  cleanup:
 
-  if (input != stdin)
+  if (input != stdin && input != NULL)
     fclose (stdin);
 
   if (output != stdout)
