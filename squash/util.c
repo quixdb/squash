@@ -27,7 +27,7 @@
 #include <squash/config.h>
 #include <assert.h>
 
-#include "internal.h"
+#include "internal.h" /* IWYU pragma: keep */
 
 #if !defined(_WIN32)
 #  include <unistd.h>

@@ -2,7 +2,7 @@ include (RequireStandard)
 
 add_definitions (-DSQUASH_COMPILATION)
 
-find_package(RAGEL 6.6 REQUIRED)
+find_package(RAGEL 6.6)
 
 # To make lcov happy
 if (NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -12,7 +12,11 @@ if (NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ini.rl)
 endif ()
 
-RAGEL_TARGET(ini ${CMAKE_CURRENT_BINARY_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c)
+if (RAGEL_FOUND)
+  RAGEL_TARGET(ini ${CMAKE_CURRENT_BINARY_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c)
+else ()
+  set (RAGEL_ini_OUTPUTS ini.c)
+endif ()
 
 set (squash_SOURCES
   ${RAGEL_ini_OUTPUTS}
