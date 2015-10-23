@@ -317,13 +317,14 @@ int main (int argc, char** argv) {
     output = stdout;
   } else {
     int output_fd = open (output_name,
-                          O_RDWR | O_CREAT | (force ? O_TRUNC : O_EXCL),
 #if !defined(_WIN32)
+                          O_RDWR | O_CREAT | (force ? O_TRUNC : O_EXCL),
                           S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 #else
-                          O_BINARY
+                          O_RDWR | O_CREAT | (force ? O_TRUNC : O_EXCL) | O_BINARY,
+                          S_IREAD | S_IWRITE
 #endif
-);
+    );
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
       retval = EXIT_FAILURE;
