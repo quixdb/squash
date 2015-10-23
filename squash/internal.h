@@ -81,8 +81,10 @@
 
 #if defined(_MSC_VER)
 #define strcasecmp _stricmp
-#define snprintf _snprintf
 #define strtok_r strtok_s
+#if _MSC_VER < 1900 
+#define snprintf _snprintf 
+#endif
 #endif
 
 #endif /* SQUASH_INTERNAL_H */
