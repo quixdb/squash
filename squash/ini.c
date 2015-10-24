@@ -1,5 +1,5 @@
 
-#line 1 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 1 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 /* Copyright (c) 2015 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
@@ -42,7 +42,7 @@
 #endif /* defined(__GNUC__) */
 
 
-#line 166 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 166 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 
 
 bool
@@ -73,7 +73,7 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   }
 
   
-#line 77 "/home/nemequ/local/src/squash/build/squash/ini.c"
+/* #line 77 "/home/nemequ/local/src/squash/build/squash/ini.c" */
 static const char _SquashIniParser_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 7, 1, 
@@ -148,14 +148,14 @@ static const int SquashIniParser_error = 0;
 static const int SquashIniParser_en_main = 11;
 
 
-#line 196 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 196 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
   
-#line 154 "/home/nemequ/local/src/squash/build/squash/ini.c"
+/* #line 154 "/home/nemequ/local/src/squash/build/squash/ini.c" */
 	{
 	cs = SquashIniParser_start;
 	}
 
-#line 197 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 197 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 
   do {
     size_t bytes_read = fread (cur_block, 1, sizeof (cur_block), input);
@@ -172,7 +172,7 @@ static const int SquashIniParser_en_main = 11;
     pe = cur_block + bytes_read;
 
     
-#line 176 "/home/nemequ/local/src/squash/build/squash/ini.c"
+/* #line 176 "/home/nemequ/local/src/squash/build/squash/ini.c" */
 	{
 	int _klen;
 	unsigned int _trans;
@@ -247,14 +247,14 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 46 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 46 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     result = false;
     goto cleanup;
   }
 	break;
 	case 1:
-#line 51 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 51 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (section_length < (SQUASH_INI_PARSER_MAX_SECTION_LENGTH) - 1) {
       section[section_length++] = (*p);
@@ -266,7 +266,7 @@ _match:
   }
 	break;
 	case 2:
-#line 61 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 61 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (key_length < (SQUASH_INI_PARSER_MAX_KEY_LENGTH) - 1) {
       key[key_length++] = (*p);
@@ -278,7 +278,7 @@ _match:
   }
 	break;
 	case 3:
-#line 71 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 71 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (value_length != 0 || isgraph((*p))) {
       if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
@@ -292,7 +292,7 @@ _match:
   }
 	break;
 	case 4:
-#line 83 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 83 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
       value[value_length++] = (*p);
@@ -304,7 +304,7 @@ _match:
   }
 	break;
 	case 5:
-#line 93 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 93 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
       char c = (*p);
@@ -330,13 +330,13 @@ _match:
   }
 	break;
 	case 6:
-#line 117 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 117 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     section_length = 0;
   }
 	break;
 	case 7:
-#line 121 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 121 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     if (!callback (section, NULL, NULL, 0, user_data)) {
       result = false;
@@ -345,7 +345,7 @@ _match:
   }
 	break;
 	case 8:
-#line 128 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 128 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     key[key_length] = '\0';
     value[value_length] = '\0';
@@ -365,10 +365,10 @@ _match:
   }
 	break;
 	case 9:
-#line 156 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 156 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{value_escaped = true;}
 	break;
-#line 372 "/home/nemequ/local/src/squash/build/squash/ini.c"
+/* #line 372 "/home/nemequ/local/src/squash/build/squash/ini.c" */
 		}
 	}
 
@@ -385,13 +385,13 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 0:
-#line 46 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 46 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
 	{
     result = false;
     goto cleanup;
   }
 	break;
-#line 395 "/home/nemequ/local/src/squash/build/squash/ini.c"
+/* #line 395 "/home/nemequ/local/src/squash/build/squash/ini.c" */
 		}
 	}
 	}
@@ -399,7 +399,7 @@ _again:
 	_out: {}
 	}
 
-#line 213 "/home/nemequ/local/src/squash/build/squash/ini.rl"
+/* #line 213 "/home/nemequ/local/src/squash/build/squash/ini.rl" */
   } while (eof == NULL);
 
   cleanup:
