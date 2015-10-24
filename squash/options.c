@@ -339,8 +339,8 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
     case SQUASH_OPTION_TYPE_INT: {
         int res = atoi (value);
         if (info->type == SQUASH_OPTION_TYPE_RANGE_INT) {
-          if (!((res == 0 && info->info.range_int.allow_zero) ||
-                (res >= info->info.range_int.min && res <= info->info.range_int.max)))
+          if (SQUASH_UNLIKELY(!((res == 0 && info->info.range_int.allow_zero) ||
+                                (res >= info->info.range_int.min && res <= info->info.range_int.max))))
             return squash_error (SQUASH_BAD_VALUE);
         }
         val->int_value = res;
@@ -376,19 +376,19 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
             if (*endptr == 'i' || *endptr == 'I')
               endptr++;
 
-            if (*endptr == 'b' || *endptr == 'B')
+            if (SQUASH_LIKELY(*endptr == 'b' || *endptr == 'B'))
               endptr++;
             else
               return squash_error (SQUASH_BAD_VALUE);
 
-            if (*endptr != '\0')
+            if (SQUASH_UNLIKELY(*endptr != '\0'))
               return squash_error (SQUASH_BAD_VALUE);
           }
         }
 
         if (info->type == SQUASH_OPTION_TYPE_RANGE_SIZE) {
-          if (!((res == 0 && info->info.range_size.allow_zero) ||
-                (res >= info->info.range_size.min && res <= info->info.range_size.max)))
+          if (SQUASH_UNLIKELY(!((res == 0 && info->info.range_size.allow_zero) ||
+                                (res >= info->info.range_size.min && res <= info->info.range_size.max))))
             return squash_error (SQUASH_BAD_VALUE);
         }
         val->size_value = (size_t) res;

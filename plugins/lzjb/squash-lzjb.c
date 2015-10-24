@@ -49,7 +49,7 @@ squash_lzjb_compress_buffer (SquashCodec* codec,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   *compressed_size = lzjb_compress (uncompressed, compressed, uncompressed_size, *compressed_size);
-  return (*compressed_size != uncompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return SQUASH_LIKELY(*compressed_size != uncompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
@@ -75,7 +75,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("lzjb", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("lzjb", name) == 0)) {
     impl->get_max_compressed_size = squash_lzjb_get_max_compressed_size;
     impl->decompress_buffer = squash_lzjb_decompress_buffer;
     impl->compress_buffer = squash_lzjb_compress_buffer;

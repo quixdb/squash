@@ -134,7 +134,7 @@ squash_plugin_init (SquashPlugin* plugin) {
 
     free (plugin_file_name);
 
-    if (handle != NULL) {
+    if (SQUASH_LIKELY(handle != NULL)) {
       SQUASH_MTX_LOCK(plugin_init);
       if (plugin->plugin == NULL) {
         plugin->plugin = handle;
@@ -164,7 +164,7 @@ squash_plugin_init (SquashPlugin* plugin) {
     }
   }
 
-  return (plugin->plugin != NULL) ? SQUASH_OK : squash_error (SQUASH_UNABLE_TO_LOAD);
+  return SQUASH_LIKELY(plugin->plugin != NULL) ? SQUASH_OK : squash_error (SQUASH_UNABLE_TO_LOAD);
 }
 
 /**
@@ -266,7 +266,7 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecI
     *(void **) (&init_codec_func) = GetProcAddress (plugin->plugin, "squash_plugin_init_codec");
 #endif
 
-    if (init_codec_func == NULL) {
+    if (SQUASH_UNLIKELY(init_codec_func == NULL)) {
       return squash_error (SQUASH_UNABLE_TO_LOAD);
     }
 

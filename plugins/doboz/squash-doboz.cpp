@@ -64,13 +64,13 @@ squash_doboz_status (doboz::Result status) {
       res = SQUASH_OK;
       break;
     case doboz::RESULT_ERROR_BUFFER_TOO_SMALL:
-      res = SQUASH_BUFFER_FULL;
+      res = squash_error (SQUASH_BUFFER_FULL);
       break;
     case doboz::RESULT_ERROR_CORRUPTED_DATA:
-      res = SQUASH_FAILED;
+      res = squash_error (SQUASH_FAILED);
       break;
     case doboz::RESULT_ERROR_UNSUPPORTED_VERSION:
-      res = SQUASH_FAILED;
+      res = squash_error (SQUASH_FAILED);
       break;
   }
 

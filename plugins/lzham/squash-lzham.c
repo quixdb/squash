@@ -340,7 +340,7 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
-  if (strcmp ("lzham", squash_codec_get_name (codec)) == 0) {
+  if (SQUASH_LIKELY(strcmp ("lzham", squash_codec_get_name (codec)) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_lzham_options;
     impl->create_stream = squash_lzham_create_stream;

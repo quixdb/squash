@@ -113,8 +113,8 @@ squash_crush_splice (SquashCodec* codec,
 
   if (data.last_res < 0)
     return data.last_res;
-  else if (res != 0)
-    return SQUASH_FAILED;
+  else if (SQUASH_UNLIKELY(res != 0))
+    return squash_error (SQUASH_FAILED);
   else
     return SQUASH_OK;
 }
@@ -129,7 +129,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("crush", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("crush", name) == 0)) {
     impl->options = squash_crush_options;
     impl->splice = squash_crush_splice;
     impl->get_max_compressed_size = squash_crush_get_max_compressed_size;

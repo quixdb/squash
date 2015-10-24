@@ -392,7 +392,7 @@ squash_file_read_unlocked (SquashFile* file,
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_DECOMPRESS, file->options);
-    if (file->stream == NULL) {
+    if (SQUASH_UNLIKELY(file->stream == NULL)) {
       return file->last_status = squash_error (SQUASH_FAILED);
     }
   }
@@ -477,7 +477,7 @@ squash_file_write_internal (SquashFile* file,
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_COMPRESS, file->options);
-    if (file->stream == NULL) {
+    if (SQUASH_UNLIKELY(file->stream == NULL)) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
     }
@@ -579,7 +579,7 @@ squash_file_printf (SquashFile* file,
   size = vsnprintf (buf, sizeof (buf), format, ap);
   if (size >= (int) sizeof (buf)) {
     heap_buf = malloc (size);
-    if (heap_buf == NULL)
+    if (SQUASH_UNLIKELY(heap_buf == NULL))
       res = squash_error (SQUASH_MEMORY);
 
     const int written = vsnprintf (heap_buf, size, format, ap);

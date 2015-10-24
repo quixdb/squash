@@ -149,13 +149,13 @@ squash_bsc_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (*compressed_size < (uncompressed_size + LIBBSC_HEADER_SIZE))
+  if (SQUASH_UNLIKELY(*compressed_size < (uncompressed_size + LIBBSC_HEADER_SIZE)))
     return squash_error (SQUASH_BUFFER_FULL);
 
   const int res = bsc_compress (uncompressed, compressed, (int) uncompressed_size,
                                 lzp_hash_size, lzp_min_len, block_sorter, coder, features);
 
-  if (res < 0) {
+  if (SQUASH_UNLIKELY(res < 0)) {
     return squash_error (SQUASH_FAILED);
   }
 
@@ -188,14 +188,14 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
 
   int res = bsc_block_info (compressed, (int) compressed_size, &p_block_size, &p_data_size, LIBBSC_DEFAULT_FEATURES);
 
-  if (p_block_size != (int) compressed_size)
+  if (SQUASH_UNLIKELY(p_block_size != (int) compressed_size))
     return squash_error (SQUASH_FAILED);
-  if (p_data_size > (int) *decompressed_size)
+  if (SQUASH_UNLIKELY(p_data_size > (int) *decompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, features);
 
-  if (res < 0)
+  if (SQUASH_UNLIKELY(res < 0))
     return squash_error (SQUASH_FAILED);
 
 #if SIZE_MAX < INT_MAX
@@ -214,7 +214,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
 
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("bsc", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("bsc", name) == 0)) {
     impl->options = squash_bsc_options;
     impl->get_uncompressed_size = squash_lzg_get_uncompressed_size;
     impl->get_max_compressed_size = squash_bsc_get_max_compressed_size;

@@ -77,9 +77,9 @@ squash_fastlz_decompress_buffer (SquashCodec* codec,
                                     (void*) decompressed,
                                     (int) *decompressed_size);
 
-  if (fastlz_e < 0) {
+  if (SQUASH_UNLIKELY(fastlz_e < 0)) {
     return squash_error (SQUASH_FAILED);
-  } else if (fastlz_e == 0) {
+  } else if (SQUASH_UNLIKELY(fastlz_e == 0)) {
     return SQUASH_BUFFER_FULL;
   } else {
 #if SIZE_MAX < INT_MAX
@@ -116,14 +116,14 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
 
   *compressed_size = (size_t) fastlz_e;
 
-  return (fastlz_e == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+  return SQUASH_UNLIKELY(fastlz_e == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("fastlz", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("fastlz", name) == 0)) {
     impl->options = squash_fastlz_options;
     impl->get_max_compressed_size = squash_fastlz_get_max_compressed_size;
     impl->decompress_buffer = squash_fastlz_decompress_buffer;

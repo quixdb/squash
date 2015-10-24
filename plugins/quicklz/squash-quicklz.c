@@ -76,7 +76,7 @@ squash_quicklz_decompress_buffer (SquashCodec* codec,
 
   free (qlz_s);
 
-  return (decompressed_s == *decompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return SQUASH_LIKELY(decompressed_s == *decompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
@@ -88,7 +88,7 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
                                 SquashOptions* options) {
   qlz_state_compress* qlz_s;
 
-  if (*compressed_size < squash_quicklz_get_max_compressed_size (codec, uncompressed_size)) {
+  if (SQUASH_UNLIKELY(*compressed_size < squash_quicklz_get_max_compressed_size (codec, uncompressed_size))) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
@@ -101,14 +101,14 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
 
   free (qlz_s);
 
-  return (*compressed_size == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+  return SQUASH_UNLIKELY(*compressed_size == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("quicklz", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("quicklz", name) == 0)) {
     impl->get_uncompressed_size = squash_quicklz_get_uncompressed_size;
     impl->get_max_compressed_size = squash_quicklz_get_max_compressed_size;
     impl->decompress_buffer = squash_quicklz_decompress_buffer;

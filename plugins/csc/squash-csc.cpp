@@ -129,7 +129,7 @@ squash_csc_splice (SquashCodec* codec,
 
     CSCEnc_WriteProperties (&props, props_buf, 0);
     size_t bytes_written = squash_csc_writer ((void*) &out_stream, props_buf, CSC_PROP_SIZE);
-    if (bytes_written != CSC_PROP_SIZE)
+    if (SQUASH_UNLIKELY(bytes_written != CSC_PROP_SIZE))
       return squash_error (SQUASH_FAILED);
 
     CSCEncHandle comp = CSCEnc_Create (&props, (ISeqOutStream*) &out_stream);
@@ -138,7 +138,7 @@ squash_csc_splice (SquashCodec* codec,
   } else {
     size_t prop_l = CSC_PROP_SIZE;
     squash_csc_reader ((void*) &in_stream, props_buf, &prop_l);
-    if (prop_l != CSC_PROP_SIZE)
+    if (SQUASH_UNLIKELY(prop_l != CSC_PROP_SIZE))
       return squash_error (SQUASH_FAILED);
 
     CSCDec_ReadProperties (&props, props_buf);
@@ -177,7 +177,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("csc", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("csc", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     impl->options = squash_csc_options;
     impl->splice = squash_csc_splice;

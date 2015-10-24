@@ -94,7 +94,7 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = malloc (sizeof (SquashMSCompStream));
-  if (stream == NULL)
+  if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
   squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_free);
@@ -107,7 +107,7 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
     status = ms_inflate_init (format, &(stream->mscomp));
   }
 
-  if (status != MSCOMP_OK) {
+  if (SQUASH_UNLIKELY(status != MSCOMP_OK)) {
     squash_object_unref (stream);
     return (squash_error (squash_ms_status_to_squash_status (status)), NULL);
   }
@@ -283,9 +283,9 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("lznt1", name) == 0 ||
-      strcmp ("xpress", name) == 0 ||
-      strcmp ("xpress-huffman", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("lznt1", name) == 0 ||
+                    strcmp ("xpress", name) == 0 ||
+                    strcmp ("xpress-huffman", name) == 0)) {
     impl->get_max_compressed_size = squash_ms_get_max_compressed_size;
     impl->decompress_buffer       = squash_ms_decompress_buffer;
     impl->compress_buffer         = squash_ms_compress_buffer;
@@ -295,7 +295,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
       impl->process_stream          = squash_ms_process_stream;
     }
   } else {
-    return SQUASH_UNABLE_TO_LOAD;
+    return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
 
   return SQUASH_OK;

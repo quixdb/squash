@@ -156,7 +156,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("lzf", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("lzf", name) == 0)) {
     impl->options = squash_lzf_options;
     impl->get_max_compressed_size = squash_lzf_get_max_compressed_size;
     impl->decompress_buffer = squash_lzf_decompress_buffer;

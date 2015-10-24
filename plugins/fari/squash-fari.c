@@ -56,13 +56,13 @@ squash_fari_decompress_buffer (SquashCodec* codec,
       return SQUASH_OK;
       break;
     case 1:
-      return SQUASH_MEMORY;
+      return squash_error (SQUASH_MEMORY);
       break;
     case 2:
-      return SQUASH_BUFFER_FULL;
+      return squash_error (SQUASH_BUFFER_FULL);
       break;
     default:
-      return SQUASH_FAILED;
+      return squash_error (SQUASH_FAILED);
       break;
   }
 }
@@ -77,14 +77,14 @@ squash_fari_compress_buffer (SquashCodec* codec,
   int fari_e = fa_compress ((const unsigned char*) uncompressed, (unsigned char*) compressed,
                             uncompressed_size, compressed_size);
 
-  return fari_e == 0 ? SQUASH_OK : SQUASH_FAILED;
+  return SQUASH_LIKELY(fari_e == 0) ? SQUASH_OK : SQUASH_FAILED;
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("fari", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("fari", name) == 0)) {
     impl->get_max_compressed_size = squash_fari_get_max_compressed_size;
     impl->decompress_buffer = squash_fari_decompress_buffer;
     impl->compress_buffer_unsafe = squash_fari_compress_buffer;

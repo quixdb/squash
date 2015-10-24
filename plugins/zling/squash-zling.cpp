@@ -141,7 +141,7 @@ squash_zling_splice (SquashCodec* codec,
 
     if (zres == 0)
       return SQUASH_OK;
-    else if (stream.last_res < 0)
+    else if (SQUASH_LIKELY(stream.last_res < 0))
       return stream.last_res;
     else
       return squash_error (SQUASH_FAILED);
@@ -176,7 +176,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("zling", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("zling", name) == 0)) {
     impl->options = squash_zling_options;
     impl->splice = squash_zling_splice;
     impl->get_max_compressed_size = squash_zling_get_max_compressed_size;

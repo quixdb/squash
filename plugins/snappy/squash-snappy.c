@@ -66,10 +66,10 @@ squash_snappy_status (snappy_status status) {
       res = SQUASH_OK;
       break;
     case SNAPPY_BUFFER_TOO_SMALL:
-      res = SQUASH_BUFFER_FULL;
+      res = squash_error (SQUASH_BUFFER_FULL);
       break;
     default:
-      res = SQUASH_FAILED;
+      res = squash_error (SQUASH_FAILED);
       break;
   }
 

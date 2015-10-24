@@ -83,7 +83,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("compress", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("compress", name) == 0)) {
     impl->get_max_compressed_size = squash_ncompress_get_max_compressed_size;
     impl->decompress_buffer = squash_ncompress_decompress_buffer;
     impl->compress_buffer = squash_ncompress_compress_buffer;

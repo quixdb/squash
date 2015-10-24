@@ -31,8 +31,8 @@
 #if !defined(_MSC_VER)
 #include <strings.h>
 #else
-#if _MSC_VER < 1900 
-#define snprintf _snprintf 
+#if _MSC_VER < 1900
+#define snprintf _snprintf
 #endif
 #endif
 
@@ -82,7 +82,7 @@ __attribute__((__noreturn__))
 #endif
 void
 libzpaq::error (const char* msg) {
-  if (strcmp (msg, "Out of memory") == 0)
+  if (SQUASH_UNLIKELY(strcmp (msg, "Out of memory") == 0))
     throw squash_error (SQUASH_MEMORY);
   else
     throw squash_error (SQUASH_FAILED);

@@ -216,7 +216,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       s->buffer_active = false;
       s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_size, stream->next_out, stream->avail_out);
     }
-    if (s->state != DENSITY_STREAM_STATE_READY)
+    if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY))
       return squash_error (SQUASH_FAILED);
   }
 
@@ -316,7 +316,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         } else {
           s->state = density_stream_decompress_init (s->stream, NULL);
         }
-        if (s->state != DENSITY_STREAM_STATE_READY)
+        if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY))
           return squash_error (SQUASH_FAILED);
         s->next = SQUASH_DENSITY_ACTION_CONTINUE;
         break;
@@ -411,7 +411,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("density", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("density", name) == 0)) {
     impl->options = squash_density_options;
     impl->create_stream = squash_density_create_stream;
     impl->process_stream = squash_density_process_stream;

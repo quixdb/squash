@@ -106,24 +106,24 @@ squash_gipfeli_decompress_buffer (SquashCodec* codec,
   util::compression::ByteArraySource source((const char*) compressed, compressed_size);
   SquashStatus res = SQUASH_OK;
 
-  if (compressor == NULL)
+  if (SQUASH_UNLIKELY(compressor == NULL))
     return squash_error (SQUASH_MEMORY);
 
   std::string compressed_str((const char*) compressed, compressed_size);
   size_t uncompressed_size;
-  if (!compressor->GetUncompressedLength (compressed_str, &uncompressed_size)) {
+  if (SQUASH_UNLIKELY(!compressor->GetUncompressedLength (compressed_str, &uncompressed_size))) {
     res = squash_error (SQUASH_FAILED);
     goto cleanup;
   }
 
-  if (uncompressed_size > *decompressed_size) {
+  if (SQUASH_UNLIKELY(uncompressed_size > *decompressed_size)) {
     res = squash_error (SQUASH_BUFFER_FULL);
     goto cleanup;
   } else {
     *decompressed_size = uncompressed_size;
   }
 
-  if (!compressor->UncompressStream (&source, &sink)) {
+  if (SQUASH_UNLIKELY(!compressor->UncompressStream (&source, &sink))) {
     res = squash_error (SQUASH_FAILED);
   }
 
@@ -159,7 +159,7 @@ squash_gipfeli_compress_buffer (SquashCodec* codec,
 
   delete compressor;
 
-  if (res == SQUASH_OK && *compressed_size == 0)
+  if (SQUASH_UNLIKELY(res == SQUASH_OK && *compressed_size == 0))
     res = squash_error (SQUASH_FAILED);
 
   return res;
@@ -190,7 +190,7 @@ squash_gipfeli_compress_buffer_unsafe (SquashCodec* codec,
 
   delete compressor;
 
-  if (res == SQUASH_OK && *compressed_size == 0)
+  if (SQUASH_UNLIKELY(res == SQUASH_OK && *compressed_size == 0))
     res = squash_error (SQUASH_FAILED);
 
   return res;
@@ -200,7 +200,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("gipfeli", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("gipfeli", name) == 0)) {
     impl->get_uncompressed_size = squash_gipfeli_get_uncompressed_size;
     impl->get_max_compressed_size = squash_gipfeli_get_max_compressed_size;
     impl->decompress_buffer = squash_gipfeli_decompress_buffer;

@@ -153,7 +153,7 @@ squash_lzg_decompress_buffer (SquashCodec* codec,
   res = LZG_Decode ((const unsigned char*) compressed, (lzg_uint32_t) compressed_size,
                     (unsigned char*) decompressed, (lzg_uint32_t) *decompressed_size);
 
-  if (res == 0) {
+  if (SQUASH_UNLIKELY(res == 0)) {
     return squash_error (SQUASH_FAILED);
   } else {
 #if SIZE_MAX < UINT32_MAX
@@ -169,7 +169,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("lzg", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("lzg", name) == 0)) {
     impl->options = squash_lzg_options;
     impl->get_uncompressed_size = squash_lzg_get_uncompressed_size;
     impl->get_max_compressed_size = squash_lzg_get_max_compressed_size;

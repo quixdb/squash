@@ -679,12 +679,12 @@ squash_codec_compress_with_options (SquashCodec* codec,
   squash_object_ref (options);
 
   impl = squash_codec_get_impl (codec);
-  if (impl == NULL) {
+  if (SQUASH_UNLIKELY(impl == NULL)) {
     res = squash_error (SQUASH_UNABLE_TO_LOAD);
     goto cleanup;
   }
 
-  if (compressed == uncompressed) {
+  if (SQUASH_UNLIKELY(compressed == uncompressed)) {
     res = squash_error (SQUASH_INVALID_BUFFER);
     goto cleanup;
   }
@@ -715,7 +715,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
       goto cleanup;
     } else {
       uint8_t* tmp_buf = malloc (max_compressed_size);
-      if (tmp_buf == NULL) {
+      if (SQUASH_UNLIKELY(tmp_buf == NULL)) {
         res = squash_error (SQUASH_MEMORY);
         goto cleanup;
       }
@@ -725,7 +725,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
                                           uncompressed_size, uncompressed,
                                           options);
       if (res == SQUASH_OK) {
-        if (*compressed_size < max_compressed_size) {
+        if (SQUASH_UNLIKELY(*compressed_size < max_compressed_size)) {
           *compressed_size = max_compressed_size;
           free (tmp_buf);
           res = squash_error (SQUASH_BUFFER_FULL);
@@ -749,7 +749,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
     SquashStream* stream;
 
     stream = squash_codec_create_stream_with_options (codec, SQUASH_STREAM_COMPRESS, options);
-    if (stream == NULL) {
+    if (SQUASH_UNLIKELY(stream == NULL)) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
     }
@@ -848,10 +848,10 @@ squash_codec_decompress_with_options (SquashCodec* codec,
   assert (codec != NULL);
 
   impl = squash_codec_get_impl (codec);
-  if (impl == NULL)
+  if (SQUASH_UNLIKELY(impl == NULL))
     return squash_error (SQUASH_UNABLE_TO_LOAD);
 
-  if (decompressed == compressed)
+  if (SQUASH_UNLIKELY(decompressed == compressed))
     return squash_error (SQUASH_INVALID_BUFFER);
 
   if (impl->decompress_buffer != NULL) {
@@ -960,7 +960,7 @@ squash_compress (const char* codec,
   va_list ap;
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real == NULL)
+  if (SQUASH_UNLIKELY(codec_real == NULL))
     return squash_error (SQUASH_NOT_FOUND);
 
   va_start (ap, uncompressed);
@@ -995,7 +995,7 @@ squash_compress_with_options (const char* codec,
                               SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real == NULL)
+  if (SQUASH_UNLIKELY(codec_real == NULL))
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_compress_with_options (codec_real,
@@ -1029,7 +1029,7 @@ squash_decompress (const char* codec,
   va_list ap;
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real == NULL)
+  if (SQUASH_UNLIKELY(codec_real == NULL))
     return squash_error (SQUASH_NOT_FOUND);
 
   va_start (ap, compressed);
@@ -1063,7 +1063,7 @@ SquashStatus squash_decompress_with_options (const char* codec,
                                              SquashOptions* options) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real == NULL)
+  if (SQUASH_UNLIKELY(codec_real == NULL))
     return squash_error (SQUASH_NOT_FOUND);
 
   return squash_codec_decompress_with_options (codec_real,
@@ -1156,7 +1156,7 @@ SquashCodecInfo
 squash_get_info (const char* codec) {
   SquashCodec* codec_real = squash_get_codec (codec);
 
-  if (codec_real != NULL) {
+  if (SQUASH_LIKELY(codec_real != NULL)) {
     return squash_codec_get_info (codec_real);
   } else {
     squash_error (SQUASH_NOT_FOUND);

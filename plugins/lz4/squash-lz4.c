@@ -175,7 +175,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
 
   *compressed_size = lz4_r;
 
-  return (lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
+  return SQUASH_UNLIKELY(lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
 }
 
 static SquashStatus

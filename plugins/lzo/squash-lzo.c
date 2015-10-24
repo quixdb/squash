@@ -313,7 +313,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
 
   if (lzo_codec->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (lzo_codec->work_mem);
-    if (work_mem == NULL) {
+    if (SQUASH_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
   }
@@ -368,7 +368,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
 
   if (compressor->work_mem > 0) {
     work_mem = (lzo_voidp) malloc (compressor->work_mem);
-    if (work_mem == NULL) {
+    if (SQUASH_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
   }
@@ -401,7 +401,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* codec_name = squash_codec_get_name (codec);
 
-  if (strncmp ("lzo1", codec_name, 3) != 0)
+  if (SQUASH_UNLIKELY(strncmp ("lzo1", codec_name, 3) != 0))
     return squash_error (SQUASH_UNABLE_TO_LOAD);
 
   switch (codec_name[4]) {

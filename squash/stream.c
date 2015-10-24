@@ -613,7 +613,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
 
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
-  if (operation == SQUASH_OPERATION_FLUSH && ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0)) {
+  if (SQUASH_UNLIKELY(operation == SQUASH_OPERATION_FLUSH && ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0))) {
     return squash_error (SQUASH_INVALID_OPERATION);
   }
 
@@ -657,7 +657,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       break;
   }
 
-  if (current_operation > operation) {
+  if (SQUASH_UNLIKELY(current_operation > operation)) {
     return squash_error (SQUASH_STATE);
   }
 
@@ -788,7 +788,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
 
     /* Check our internal single byte buffer */
     if (next_out != 0) {
-      if (stream->avail_out == 0) {
+      if (SQUASH_UNLIKELY(stream->avail_out == 0)) {
         res = squash_error (SQUASH_BUFFER_FULL);
       }
     }

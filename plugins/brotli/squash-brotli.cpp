@@ -222,9 +222,9 @@ squash_brotli_compress_stream (SquashStream* stream, SquashOperation operation) 
 
     end_of_input = s->base_object.avail_in == 0;
     bool is_last = (operation == SQUASH_OPERATION_FINISH) && end_of_input;
-    if (!s->compressor->WriteBrotliData(is_last,
-                                        s->should_flush && end_of_input,
-                                        &s->remaining_out, &s->next_out)) {
+    if (SQUASH_UNLIKELY(!s->compressor->WriteBrotliData(is_last,
+                                                        s->should_flush && end_of_input,
+                                                        &s->remaining_out, &s->next_out))) {
       return squash_error (SQUASH_FAILED);
     }
     if (is_last) {
@@ -251,7 +251,7 @@ squash_brotli_decompress_stream (SquashStream* stream, SquashOperation operation
       s->finished = true;
       return SQUASH_OK;
     }
-    if (res ==  BROTLI_RESULT_NEEDS_MORE_OUTPUT || res == BROTLI_RESULT_NEEDS_MORE_INPUT) {
+    if (SQUASH_LIKELY(res ==  BROTLI_RESULT_NEEDS_MORE_OUTPUT || res == BROTLI_RESULT_NEEDS_MORE_INPUT)) {
       return (res == BROTLI_RESULT_NEEDS_MORE_OUTPUT) ? SQUASH_PROCESSING : SQUASH_OK;
     }
     return squash_error (SQUASH_FAILED);
@@ -307,7 +307,7 @@ squash_brotli_compress_buffer (SquashCodec* codec,
     int res = brotli::BrotliCompressBuffer (params,
                                             uncompressed_size, uncompressed,
                                             compressed_size, compressed);
-    return (res == 1) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+    return SQUASH_LIKELY(res == 1) ? SQUASH_OK : squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
@@ -337,7 +337,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("brotli", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("brotli", name) == 0)) {
     impl->options = squash_brotli_options;
     impl->get_max_compressed_size = squash_brotli_get_max_compressed_size;
     impl->create_stream = squash_brotli_create_stream;

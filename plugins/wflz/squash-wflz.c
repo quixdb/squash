@@ -171,7 +171,7 @@ squash_wflz_compress_buffer (SquashCodec* codec,
 
   free (work_mem);
 
-  return (*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return SQUASH_LIKELY(*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
@@ -184,7 +184,7 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
   const char* codec_name = squash_codec_get_name (codec);
   uint32_t decompressed_s;
 
-  if (compressed_size < 12)
+  if (SQUASH_UNLIKELY(compressed_size < 12))
     return squash_error (SQUASH_BUFFER_EMPTY);
 
   decompressed_s = wfLZ_GetDecompressedSize (compressed);
@@ -194,10 +194,10 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (decompressed_s == 0)
+  if (SQUASH_UNLIKELY(decompressed_s == 0))
     return squash_error (SQUASH_INVALID_BUFFER);
 
-  if (decompressed_s > *decompressed_size)
+  if (SQUASH_UNLIKELY(decompressed_s > *decompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
   if (codec_name[4] == '\0') {
@@ -210,7 +210,7 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
     while ( (compressed_block = wfLZ_ChunkDecompressLoop ((uint8_t*) compressed, &chunk)) != NULL ) {
       const uint32_t chunk_size = wfLZ_GetDecompressedSize (compressed_block);
 
-      if ((dest + chunk_size) > (decompressed + *decompressed_size))
+      if (SQUASH_UNLIKELY((dest + chunk_size) > (decompressed + *decompressed_size)))
         return squash_error (SQUASH_BUFFER_FULL);
 
       wfLZ_Decompress (compressed_block, dest);
@@ -227,8 +227,8 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("wflz", name) == 0 ||
-      strcmp ("wflz-chunked", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("wflz", name) == 0 ||
+                    strcmp ("wflz-chunked", name) == 0)) {
     impl->options = squash_wflz_options;
     impl->get_uncompressed_size = squash_wflz_get_uncompressed_size;
     impl->get_max_compressed_size = squash_wflz_get_max_compressed_size;

@@ -144,14 +144,14 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
 
   size = read_varuint64 (src, compressed_size, &original_size);
 
-  if (size == 0) {
+  if (SQUASH_UNLIKELY(size == 0)) {
     return squash_error (SQUASH_FAILED);
   }
 
   src += size;
   compressed_size -= size;
 
-  if (original_size > *decompressed_size) {
+  if (SQUASH_UNLIKELY(original_size > *decompressed_size)) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
@@ -164,7 +164,7 @@ squash_brieflz_decompress_buffer (SquashCodec* codec,
   size = blz_depack_safe (src, (unsigned long) compressed_size,
                           decompressed, (unsigned long) original_size);
 
-  if (size != original_size) {
+  if (SQUASH_UNLIKELY(size != original_size)) {
     return squash_error (SQUASH_FAILED);
   }
 
@@ -195,14 +195,14 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if ((unsigned long) *compressed_size
-    < squash_brieflz_get_max_compressed_size (codec, uncompressed_size)) {
+  if (SQUASH_UNLIKELY((unsigned long) *compressed_size
+                      < squash_brieflz_get_max_compressed_size (codec, uncompressed_size))) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
   size = write_varuint64 (dst, *compressed_size, uncompressed_size);
 
-  if (size == 0) {
+  if (SQUASH_UNLIKELY(size == 0)) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
@@ -210,7 +210,7 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
 
   workmem = malloc (blz_workmem_size ((unsigned long) uncompressed_size));
 
-  if (workmem == NULL) {
+  if (SQUASH_UNLIKELY(workmem == NULL)) {
     return squash_error (SQUASH_MEMORY);
   }
 
@@ -234,7 +234,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("brieflz", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("brieflz", name) == 0)) {
     impl->get_uncompressed_size = squash_brieflz_get_uncompressed_size;
     impl->get_max_compressed_size = squash_brieflz_get_max_compressed_size;
     impl->decompress_buffer = squash_brieflz_decompress_buffer;

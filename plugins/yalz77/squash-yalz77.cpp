@@ -71,16 +71,16 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
     lz77::compress_t compress(searchlen, blocksize);
     std::string res = compress.feed(uncompressed, uncompressed + uncompressed_size);
 
-    if (res.size() > *compressed_size)
-      return SQUASH_FAILED;
+    if (SQUASH_UNLIKELY(res.size() > *compressed_size))
+      return squash_error (SQUASH_FAILED);
 
     memcpy(compressed, res.c_str(), res.size());
     *compressed_size = res.size();
     return SQUASH_OK;
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 }
 
@@ -101,11 +101,11 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
     *decompressed_size = res.size();
     return (done && remaining.empty()) ? SQUASH_OK : SQUASH_FAILED;
   } catch (std::length_error& e) {
-    return SQUASH_BUFFER_FULL;
+    return squash_error (SQUASH_BUFFER_FULL);
   } catch (const std::bad_alloc& e) {
-    return SQUASH_MEMORY;
+    return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 }
 
@@ -121,7 +121,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (strcmp ("yalz77", name) == 0) {
+  if (SQUASH_LIKELY(strcmp ("yalz77", name) == 0)) {
     impl->options = squash_yalz77_options;
     impl->get_max_compressed_size = squash_yalz77_get_max_compressed_size;
     impl->decompress_buffer = squash_yalz77_decompress_buffer;
