@@ -14,7 +14,7 @@
 #define snprintf _snprintf
 #endif
 
-#include "parg.h"
+#include "parg/parg.h"
 
 #if !defined(EXIT_SUCCESS)
 #define EXIT_SUCCESS (0)
