@@ -46,8 +46,8 @@
 #if !defined(_WIN32)
   #include <dirent.h>
 #else
-  #include <strsafe.h>
   #include <tchar.h>
+  #include <strsafe.h>
   #include <windows.h>
 #endif
 
