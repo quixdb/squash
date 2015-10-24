@@ -24,15 +24,14 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
-#include <squash/config.h>
-
 #include <assert.h>
+#include <squash/internal.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <stdio.h>
-
-#include "internal.h"
 
 static size_t
 squash_buffer_npot_page (size_t value) {

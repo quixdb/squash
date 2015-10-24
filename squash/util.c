@@ -24,16 +24,17 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
-#include <squash/config.h>
-#include <assert.h>
+#include <squash/internal.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "internal.h" /* IWYU pragma: keep */
 
 #if !defined(_WIN32)
 #  include <unistd.h>
 #  if !defined(_SC_PAGESIZE)
-#    include <sys/types.h>
 #    include <sys/sysctl.h>
+#    include <sys/types.h>
 #  endif
 #else
 #  include <windows.h>

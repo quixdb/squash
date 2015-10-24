@@ -1,4 +1,4 @@
-/* IWYU pragma: private, include "internal.h" */
+/* IWYU pragma: private, include <squash/internal.h> */
 
 #ifndef SQUASH_CONFIG_H
 #define SQUASH_CONFIG_H

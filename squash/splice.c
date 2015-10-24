@@ -30,9 +30,18 @@
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 
-#include "internal.h"
-
+#include <assert.h>
+#include <squash/internal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include "internal.h"
+#include "squash/tinycthread/source/tinycthread.h"
 
 /**
  * @defgroup Splicing

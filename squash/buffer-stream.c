@@ -25,11 +25,12 @@
  */
 
 #include <assert.h>
-#include <string.h>
-
+#include <squash/internal.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
-
-#include "internal.h"
+#include <stdlib.h>
+#include <string.h>
 
 static void
 squash_buffer_stream_init (void* stream,

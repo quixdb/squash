@@ -30,14 +30,18 @@
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 
-#include "internal.h"
-
-#include <sys/stat.h>
+#include <assert.h>
+#include <squash/internal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#if !defined(_MSC_VER)
-#include <unistd.h>
-#endif
+#include "internal.h"
+#include "squash/tinycthread/source/tinycthread.h"
 
 /* #define SQUASH_MMAP_IO */
 

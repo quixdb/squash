@@ -27,12 +27,14 @@
 #define _FILE_OFFSET_BITS 64
 #define _POSIX_C_SOURCE 200112L
 
-#include "internal.h"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
+#include <assert.h>
+#include <squash/internal.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 bool

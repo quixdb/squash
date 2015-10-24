@@ -32,6 +32,8 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
+#include <squash/squash.h>
+#include <stddef.h>
 #include <stdio.h>
 
 SQUASH_BEGIN_DECLS

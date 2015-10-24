@@ -25,9 +25,15 @@
  */
 
 #include <assert.h>
+#include <squash/internal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "internal.h"
+#include "squash/tinycthread/source/tinycthread.h"
 
 /**
  * @var _SquashStream::base_object

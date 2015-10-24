@@ -27,22 +27,18 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <squash/internal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if !defined(_MSC_VER)
-#include <unistd.h>
 #include <strings.h>
 #endif
- 
-#if !defined(_WIN32)
-#include <sys/mman.h>
-#endif
-
-#include "internal.h"
-#include "tinycthread/source/tinycthread.h"
 
 /**
  * @defgroup SquashCodecImplementation Codec implementation

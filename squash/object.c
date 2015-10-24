@@ -25,8 +25,9 @@
  */
 
 #include <assert.h>
-
-#include "internal.h"
+#include <squash/internal.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
 #  define squash_atomic_inc(var) __sync_fetch_and_add(var, 1)

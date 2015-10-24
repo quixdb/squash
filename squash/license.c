@@ -24,13 +24,8 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
-#include "internal.h"
-
+#include <squash/internal.h>
 #include <string.h>
-
-#if !defined(_MSC_VER)
-#include <strings.h>
-#endif
 
 /**
  * @def SQUASH_LICENSE_UNKNOWN

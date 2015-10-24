@@ -28,6 +28,7 @@
 #ifndef SQUASH_PLUGIN_H
 #define SQUASH_PLUGIN_H
 
+#include <squash/squash.h>
 #if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif

@@ -24,8 +24,6 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
-#include "internal.h"
-
 /**
  * @defgroup SquashVersion SquashVersion
  * @brief Library version information.
@@ -109,6 +107,9 @@
  *
  * @return the library version
  */
+
+#include <squash/internal.h>
+
 unsigned int
 squash_version (void) {
   return SQUASH_VERSION_CURRENT;

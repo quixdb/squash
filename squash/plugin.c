@@ -25,17 +25,19 @@
  */
 
 #include <assert.h>
+#include <squash/internal.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
+#include "squash/version.h"
 
 #if !defined(_WIN32)
 #include <dlfcn.h>
 #else
 #include <windows.h>
 #endif
-
-#include "internal.h"
 
 /**
  * @defgroup SquashPlugin SquashPlugin

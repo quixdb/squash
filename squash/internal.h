@@ -32,7 +32,7 @@
 #endif
 
 #ifdef SQUASH_H
-#error "You must include internal.h before (or instead of) squash.h"
+#  error "You must include internal.h instead of squash.h"
 #endif
 
 #ifndef SQUASH_API
@@ -82,8 +82,8 @@
 #if defined(_MSC_VER)
 #define strcasecmp _stricmp
 #define strtok_r strtok_s
-#if _MSC_VER < 1900 
-#define snprintf _snprintf 
+#if _MSC_VER < 1900
+#define snprintf _snprintf
 #endif
 #endif
 

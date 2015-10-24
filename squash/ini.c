@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-#include <squash/internal.h>
+#include <squash/internal.h> /* IWYU pragma: keep */
 
 #define SQUASH_INI_PARSER_MAX_SECTION_LENGTH 1024
 #define SQUASH_INI_PARSER_MAX_KEY_LENGTH     1024

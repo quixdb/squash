@@ -58,7 +58,7 @@
  * (which is not distributed with SQUASH--you can get a copy from
  * http://piumarta.com/software/tree/).
  */
-/* IWYU pragma: private, include "internal.h" */
+/* IWYU pragma: private, include <squash/internal.h> */
 
 #ifndef SQUASH_TREE_H
 #define SQUASH_TREE_H

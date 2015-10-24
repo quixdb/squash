@@ -28,6 +28,10 @@
 #ifndef SQUASH_CODEC_H
 #define SQUASH_CODEC_H
 
+#include <squash/squash.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
 #error "Only <squash/squash.h> can be included directly."
 #endif

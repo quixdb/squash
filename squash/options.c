@@ -28,13 +28,16 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
+#include <squash/internal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if !defined(_MSC_VER)
 #include <strings.h>
 #endif
-
-#include "internal.h"
 
 static void squash_options_free (void* options);
 

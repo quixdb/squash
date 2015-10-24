@@ -24,9 +24,8 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
-#include "internal.h"
-
 #include <assert.h>
+#include <squash/internal.h>
 
 /**
  * @defgroup SquashStatus SquashStatus

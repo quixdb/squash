@@ -23,6 +23,7 @@
  * Authors:
  *   Evan Nemerson <evan@coeus-group.com>
  */
+/* IWYU pragma: private, include <squash/squash.h> */
 
 #ifndef SQUASH_VERSION_H
 #define SQUASH_VERSION_H

@@ -31,28 +31,26 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <string.h>
+#include <squash/internal.h>
+#include <stdbool.h>
 #include <stddef.h>
-#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #if !defined(_MSC_VER)
-#include <unistd.h>
 #include <strings.h>
+#include <unistd.h>
 #endif
 
 #if !defined(_WIN32)
   #include <dirent.h>
 #else
-  #include <windows.h>
-  #include <tchar.h>
   #include <strsafe.h>
+  #include <tchar.h>
+  #include <windows.h>
 #endif
 
-#include "internal.h"
 #include "tinycthread/source/tinycthread.h"
 
 #if !defined(_WIN32)
