@@ -41,9 +41,9 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "\t                        Equivalent to -o level=N\n");
   fprintf (stderr, "\t-c, --codec codec       Use the specified codec.  By default squash will\n");
   fprintf (stderr, "\t                        attempt to guess it based on the extension.\n");
-  fprintf (stderr, "\t-L, --list_codecs       List available codecs and exit\n");
-  fprintf (stderr, "\t-P, --list_plugins      List available plugins and exit\n");
-  fprintf (stderr, "\t-f, --file              Overwrite the output file if it exists.\n");
+  fprintf (stderr, "\t-L, --list-codecs       List available codecs and exit\n");
+  fprintf (stderr, "\t-P, --list-plugins      List available plugins and exit\n");
+  fprintf (stderr, "\t-f, --force              Overwrite the output file if it exists.\n");
   fprintf (stderr, "\t-d, --decompress        Decompress\n");
   fprintf (stderr, "\t-V, --version           Print version number and exit\n");
   fprintf (stderr, "\t-h, --help              Print this help screen and exit.\n");
@@ -162,16 +162,16 @@ int main (int argc, char** argv) {
   struct parg_state ps;
   int optend;
   const struct parg_option squash_options[] = {
-    {"keep", PARG_NOARG, 0, 'k'},
-    {"option", PARG_REQARG, 0, 'o'},
-    {"codec", PARG_REQARG, 0, 'c'},
-    {"list_codecs", PARG_NOARG, 0, 'L'},
-    {"list_plugins", PARG_NOARG, 0, 'P'},
-    {"file", PARG_REQARG, 0, 'f'},
-    {"decompress", PARG_NOARG, 0, 'd'},
-    {"version", PARG_NOARG, 0, 'V'},
-    {"help", PARG_NOARG, 0, 'h'},
-    {0, 0, 0, 0}
+    {"keep", PARG_NOARG, NULL, 'k'},
+    {"option", PARG_REQARG, NULL, 'o'},
+    {"codec", PARG_REQARG, NULL, 'c'},
+    {"list-codecs", PARG_NOARG, NULL, 'L'},
+    {"list-plugins", PARG_NOARG, NULL, 'P'},
+    {"force", PARG_NOARG, NULL, 'f'},
+    {"decompress", PARG_NOARG, NULL, 'd'},
+    {"version", PARG_NOARG, NULL, 'V'},
+    {"help", PARG_NOARG, NULL, 'h'},
+    {NULL, 0, NULL, 0}
   };
 
   option_keys = (char**) malloc (sizeof (char*));
@@ -179,11 +179,11 @@ int main (int argc, char** argv) {
   *option_keys = NULL;
   *option_values = NULL;
 
-  optend = parg_reorder (argc, argv, "c:ko:123456789LPfdhb:V", &squash_options);
+  optend = parg_reorder (argc, argv, "c:ko:123456789LPfdhb:V", squash_options);
 
   parg_init(&ps);
 
-  while ( (opt = parg_getopt_long (&ps, optend, argv, "c:ko:123456789LPfdhb:V", &squash_options, NULL)) != -1 ) {
+  while ( (opt = parg_getopt_long (&ps, optend, argv, "c:ko:123456789LPfdhb:V", squash_options, NULL)) != -1 ) {
     switch ( opt ) {
       case 'c':
         codec = squash_get_codec (ps.optarg);
