@@ -32,10 +32,25 @@
 #include <squash/squash.h>
 
 #include "zstd/lib/zstd.h"
+#include "zstd/lib/zstdhc.h"
 #include "zstd/lib/error.h"
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
+
+enum SquashZstdOptIndex {
+  SQUASH_ZSTD_OPT_LEVEL = 0
+};
+
+static SquashOptionInfo squash_zstd_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 7,
+      .max = 15 },
+    .default_value.int_value = 7 },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
 
 static size_t
 squash_zstd_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
@@ -50,6 +65,8 @@ squash_zstd_status_from_zstd_error (size_t res) {
   switch ((ERR_codes) (-(int)(res))) {
     case ZSTD_error_No_Error:
       return SQUASH_OK;
+    case ZSTD_error_memory_allocation:
+      return squash_error (SQUASH_MEMORY);
     case ZSTD_error_dstSize_tooSmall:
       return squash_error (SQUASH_BUFFER_FULL);
     case ZSTD_error_prefix_unknown:
@@ -87,7 +104,19 @@ squash_zstd_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size);
+  int level = squash_codec_get_option_int_index (codec, options, SQUASH_ZSTD_OPT_LEVEL);
+
+  if (level == 7) {
+    *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size);
+  } else if (level > 7) {
+    level = (level - 7) * 3;
+    if (level == 24)
+      level = 23;
+
+    *compressed_size = ZSTD_HC_compress (compressed, *compressed_size, uncompressed, uncompressed_size, level);
+  } else {
+    squash_assert_unreachable ();
+  }
 
   return squash_zstd_status_from_zstd_error (*compressed_size);
 }
@@ -97,6 +126,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (SQUASH_LIKELY(strcmp ("zstd", name) == 0)) {
+    impl->options = squash_zstd_options;
     impl->get_max_compressed_size = squash_zstd_get_max_compressed_size;
     impl->decompress_buffer = squash_zstd_decompress_buffer;
     impl->compress_buffer_unsafe = squash_zstd_compress_buffer;

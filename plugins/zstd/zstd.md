@@ -9,6 +9,15 @@ https://github.com/Cyan4973/zstd
 
 - **zstd** — Raw zstd data.
 
+## Options ##
+
+### Compression-only ###
+
+- **level** — (integer, 7-15, default 7): compression level.  7
+  corresponds to the default zstd algorithm (`ZSTD_compress`).  Levels
+  above 7 correspond to the HC implementation (`ZSTD_HC_compress`),
+  with a level of `(level - 7) * 3`
+
 ## License ##
 
 The zstd plugin is licensed under the [MIT
