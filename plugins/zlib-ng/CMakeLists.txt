@@ -31,10 +31,6 @@ squash_plugin(
     zlib-ng/deflate_fast.c
     zlib-ng/deflate_medium.c
     zlib-ng/deflate_slow.c
-    zlib-ng/gzclose.c
-    zlib-ng/gzlib.c
-    zlib-ng/gzread.c
-    zlib-ng/gzwrite.c
     zlib-ng/infback.c
     zlib-ng/inffast.c
     zlib-ng/inflate.c
