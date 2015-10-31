@@ -43,7 +43,7 @@ print_help_and_exit (int argc, char** argv, int exit_code) {
   fprintf (stderr, "\t                        attempt to guess it based on the extension.\n");
   fprintf (stderr, "\t-L, --list-codecs       List available codecs and exit\n");
   fprintf (stderr, "\t-P, --list-plugins      List available plugins and exit\n");
-  fprintf (stderr, "\t-f, --force              Overwrite the output file if it exists.\n");
+  fprintf (stderr, "\t-f, --force             Overwrite the output file if it exists.\n");
   fprintf (stderr, "\t-d, --decompress        Decompress\n");
   fprintf (stderr, "\t-V, --version           Print version number and exit\n");
   fprintf (stderr, "\t-h, --help              Print this help screen and exit.\n");
