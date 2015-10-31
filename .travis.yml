@@ -8,12 +8,17 @@ env:
   matrix:
     - COMPILER=gcc-5 BUILD_TYPE=debug
     - COMPILER=gcc-5 BUILD_TYPE=asan
-#    - COMPILER=gcc-5 BUILD_TYPE=ubsan
-#    - COMPILER=gcc-5 BUILD_TYPE=tsan
+#   - COMPILER=gcc-5 BUILD_TYPE=ubsan
+#   - COMPILER=gcc-5 BUILD_TYPE=tsan
+    - COMPILER=gcc-5 BUILD_TYPE=release
     - COMPILER=gcc-5 BUILD_TYPE=coverage
     - COMPILER=clang BUILD_TYPE=debug
+    - COMPILER=clang-3.4 BUILD_TYPE=debug
+    - COMPILER=clang-3.5 BUILD_TYPE=debug
+    - COMPILER=clang-3.6 BUILD_TYPE=debug
+#   - COMPILER=clang-3.7 BUILD_TYPE=debug
+#   - COMPILER=clang-3.7 BUILD_TYPE=release
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
-    - COMPILER=gcc-5 BUILD_TYPE=release
   global:
     # Coveralls.io
     - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
@@ -23,6 +28,18 @@ matrix:
   exclude:
     - os: osx
       env: COMPILER=gcc-5 BUILD_TYPE=coverage
+    - os: linux
+      env: COMPILER=clang BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=clang-3.4 BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=clang-3.5 BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=clang-3.6 BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=clang-3.7 BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=clang-3.7 BUILD_TYPE=release
 before_install:
  - ./.travis.sh deps
 script: ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test

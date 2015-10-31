@@ -4,11 +4,28 @@
 # not possible to perform different before_install steps depending on
 # the operating system.  You should not be using this script.
 
+export GCOV=gcov
+
 case "${COMPILER}" in
     "clang")
         export CC=clang
         export CXX=clang++
-        export GCOV=gcov
+        ;;
+    "clang-3.4")
+        export CC=clang
+        export CXX=clang++
+        ;;
+    "clang-3.5")
+        export CC=clang-3.5
+        export CXX=clang++-3.5
+        ;;
+    "clang-3.6")
+        export CC=clang-3.6
+        export CXX=clang++-3.6
+        ;;
+    "clang-3.7")
+        export CC=clang-3.7
+        export CXX=clang++-3.7
         ;;
     "gcc-4.6")
         export CC=gcc-4.6
@@ -43,9 +60,18 @@ case "${1}" in
     "deps")
         case "${TRAVIS_OS_NAME}" in
             "linux")
+                . /etc/lsb-release
+
                 sudo apt-get update -qq
                 sudo apt-get install -qq python-software-properties
                 sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+
+                sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AF4F7421
+                for CLANG_VERSION in 3.4 3.5 3.6 3.7; do
+                    sudo apt-add-repository -y \
+                         "deb http://llvm.org/apt/${DISTRIB_CODENAME}/ llvm-toolchain-${DISTRIB_CODENAME}-${CLANG_VERSION} main"
+                done
+
                 sudo apt-get update -qq
                 sudo apt-get install -qq \
                      cmake \
@@ -61,7 +87,21 @@ case "${1}" in
                     "gcc-4.8")
                         sudo apt-get install -qq gcc-4.8 g++-4.8
                         ;;
+                    "clang-3.4")
+                        sudo apt-get install -qq clang-3.4
+                        ;;
+                    "clang-3.5")
+                        sudo apt-get install -qq clang-3.5
+                        ;;
+                    "clang-3.6")
+                        sudo apt-get install -qq clang-3.6
+                        ;;
+                    "clang-3.7")
+                        sudo apt-get install -qq clang-3.7
+                        ;;
                 esac
+
+                ${CC} --version
 
                 case "${BUILD_TYPE}" in
                     "coverage")
