@@ -28,10 +28,17 @@ squash_plugin(
     zlib-ng/compress.c
     zlib-ng/crc32.c
     zlib-ng/deflate.c
-    zlib-ng/inflate.c
+    zlib-ng/deflate_fast.c
+    zlib-ng/deflate_medium.c
+    zlib-ng/deflate_slow.c
+    zlib-ng/gzclose.c
+    zlib-ng/gzlib.c
+    zlib-ng/gzread.c
+    zlib-ng/gzwrite.c
     zlib-ng/infback.c
-    zlib-ng/inftrees.c
     zlib-ng/inffast.c
+    zlib-ng/inflate.c
+    zlib-ng/inftrees.c
     zlib-ng/match.c
     zlib-ng/trees.c
     zlib-ng/uncompr.c
