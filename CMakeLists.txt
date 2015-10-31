@@ -9,7 +9,6 @@ include (ExtraWarningFlags)
 include (CheckFunctionExists)
 include (CheckIncludeFile)
 include (AddCompilerFlags)
-include (NoUndefined)
 
 enable_testing ()
 
