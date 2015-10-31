@@ -4,6 +4,8 @@ environment:
   matrix:
   - GENERATOR: Visual Studio 14 2015
   - GENERATOR: Visual Studio 14 2015 Win64
+  - GENERATOR: Visual Studio 12 2013
+  - GENERATOR: Visual Studio 12 2013 Win64
 
 configuration: Debug
 
