@@ -9,6 +9,7 @@ squash_plugin (
     zstd/lib/fse.c
     zstd/lib/huff0.c
     zstd/lib/legacy/zstd_v01.c
+    zstd/lib/legacy/zstd_v02.c
     EMBED_INCLUDE_DIRS
       zstd/lib
       zstd/lib/legacy)
