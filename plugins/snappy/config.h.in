@@ -1,0 +1,10 @@
+#if !defined(SQUASH_SNAPPY_CONFIG_H)
+#define SQUASH_SNAPPY_CONFIG_H
+
+#cmakedefine HAVE_SSIZE_T
+
+#if !defined(HAVE_SSIZE_T)
+typedef ptrdiff_t ssize_t;
+#endif
+
+#endif

@@ -14,6 +14,6 @@ install: git submodule update --init --recursive
 before_build:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "%GENERATOR%" -DENABLE_GIPFELI=no -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_SNAPPY=no -DENABLE_ZLING=no ..
+  - cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "%GENERATOR%" -DENABLE_GIPFELI=no -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_ZLING=no ..
 
 build_script: cmake --build . --config %CONFIGURATION%
