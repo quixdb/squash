@@ -5,14 +5,10 @@ include (CheckTypeSize)
 CHECK_INCLUDE_FILE ("stdint.h"   HAVE_STDINT_H)
 CHECK_INCLUDE_FILE ("stddef.h"   HAVE_STDDEF_H)
 CHECK_INCLUDE_FILE ("sys/uio.h"  HAVE_SYS_UIO_H)
-CHECK_TYPE_SIZE    ("size_t"     HAVE_SSIZE_T)
+CHECK_TYPE_SIZE    ("ssize_t"    HAVE_SSIZE_T)
 
 configure_file (snappy-stubs-public.h.in snappy-stubs-public.h)
 configure_file (config.h.in config.h)
-
-if (NOT HAVE_SSIZE_T)
-  set(SNAPPY_EXTRA_DEFINES "ssize_t=ptrdiff_t")
-endif ()
 
 squash_plugin (
   NAME snappy
@@ -27,7 +23,4 @@ squash_plugin (
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/snappy
   EMBED_DEFINES
-    HAVE_CONFIG_H
-    ${SNAPPY_EXTRA_DEFINES})
-
-unset (SNAPPY_EXTRA_DEFINES)
+    HAVE_CONFIG_H)
