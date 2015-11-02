@@ -25,4 +25,5 @@ squash_plugin (
   INCLUDE_DIRS
     zlib
   COMPILER_FLAGS
+    -Wno-shift-negative-value
     -Wno-implicit-function-declaration)
