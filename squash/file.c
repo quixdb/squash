@@ -49,7 +49,7 @@
  * @cond INTERNAL
  */
 
-struct _SquashFile {
+struct SquashFile_ {
   FILE* fp;
   mtx_t mtx;
   bool eof;

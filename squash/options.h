@@ -39,15 +39,15 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef struct _SquashOptionInfoEnumStringMap SquashOptionInfoEnumStringMap;
-typedef struct _SquashOptionInfoEnumString    SquashOptionInfoEnumString;
-typedef struct _SquashOptionInfoEnumInt       SquashOptionInfoEnumInt;
-typedef struct _SquashOptionInfoRangeInt      SquashOptionInfoRangeInt;
-typedef struct _SquashOptionInfoRangeSize     SquashOptionInfoRangeSize;
-typedef struct _SquashOptionInfo              SquashOptionInfo;
-typedef union  _SquashOptionValue             SquashOptionValue;
+typedef struct SquashOptionInfoEnumStringMap_ SquashOptionInfoEnumStringMap;
+typedef struct SquashOptionInfoEnumString_    SquashOptionInfoEnumString;
+typedef struct SquashOptionInfoEnumInt_       SquashOptionInfoEnumInt;
+typedef struct SquashOptionInfoRangeInt_      SquashOptionInfoRangeInt;
+typedef struct SquashOptionInfoRangeSize_     SquashOptionInfoRangeSize;
+typedef struct SquashOptionInfo_              SquashOptionInfo;
+typedef union  SquashOptionValue_             SquashOptionValue;
 
-struct _SquashOptions {
+struct SquashOptions_ {
   SquashObject base_object;
 
   SquashCodec* codec;
@@ -69,49 +69,49 @@ typedef enum {
   SQUASH_OPTION_TYPE_RANGE_SIZE  = (32 | SQUASH_OPTION_TYPE_SIZE),
 } SquashOptionType;
 
-struct _SquashOptionInfoEnumStringMap {
+struct SquashOptionInfoEnumStringMap_ {
   const char* name;
   int value;
 };
 
-struct _SquashOptionInfoEnumString {
+struct SquashOptionInfoEnumString_ {
   const SquashOptionInfoEnumStringMap* values;
 };
 
-struct _SquashOptionInfoEnumInt {
+struct SquashOptionInfoEnumInt_ {
   size_t values_length;
   const int* values;
 };
 
-struct _SquashOptionInfoRangeInt {
+struct SquashOptionInfoRangeInt_ {
   int min;
   int max;
   int modulus;
   bool allow_zero;
 };
 
-struct _SquashOptionInfoRangeSize {
+struct SquashOptionInfoRangeSize_ {
   size_t min;
   size_t max;
   size_t modulus;
   bool allow_zero;
 };
 
-union _SquashOptionValue {
+union SquashOptionValue_ {
   char* string_value;
   int int_value;
   bool bool_value;
   size_t size_value;
 };
 
-struct _SquashOptionInfo {
+struct SquashOptionInfo_ {
   const char* name;
   SquashOptionType type;
   union {
-    struct _SquashOptionInfoEnumString enum_string;
-    struct _SquashOptionInfoEnumInt enum_int;
-    struct _SquashOptionInfoRangeInt range_int;
-    struct _SquashOptionInfoRangeSize range_size;
+    struct SquashOptionInfoEnumString_ enum_string;
+    struct SquashOptionInfoEnumInt_ enum_int;
+    struct SquashOptionInfoRangeInt_ range_int;
+    struct SquashOptionInfoRangeSize_ range_size;
   } info;
   SquashOptionValue default_value;
 };

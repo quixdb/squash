@@ -43,7 +43,7 @@ SQUASH_API void*        squash_object_ref_sink      (void* obj);
 
 typedef void (*SquashDestroyNotify) (void* data);
 
-struct _SquashObject {
+struct SquashObject_ {
   volatile unsigned int ref_count;
   volatile bool is_floating;
   SquashDestroyNotify destroy_notify;

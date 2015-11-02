@@ -36,14 +36,14 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef struct _SquashObject     SquashObject;
-typedef struct _SquashOptions    SquashOptions;
-typedef struct _SquashStream     SquashStream;
-typedef struct _SquashContext    SquashContext;
-typedef struct _SquashCodec      SquashCodec;
-typedef struct _SquashCodecImpl  SquashCodecImpl;
-typedef struct _SquashPlugin     SquashPlugin;
-typedef struct _SquashFile       SquashFile;
+typedef struct SquashObject_     SquashObject;
+typedef struct SquashOptions_    SquashOptions;
+typedef struct SquashStream_     SquashStream;
+typedef struct SquashContext_    SquashContext;
+typedef struct SquashCodec_      SquashCodec;
+typedef struct SquashCodecImpl_  SquashCodecImpl;
+typedef struct SquashPlugin_     SquashPlugin;
+typedef struct SquashFile_       SquashFile;
 
 SQUASH_END_DECLS
 

@@ -38,7 +38,7 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef struct _SquashStreamPrivate SquashStreamPrivate;
+typedef struct SquashStreamPrivate_ SquashStreamPrivate;
 
 typedef enum {
   SQUASH_STREAM_COMPRESS = 1,
@@ -60,7 +60,7 @@ typedef enum {
   SQUASH_OPERATION_TERMINATE = 4
 } SquashOperation;
 
-struct _SquashStream {
+struct SquashStream_ {
   SquashObject base_object;
   SquashStreamPrivate* priv;
 

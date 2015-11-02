@@ -52,8 +52,8 @@ SquashStatus            squash_codec_decompress_to_buffer    (SquashCodec* codec
                                                               uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                                               SquashOptions* options);
 
-SQUASH_TREE_PROTOTYPES(_SquashCodec, tree)
-SQUASH_TREE_DEFINE(_SquashCodec, tree)
+SQUASH_TREE_PROTOTYPES(SquashCodec_, tree)
+SQUASH_TREE_DEFINE(SquashCodec_, tree)
 
 SQUASH_END_DECLS
 

@@ -59,7 +59,7 @@ typedef SquashStatus (*SquashWriteFunc) (size_t* data_size,
                                          const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
                                          void* user_data);
 
-struct _SquashCodecImpl {
+struct SquashCodecImpl_ {
   SquashCodecInfo           info;
 
   const SquashOptionInfo*   options;

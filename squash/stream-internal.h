@@ -34,7 +34,7 @@
 
 SQUASH_BEGIN_DECLS
 
-struct _SquashStreamPrivate {
+struct SquashStreamPrivate_ {
   thrd_t thread;
   bool finished;
 

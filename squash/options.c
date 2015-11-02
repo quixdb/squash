@@ -42,12 +42,12 @@
 static void squash_options_free (void* options);
 
 /**
- * @var _SquashOptions::base_object
+ * @var SquashOptions_::base_object
  * @brief Base object.
  */
 
 /**
- * @var _SquashOptions::codec
+ * @var SquashOptions_::codec
  * @brief Codec.
  */
 
@@ -59,53 +59,53 @@ static void squash_options_free (void* options);
  */
 
 /**
- * @struct _SquashOptions
- * @extends _SquashObject
+ * @struct SquashOptions_
+ * @extends SquashObject_
  * @brief A set of compression/decompression options.
  *
- * @var _SquashOptions::values
+ * @var SquashOptions_::values
  * @brief NULL-terminated array of option values
  */
 
 /**
- * @struct _SquashOptionInfoEnumString
+ * @struct SquashOptionInfoEnumString_
  * @brief A list of strings which are mapped to integer values
  *
- * @var _SquashOptionInfoEnumString::values
+ * @var SquashOptionInfoEnumString_::values
  * @brief a NULL terminated list of string and integer pairs
  */
 
 /**
- * @struct _SquashOptionInfoEnumStringMap
+ * @struct SquashOptionInfoEnumStringMap_
  * @brief An item in a map of strings to integer values
  *
- * @var _SquashOptionInfoEnumStringMap::name
+ * @var SquashOptionInfoEnumStringMap_::name
  * @brief a string representing the option value
- * @var _SquashOptionInfoEnumStringMap::value
+ * @var SquashOptionInfoEnumStringMap_::value
  * @brief an integer representing the option value
  */
 
 /**
- * @struct _SquashOptionInfoEnumInt
+ * @struct SquashOptionInfoEnumInt_
  * @brief A list of potential integer values
  *
- * @var _SquashOptionInfoEnumInt::values_length
+ * @var SquashOptionInfoEnumInt_::values_length
  * @brief number of integer values understood for this option
- * @var _SquashOptionInfoEnumInt::values
+ * @var SquashOptionInfoEnumInt_::values
  * @brief array of integer values understood for this option
  */
 
 /**
- * @struct _SquashOptionInfoRangeInt
+ * @struct SquashOptionInfoRangeInt_
  * @brief A range of potential integer values
  *
- * @var _SquashOptionInfoRangeInt::min
+ * @var SquashOptionInfoRangeInt_::min
  * @brief minimum value for this option
- * @var _SquashOptionInfoRangeInt::max
+ * @var SquashOptionInfoRangeInt_::max
  * @brief maximum value for this option
- * @var _SquashOptionInfoRangeInt::modulus
+ * @var SquashOptionInfoRangeInt_::modulus
  * @brief modulus of acceptable values, or 0 to accept all
- * @var _SquashOptionInfoRangeInt::allow_zero
+ * @var SquashOptionInfoRangeInt_::allow_zero
  * @brief whether to allow zero as a value
  *
  * Note that this is in addition to the range, and independent of the
@@ -113,16 +113,16 @@ static void squash_options_free (void* options);
  */
 
 /**
- * @struct _SquashOptionInfoRangeSize
+ * @struct SquashOptionInfoRangeSize_
  * @brief A range of potential size values
  *
- * @var _SquashOptionInfoRangeSize::min
+ * @var SquashOptionInfoRangeSize_::min
  * @brief minimum value for this option
- * @var _SquashOptionInfoRangeSize::max
+ * @var SquashOptionInfoRangeSize_::max
  * @brief maximum value for this option
- * @var _SquashOptionInfoRangeSize::modulus
+ * @var SquashOptionInfoRangeSize_::modulus
  * @brief modulus of acceptable values, or 0 to accept all
- * @var _SquashOptionInfoRangeSize::allow_zero
+ * @var SquashOptionInfoRangeSize_::allow_zero
  * @brief whether to allow zero as a value
  *
  * Note that this is in addition to the range, and independent of the
@@ -130,30 +130,30 @@ static void squash_options_free (void* options);
  */
 
 /**
- * @union _SquashOptionValue
+ * @union SquashOptionValue_
  * @brief A value
  *
- * @var _SquashOptionValue::string_value
+ * @var SquashOptionValue_::string_value
  * @brief the value as a string
- * @var _SquashOptionValue::int_value
+ * @var SquashOptionValue_::int_value
  * @brief the value as an integer
- * @var _SquashOptionValue::bool_value
+ * @var SquashOptionValue_::bool_value
  * @brief the value as a boolean
- * @var _SquashOptionValue::size_value
+ * @var SquashOptionValue_::size_value
  * @brief the value as a size
  */
 
 /**
- * @struct _SquashOptionInfo
+ * @struct SquashOptionInfo_
  * @brief Information about options which can be passed to a codec
  *
- * @var _SquashOptionInfo::name
+ * @var SquashOptionInfo_::name
  * @brief name of the option
- * @var _SquashOptionInfo::type
+ * @var SquashOptionInfo_::type
  * @brief type of the option
- * @var _SquashOptionInfo::info
+ * @var SquashOptionInfo_::info
  * @brief detailed information about the value
- * @var _SquashOptionInfo::default_value
+ * @var SquashOptionInfo_::default_value
  * @brief value to use if none is provided by the user
  */
 

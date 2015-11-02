@@ -74,7 +74,7 @@ static char* squash_strndup(const char* s, size_t n);
  */
 
 /**
- * @struct _SquashContext
+ * @struct SquashContext_
  * @brief Context for all Squash operations.
  */
 
@@ -88,7 +88,7 @@ squash_context_get_codec_ref (SquashContext* context, const char* codec) {
 
   key_codec.name = (char*) codec;
 
-  return SQUASH_TREE_FIND (&(context->codecs), _SquashCodecRef, tree, &key);
+  return SQUASH_TREE_FIND (&(context->codecs), SquashCodecRef_, tree, &key);
 }
 
 static SquashCodecRef*
@@ -101,7 +101,7 @@ squash_context_get_codec_ref_from_extension (SquashContext* context, const char*
 
   key_codec.extension = (char*) extension;
 
-  return SQUASH_TREE_FIND (&(context->extensions), _SquashCodecRef, tree, &key);
+  return SQUASH_TREE_FIND (&(context->extensions), SquashCodecRef_, tree, &key);
 }
 
 /**
@@ -197,7 +197,7 @@ squash_context_get_plugin (SquashContext* context, const char* plugin) {
 
   plugin_dummy.name = (char*) plugin;
 
-  return SQUASH_TREE_FIND (&(context->plugins), _SquashPlugin, tree, &plugin_dummy);
+  return SQUASH_TREE_FIND (&(context->plugins), SquashPlugin_, tree, &plugin_dummy);
 }
 
 /**
@@ -233,11 +233,11 @@ squash_context_add_plugin (SquashContext* context, char* name, char* directory) 
 
   plugin_dummy.name = name;
 
-  plugin = SQUASH_TREE_FIND (&(context->plugins), _SquashPlugin, tree, &plugin_dummy);
+  plugin = SQUASH_TREE_FIND (&(context->plugins), SquashPlugin_, tree, &plugin_dummy);
   if (plugin == NULL) {
     plugin = squash_plugin_new (name, directory, context);
 
-    SQUASH_TREE_INSERT(&(context->plugins), _SquashPlugin, tree, plugin);
+    SQUASH_TREE_INSERT(&(context->plugins), SquashPlugin_, tree, plugin);
   } else {
     free (name);
     free (directory);
@@ -274,7 +274,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
     codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
     codec_ref->codec = codec;
     SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
-    SQUASH_TREE_INSERT (&(context->codecs), _SquashCodecRef, tree, codec_ref);
+    SQUASH_TREE_INSERT (&(context->codecs), SquashCodecRef_, tree, codec_ref);
   } else if (codec->priority > codec_ref->codec->priority) {
     /* Switch the existing context codec's details to this one */
     codec_ref->codec = codec;
@@ -286,7 +286,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
       codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
       codec_ref->codec = codec;
       SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
-      SQUASH_TREE_INSERT (&(context->extensions), _SquashCodecRef, tree, codec_ref);
+      SQUASH_TREE_INSERT (&(context->extensions), SquashCodecRef_, tree, codec_ref);
     } else if (codec->priority > codec_ref->codec->priority) {
       codec_ref->codec = codec;
     }
@@ -296,7 +296,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
 /**
  * @private
  */
-typedef struct _SquashCodecsFileParser {
+typedef struct SquashCodecsFileParser_ {
   SquashPlugin* plugin;
   SquashCodec* codec;
 } SquashCodecsFileParser;
@@ -568,12 +568,12 @@ squash_context_find_plugins (SquashContext* context) {
  */
 void
 squash_context_foreach_plugin (SquashContext* context, SquashPluginForeachFunc func, void* data) {
-  SQUASH_TREE_FORWARD_APPLY(&(context->plugins), _SquashPlugin, tree, func, data);
+  SQUASH_TREE_FORWARD_APPLY(&(context->plugins), SquashPlugin_, tree, func, data);
 }
 
 static void
 squash_context_foreach_codec_ref (SquashContext* context, void(*func)(SquashCodecRef*, void*), void* data) {
-  SQUASH_TREE_FORWARD_APPLY(&(context->codecs), _SquashCodecRef, tree, func, data);
+  SQUASH_TREE_FORWARD_APPLY(&(context->codecs), SquashCodecRef_, tree, func, data);
 }
 
 /**

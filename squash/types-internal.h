@@ -38,17 +38,17 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef SQUASH_TREE_HEAD(_SquashPluginTree, _SquashPlugin) SquashPluginTree;
-typedef SQUASH_TREE_HEAD(_SquashCodecTree, _SquashCodec) SquashCodecTree;
-typedef SQUASH_TREE_HEAD(_SquashCodecRefTree, _SquashCodecRef) SquashCodecRefTree;
+typedef SQUASH_TREE_HEAD(SquashPluginTree_, _SquashPlugin) SquashPluginTree;
+typedef SQUASH_TREE_HEAD(SquashCodecTree_, _SquashCodec) SquashCodecTree;
+typedef SQUASH_TREE_HEAD(SquashCodecRefTree_, _SquashCodecRef) SquashCodecRefTree;
 
-struct _SquashContext {
+struct SquashContext_ {
   SquashPluginTree plugins;
   SquashCodecRefTree codecs;
   SquashCodecRefTree extensions;
 };
 
-struct _SquashPlugin {
+struct SquashPlugin_ {
   SquashContext* context;
 
   char* name;
@@ -63,10 +63,10 @@ struct _SquashPlugin {
 
   SquashCodecTree codecs;
 
-  SQUASH_TREE_ENTRY(_SquashPlugin) tree;
+  SQUASH_TREE_ENTRY(SquashPlugin_) tree;
 };
 
-struct _SquashCodec {
+struct SquashCodec_ {
   SquashPlugin* plugin;
 
   char* name;
@@ -76,16 +76,16 @@ struct _SquashCodec {
   bool initialized;
   SquashCodecImpl impl;
 
-  SQUASH_TREE_ENTRY(_SquashCodec) tree;
+  SQUASH_TREE_ENTRY(SquashCodec_) tree;
 };
 
-typedef struct _SquashCodecRef {
+typedef struct SquashCodecRef_ {
   SquashCodec* codec;
 
-  SQUASH_TREE_ENTRY(_SquashCodecRef) tree;
+  SQUASH_TREE_ENTRY(SquashCodecRef_) tree;
 } SquashCodecRef;
 
-typedef struct _SquashBuffer {
+typedef struct SquashBuffer_ {
   uint8_t* data;
   size_t size;
   size_t allocated;

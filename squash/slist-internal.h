@@ -40,8 +40,8 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef struct _SquashSList {
-  struct _SquashSList* next;
+typedef struct SquashSList_ {
+  struct SquashSList_* next;
 } SquashSList;
 
 typedef void (*SquashSListForeachDataFunc)(SquashSList* item, void* data);

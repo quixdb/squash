@@ -73,18 +73,18 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
 
   
 /* #line 76 "ini.c" */
-static const char _SquashIniParser_actions[] = {
+static const char SquashIniParser__actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 7, 1, 
 	8, 1, 9, 2, 6, 1
 };
 
-static const char _SquashIniParser_key_offsets[] = {
+static const char SquashIniParser__key_offsets[] = {
 	0, 0, 14, 28, 33, 38, 40, 42, 
 	43, 43, 52, 62
 };
 
-static const char _SquashIniParser_trans_keys[] = {
+static const char SquashIniParser__trans_keys[] = {
 	10, 32, 91, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, 9, 32, 
 	61, 95, 11, 13, 45, 46, 48, 57, 
@@ -97,22 +97,22 @@ static const char _SquashIniParser_trans_keys[] = {
 	65, 90, 97, 122, 0
 };
 
-static const char _SquashIniParser_single_lengths[] = {
+static const char SquashIniParser__single_lengths[] = {
 	0, 4, 4, 3, 3, 2, 2, 1, 
 	0, 1, 2, 4
 };
 
-static const char _SquashIniParser_range_lengths[] = {
+static const char SquashIniParser__range_lengths[] = {
 	0, 5, 5, 1, 1, 0, 0, 0, 
 	0, 4, 4, 5
 };
 
-static const char _SquashIniParser_index_offsets[] = {
+static const char SquashIniParser__index_offsets[] = {
 	0, 0, 10, 20, 25, 30, 33, 36, 
 	38, 39, 45, 52
 };
 
-static const char _SquashIniParser_indicies[] = {
+static const char SquashIniParser__indicies[] = {
 	2, 1, 4, 3, 1, 3, 3, 3, 
 	3, 0, 5, 5, 6, 3, 5, 3, 
 	3, 3, 3, 0, 5, 5, 6, 5, 
@@ -123,19 +123,19 @@ static const char _SquashIniParser_indicies[] = {
 	1, 3, 3, 3, 3, 17, 0
 };
 
-static const char _SquashIniParser_trans_targs[] = {
+static const char SquashIniParser__trans_targs[] = {
 	0, 1, 11, 2, 9, 3, 4, 5, 
 	4, 6, 6, 7, 8, 6, 10, 10, 
 	7, 0
 };
 
-static const char _SquashIniParser_trans_actions[] = {
+static const char SquashIniParser__trans_actions[] = {
 	1, 0, 15, 5, 0, 0, 0, 7, 
 	7, 17, 9, 0, 0, 11, 19, 3, 
 	13, 0
 };
 
-static const char _SquashIniParser_eof_actions[] = {
+static const char SquashIniParser__eof_actions[] = {
 	0, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 0
 };
@@ -184,10 +184,10 @@ static const int SquashIniParser_en_main = 11;
 	if ( cs == 0 )
 		goto _out;
 _resume:
-	_keys = _SquashIniParser_trans_keys + _SquashIniParser_key_offsets[cs];
-	_trans = _SquashIniParser_index_offsets[cs];
+	_keys = SquashIniParser__trans_keys + _SquashIniParser_key_offsets[cs];
+	_trans = SquashIniParser__index_offsets[cs];
 
-	_klen = _SquashIniParser_single_lengths[cs];
+	_klen = SquashIniParser__single_lengths[cs];
 	if ( _klen > 0 ) {
 		const char *_lower = _keys;
 		const char *_mid;
@@ -210,7 +210,7 @@ _resume:
 		_trans += _klen;
 	}
 
-	_klen = _SquashIniParser_range_lengths[cs];
+	_klen = SquashIniParser__range_lengths[cs];
 	if ( _klen > 0 ) {
 		const char *_lower = _keys;
 		const char *_mid;
@@ -233,13 +233,13 @@ _resume:
 	}
 
 _match:
-	_trans = _SquashIniParser_indicies[_trans];
-	cs = _SquashIniParser_trans_targs[_trans];
+	_trans = SquashIniParser__indicies[_trans];
+	cs = SquashIniParser__trans_targs[_trans];
 
-	if ( _SquashIniParser_trans_actions[_trans] == 0 )
+	if ( SquashIniParser__trans_actions[_trans] == 0 )
 		goto _again;
 
-	_acts = _SquashIniParser_actions + _SquashIniParser_trans_actions[_trans];
+	_acts = SquashIniParser__actions + _SquashIniParser_trans_actions[_trans];
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 )
 	{
@@ -379,7 +379,7 @@ _again:
 	_test_eof: {}
 	if ( p == eof )
 	{
-	const char *__acts = _SquashIniParser_actions + _SquashIniParser_eof_actions[cs];
+	const char *__acts = SquashIniParser__actions + _SquashIniParser_eof_actions[cs];
 	unsigned int __nacts = (unsigned int) *__acts++;
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {

@@ -36,12 +36,12 @@
 #include "squash/tinycthread/source/tinycthread.h"
 
 /**
- * @var _SquashStream::base_object
+ * @var SquashStream_::base_object
  * @brief Base object.
  */
 
 /**
- * @var _SquashStream::priv
+ * @var SquashStream_::priv
  * @brief Private data.
  *
  * This is managed internally by Squash and should not be modified by
@@ -49,17 +49,17 @@
  */
 
 /**
- * @var _SquashStream::next_in
+ * @var SquashStream_::next_in
  * @brief The next input data to consume.
  */
 
 /**
- * @var _SquashStream::avail_in
+ * @var SquashStream_::avail_in
  * @brief Size (in bytes) of available input.
  */
 
 /**
- * @var _SquashStream::total_in
+ * @var SquashStream_::total_in
  * @brief The total number of bytes input.
  *
  * This is managed internally by Squash and should not be modified by
@@ -67,17 +67,17 @@
  */
 
 /**
- * @var _SquashStream::next_out
+ * @var SquashStream_::next_out
  * @brief The buffer to write output to.
  */
 
 /**
- * @var _SquashStream::avail_out
+ * @var SquashStream_::avail_out
  * @brief Number of bytes available in the output buffer.
  */
 
 /**
- * @var _SquashStream::total_out
+ * @var SquashStream_::total_out
  * @brief Total number of bytes output.
  *
  * This is managed internally by Squash and should not be modified by
@@ -85,22 +85,22 @@
  */
 
 /**
- * @var _SquashStream::codec
+ * @var SquashStream_::codec
  * @brief Codec used for this stream.
  */
 
 /**
- * @var _SquashStream::options
+ * @var SquashStream_::options
  * @brief Options used for this stream.
  */
 
 /**
- * @var _SquashStream::stream_type
+ * @var SquashStream_::stream_type
  * @brief Stream type.
  */
 
 /**
- * @var _SquashStream::state
+ * @var SquashStream_::state
  * @brief State the stream is in.
  *
  * This is managed internally by Squash and should not be modified by
@@ -108,7 +108,7 @@
  */
 
 /**
- * @var _SquashStream::user_data
+ * @var SquashStream_::user_data
  * @brief User data
  *
  * Note that this is for consumers of the library, *not* for plugins.
@@ -116,7 +116,7 @@
  */
 
 /**
- * @var _SquashStream::destroy_user_data
+ * @var SquashStream_::destroy_user_data
  * @brief Squashlback to invoke on *user_data* when it is no longer
  *   necessary.
  */
@@ -134,12 +134,12 @@
  */
 
 /**
- * @var _SquashStreamType::SQUASH_STREAM_COMPRESS
+ * @var SquashStreamType_::SQUASH_STREAM_COMPRESS
  * @brief A compression stream.
  */
 
 /**
- * @var _SquashStreamType::SQUASH_STREAM_DECOMPRESS
+ * @var SquashStreamType_::SQUASH_STREAM_DECOMPRESS
  * @brief A decompression stream.
  */
 
@@ -180,13 +180,13 @@
  */
 
 /**
- * @struct _SquashStream
- * @extends _SquashObject
+ * @struct SquashStream_
+ * @extends SquashObject_
  * @brief Compression/decompression streams.
  */
 
 /**
- * @struct _SquashStreamPrivate
+ * @struct SquashStreamPrivate_
  * @brief Private data for streams
  *
  * Currently this is used exclusively for information for thread-based

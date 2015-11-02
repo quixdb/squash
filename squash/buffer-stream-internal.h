@@ -38,12 +38,12 @@ SQUASH_BEGIN_DECLS
 #  define SQUASH_BUFFER_STREAM_BUFFER_SIZE (4096 - sizeof (SquashSList))
 #endif
 
-typedef struct _SquashBufferStreamSList {
+typedef struct SquashBufferStreamSList_ {
   SquashSList base;
   uint8_t data[SQUASH_BUFFER_STREAM_BUFFER_SIZE];
 } SquashBufferStreamSList;
 
-typedef struct _SquashBufferStream {
+typedef struct SquashBufferStream_ {
   SquashStream base_object;
 
   SquashBuffer* input;

@@ -80,17 +80,17 @@ squash_atomic_dec (volatile unsigned int* var) {
 #endif /* defined(squash_atomic_dec) */
 
 /**
- * @var _SquashObject::ref_count
+ * @var SquashObject_::ref_count
  * @brief The reference count.
  */
 
 /**
- * @var _SquashObject::is_floating
+ * @var SquashObject_::is_floating
  * @brief Whether or not the object has a floating reference.
  */
 
 /**
- * @var _SquashObject::destroy_notify
+ * @var SquashObject_::destroy_notify
  * @brief Function to call when the reference count reaches 0.
  */
 
@@ -183,7 +183,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  */
 
 /**
- * @struct _SquashObject
+ * @struct SquashObject_
  * @brief Reference-counting base class for other types
  */
 

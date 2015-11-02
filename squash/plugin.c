@@ -47,7 +47,7 @@
  */
 
 /**
- * @struct _SquashPlugin
+ * @struct SquashPlugin_
  * @brief A plugin.
  */
 
@@ -77,7 +77,7 @@ squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
   context = plugin->context;
 
   /* Insert a new entry into plugin->codecs */
-  SQUASH_TREE_INSERT(&(plugin->codecs), _SquashCodec, tree, codec);
+  SQUASH_TREE_INSERT(&(plugin->codecs), SquashCodec_, tree, codec);
 
   squash_context_add_codec (context, codec);
 }
@@ -211,7 +211,7 @@ squash_plugin_get_codec (SquashPlugin* plugin, const char* codec) {
 
   key.name = (char*) codec;
 
-  codec_real = SQUASH_TREE_FIND (&(plugin->codecs), _SquashCodec, tree, &key);
+  codec_real = SQUASH_TREE_FIND (&(plugin->codecs), SquashCodec_, tree, &key);
   return (squash_codec_init (codec_real) == SQUASH_OK) ? codec_real : NULL;
 }
 
@@ -303,7 +303,7 @@ squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecI
  */
 void
 squash_plugin_foreach_codec (SquashPlugin* plugin, SquashCodecForeachFunc func, void* data) {
-  SQUASH_TREE_FORWARD_APPLY(&(plugin->codecs), _SquashCodec, tree, func, data);
+  SQUASH_TREE_FORWARD_APPLY(&(plugin->codecs), SquashCodec_, tree, func, data);
 }
 
 /**

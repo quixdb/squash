@@ -51,7 +51,7 @@
  */
 
 /**
- * @struct _SquashCodecImpl
+ * @struct SquashCodecImpl_
  * @brief Function table for plugins
  *
  * This struct should only be used from within a plugin.
@@ -62,17 +62,17 @@
  */
 
 /**
- * @var _SquashCodecImpl::info
+ * @var SquashCodecImpl_::info
  * @brief Capability information about the codec
  */
 
 /**
- * @var _SquashCodecImpl::options
+ * @var SquashCodecImpl_::options
  * @brief options which may bo passed to the codec to modify its operation
  */
 
 /**
- * @var _SquashCodecImpl::create_stream
+ * @var SquashCodecImpl_::create_stream
  * @brief Create a new %SquashStream.
  *
  * @param codec The codec.
@@ -84,7 +84,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::process_stream
+ * @var SquashCodecImpl_::process_stream
  * @brief Process a %SquashStream.
  *
  * @param stream The stream.
@@ -95,7 +95,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::splice
+ * @var SquashCodecImpl_::splice
  * @brief Splice.
  *
  * @param options Options to use
@@ -107,7 +107,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::get_uncompressed_size
+ * @var SquashCodecImpl_::get_uncompressed_size
  * @brief Get the buffer's uncompressed size.
  *
  * @param codec The codec.
@@ -119,7 +119,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::get_max_compressed_size
+ * @var SquashCodecImpl_::get_max_compressed_size
  * @brief Get the maximum compressed size.
  *
  * @param codec The codec.
@@ -131,7 +131,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::decompress_buffer
+ * @var SquashCodecImpl_::decompress_buffer
  * @brief Decompress a buffer.
  *
  * @param codec The codec.
@@ -146,7 +146,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::compress_buffer
+ * @var SquashCodecImpl_::compress_buffer
  * @brief Compress a buffer.
  *
  * @param codec The codec.
@@ -161,7 +161,7 @@
  */
 
 /**
- * @var _SquashCodecImpl::compress_buffer_unsafe
+ * @var SquashCodecImpl_::compress_buffer_unsafe
  * @brief Compress a buffer.
  *
  * Plugins implementing this function can be sure that @a compressed
@@ -180,42 +180,42 @@
  */
 
 /**
- * @var _SquashCodecImpl::_reserved1
+ * @var SquashCodecImpl_::_reserved1
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved2
+ * @var SquashCodecImpl_::_reserved2
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved3
+ * @var SquashCodecImpl_::_reserved3
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved4
+ * @var SquashCodecImpl_::_reserved4
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved5
+ * @var SquashCodecImpl_::_reserved5
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved6
+ * @var SquashCodecImpl_::_reserved6
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved7
+ * @var SquashCodecImpl_::_reserved7
  * @brief Reserved for future use.
  */
 
 /**
- * @var _SquashCodecImpl::_reserved8
+ * @var SquashCodecImpl_::_reserved8
  * @brief Reserved for future use.
  */
 
@@ -255,7 +255,7 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
  */
 
 /**
- * @struct _SquashCodec
+ * @struct SquashCodec_
  * @brief A compression/decompression codec
  */
 

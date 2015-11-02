@@ -45,8 +45,8 @@ SquashStatus    squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* cod
 SQUASH_NONNULL(1, 2)
 int             squash_plugin_compare    (SquashPlugin* a, SquashPlugin* b);
 
-SQUASH_TREE_PROTOTYPES(_SquashPlugin, tree)
-SQUASH_TREE_DEFINE(_SquashPlugin, tree)
+SQUASH_TREE_PROTOTYPES(SquashPlugin_, tree)
+SQUASH_TREE_DEFINE(SquashPlugin_, tree)
 
 SQUASH_END_DECLS
 
