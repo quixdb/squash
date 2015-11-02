@@ -38,9 +38,9 @@
 
 SQUASH_BEGIN_DECLS
 
-typedef SQUASH_TREE_HEAD(SquashPluginTree_, _SquashPlugin) SquashPluginTree;
-typedef SQUASH_TREE_HEAD(SquashCodecTree_, _SquashCodec) SquashCodecTree;
-typedef SQUASH_TREE_HEAD(SquashCodecRefTree_, _SquashCodecRef) SquashCodecRefTree;
+typedef SQUASH_TREE_HEAD(SquashPluginTree_, SquashPlugin_) SquashPluginTree;
+typedef SQUASH_TREE_HEAD(SquashCodecTree_, SquashCodec_) SquashCodecTree;
+typedef SQUASH_TREE_HEAD(SquashCodecRefTree_, SquashCodecRef_) SquashCodecRefTree;
 
 struct SquashContext_ {
   SquashPluginTree plugins;
