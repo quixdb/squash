@@ -173,8 +173,7 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   const char* pe;
   const char* eof = NULL;
 
-  if (callback == NULL)
-    return true;
+  assert (callback != NULL);
 
   bool result = true;
   char* section = malloc (SQUASH_INI_PARSER_MAX_SECTION_LENGTH);
