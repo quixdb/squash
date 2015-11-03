@@ -83,26 +83,9 @@ function (squash_set_target_visibility target visibility)
 endfunction (squash_set_target_visibility)
 
 if (CMAKE_BUILD_TYPE MATCHES "Release")
-  foreach (flag
-      -O3
-      -flto
-      -DNDEBUG)
-    string (REGEX REPLACE "[^a-zA-Z0-9]+" "_" test_name "CFLAG_${flag}")
-    CHECK_C_COMPILER_FLAG (${flag} ${test_name})
-    if (${test_name})
-      set (CMAKE_C_COMPILER_FLAGS "${flag} ${CMAKE_C_COMPILER_FLAGS}")
-    endif ()
-  endforeach ()
+  global_add_compiler_flags (-O3 -flto -DNDEBUG)
 elseif (NOT ENABLE_COVERAGE STREQUAL "yes")
-  foreach (flag
-      -g
-      -O2)
-    string (REGEX REPLACE "[-=]+" "_" test_name "CFLAG_${flag}")
-    CHECK_C_COMPILER_FLAG (${flag} ${test_name})
-    if (${test_name})
-      set (CMAKE_C_COMPILER_FLAGS "${flag} ${CMAKE_C_COMPILER_FLAGS}")
-    endif ()
-  endforeach ()
+  global_add_compiler_flags (-g -O2)
 endif ()
 
 ####

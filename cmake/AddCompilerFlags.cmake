@@ -80,10 +80,9 @@ endfunction (target_add_compiler_flags)
 # global_add_compiler_flags (flag1 [flag2 [flag3 ...]]):
 #
 # This just adds the requested compiler flags to
-# CMAKE_C/CXX_COMPILER_FLAGS variable if they work with the compiler.
+# CMAKE_C/CXX_FLAGS variable if they work with the compiler.
 function (global_add_compiler_flags)
   set (flags ${ARGV})
-  list (REMOVE_AT flags 0)
 
   foreach (flag ${flags})
     if ("GNU" STREQUAL "${CMAKE_C_COMPILER_ID}")
@@ -111,4 +110,7 @@ function (global_add_compiler_flags)
   endforeach (flag)
 
   unset (flags)
+
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction (global_add_compiler_flags)
