@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include <squash/squash.h>
 
@@ -50,6 +51,8 @@ static SquashOptionInfo squash_zling_options[] = {
 
 typedef struct _SquashZlingStream SquashZlingStream;
 
+#define SQUASH_ZLING_BUFFER_UNUSED INT_MAX
+
 struct SquashZlingIO: public baidu::zling::Inputter, public baidu::zling::Outputter {
 public:
   void* user_data_;
@@ -61,10 +64,12 @@ public:
     reader_ (reader),
     writer_ (writer),
     eof (false),
-    last_res (SQUASH_OK) { }
+    last_res (SQUASH_OK),
+    buffer (SQUASH_ZLING_BUFFER_UNUSED) { }
 
   bool eof;
   SquashStatus last_res;
+  int buffer;
 
   size_t GetData(unsigned char* buf, size_t len);
   size_t PutData(unsigned char* buf, size_t len);
@@ -79,14 +84,28 @@ SquashStatus               squash_plugin_init_plugin    (SquashPlugin* plugin);
 
 size_t
 SquashZlingIO::GetData (unsigned char* buf, size_t len) {
+  size_t bytes_read = 0;
+
   if (this->IsErr ())
     return 0;
 
-  this->last_res = this->reader_ (&len, (uint8_t*) buf, this->user_data_);
+  if (this->buffer != SQUASH_ZLING_BUFFER_UNUSED) {
+    assert (this->buffer >= 0x00 && this->buffer <= 0xff);
+    buf[0] = (char) this->buffer;
+    bytes_read = 1;
+    this->buffer = SQUASH_ZLING_BUFFER_UNUSED;
+    len--;
+
+    if (len == 0)
+      return 1;
+  }
+
+  this->last_res = this->reader_ (&len, (uint8_t*) buf + bytes_read, this->user_data_);
   if (this->last_res == SQUASH_END_OF_STREAM)
     this->eof = true;
+  bytes_read += len;
 
-  return len;
+  return bytes_read;
 }
 
 size_t
@@ -114,6 +133,21 @@ SquashZlingIO::PutData(unsigned char* buf, size_t len) {
 
 bool
 SquashZlingIO::IsEnd() {
+  if (this->eof)
+    return true;
+  if (this->buffer != SQUASH_ZLING_BUFFER_UNUSED)
+    return false;
+
+  size_t l = 1;
+  uint8_t buf;
+  this->last_res = this->reader_ (&l, &buf, this->user_data_);
+  if (this->last_res == SQUASH_END_OF_STREAM) {
+    this->eof = true;
+  } else if (this->last_res > 0) {
+    assert (!this->eof);
+    this->buffer = buf;
+  }
+
   return this->eof;
 }
 
@@ -150,7 +184,7 @@ squash_zling_splice (SquashCodec* codec,
   } catch (const SquashStatus e) {
     return e;
   } catch (...) {
-    return SQUASH_FAILED;
+    return squash_error (SQUASH_FAILED);
   }
 
   squash_assert_unreachable ();
