@@ -21,7 +21,6 @@ set (EXTRA_WARNING_FLAGS
   -Wformat-security
   -Wignored-qualifiers
   -Winit-self
-  -Winline
   -Winvalid-pch
   -Wlogical-op
   -Wmissing-declarations
