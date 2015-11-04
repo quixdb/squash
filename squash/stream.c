@@ -365,6 +365,11 @@ squash_stream_send_to_thread (SquashStream* stream, SquashOperation operation) {
  * @brief Initialize a stream.
  * @protected
  *
+ * @warning This function must only be used to implement a subclass of
+ * @ref SquashStream.  Streams returned by other functions will
+ * already be initialized, and you *must* *not* call this function on
+ * them; doing so will likely trigger a memory leak.
+ *
  * @param stream The stream to initialize.
  * @param codec The codec to use.
  * @param stream_type The stream type.
@@ -433,6 +438,15 @@ squash_stream_init (void* stream,
 /**
  * @brief Destroy a stream.
  * @protected
+ *
+ * @warning This function must only be used to implement a subclass of
+ * @ref SquashObject.  Each subclass should implement a *_destroy
+ * function which should perform any operations needed to destroy
+ * their own data and chain up to the *_destroy function of the base
+ * class, eventually invoking ::squash_object_destroy.  Invoking this
+ * function in any other context is likely to cause a memory leak or
+ * crash.  If you are not creating a subclass, you should be calling
+ * @ref squash_object_unref instead.
  *
  * @param stream The stream.
  *
