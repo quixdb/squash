@@ -274,7 +274,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
-      lzma_e = lzma_stream_encoder (&(stream->stream), filters, squash_codec_get_option_int_index (codec, options, SQUASH_LZMA_OPT_CHECK));
+      lzma_e = lzma_stream_encoder (&(stream->stream), filters, (lzma_check) squash_codec_get_option_int_index (codec, options, SQUASH_LZMA_OPT_CHECK));
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA) {
       lzma_e = lzma_alone_encoder (&(stream->stream), filters[0].options);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||

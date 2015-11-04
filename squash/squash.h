@@ -76,7 +76,7 @@
 #  else
 #    define SQUASH_NONNULL(...)
 #  endif
-#elif defined(__GNUC__) && (__GNUC__ >= 5)
+#elif !defined(__INTEL_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5)
 #  if defined(NDEBUG)
 #    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
 #  else

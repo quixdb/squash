@@ -168,7 +168,7 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
     stream->data.comp.prefs = (LZ4F_preferences_t) {
       {
-        squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_BLOCK_SIZE),
+        (LZ4F_blockSizeID_t) squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_BLOCK_SIZE),
         blockLinked,
         squash_codec_get_option_bool_index (codec, options, SQUASH_LZ4F_OPT_CHECKSUM) ?
           contentChecksumEnabled :
@@ -228,7 +228,7 @@ squash_lz4f_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
 }
 
 static size_t
-squash_lz4f_block_size_id_to_size (blockSizeID_t blkid) {
+squash_lz4f_block_size_id_to_size (LZ4F_blockSizeID_t blkid) {
   switch (blkid) {
     case LZ4F_max64KB:
       return  64 * 1024;
@@ -247,7 +247,7 @@ squash_lz4f_block_size_id_to_size (blockSizeID_t blkid) {
 
 static size_t
 squash_lz4f_get_input_buffer_size (SquashStream* stream) {
-  return squash_lz4f_block_size_id_to_size (squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_LZ4F_OPT_BLOCK_SIZE));
+  return squash_lz4f_block_size_id_to_size ((LZ4F_blockSizeID_t) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_LZ4F_OPT_BLOCK_SIZE));
 }
 
 static size_t

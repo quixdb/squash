@@ -653,7 +653,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       current_operation = SQUASH_OPERATION_FINISH;
       break;
     case SQUASH_STREAM_STATE_FINISHED:
-      current_operation = (SQUASH_OPERATION_FINISH + 1);
+      current_operation = (SquashOperation) (SQUASH_OPERATION_FINISH + 1);
       break;
   }
 

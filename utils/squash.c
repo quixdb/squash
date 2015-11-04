@@ -304,7 +304,7 @@ int main (int argc, char** argv) {
 
   if ( codec == NULL ) {
     fprintf (stderr, "Unable to determine codec.  Please pass -c \"codec\", or -L to see a list of available codecs.\n");
-    res = EXIT_FAILURE;
+    retval = EXIT_FAILURE;
     goto cleanup;
   }
 

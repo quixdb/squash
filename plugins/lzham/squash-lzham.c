@@ -108,7 +108,7 @@ squash_lzham_compress_apply_options (SquashCodec* codec,
   lzham_compress_params opts = {
     .m_struct_size                     = sizeof(lzham_compress_params),
     .m_dict_size_log2                  = LZHAM_MAX_DICT_SIZE_LOG2_X86,
-    .m_level                           = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_LEVEL),
+    .m_level                           = (lzham_compress_level) squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_LEVEL),
     .m_table_update_rate               = LZHAM_DEFAULT_TABLE_UPDATE_RATE,
     .m_max_helper_threads              = -1,
     .m_compress_flags                  =
