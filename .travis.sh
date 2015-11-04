@@ -175,7 +175,7 @@ case "${1}" in
         ;;
 
     "configure")
-        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
+        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -U_FORTIFY_SOURCE"
         case "${BUILD_TYPE}" in
             "asan")
                 COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -fsanitize=address"
