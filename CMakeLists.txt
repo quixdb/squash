@@ -83,7 +83,7 @@ function (squash_set_target_visibility target visibility)
 endfunction (squash_set_target_visibility)
 
 if (CMAKE_BUILD_TYPE MATCHES "Release")
-  global_add_compiler_flags (-O3 -DNDEBUG)
+  global_add_compiler_flags (-O3 -fwhopr -DNDEBUG)
 elseif (NOT ENABLE_COVERAGE STREQUAL "yes")
   global_add_compiler_flags (-g -O2)
 endif ()
