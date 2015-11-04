@@ -10,7 +10,7 @@ env:
     - COMPILER=gcc-5 BUILD_TYPE=asan
 #   - COMPILER=gcc-5 BUILD_TYPE=ubsan
 #   - COMPILER=gcc-5 BUILD_TYPE=tsan
-#   - COMPILER=gcc-5 BUILD_TYPE=release
+    - COMPILER=gcc-5 BUILD_TYPE=release
     - COMPILER=gcc-5 BUILD_TYPE=coverage
     - COMPILER=clang BUILD_TYPE=debug
     - COMPILER=clang-3.4 BUILD_TYPE=debug
