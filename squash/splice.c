@@ -24,6 +24,11 @@
  *   Evan Nemerson <evan@nemerson.com>
  */
 
+/* See https://github.com/quixdb/squash/pull/154 */
+#if defined(_FORTIFY_SOURCE)
+#  undef _FORTIFY_SOURCE
+#endif
+
 #define _FILE_OFFSET_BITS 64
 #define _POSIX_C_SOURCE 200112L
 
