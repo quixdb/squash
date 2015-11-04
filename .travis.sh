@@ -204,6 +204,12 @@ case "${1}" in
                 ;;
         esac
 
+        case "${COMPILER}" in
+            "gcc-5")
+                CONFIGURE_FLAGS="--disable-ms-compress"
+                ;;
+        esac
+
         git submodule update --init --recursive
         /bin/bash -x ./autogen.sh \
                   ${CONFIGURE_FLAGS} \
