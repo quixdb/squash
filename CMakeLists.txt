@@ -16,6 +16,10 @@ if (ENABLE_COVERAGE STREQUAL "yes")
   include (CodeCoverage)
 endif ()
 
+if (WIN32)
+  add_definitions (-D_CRT_SECURE_NO_WARNINGS)
+endif (WIN32)
+
 set (PACKAGE_NAME Squash)
 set (SQUASH_TOP_SRCDIR "${PROJECT_SOURCE_DIR}")
 set (SQUASH_TOP_BUILDDIR "${PROJECT_BINARY_DIR}")
