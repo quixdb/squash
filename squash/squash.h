@@ -54,6 +54,8 @@
 
 #if defined(__GNUC__)
 #  define squash_assert_unreachable() do { assert(false); __builtin_unreachable(); } while(0)
+#elif defined(_MSC_VER)
+#  define squash_assert_unreachable() __assume(0)
 #else
 #  define squash_assert_unreachable() assert(false)
 #endif
