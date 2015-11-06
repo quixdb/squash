@@ -81,6 +81,7 @@ struct SquashStream_ {
   SquashDestroyNotify destroy_user_data;
 };
 
+SQUASH_SENTINEL
 SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new                    (const char* codec,
                                                                  SquashStreamType stream_type,
@@ -98,6 +99,7 @@ SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new_with_options       (const char* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options);
+SQUASH_SENTINEL
 SQUASH_NONNULL(1)
 SQUASH_API SquashStream*   squash_stream_new_codec              (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
