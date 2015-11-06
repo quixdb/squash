@@ -160,7 +160,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
       stream->avail_out -= processed;
     }
 
-    if (HSER_POLL_MORE == hsp) {
+    if (HSER_POLL_MORE == hsp || 0 == stream->avail_out) {
       return SQUASH_PROCESSING;
     } else if (SQUASH_OPERATION_FINISH == operation) {
       HSE_finish_res hsf = heatshrink_encoder_finish (s->ctx.comp);
