@@ -23,9 +23,9 @@ int main (int argc, char** argv) {
   }
 
   SquashStreamType stream_type;
-  if (strcasecmp ("c", argv[1]) == 0)
+  if (strcmp ("c", argv[1]) == 0)
     stream_type = SQUASH_STREAM_COMPRESS;
-  else if (strcasecmp ("d", argv[1]) == 0)
+  else if (strcmp ("d", argv[1]) == 0)
     stream_type = SQUASH_STREAM_DECOMPRESS;
   else {
     fprintf (stderr, "Invalid mode '%s': must be 'c' or 'd'\n", argv[1]);
