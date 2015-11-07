@@ -1,6 +1,11 @@
 #include "test-codecs.h"
 
+#ifdef _MSC_VER
+#define off_t long
+#define ftello ftell
+#else
 #include <unistd.h>
+#endif
 
 struct Single {
   char* filename;
