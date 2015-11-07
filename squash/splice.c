@@ -488,20 +488,18 @@ squash_splice_codec_with_options (SquashCodec* codec,
   SQUASH_FLOCKFILE(fp_in);
   SQUASH_FLOCKFILE(fp_out);
 
-#if !defined(_WIN32)
   if (codec->impl.splice != NULL) {
     res = squash_file_splice (fp_in, fp_out, size, stream_type, codec, options);
   } else {
+#if !defined(_WIN32)
     if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
       res = squash_splice_map (fp_in, fp_out, size, stream_type, codec, options);
     }
+#endif
 
     if (res != SQUASH_OK)
       res = squash_splice_stream (fp_in, fp_out, size, stream_type, codec, options);
   }
-#else
-  res = squash_file_splice (fp_in, fp_out, size, stream_type, codec, options);
-#endif
 
   SQUASH_FUNLOCKFILE(fp_in);
   SQUASH_FUNLOCKFILE(fp_out);
