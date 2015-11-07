@@ -30,7 +30,7 @@ single_teardown (struct Single* data, gconstpointer user_data) {
 static void
 test_file_io (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+", NULL);
+  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+b", NULL);
   g_assert (file != NULL);
 
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
@@ -206,7 +206,7 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
 static void
 test_file_printf (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+", NULL);
+  SquashFile* file = squash_file_open_codec (codec, data->filename, "w+b", NULL);
   g_assert (file != NULL);
   static const size_t hello_world_length = 13; /* strlen ("Hello, world\n") */
   uint8_t decompressed[LOREM_IPSUM_LENGTH + hello_world_length + 1];
