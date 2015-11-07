@@ -565,6 +565,10 @@ squash_file_write (SquashFile* file,
   return res;
 }
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
+#endif
 SquashStatus
 squash_file_printf (SquashFile* file,
                     const char* format,
@@ -595,6 +599,9 @@ squash_file_printf (SquashFile* file,
 
   return res;
 }
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * @brief Write data to a compressed file without acquiring the lock
