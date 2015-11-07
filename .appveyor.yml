@@ -13,7 +13,9 @@ branches:
 
 configuration: Debug
 
-install: git submodule update --init --recursive
+install:
+  - git submodule update --init --recursive
+  - nuget install glib -ExcludeVersion
 
 before_build:
   - mkdir build
