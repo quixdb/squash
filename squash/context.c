@@ -323,7 +323,7 @@ squash_codecs_file_parser_callback (const char* section,
 
       char* licenses = strdup (value);
       char* saveptr = NULL;
-      char* license = strtok_r (licenses, ";", &saveptr);
+      char* license = SQUASH_STRTOK_R (licenses, ";", &saveptr);
 
       while (license != NULL) {
         SquashLicense license_value = squash_license_from_string (license);
@@ -335,7 +335,7 @@ squash_codecs_file_parser_callback (const char* section,
           n++;
         }
 
-        license = strtok_r (NULL, ";", &saveptr);
+        license = SQUASH_STRTOK_R (NULL, ";", &saveptr);
       };
 
       free (licenses);
