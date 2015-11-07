@@ -580,8 +580,13 @@ squash_file_printf (SquashFile* file,
   char* heap_buf = NULL;
 
   va_start (ap, format);
+#if defined(_WIN32)
+  size = _vscprintf (format, ap);
+#else
   size = vsnprintf (buf, sizeof (buf), format, ap);
-  if (size >= (int) sizeof (buf)) {
+  if (size >= (int) sizeof (buf))
+#endif
+  {
     heap_buf = malloc (size);
     if (SQUASH_UNLIKELY(heap_buf == NULL))
       res = squash_error (SQUASH_MEMORY);
