@@ -6,6 +6,7 @@
 
 export GCOV=gcov
 
+CROSS_COMPILE=no
 case "${COMPILER}" in
     "clang")
         export CC=clang
@@ -41,6 +42,18 @@ case "${COMPILER}" in
         export CC=gcc-5
         export CXX=g++-5
         export GCOV=gcov-5
+        ;;
+    "x86_64-w64-mingw32-gcc")
+        export CC=x86_64-w64-mingw32-gcc
+        export CXX=x86_64-w64-mingw32-g++
+        export GCOV=x86_64-w64-mingw32-gcov
+        CROSS_COMPILE=yes
+        ;;
+    "i686-w64-mingw32-gcc")
+        export CC=i686-w64-mingw32-gcc
+        export CXX=i686-w64-mingw32-g++
+        export GCOV=i686-w64-mingw32-gcov
+        CROSS_COMPILE=yes
         ;;
     *)
         COMPILER="gcc-5"
@@ -98,6 +111,12 @@ case "${1}" in
                         ;;
                     "clang-3.7")
                         sudo apt-get install -qq clang-3.7
+                        ;;
+                    "x86_64-w64-mingw32-gcc")
+                        sudo apt-get install -qq mingw-w64
+                        ;;
+                    "i686-w64-mingw32-gcc")
+                        sudo apt-get install -qq mingw-w64
                         ;;
                 esac
 
@@ -188,27 +207,41 @@ case "${1}" in
                 ;;
         esac
 
-        CONFIGURE_FLAGS="--disable-external"
+        CONFIGURE_FLAGS="-DFORCE_IN_TREE_DEPENDENCIES=yes"
+        if [ "${BUILD_TYPE}" = "release" ]; then
+            CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_BUILD_TYPE=Release"
+        else
+            CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
+        fi
+
         case "${BUILD_TYPE}" in
-            "release")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --disable-debug"
-                ;;
             "coverage")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --enable-coverage"
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_COVERAGE=yes"
                 ;;
         esac
 
+        case "${COMPILER}" in
+            "i686-w64-mingw32-gcc")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_FIND_ROOT_PATH=/usr/i686-w64-mingw32"
+                ;;
+            "x86_64-w64-mingw32-gcc")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32"
+                ;;
+        esac
+
+        if [ "${CROSS_COMPILE}" = "yes" ]; then
+            CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_SYSTEM_NAME=Windows -DDISABLE_UNIT_TESTS=yes -DENABLE_GIPFELI=no"
+        fi
+
         case "${TRAVIS_OS_NAME}" in
             "osx")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --disable-ms-compress --disable-ncompress --disable-lzham"
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_MS_COMPRESS=no -DENABLE_NCOMPRESS=no -DENABLE_LZHAM=no"
                 ;;
         esac
 
         git submodule update --init --recursive
-        /bin/bash -x ./autogen.sh \
-                  ${CONFIGURE_FLAGS} \
-                  CFLAGS="${COMMON_COMPILER_FLAGS}" \
-                  CXXFLAGS="${COMMON_COMPILER_FLAGS}"
+        echo "cmake . ${CONFIGURE_FLAGS} -DCMAKE_C_FLAGS=\"${COMMON_COMPILER_FLAGS}\" -DCMAKE_CXX_FLAGS=\"${COMMON_COMPILER_FLAGS}\""
+        cmake . ${CONFIGURE_FLAGS} -DCMAKE_C_FLAGS="${COMMON_COMPILER_FLAGS}" -DCMAKE_CXX_FLAGS="${COMMON_COMPILER_FLAGS}"
         ;;
 
     "make")
@@ -240,11 +273,13 @@ case "${1}" in
     "test")
         case "${TRAVIS_OS_NAME}" in
             "linux")
-                ulimit -c unlimited
-                CTEST_OUTPUT_ON_FAILURE=TRUE make test || \
-                    (for i in $(find ./ -maxdepth 1 -name 'core*' -print); do
-                         gdb $(pwd)/tests core* -ex "thread apply all bt" -ex "set pagination 0" -batch;
-                     done && exit -1)
+                if [ "${CROSS_COMPILE}" = "no" ]; then
+                    ulimit -c unlimited
+                    CTEST_OUTPUT_ON_FAILURE=TRUE make test || \
+                        (for i in $(find ./ -maxdepth 1 -name 'core*' -print); do
+                             gdb $(pwd)/tests core* -ex "thread apply all bt" -ex "set pagination 0" -batch;
+                         done && exit -1);
+                fi
                 ;;
             "osx")
                 CTEST_OUTPUT_ON_FAILURE=TRUE make test

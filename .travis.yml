@@ -9,7 +9,7 @@ branches:
     - /^(wip\/)?msvc\-.+$/
 env:
   matrix:
-    - COMPILER=gcc-5 BUILD_TYPE=debug
+    - compiler=gcc-5 BUILD_TYPE=debug
     - COMPILER=gcc-5 BUILD_TYPE=asan
 #   - COMPILER=gcc-5 BUILD_TYPE=ubsan
 #   - COMPILER=gcc-5 BUILD_TYPE=tsan
@@ -22,6 +22,8 @@ env:
     - COMPILER=clang-3.7 BUILD_TYPE=debug
     - COMPILER=clang-3.7 BUILD_TYPE=release
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
+    - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
+    - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
   global:
     # Coveralls.io
     - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
@@ -43,6 +45,10 @@ matrix:
       env: COMPILER=clang-3.7 BUILD_TYPE=debug
     - os: osx
       env: COMPILER=clang-3.7 BUILD_TYPE=release
+    - os: osx
+      env: COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
 before_install:
  - ./.travis.sh deps
 script: ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test
