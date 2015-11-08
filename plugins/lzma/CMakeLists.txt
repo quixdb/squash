@@ -233,4 +233,6 @@ squash_plugin (
     xz/src/common
   EMBED_DEFINES
     ${lzma_embed_defines}
-    HAVE_CONFIG_H)
+    HAVE_CONFIG_H
+  EMBED_COMPILER_FLAGS
+    -w)

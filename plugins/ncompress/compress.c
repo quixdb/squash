@@ -40,6 +40,19 @@
 #define INIT_BITS 9			/* initial number of bits/code */
 
 #ifndef	BYTEORDER
+# if !defined(BYTE_ORDER)
+#  if defined(__APPLE__)
+#   include <libkern/OSByteOrder.h>
+#   define be32toh(x) OSSwapBigToHostInt32(x)
+#  elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragoFly__)
+#   include <sys/endian.h>
+#  elif defined(_WIN32)
+#   include <winsock2.h>
+#	  include <sys/param.h>
+#  else
+#   include <endian.h>
+#  endif
+# endif
 # if defined(BYTE_ORDER)
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #   define BYTEORDER 4321

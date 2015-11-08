@@ -12,4 +12,5 @@ squash_plugin (
     -Wno-undef
     -Wno-missing-prototypes
     -Wno-shadow
-    -Wno-missing-declarations)
+    -Wno-missing-declarations
+    -Wno-pointer-to-int-cast)
