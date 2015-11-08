@@ -7,6 +7,10 @@ environment:
   - GENERATOR: Visual Studio 12 2013
   - GENERATOR: Visual Studio 12 2013 Win64
 
+branches:
+  except:
+    - /^(wip\/)?(travis|osx|mingw)\-.+$/
+
 configuration: Debug
 
 install: git submodule update --init --recursive
