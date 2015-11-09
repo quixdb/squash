@@ -112,6 +112,8 @@ if (NOT DISABLE_UNIT_TESTS STREQUAL "yes")
       squash_target_add_glib (${test})
       source_file_add_extra_warning_flags (${test}.c)
       if (MSVC)
+        # Increase stack size for ms-compress plugin
+        target_link_libraries (${test} "-STACK:2097152")
         foreach (dll ${GLIB_DLLS})
           add_custom_command(TARGET ${test} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${dll}" "$<TARGET_FILE_DIR:${test}>")
