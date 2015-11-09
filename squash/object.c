@@ -34,7 +34,7 @@
 #  define squash_atomic_dec(var) __sync_fetch_and_sub(var, 1)
 #  define squash_atomic_cas(var, orig, val) __sync_val_compare_and_swap(var, orig, val)
 #elif defined(_WIN32)
-#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, orig, val)
+#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, val, orig)
 #else
 SQUASH_MTX_DEFINE(atomic_ref)
 
