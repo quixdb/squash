@@ -45,7 +45,7 @@ typedef void (*SquashDestroyNotify) (void* data);
 
 struct SquashObject_ {
   volatile unsigned int ref_count;
-  volatile bool is_floating;
+  volatile int is_floating;
   SquashDestroyNotify destroy_notify;
 };
 

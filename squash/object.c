@@ -210,7 +210,7 @@ squash_object_ref (void* obj) {
 
   SquashObject* object = (SquashObject*) obj;
 
-  if (object->is_floating) {
+  if (object->is_floating != 0) {
     if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
       squash_atomic_inc (&(object->ref_count));
     }
@@ -307,7 +307,7 @@ squash_object_init (void* obj, bool is_floating, SquashDestroyNotify destroy_not
   assert (object != NULL);
 
   object->ref_count = 1;
-  object->is_floating = is_floating;
+  object->is_floating = is_floating ? 1 : 0;
   object->destroy_notify = destroy_notify;
 }
 
