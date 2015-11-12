@@ -579,17 +579,24 @@ squash_file_printf (SquashFile* file,
   char buf[256];
   char* heap_buf = NULL;
 
+  assert (file != NULL);
+  assert (format != NULL);
+
   va_start (ap, format);
 #if defined(_WIN32)
   size = _vscprintf (format, ap);
+  if (SQUASH_UNLIKELY(size < 0))
+    return squash_error (SQUASH_FAILED);
 #else
   size = vsnprintf (buf, sizeof (buf), format, ap);
-  if (size >= (int) sizeof (buf))
+  if (SQUASH_UNLIKELY(size < 0))
+    return squash_error (SQUASH_FAILED);
+  else if (size >= (int) sizeof (buf))
 #endif
   {
     heap_buf = malloc (size + 1);
     if (SQUASH_UNLIKELY(heap_buf == NULL))
-      res = squash_error (SQUASH_MEMORY);
+      return squash_error (SQUASH_MEMORY);
 
     const int written = vsnprintf (heap_buf, size + 1, format, ap);
     if (SQUASH_UNLIKELY(written != size))
