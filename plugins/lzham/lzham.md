@@ -28,6 +28,23 @@ https://github.com/richgel999/lzham_codec
   Huffman table update rate to maximum frequency, which is costly for
   the decompressor)."
 
+### Encoder and Decoder ###
+
+If non-default values for these options are used when compressing, the
+same values *must* be passed to the decompressing or decompression
+will fail.
+
+
+- **dict-size-log2** — (int, 15-29, default 24): dictionary size.
+  Larger values mean better compression but higher memory usage.
+  Maximum value 32-bit architectures is 26.
+- **update-rate** — (int, 2-20, default 8): controls tradeoff between
+  ratio and decompression throughput. Higher values yield faster
+  operation but lower ratio.
+- **update-interval** — (int, 12-128, default 64): max interval
+  between table updates.  Larger values correspond to faster
+  decode with a lower compression ratio.
+
 ## License ##
 
 The lzham plugin and LZHAM are both licensed under the [MIT

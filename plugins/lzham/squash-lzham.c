@@ -60,7 +60,10 @@ enum SquashLZHAMOptIndex {
   SQUASH_LZHAM_OPT_LEVEL = 0,
   SQUASH_LZHAM_OPT_EXTREME_PARSING,
   SQUASH_LZHAM_OPT_DETERMINISTIC_PARSING,
-  SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO
+  SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO,
+  SQUASH_LZHAM_OPT_DICT_SIZE_LOG2,
+  SQUASH_LZHAM_OPT_UPDATE_RATE,
+  SQUASH_LZHAM_OPT_UPDATE_INTERVAL
 };
 
 static SquashOptionInfo squash_lzham_options[] = {
@@ -79,6 +82,29 @@ static SquashOptionInfo squash_lzham_options[] = {
   { "decompression-rate-for-ratio",
     SQUASH_OPTION_TYPE_BOOL,
     .default_value.bool_value = false },
+  { "dict-size-log2",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = LZHAM_MIN_DICT_SIZE_LOG2,
+#if defined(__amd64__) || defined(_M_X64) || defined(__aarch64__) || defined(__ia64__) || defined(_M_IA64)
+      .max = LZHAM_MAX_DICT_SIZE_LOG2_X64,
+#else
+      .max = LZHAM_MAX_DICT_SIZE_LOG2_X86,
+#endif
+      .allow_zero = true },
+    .default_value.int_value = LZHAM_MAX_DICT_SIZE_LOG2_X86 },
+  { "update-rate",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = LZHAM_SLOWEST_TABLE_UPDATE_RATE,
+      .max = LZHAM_FASTEST_TABLE_UPDATE_RATE },
+    .default_value.int_value = LZHAM_DEFAULT_TABLE_UPDATE_RATE },
+  { "update-interval",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 12,
+      .max = 128 },
+    .default_value.int_value = 64 },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
@@ -107,9 +133,9 @@ squash_lzham_compress_apply_options (SquashCodec* codec,
                                      SquashOptions* options) {
   lzham_compress_params opts = {
     .m_struct_size                     = sizeof(lzham_compress_params),
-    .m_dict_size_log2                  = LZHAM_MAX_DICT_SIZE_LOG2_X86,
+    .m_dict_size_log2                  = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DICT_SIZE_LOG2),
     .m_level                           = (lzham_compress_level) squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_LEVEL),
-    .m_table_update_rate               = LZHAM_DEFAULT_TABLE_UPDATE_RATE,
+    .m_table_update_rate               = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_UPDATE_RATE),
     .m_max_helper_threads              = -1,
     .m_compress_flags                  =
       squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_EXTREME_PARSING) ?
@@ -120,7 +146,7 @@ squash_lzham_compress_apply_options (SquashCodec* codec,
         LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO : 0,
     .m_num_seed_bytes                  = 0,
     .m_pSeed_bytes                     = NULL,
-    .m_table_max_update_interval       = 0,
+    .m_table_max_update_interval       = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_UPDATE_INTERVAL),
     .m_table_update_interval_slow_rate = 0
   };
 
