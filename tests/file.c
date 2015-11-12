@@ -203,13 +203,14 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   fclose (decompressed);
 }
 
+#define HELLO_WORLD_LENGTH ((size_t) 13)
+
 static void
 test_file_printf (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
   SquashFile* file = squash_file_open_codec (codec, data->filename, "w+b", NULL);
   g_assert (file != NULL);
-  static const size_t hello_world_length = 13; /* strlen ("Hello, world\n") */
-  uint8_t decompressed[LOREM_IPSUM_LENGTH + hello_world_length + 1];
+  uint8_t decompressed[LOREM_IPSUM_LENGTH + HELLO_WORLD_LENGTH + 1];
 
   SquashStatus res = squash_file_printf (file, "Hello, %s\n", "world");
   SQUASH_ASSERT_STATUS(res, SQUASH_OK);
@@ -229,12 +230,12 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
     total_read += bytes_read;
   } while (!squash_file_eof (file));
 
-  g_assert_cmpint (total_read, ==, hello_world_length + LOREM_IPSUM_LENGTH);
+  g_assert_cmpint (total_read, ==, HELLO_WORLD_LENGTH + LOREM_IPSUM_LENGTH);
   /* Note that we don't store the trailing null byte, so we need to
      add it back in here. */
-  decompressed[hello_world_length + LOREM_IPSUM_LENGTH] = 0x00;
-  g_assert (strncmp ((char*) decompressed, "Hello, world\n", hello_world_length) == 0);
-  g_assert (strncmp ((char*) decompressed + hello_world_length, (char*) LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+  decompressed[HELLO_WORLD_LENGTH + LOREM_IPSUM_LENGTH] = 0x00;
+  g_assert (strncmp ((char*) decompressed, "Hello, world\n", HELLO_WORLD_LENGTH) == 0);
+  g_assert (strncmp ((char*) decompressed + HELLO_WORLD_LENGTH, (char*) LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
 
   squash_file_close (file);
 }
