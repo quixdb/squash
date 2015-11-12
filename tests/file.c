@@ -203,16 +203,19 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
   SquashFile* file = squash_file_open_codec (codec, data->filename, "w+", NULL);
   g_assert (file != NULL);
+  static const size_t hello_world_length = 13; /* strlen ("Hello, world\n") */
+  uint8_t decompressed[LOREM_IPSUM_LENGTH + hello_world_length + 1];
 
   SquashStatus res = squash_file_printf (file, "Hello, %s\n", "world");
-  g_assert (res == SQUASH_OK);
+  SQUASH_ASSERT_STATUS(res, SQUASH_OK);
+  res = squash_file_printf (file, LOREM_IPSUM);
+  SQUASH_ASSERT_STATUS(res, SQUASH_OK);
 
   squash_file_close (file);
 
   file = squash_file_open_codec (codec, data->filename, "rb", NULL);
   g_assert (file != NULL);
 
-  uint8_t decompressed[64];
   size_t total_read = 0;
   do {
     size_t bytes_read = 256;
@@ -221,13 +224,12 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
     total_read += bytes_read;
   } while (!squash_file_eof (file));
 
-  static const size_t read_desired = 13; /* strlen ("Hello, world\n") */
-
-  g_assert_cmpint (total_read, ==, read_desired);
+  g_assert_cmpint (total_read, ==, hello_world_length + LOREM_IPSUM_LENGTH);
   /* Note that we don't store the trailing null byte, so we need to
      add it back in here. */
-  decompressed[read_desired] = 0x00;
-  g_assert_cmpstr ((char*) decompressed, ==, "Hello, world\n");
+  decompressed[hello_world_length + LOREM_IPSUM_LENGTH] = 0x00;
+  g_assert (strncmp ((char*) decompressed, "Hello, world\n", hello_world_length) == 0);
+  g_assert (strncmp ((char*) decompressed + hello_world_length, (char*) LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
 
   squash_file_close (file);
 }

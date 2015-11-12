@@ -587,12 +587,12 @@ squash_file_printf (SquashFile* file,
   if (size >= (int) sizeof (buf))
 #endif
   {
-    heap_buf = malloc (size);
+    heap_buf = malloc (size + 1);
     if (SQUASH_UNLIKELY(heap_buf == NULL))
       res = squash_error (SQUASH_MEMORY);
 
-    const int written = vsnprintf (heap_buf, size, format, ap);
-    if (SQUASH_UNLIKELY(written != size - 1))
+    const int written = vsnprintf (heap_buf, size + 1, format, ap);
+    if (SQUASH_UNLIKELY(written != size))
       res = squash_error (SQUASH_FAILED);
   }
   va_end (ap);
