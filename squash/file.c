@@ -575,7 +575,7 @@ squash_file_printf (SquashFile* file,
                     ...) {
   SquashStatus res = SQUASH_OK;
   va_list ap;
-  int size;
+  size_t size;
   char buf[256];
   char* heap_buf = NULL;
 
