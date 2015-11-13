@@ -583,9 +583,11 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
   const bool limit_input = (stream_type == SQUASH_STREAM_COMPRESS && size != 0);
   const bool limit_output = (stream_type == SQUASH_STREAM_DECOMPRESS && size != 0);
 
+  squash_object_ref (options);
+
   if (codec->impl.splice != NULL) {
     if (size == 0) {
-      return codec->impl.splice (codec, options, stream_type, squash_file_splice_read, squash_file_splice_write, user_data);
+      res = codec->impl.splice (codec, options, stream_type, squash_file_splice_read, squash_file_splice_write, user_data);
     } else {
       /* We need to limit the amount of data input (for compression)
          and output (for decompression), so we some wrapper
@@ -598,7 +600,7 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
         size,
         0
       };
-      return codec->impl.splice (codec, options, stream_type, squash_splice_custom_limited_read, squash_splice_custom_limited_write, &ctx);
+      res = codec->impl.splice (codec, options, stream_type, squash_splice_custom_limited_read, squash_splice_custom_limited_write, &ctx);
     }
   } else if (codec->impl.process_stream) {
     SquashStream* stream = squash_stream_new_codec_with_options(codec, stream_type, options);
@@ -767,6 +769,8 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
     free (out_data);
   }
 
+  squash_object_unref (options);
+
   return res;
 }
 
@@ -803,7 +807,6 @@ SquashStatus squash_splice_custom_codec (SquashCodec* codec,
   va_end (ap);
 
   return squash_splice_custom_codec_with_options (codec, stream_type, write_cb, read_cb, user_data, size, options);
-
 }
 
 SquashStatus squash_splice_custom_with_options (const char* codec,
