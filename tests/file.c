@@ -1,5 +1,7 @@
 #include "test-codecs.h"
 
+#include <glib/gstdio.h>
+
 #ifdef _MSC_VER
 #define off_t long
 #define ftello ftell
@@ -22,8 +24,11 @@ single_setup (struct Single* data, gconstpointer user_data) {
 
 static void
 single_teardown (struct Single* data, gconstpointer user_data) {
+  GError* e = NULL;
+
+  g_close(data->fd, &e);
+  assert (e == NULL);
   unlink (data->filename);
-  close (data->fd);
   g_free (data->filename);
 }
 
@@ -76,12 +81,17 @@ triple_setup (struct Triple* data, gconstpointer user_data) {
 
 static void
 triple_teardown (struct Triple* data, gconstpointer user_data) {
+  GError* e = NULL;
+
+  g_close(data->fd[0], &e);
+  assert (e == NULL);
+  g_close(data->fd[1], &e);
+  assert (e == NULL);
+  g_close(data->fd[2], &e);
+  assert (e == NULL);
   unlink (data->filename[0]);
   unlink (data->filename[1]);
   unlink (data->filename[2]);
-  close (data->fd[0]);
-  close (data->fd[1]);
-  close (data->fd[2]);
   g_free (data->filename[0]);
   g_free (data->filename[1]);
   g_free (data->filename[2]);
@@ -95,15 +105,12 @@ test_file_splice (struct Triple* data, gconstpointer user_data) {
   size_t bytes_written;
   int ires;
 
-  ires = dup (data->fd[0]);
-  g_assert (ires != -1);
-  FILE* uncompressed = fdopen (ires, "w+b");
-  ires = dup (data->fd[1]);
-  g_assert (ires != -1);
-  FILE* compressed = fdopen (ires, "w+b");
-  ires = dup (data->fd[2]);
-  g_assert (ires != -1);
-  FILE* decompressed = fdopen (ires, "w+b");
+  FILE* uncompressed = fopen (data->filename[0], "w+b");
+  g_assert (uncompressed != NULL);
+  FILE* compressed = fopen (data->filename[1], "w+b");
+  g_assert (compressed != NULL);
+  FILE* decompressed = fopen (data->filename[2], "w+b");
+  g_assert (decompressed != NULL);
 
   bytes_written = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
   g_assert_cmpint (bytes_written, ==, LOREM_IPSUM_LENGTH);
@@ -153,17 +160,13 @@ test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
   uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
   size_t bytes;
   size_t len1, len2;
-  int ires;
 
-  ires = dup (data->fd[0]);
-  g_assert (ires != -1);
-  FILE* uncompressed = fdopen (ires, "w+b");
-  ires = dup (data->fd[1]);
-  g_assert (ires != -1);
-  FILE* compressed = fdopen (ires, "w+b");
-  ires = dup (data->fd[2]);
-  g_assert (ires != -1);
-  FILE* decompressed = fdopen (ires, "w+b");
+  FILE* uncompressed = fopen (data->filename[0], "w+b");
+  g_assert (uncompressed != NULL);
+  FILE* compressed = fopen (data->filename[1], "w+b");
+  g_assert (compressed != NULL);
+  FILE* decompressed = fopen (data->filename[2], "w+b");
+  g_assert (decompressed != NULL);
 
   for (len1 = 0 ; len1 < (size_t) LOREM_IPSUM_LENGTH ; len1++)
     filler[len1] = (uint8_t) g_test_rand_int_range (0x00, 0xff);
