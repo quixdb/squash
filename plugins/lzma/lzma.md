@@ -116,9 +116,14 @@ project](http://tukaani.org/xz/).
 
 #### Decoder-only ####
 
- * **mem-limit** (integer, default UINT64_MAX): Memory limit to use
-   while decoding.  Note that decoding could fail if this is set too
-   low.
+ * **mem-limit** (integer, default 140 MiB): Memory limit to use while
+   decoding.  Note that decoding could fail if this is set too low.
+   Data compressed with level 9 requires 65 MiB for decompression, the
+   default value should be appropriate for most applications.  If you
+   set this to SIZE_MAX or some other large value you should not allow
+   decoding untrusted input; it is possible to craft a stream which
+   will request massive quantities of memory, effectively creating a
+   DoS vulnerability.
 
 ## License ##
 

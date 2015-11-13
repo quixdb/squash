@@ -92,7 +92,7 @@ static SquashOptionInfo squash_lzma_options[] = {
     .info.range_size = {
       .min = 0,
       .max = SIZE_MAX },
-    .default_value.size_value = SIZE_MAX },
+    .default_value.size_value = (1024 * 1024 * 140) },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
