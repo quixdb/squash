@@ -432,21 +432,6 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
   }
 }
 
-size_t
-squash_get_uncompressed_size (const char* codec,
-                              size_t compressed_size,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
-  assert (codec != NULL);
-  assert (compressed_size > 0);
-  assert (compressed != NULL);
-
-  SquashCodec* codec_real = squash_get_codec (codec);
-  if (codec_real == NULL)
-    return 0;
-
-  return squash_codec_get_uncompressed_size (codec_real, compressed_size, compressed);
-}
-
 /**
  * @brief Get the maximum buffer size necessary to store compressed data.
  *
@@ -476,35 +461,6 @@ squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
   } else {
     return 0;
   }
-}
-
-/**
- * @brief Get the maximum buffer size necessary to store compressed data.
- *
- * Typically the return value will be some percentage larger than the
- * uncompressed size, plus a few bytes.  For example, for bzip2 it
- * is the uncompressed size plus 1%, plus an additional 600 bytes.
- *
- * @warning The result of this function is not guaranteed to be
- * correct for use with the @ref SquashStream API—it should only be
- * used with the single-squashl buffer-to-buffer functions such as
- * ::squash_codec_compress and ::squash_codec_compress_with_options.
- *
- * @param codec The name of the codec
- * @param uncompressed_size Size of the uncompressed data in bytes
- * @return The maximum size required to store a compressed buffer
- *   representing @a uncompressed_size of uncompressed data.
- * @see squash_codec_get_max_compressed_size
- */
-size_t
-squash_get_max_compressed_size (const char* codec, size_t uncompressed_size) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (codec_real == NULL) {
-    return 0;
-  }
-
-  return squash_codec_get_max_compressed_size (codec_real, uncompressed_size);
 }
 
 /**
@@ -936,143 +892,6 @@ squash_codec_decompress (SquashCodec* codec,
 }
 
 /**
- * @brief Compress a buffer
- *
- * @param codec The name of the codec to use
- * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_size Location storing the size of the
- *   @a compressed buffer on input, replaced with the actual size of
- *   the compressed data
- * @param uncompressed The uncompressed data
- * @param uncompressed_size Size of the uncompressed data (in bytes)
- * @param ... A variadic list of key/value option pairs, followed by
- *   *NULL*
- * @return A status code
- */
-SquashStatus
-squash_compress (const char* codec,
-                 size_t* compressed_size,
-                 uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
-                 size_t uncompressed_size,
-                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
-                 ...) {
-  SquashOptions* options;
-  va_list ap;
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  va_start (ap, uncompressed);
-  options = squash_options_newv (codec_real, ap);
-  va_end (ap);
-
-  return squash_codec_compress_with_options (codec_real,
-                                             compressed_size, compressed,
-                                             uncompressed_size, uncompressed,
-                                             options);
-}
-
-/**
- * @brief Compress a buffer with an existing @ref SquashOptions
- *
- * @param codec The name of the codec to use
- * @param[out] compressed Location to store the compressed data
- * @param[in,out] compressed_size Location storing the size of the
- *   @a compressed buffer on input, replaced with the actual size of
- *   the compressed data
- * @param uncompressed The uncompressed data
- * @param uncompressed_size Size of the uncompressed data (in bytes)
- * @param options Compression options, or *NULL* to use the defaults
- * @return A status code
- */
-SquashStatus
-squash_compress_with_options (const char* codec,
-                              size_t* compressed_size,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
-                              size_t uncompressed_size,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
-                              SquashOptions* options) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  return squash_codec_compress_with_options (codec_real,
-                                             compressed_size, compressed,
-                                             uncompressed_size, uncompressed,
-                                             options);
-}
-
-/**
- * @brief Decompress a buffer with an existing @ref SquashOptions
- *
- * @param codec The name of the codec to use
- * @param[out] decompressed Location to store the decompressed data
- * @param[in,out] decompressed_size Location storing the size of the
- *   @a decompressed buffer on input, replaced with the actual size of
- *   the decompressed data
- * @param compressed The compressed data
- * @param compressed_size Size of the compressed data (in bytes)
- * @param ... A variadic list of key/value option pairs, followed by
- *   *NULL*
- * @return A status code
- */
-SquashStatus
-squash_decompress (const char* codec,
-                   size_t* decompressed_size,
-                   uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
-                   size_t compressed_size,
-                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
-                   ...) {
-  SquashOptions* options;
-  va_list ap;
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  va_start (ap, compressed);
-  options = squash_options_newv (codec_real, ap);
-  va_end (ap);
-
-  return squash_codec_decompress_with_options (codec_real,
-                                            decompressed_size, decompressed,
-                                            compressed_size, compressed,
-                                            options);
-}
-
-/**
- * @brief Decompress a buffer
- *
- * @param codec The name of the codec to use
- * @param[out] decompressed Location to store the decompressed data
- * @param[in,out] decompressed_size Location storing the size of the
- *   @a decompressed buffer on input, replaced with the actual size of
- *   the decompressed data
- * @param compressed The compressed data
- * @param compressed_size Size of the compressed data (in bytes)
- * @param options Decompression options, or *NULL* to use the defaults
- * @return A status code
- */
-SquashStatus squash_decompress_with_options (const char* codec,
-                                             size_t* decompressed_size,
-                                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
-                                             size_t compressed_size,
-                                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
-                                             SquashOptions* options) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  return squash_codec_decompress_with_options (codec_real,
-                                               decompressed_size, decompressed,
-                                               compressed_size, compressed,
-                                               options);
-}
-
-/**
  * @brief Create a new codec
  * @private
  *
@@ -1146,25 +965,6 @@ squash_codec_get_info (SquashCodec* codec) {
 }
 
 /**
- * @brief Get a bitmask of information about the codec
- *
- * @param codec The codec
- * @return the codec info, or @ref SQUASH_CODEC_INFO_INVALID if there
- *   is no such codec
- */
-SquashCodecInfo
-squash_get_info (const char* codec) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (SQUASH_LIKELY(codec_real != NULL)) {
-    return squash_codec_get_info (codec_real);
-  } else {
-    squash_error (SQUASH_NOT_FOUND);
-    return SQUASH_CODEC_INFO_INVALID;
-  }
-}
-
-/**
  * @brief Get a list of options applicable to the codec
  *
  * @param codec The codec
@@ -1174,22 +974,6 @@ const SquashOptionInfo*
 squash_codec_get_option_info (SquashCodec* codec) {
   SquashCodecImpl* impl = squash_codec_get_impl (codec);
   return SQUASH_LIKELY(impl != NULL) ? impl->options : NULL;
-}
-
-/**
- * @brief Get a list of options applicable to the codec
- *
- * @param codec name of the codec
- * @return a list of options, terminated by an option with a NULL name
- */
-const SquashOptionInfo*
-squash_get_option_info (const char* codec) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-
-  if (codec_real != NULL)
-    return squash_codec_get_option_info (codec_real);
-  else
-    return NULL;
 }
 
 static const SquashOptionValue*

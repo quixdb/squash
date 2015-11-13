@@ -77,44 +77,7 @@
  *   failure
  */
 SquashStatus
-squash_splice (const char* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t size, ...) {
-  assert (fp_in != NULL);
-  assert (fp_out != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  SquashCodec* codec_i = squash_get_codec (codec);
-  if (SQUASH_UNLIKELY(codec_i == NULL))
-    return squash_error (SQUASH_BAD_PARAM);
-
-  SquashOptions* options = NULL;
-  va_list ap;
-  va_start (ap, size);
-  options = squash_options_newv (codec_i, ap);
-  va_end (ap);
-
-  return squash_splice_codec_with_options (codec_i, stream_type, fp_out, fp_in, size, options);
-}
-
-/**
- * @brief compress or decompress the contents of one file to another
- *
- * This function will attempt to compress or decompress the contents
- * of one file to another.  It will attempt to use memory-mapped files
- * in order to reduce memory usage and increase performance, and so
- * should be preferred over writing similar code manually.
- *
- * @param fp_in the input *FILE* pointer
- * @param fp_out the output *FILE* pointer
- * @param size number of bytes (uncompressed) to transfer from @a
- *   fp_in to @a fp_out
- * @param stream_type whether to compress or decompress the data
- * @param codec codec to use
- * @param ... list of options (with a *NULL* sentinel)
- * @returns @ref SQUASH_OK on success, or a negative error code on
- *   failure
- */
-SquashStatus
-squash_splice_codec (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t size, ...) {
+squash_splice (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t size, ...) {
   assert (fp_in != NULL);
   assert (fp_out != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
@@ -126,38 +89,7 @@ squash_splice_codec (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_splice_codec_with_options (codec, stream_type, fp_out, fp_in, size, options);
-}
-
-/**
- * @brief compress or decompress the contents of one file to another
- *
- * This function will attempt to compress or decompress the contents
- * of one file to another.  It will attempt to use memory-mapped files
- * in order to reduce memory usage and increase performance, and so
- * should be preferred over writing similar code manually.
- *
- * @param fp_in the input *FILE* pointer
- * @param fp_out the output *FILE* pointer
- * @param size number of bytes (uncompressed) to transfer from @a
- *   fp_in to @a fp_out
- * @param stream_type whether to compress or decompress the data
- * @param codec name of the codec to use
- * @param options options to pass to the codec
- * @returns @ref SQUASH_OK on success, or a negative error code on
- *   failure
- */
-SquashStatus
-squash_splice_with_options (const char* codec, SquashStreamType stream_type, FILE* fp_out, FILE* fp_in, size_t size, SquashOptions* options) {
-  assert (fp_in != NULL);
-  assert (fp_out != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  SquashCodec* codec_i = squash_get_codec (codec);
-  if (SQUASH_UNLIKELY(codec_i == NULL))
-    return squash_error (SQUASH_BAD_PARAM);
-
-  return squash_splice_codec_with_options (codec_i, stream_type, fp_out, fp_in, size, options);
+  return squash_splice_with_options (codec, stream_type, fp_out, fp_in, size, options);
 }
 
 #if !defined(_WIN32)
@@ -232,7 +164,7 @@ squash_splice_stream (FILE* fp_in,
   SquashMappedFile map = squash_mapped_file_empty;
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
-    file = squash_file_steal_codec_with_options (fp_out, codec, options);
+    file = squash_file_steal_with_options (fp_out, codec, options);
     assert (file != NULL);
 
     while (size == 0 || remaining != 0) {
@@ -256,7 +188,7 @@ squash_splice_stream (FILE* fp_in,
       squash_mapped_file_destroy (&map, true);
     }
   } else { /* stream_type == SQUASH_STREAM_DECOMPRESS */
-    file = squash_file_steal_codec_with_options (fp_in, codec, options);
+    file = squash_file_steal_with_options (fp_in, codec, options);
     assert (file != NULL);
 
     while (size == 0 || remaining > 0) {
@@ -290,7 +222,7 @@ squash_splice_stream (FILE* fp_in,
 #endif /* defined(SQUASH_MMAP_IO) */
 
   if (res != SQUASH_OK) {
-    file = squash_file_steal_codec_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
+    file = squash_file_steal_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
     if (SQUASH_UNLIKELY(file == NULL)) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
@@ -446,7 +378,7 @@ squash_file_splice (FILE* fp_in,
                     SquashOptions* options) {
   struct SquashFileSpliceData data = { fp_in, fp_out, size, 0, stream_type, codec, options };
 
-  return squash_splice_custom_codec_with_options(codec, stream_type, squash_file_splice_write, squash_file_splice_read, &data, size, options);
+  return squash_splice_custom_with_options(codec, stream_type, squash_file_splice_write, squash_file_splice_read, &data, size, options);
 }
 
 /**
@@ -468,12 +400,12 @@ squash_file_splice (FILE* fp_in,
  *   failure
  */
 SquashStatus
-squash_splice_codec_with_options (SquashCodec* codec,
-                                  SquashStreamType stream_type,
-                                  FILE* fp_out,
-                                  FILE* fp_in,
-                                  size_t size,
-                                  SquashOptions* options) {
+squash_splice_with_options (SquashCodec* codec,
+                            SquashStreamType stream_type,
+                            FILE* fp_out,
+                            FILE* fp_in,
+                            size_t size,
+                            SquashOptions* options) {
   SquashStatus res = SQUASH_FAILED;
 
   assert (fp_in != NULL);
@@ -572,13 +504,13 @@ squash_splice_custom_limited_read (size_t* data_size, uint8_t data[SQUASH_ARRAY_
 }
 
 SquashStatus
-squash_splice_custom_codec_with_options (SquashCodec* codec,
-                                         SquashStreamType stream_type,
-                                         SquashWriteFunc write_cb,
-                                         SquashReadFunc read_cb,
-                                         void* user_data,
-                                         size_t size,
-                                         SquashOptions* options) {
+squash_splice_custom_with_options (SquashCodec* codec,
+                                   SquashStreamType stream_type,
+                                   SquashWriteFunc write_cb,
+                                   SquashReadFunc read_cb,
+                                   void* user_data,
+                                   size_t size,
+                                   SquashOptions* options) {
   SquashStatus res = SQUASH_OK;
   const bool limit_input = (stream_type == SQUASH_STREAM_COMPRESS && size != 0);
   const bool limit_output = (stream_type == SQUASH_STREAM_DECOMPRESS && size != 0);
@@ -603,7 +535,7 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
       res = codec->impl.splice (codec, options, stream_type, squash_splice_custom_limited_read, squash_splice_custom_limited_write, &ctx);
     }
   } else if (codec->impl.process_stream) {
-    SquashStream* stream = squash_stream_new_codec_with_options(codec, stream_type, options);
+    SquashStream* stream = squash_stream_new_with_options(codec, stream_type, options);
     if (SQUASH_UNLIKELY(stream == NULL))
       return squash_error (SQUASH_FAILED);
 
@@ -774,53 +706,19 @@ squash_splice_custom_codec_with_options (SquashCodec* codec,
   return res;
 }
 
-SquashStatus
-squash_splice_custom (const char* codec,
-                      SquashStreamType stream_type,
-                      SquashWriteFunc write_cb,
-                      SquashReadFunc read_cb,
-                      void* user_data,
-                      size_t size,
-                      ...) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  va_list ap;
-  va_start (ap, size);
-  SquashOptions* options = squash_options_newv (codec_real, ap);
-  va_end (ap);
-
-  return squash_splice_custom_codec_with_options (codec_real, stream_type, write_cb, read_cb, user_data, size, options);
-}
-
-SquashStatus squash_splice_custom_codec (SquashCodec* codec,
-                                         SquashStreamType stream_type,
-                                         SquashWriteFunc write_cb,
-                                         SquashReadFunc read_cb,
-                                         void* user_data,
-                                         size_t size,
-                                         ...) {
+SquashStatus squash_splice_custom (SquashCodec* codec,
+                                   SquashStreamType stream_type,
+                                   SquashWriteFunc write_cb,
+                                   SquashReadFunc read_cb,
+                                   void* user_data,
+                                   size_t size,
+                                   ...) {
   va_list ap;
   va_start (ap, size);
   SquashOptions* options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_splice_custom_codec_with_options (codec, stream_type, write_cb, read_cb, user_data, size, options);
-}
-
-SquashStatus squash_splice_custom_with_options (const char* codec,
-                                                SquashStreamType stream_type,
-                                                SquashWriteFunc write_cb,
-                                                SquashReadFunc read_cb,
-                                                void* user_data,
-                                                size_t size,
-                                                SquashOptions* options) {
-  SquashCodec* codec_real = squash_get_codec (codec);
-  if (SQUASH_UNLIKELY(codec_real == NULL))
-    return squash_error (SQUASH_NOT_FOUND);
-
-  return squash_splice_custom_codec_with_options (codec_real, stream_type, write_cb, read_cb, user_data, size, options);
+  return squash_splice_custom_with_options (codec, stream_type, write_cb, read_cb, user_data, size, options);
 }
 
 /**

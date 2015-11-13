@@ -42,43 +42,23 @@ SQUASH_BEGIN_DECLS
 
 SQUASH_SENTINEL
 SQUASH_NONNULL(1, 2, 3)
-SQUASH_API SquashFile*  squash_file_open                     (const char* codec,
-                                                              const char* filename,
-                                                              const char* mode,
-                                                              ...);
-SQUASH_SENTINEL
-SQUASH_NONNULL(1, 2, 3)
-SQUASH_API SquashFile*  squash_file_open_codec               (SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_open                     (SquashCodec* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               ...);
 SQUASH_NONNULL(1, 2, 3)
-SQUASH_API SquashFile*  squash_file_open_with_options        (const char* codec,
-                                                              const char* filename,
-                                                              const char* mode,
-                                                              SquashOptions* options);
-SQUASH_NONNULL(1, 2, 3)
-SQUASH_API SquashFile*  squash_file_open_codec_with_options  (SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_open_with_options        (SquashCodec* codec,
                                                               const char* filename,
                                                               const char* mode,
                                                               SquashOptions* options);
 
 SQUASH_SENTINEL
 SQUASH_NONNULL(1, 2)
-SQUASH_API SquashFile*  squash_file_steal                    (const char* codec,
-                                                              FILE* fp,
-                                                              ...);
-SQUASH_SENTINEL
-SQUASH_NONNULL(1, 2)
-SQUASH_API SquashFile*  squash_file_steal_codec              (SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_steal                    (SquashCodec* codec,
                                                               FILE* fp,
                                                               ...);
 SQUASH_NONNULL(1, 2)
-SQUASH_API SquashFile*  squash_file_steal_with_options       (const char* codec,
-                                                              FILE* fp,
-                                                              SquashOptions* options);
-SQUASH_NONNULL(1, 2)
-SQUASH_API SquashFile*  squash_file_steal_codec_with_options (SquashCodec* codec,
+SQUASH_API SquashFile*  squash_file_steal_with_options       (SquashCodec* codec,
                                                               FILE* fp,
                                                               SquashOptions* options);
 

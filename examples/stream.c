@@ -36,7 +36,7 @@ int main (int argc, char** argv) {
   uint8_t* input = malloc (BUFFER_SIZE);
   size_t input_size;
   uint8_t* output = malloc (BUFFER_SIZE);
-  SquashStream* stream = squash_stream_new_codec (codec, stream_type, NULL);
+  SquashStream* stream = squash_stream_new (codec, stream_type, NULL);
 
   if (stream == NULL || input == NULL || output == NULL) {
     fprintf (stderr, "Failed to allocate memory.\n");

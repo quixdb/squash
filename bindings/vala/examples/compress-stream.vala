@@ -17,7 +17,11 @@ private static int main (string[] args) {
   if (output == null)
     GLib.error ("Unable to open output stream.");
 
-  Squash.Stream stream = new Squash.Stream (args[1], Squash.StreamType.COMPRESS);
+  unowned Squash.Codec codec = Squash.Codec.from_name (args[1]);
+  if (codec == null)
+    GLib.error ("Unable to find requested codec.");
+
+  Squash.Stream stream = new Squash.Stream (codec, Squash.StreamType.COMPRESS);
   Squash.Status res = Squash.Status.OK;
 
   stream.next_out = output_buffer;

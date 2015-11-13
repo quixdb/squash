@@ -93,53 +93,19 @@ struct SquashFile_ {
  * @note Error handling for this function is somewhat limited, and it
  * may be difficult to determine the exact nature of problems such as
  * an invalid codec, where errno is not set.  If this is unacceptable
- * you should call @ref squash_get_codec and @ref squash_options_parse
- * yourself and pass the results to @ref
- * squash_file_open_codec_with_options (which will only fail due to
- * the underlying *fopen* failing).
+ * you should call @ref squash_options_parse yourself and pass the
+ * results to @ref squash_file_open_with_options (which will only fail
+ * due to the underlying *fopen* failing).
  *
  * @param filename name of the file to open
  * @param mode file mode
  * @param codec codec to use
  * @param ... options
  * @return The opened file, or *NULL* on error
- * @see squash_file_open_codec
  * @see squash_file_open_with_options
- * @see squash_file_open_codec_with_options
  */
 SquashFile*
-squash_file_open (const char* codec, const char* filename, const char* mode, ...) {
-  va_list ap;
-  SquashOptions* options;
-  SquashCodec* codec_i;
-
-  assert (filename != NULL);
-  assert (mode != NULL);
-  assert (codec != NULL);
-
-  codec_i = squash_get_codec (codec);
-  if (codec_i == NULL)
-    return NULL;
-
-  va_start (ap, mode);
-  options = squash_options_newv (codec_i, ap);
-  va_end (ap);
-
-  return squash_file_open_codec_with_options (codec_i, filename, mode, options);
-}
-
-/**
- * @brief Open a file using a codec instance
- *
- * @param filename name of the file to open
- * @param mode file mode
- * @param codec codec to use
- * @param ... options
- * @return The opened file, or *NULL* on error
- * @see squash_file_open
- */
-SquashFile*
-squash_file_open_codec (SquashCodec* codec, const char* filename, const char* mode, ...) {
+squash_file_open (SquashCodec* codec, const char* filename, const char* mode, ...) {
   va_list ap;
   SquashOptions* options;
 
@@ -151,11 +117,11 @@ squash_file_open_codec (SquashCodec* codec, const char* filename, const char* mo
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_file_open_codec_with_options (codec, filename, mode, options);
+  return squash_file_open_with_options (codec, filename, mode, options);
 }
 
 /**
- * @brief Open a file with the specified options
+ * @brief Open a file using a with the specified options
  *
  * @param filename name of the file to open
  * @param mode file mode
@@ -165,30 +131,7 @@ squash_file_open_codec (SquashCodec* codec, const char* filename, const char* mo
  * @see squash_file_open
  */
 SquashFile*
-squash_file_open_with_options (const char* codec, const char* filename, const char* mode, SquashOptions* options) {
-  assert (filename != NULL);
-  assert (mode != NULL);
-  assert (codec != NULL);
-
-  SquashCodec* codec_i = squash_get_codec (codec);
-  if (codec_i == NULL)
-    return NULL;
-
-  return squash_file_open_codec_with_options (codec_i, filename, mode, options);
-}
-
-/**
- * @brief Open a file using a codec instance with the specified options
- *
- * @param filename name of the file to open
- * @param mode file mode
- * @param codec codec to use
- * @param options options
- * @return The opened file, or *NULL* on error
- * @see squash_file_open
- */
-SquashFile*
-squash_file_open_codec_with_options (SquashCodec* codec, const char* filename, const char* mode, SquashOptions* options) {
+squash_file_open_with_options (SquashCodec* codec, const char* filename, const char* mode, SquashOptions* options) {
   assert (filename != NULL);
   assert (mode != NULL);
   assert (codec != NULL);
@@ -197,7 +140,7 @@ squash_file_open_codec_with_options (SquashCodec* codec, const char* filename, c
   if (fp == NULL)
     return NULL;
 
-  return squash_file_steal_codec_with_options (codec, fp, options);
+  return squash_file_steal_with_options (codec, fp, options);
 }
 
 
@@ -213,41 +156,10 @@ squash_file_open_codec_with_options (SquashCodec* codec, const char* filename, c
  * @param codec codec to use
  * @param ... options
  * @return The opened file, or *NULL* on error
- * @see squash_file_steal_codec
  * @see squash_file_steal_with_options
- * @see squash_file_steal_codec_with_options
  */
 SquashFile*
-squash_file_steal (const char* codec, FILE* fp, ...) {
-  va_list ap;
-  SquashOptions* options;
-
-  assert (fp != NULL);
-  assert (codec != NULL);
-
-  SquashCodec* codec_i = squash_get_codec (codec);
-  if (codec_i == NULL)
-    return NULL;
-  va_start (ap, fp);
-  options = squash_options_newv (codec_i, ap);
-  va_end (ap);
-
-  return squash_file_steal_codec_with_options (codec_i, fp, options);
-}
-
-/**
- * @brief Open an existing stdio file using a codec instance
- *
- * @param fp the stdio file to use
- * @param codec codec to use
- * @param ... options
- * @return The opened file, or *NULL* on error
- * @see squash_file_steal_codec
- * @see squash_file_steal_with_options
- * @see squash_file_steal_codec_with_options
- */
-SquashFile*
-squash_file_steal_codec (SquashCodec* codec, FILE* fp, ...) {
+squash_file_steal (SquashCodec* codec, FILE* fp, ...) {
   va_list ap;
   SquashOptions* options;
 
@@ -258,7 +170,7 @@ squash_file_steal_codec (SquashCodec* codec, FILE* fp, ...) {
   options = squash_options_newv (codec, ap);
   va_end (ap);
 
-  return squash_file_steal_codec_with_options (codec, fp, options);
+  return squash_file_steal_with_options (codec, fp, options);
 }
 
 /**
@@ -268,35 +180,10 @@ squash_file_steal_codec (SquashCodec* codec, FILE* fp, ...) {
  * @param codec codec to use
  * @param options options
  * @return The opened file, or *NULL* on error
- * @see squash_file_steal_codec
- * @see squash_file_steal_with_options
- * @see squash_file_steal_codec_with_options
+ * @see squash_file_steal
  */
 SquashFile*
-squash_file_steal_with_options (const char* codec, FILE* fp, SquashOptions* options) {
-  assert (fp != NULL);
-  assert (codec != NULL);
-
-  SquashCodec* codec_i = squash_get_codec (codec);
-  if (codec_i == NULL)
-    return NULL;
-
-  return squash_file_steal_codec_with_options (codec_i, fp, options);
-}
-
-/**
- * @brief Open an existing stdio file using a codec instance with the specified options
- *
- * @param fp the stdio file to use
- * @param codec codec to use
- * @param options options
- * @return The opened file, or *NULL* on error
- * @see squash_file_steal_codec
- * @see squash_file_steal_with_options
- * @see squash_file_steal_codec_with_options
- */
-SquashFile*
-squash_file_steal_codec_with_options (SquashCodec* codec, FILE* fp, SquashOptions* options) {
+squash_file_steal_with_options (SquashCodec* codec, FILE* fp, SquashOptions* options) {
   assert (fp != NULL);
   assert (codec != NULL);
 

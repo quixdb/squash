@@ -485,25 +485,18 @@ squash_stream_destroy (void* stream) {
 }
 
 /**
- * @brief Create a new stream.
+ * @brief Create a new stream with an options instance
  *
- * @param codec The name of the codec.
- * @param stream_type Stream type.
- * @param ... List of key/value option pairs, followed by *NULL*
- * @return A new stream, or *NULL* on failure.
+ * @param codec Codec to use
+ * @param stream_type Stream type
+ * @param options Options
+ * @return A new stream, or *NULL* on failure
  */
 SquashStream*
-squash_stream_new (const char* codec,
-                   SquashStreamType stream_type,
-                   ...) {
-  va_list options_list;
-  SquashStream* stream;
-
-  va_start (options_list, stream_type);
-  stream = squash_stream_newv (codec, stream_type, options_list);
-  va_end (options_list);
-
-  return stream;
+squash_stream_new_with_options (SquashCodec* codec,
+                                SquashStreamType stream_type,
+                                SquashOptions* options) {
+  return squash_codec_create_stream_with_options (codec, stream_type, options);
 }
 
 /**
@@ -515,23 +508,19 @@ squash_stream_new (const char* codec,
  * @return A new stream, or *NULL* on failure.
  */
 SquashStream*
-squash_stream_newv (const char* codec,
+squash_stream_newv (SquashCodec* codec,
                     SquashStreamType stream_type,
                     va_list options) {
   SquashOptions* opts;
-  SquashCodec* codec_real;
 
-  codec_real = squash_get_codec (codec);
-  if (codec_real == NULL) {
-    return NULL;
-  }
+  assert (codec != NULL);
 
-  opts = squash_options_newv (codec_real, options);
+  opts = squash_options_newv (codec, options);
   if (opts == NULL) {
     return NULL;
   }
 
-  return squash_codec_create_stream_with_options (codec_real, stream_type, opts);
+  return squash_stream_new_with_options (codec, stream_type, opts);
 }
 
 /**
@@ -544,7 +533,7 @@ squash_stream_newv (const char* codec,
  * @return A new stream, or *NULL* on failure.
  */
 SquashStream*
-squash_stream_newa (const char* codec,
+squash_stream_newa (SquashCodec* codec,
                     SquashStreamType stream_type,
                     const char* const* keys,
                     const char* const* values) {
@@ -560,56 +549,20 @@ squash_stream_newa (const char* codec,
  * @return A new stream, or *NULL* on failure.
  */
 SquashStream*
-squash_stream_new_with_options (const char* codec,
-                                SquashStreamType stream_type,
-                                SquashOptions* options) {
-  SquashCodec* codec_real;
+squash_stream_new (SquashCodec* codec,
+                   SquashStreamType stream_type,
+                   ...) {
+  SquashStream* stream;
 
-  assert (codec != NULL);
-
-  codec_real = squash_get_codec (codec);
-
-  return (codec_real != NULL) ?
-    squash_codec_create_stream_with_options (codec_real, stream_type, options) : NULL;
-}
-
-/**
- * @brief Create a new stream using a codec instance
- *
- * @param codec Codec to use
- * @param stream_type Stream type
- * @param ... List of options
- * @return A new stream, or *NULL* on failure
- */
-SquashStream*
-squash_stream_new_codec (SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         ...) {
   assert (codec != NULL);
 
   va_list options_list;
-  SquashOptions* opts;
 
   va_start (options_list, stream_type);
-  opts = squash_options_newv (codec, options_list);
+  stream = squash_stream_newv (codec, stream_type, options_list);
   va_end (options_list);
 
-  return squash_codec_create_stream_with_options (codec, stream_type, opts);
-}
-
-/**
- * @brief Create a new stream using codec and options intances
- *
- * @param codec Codec to use
- * @param stream_type Stream type
- * @param options An option group
- * @return A new stream, or *NULL* on failure
- */
-SquashStream*
-squash_stream_new_codec_with_options (SquashCodec* codec,
-                                      SquashStreamType stream_type,
-                                      SquashOptions* options) {
-  return squash_codec_create_stream_with_options (codec, stream_type, options);
+  return stream;
 }
 
 static SquashStatus
