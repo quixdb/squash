@@ -121,7 +121,7 @@ if (NOT DISABLE_UNIT_TESTS STREQUAL "yes")
         add_custom_command(TARGET ${test} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:squash${SQUASH_VERSION_API}>" "$<TARGET_FILE_DIR:${test}>")
       endif ()
-      add_test (${test} ${test} --squash-plugins=${PROJECT_BINARY_DIR}/plugins)
+      add_test (${test} ${test} --squash-plugins=${PROJECT_BINARY_DIR}/plugins --verbose)
     endforeach (test)
     source_file_add_extra_warning_flags ("test-codecs.c")
   endif (GLIB_FOUND)
