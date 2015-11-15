@@ -5,7 +5,7 @@ include (AddCompilerFlags)
 
 if (MSVC)
   set (EXTRA_WARNING_FLAGS
-    /W2)
+    /W3)
 else ()
   set (EXTRA_WARNING_FLAGS
     -Wall
