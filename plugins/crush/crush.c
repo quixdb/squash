@@ -3,8 +3,12 @@
  * Modified for use as a library and converted to C by Evan Nemerson */
 
 #ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#define _CRT_DISABLE_PERFCRIT_LOCKS
+#  if !defined(_CRT_SECURE_NO_WARNINGS)
+#    define _CRT_SECURE_NO_WARNINGS
+#  endif
+#  if !defined(_CRT_DISABLE_PERFCRIT_LOCKS)
+#    define _CRT_DISABLE_PERFCRIT_LOCKS
+#  endif
 #endif
 
 #include <stdio.h>
