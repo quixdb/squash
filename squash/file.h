@@ -78,6 +78,11 @@ SQUASH_NONNULL(1, 2)
 SQUASH_API SquashStatus squash_file_printf                   (SquashFile* file,
                                                               const char* format,
                                                               ...);
+SQUASH_NONNULL(1, 2)
+SQUASH_API SquashStatus squash_file_vprintf                  (SquashFile* file,
+                                                              const char* format,
+                                                              va_list ap);
+
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush                    (SquashFile* file);
 SQUASH_NONNULL(1)
@@ -103,6 +108,29 @@ SQUASH_API SquashStatus squash_file_write_unlocked           (SquashFile* file,
                                                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]);
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus squash_file_flush_unlocked           (SquashFile* file);
+
+#if defined(SQUASH_ENABLE_WIDE_CHAR_API)
+SQUASH_SENTINEL
+SQUASH_NONNULL(1, 2, 3)
+SQUASH_API SquashFile*  squash_file_wopen                    (SquashCodec* codec,
+                                                              const wchar_t* filename,
+                                                              const wchar_t* mode,
+                                                              ...);
+SQUASH_NONNULL(1, 2, 3)
+SQUASH_API SquashFile*  squash_file_wopen_with_options       (SquashCodec* codec,
+                                                              const wchar_t* filename,
+                                                              const wchar_t* mode,
+                                                              SquashOptions* options);
+
+SQUASH_NONNULL(1, 2)
+SQUASH_API SquashStatus squash_file_wprintf                  (SquashFile* file,
+                                                              const wchar_t* format,
+                                                              ...);
+SQUASH_NONNULL(1, 2)
+SQUASH_API SquashStatus squash_file_vwprintf                 (SquashFile* file,
+                                                              const wchar_t* format,
+                                                              va_list ap);
+#endif /* defined(SQUASH_ENABLE_WIDE_CHAR_API) */
 
 SQUASH_END_DECLS
 

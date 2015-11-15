@@ -34,6 +34,14 @@
 #include <stdint.h>
 #include <assert.h>
 
+#if !defined(SQUASH_DISABLE_WIDE_CHAR_API) && !defined(SQUASH_ENABLE_WIDE_CHAR_API)
+#  define SQUASH_ENABLE_WIDE_CHAR_API
+#endif
+
+#if defined(SQUASH_ENABLE_WIDE_CHAR_API)
+#  include <wchar.h>
+#endif
+
 #ifdef  __cplusplus
 #  define SQUASH_BEGIN_DECLS extern "C" {
 #  define SQUASH_END_DECLS }

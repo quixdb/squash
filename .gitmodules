@@ -89,3 +89,6 @@
 [submodule "utils/parg"]
 	path = utils/parg
 	url = https://github.com/jibsen/parg.git
+[submodule "squash/win-iconv"]
+	path = squash/win-iconv
+	url = https://github.com/win-iconv/win-iconv

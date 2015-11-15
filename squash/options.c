@@ -695,6 +695,185 @@ squash_options_free (void* options) {
   free (options);
 }
 
+#if defined(SQUASH_ENABLE_WIDE_CHAR_API)
+/**
+ * @brief Parse a single option with wide character strings.
+ *
+ * @param options The options context.
+ * @param key The option key to parse.
+ * @param value The option value to parse.
+ * @return A status code.
+ * @retval SQUASH_OK Option parsed successfully.
+ * @retval SQUASH_BAD_PARAM Invalid @a key.
+ * @retval SQUASH_BAD_VALUE Invalid @a value
+ */
+SquashStatus
+squash_options_parse_optionw (SquashOptions* options, const wchar_t* key, const wchar_t* value) {
+  char* nkey = NULL;
+  char* nvalue = NULL;
+  SquashStatus res = SQUASH_OK;
+
+  nkey = squash_charset_wide_to_utf8 (key);
+  if (SQUASH_UNLIKELY(nkey == NULL)) {
+    res = squash_error (SQUASH_FAILED);
+    goto finish;
+  }
+
+  nvalue = squash_charset_wide_to_utf8 (value);
+  if (SQUASH_UNLIKELY(nvalue == NULL)) {
+    res = squash_error (SQUASH_FAILED);
+    goto finish;
+  }
+
+  res = squash_options_parse_option (options, nkey, nvalue);
+
+ finish:
+  free (nkey);
+  free (nvalue);
+
+  return res;
+}
+
+/**
+ * @brief Parse an array of wide character options.
+ *
+ * @param options The options context.
+ * @param keys The option keys to parse.
+ * @param values The option values to parse.
+ * @return A status code.
+ */
+SquashStatus
+squash_options_parseaw (SquashOptions* options, const wchar_t* const* keys, const wchar_t* const* values) {
+  SquashStatus status = SQUASH_OK;
+  int n;
+
+  assert (options != NULL);
+
+  if (keys == NULL || values == NULL)
+    return SQUASH_OK;
+
+  for ( n = 0 ; keys[n] != NULL ; n++ ) {
+    status = squash_options_parse_optionw (options, keys[n], values[n]);
+    if (status != SQUASH_OK) {
+      break;
+    }
+  }
+
+  return status;
+}
+
+/**
+ * @brief Parse a va_list of wide-character options.
+ *
+ * @param options - The options context.
+ * @param options_list - The options to parse.  See
+ *   ::squash_options_parse for a description of the format.
+ * @return A status code.
+ */
+SquashStatus
+squash_options_parsevw (SquashOptions* options, va_list options_list) {
+  const wchar_t* key;
+  const wchar_t* value;
+  SquashStatus status = SQUASH_OK;
+
+  assert (options != NULL);
+
+  while ( (key = va_arg (options_list, wchar_t*)) != NULL ) {
+    value = va_arg (options_list, wchar_t*);
+
+    status = squash_options_parse_optionw (options, key, value);
+    if (status != SQUASH_OK)
+      break;
+  }
+
+  return status;
+}
+
+/**
+ * @brief Create a new group of options.
+ *
+ * @param codec The codec to create the options for.
+ * @param ... A variadic list of string key/value pairs followed by *NULL*
+ * @return A new option group, or *NULL* on failure.
+ */
+SquashOptions*
+squash_options_neww (SquashCodec* codec, ...) {
+  va_list options_list;
+  SquashOptions* options;
+
+  va_start (options_list, codec);
+  options = squash_options_newvw (codec, options_list);
+  va_end (options_list);
+
+  return options;
+}
+
+/**
+ * @brief Create a new group of options from a variadic list.
+ *
+ * @param codec The codec to create the options for.
+ * @param options A variadic list of string key/value pairs followed by *NULL*
+ * @return A new option group, or *NULL* if @a codec does not accept
+ *   any options or could not be loaded.
+ */
+SquashOptions*
+squash_options_newvw (SquashCodec* codec, va_list options) {
+  SquashOptions* opts = NULL;
+
+  assert (codec != NULL);
+
+  if (squash_codec_get_option_info (codec) != NULL) {
+    opts = squash_options_create (codec);
+    squash_options_parsevw (opts, options);
+  }
+
+  return opts;
+}
+
+/**
+ * @brief Create a new group of options from key and value arrays.
+ *
+ * @param codec The codec to create the options for.
+ * @param keys A *NULL*-terminated array of keys.
+ * @param values A *NULL*-terminated array of values.
+ * @return A new option group, or *NULL* on failure.
+ */
+SquashOptions*
+squash_options_newaw (SquashCodec* codec, const wchar_t* const* keys, const wchar_t* const* values) {
+  SquashOptions* opts = NULL;
+
+  assert (codec != NULL);
+
+  if (squash_codec_get_option_info (codec) != NULL) {
+    opts = squash_options_create (codec);
+    squash_options_parseaw (opts, keys, values);
+  }
+
+  return opts;
+}
+
+/**
+ * @brief Parse a variadic list of options.
+ *
+ * @param options The options context.
+ * @param ... The options to parse.  These should be alternating key
+ *   and value pairs of strings, one for each option, followed by
+ *   *NULL*.
+ * @return A status code.
+ */
+SquashStatus
+squash_options_parsew (SquashOptions* options, ...) {
+  va_list options_list;
+  SquashStatus status;
+
+  va_start (options_list, options);
+  status = squash_options_parsevw (options, options_list);
+  va_end (options_list);
+
+  return status;
+}
+#endif
+
 /**
  * @}
  */

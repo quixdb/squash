@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "internal.h"
 #include "squash/tinycthread/source/tinycthread.h"
@@ -123,12 +124,19 @@ squash_file_open (SquashCodec* codec, const char* filename, const char* mode, ..
 /**
  * @brief Open a file using a with the specified options
  *
+ * @a filename is assumed to be UTF-8 encoded.  On Windows, this
+ * function will call @ref squash_file_wopen_with_options internally.
+ * On other platforms, filenames on disk are assumed to be in UTF-8
+ * format, therefore the @a filename is passed through to `fopen`
+ * without any conversion.
+ *
  * @param filename name of the file to open
  * @param mode file mode
  * @param codec codec to use
  * @param options options
  * @return The opened file, or *NULL* on error
  * @see squash_file_open
+ * @see squash_file_wopen_with_options
  */
 SquashFile*
 squash_file_open_with_options (SquashCodec* codec, const char* filename, const char* mode, SquashOptions* options) {
@@ -136,13 +144,79 @@ squash_file_open_with_options (SquashCodec* codec, const char* filename, const c
   assert (mode != NULL);
   assert (codec != NULL);
 
+#if !defined(_WIN32)
   FILE* fp = fopen (filename, mode);
-  if (fp == NULL)
+  if (SQUASH_LIKELY(fp == NULL))
     return NULL;
 
   return squash_file_steal_with_options (codec, fp, options);
+#else
+  wchar_t* wfilename = squash_charset_utf8_to_wide (filename);
+  if (wfilename == NULL)
+    return NULL;
+
+  wchar_t* wmode = squash_charset_utf8_to_wide (mode);
+  if (wmode == NULL) {
+    free (wfilename);
+    return NULL;
+  }
+
+  SquashFile* file = squash_file_wopen_with_options (codec, wfilename, wmode, options);
+  free (wfilename);
+  free (wmode);
+  return file;
+#endif
 }
 
+/**
+ * @brief Open a file using a with the specified options
+ *
+ * On non-Windows platforms this function will convert the @a filename
+ * to UTF-8 and call @ref squash_file_open_with_options.  On Windows,
+ * it will use @a _wfopen.
+ *
+ * @param filename name of the file to open
+ * @param mode file mode
+ * @param codec codec to use
+ * @param options options
+ * @return The opened file, or *NULL* on error
+ * @see squash_file_wopen
+ * @see squash_file_open
+ */
+#if defined(SQUASH_ENABLE_WIDE_CHAR_API) || defined(_WIN32)
+#if !defined(SQUASH_ENABLE_WIDE_CHAR_API)
+static
+#endif
+SquashFile*
+squash_file_wopen_with_options (SquashCodec* codec, const wchar_t* filename, const wchar_t* mode, SquashOptions* options) {
+  assert (codec != NULL);
+  assert (filename != NULL);
+  assert (mode != NULL);
+
+#if !defined(_WIN32)
+  char* nfilename = squash_charset_wide_to_utf8 (filename);
+  if (nfilename == NULL)
+    return NULL;
+
+  char* nmode = squash_charset_wide_to_utf8 (mode);
+  if (nmode == NULL) {
+    free (nfilename);
+    return NULL;
+  }
+
+  SquashFile* file = squash_file_open_with_options (codec, nfilename, nmode, options);
+  free (nfilename);
+  free (nmode);
+  return file;
+#else
+  FILE* fp = _wfopen (filename, mode);
+  if (SQUASH_UNLIKELY(fp == NULL))
+    return NULL;
+
+  return squash_file_steal_with_options (codec, fp, options);
+#endif
+}
+#endif /* defined(SQUASH_ENABLE_WIDE_CHAR_API) || defined(_WIN32) */
 
 /**
  * @brief Open an existing stdio file
@@ -452,6 +526,99 @@ squash_file_write (SquashFile* file,
   return res;
 }
 
+#if !defined(_WIN32)
+/* This is one of the ugliest hacks I've ever done.  It's not my idea
+ * (I stole it from
+ * https://stackoverflow.com/questions/4107947/how-to-determine-buffer-size-for-vswprintf-under-linux-gcc).
+ *
+ * C99/C11 define vswprintf as returning -1 on error, unlike vsnprintf
+ * which returns "… the number of characters that would have been
+ * written had n been sufficiently large, not counting the terminating
+ * null character, or a negative value if a runtime-constraint
+ * violation occurred."
+ *
+ * Windows' vsnprintf implementation doesn't actually conform to C99;
+ * it will return -1.  However, they have a family of functions to
+ * calculate the length which would be required which includes
+ * wide-character versions.  Specifically, _vscwprintf.
+ *
+ * In order to make up for the deficiencies of the standard, we open a
+ * FILE* and use vfwprintf to find the length required.  It's slow and
+ * ugly, but it works. */
+static int
+_vscwprintf (const wchar_t *format, va_list ap) {
+  FILE* fp;
+  va_list apc;
+  int r;
+
+  fp = fopen ("/dev/null", "wb+");
+  if (fp == NULL)
+    return -1;
+
+  va_copy (apc, ap);
+  r = vfwprintf (fp, format, apc);
+  va_end (apc);
+
+  fclose (fp);
+
+  return r;
+}
+#endif
+
+#if !defined(SQUASH_ENABLE_WIDE_CHAR_API)
+static
+#endif
+SquashStatus
+squash_file_vwprintf (SquashFile* file,
+                      const wchar_t* format,
+                      va_list ap) {
+  SquashStatus res = SQUASH_OK;
+  int size;
+  wchar_t* buf = NULL;
+
+  assert (file != NULL);
+  assert (format != NULL);
+
+  size = _vscwprintf (format, ap);
+  if (SQUASH_UNLIKELY(size < 0))
+    return squash_error (SQUASH_FAILED);
+
+  buf = calloc (size + 1, sizeof (wchar_t));
+  if (SQUASH_UNLIKELY(buf == NULL))
+    return squash_error (SQUASH_MEMORY);
+
+  const int written = vswprintf (buf, size + 1, format, ap);
+  if (SQUASH_UNLIKELY(written != size)) {
+    res = squash_error (SQUASH_FAILED);
+  } else {
+    size_t data_size;
+    char* data;
+    bool conv_success =
+      squash_charset_convert (&data_size, &data, "UTF-8",
+                              size * sizeof(wchar_t), (char*) buf, squash_charset_get_wide ());
+
+    if (SQUASH_LIKELY(conv_success))
+      res = squash_file_write (file, data_size, (uint8_t*) data);
+    else
+      res = squash_error (SQUASH_FAILED);
+  }
+
+  free (buf);
+
+  return res;
+}
+
+SquashStatus
+squash_file_vprintf (SquashFile* file,
+                     const char* format,
+                     va_list ap) {
+  wchar_t* wformat = squash_charset_utf8_to_wide (format);
+  if (wformat == NULL)
+    return squash_error (SQUASH_FAILED);
+
+  return squash_file_vwprintf (file, wformat, ap);
+}
+
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
@@ -460,41 +627,12 @@ SquashStatus
 squash_file_printf (SquashFile* file,
                     const char* format,
                     ...) {
-  SquashStatus res = SQUASH_OK;
+  SquashStatus res;
   va_list ap;
-  int size;
-  char buf[256];
-  char* heap_buf = NULL;
-
-  assert (file != NULL);
-  assert (format != NULL);
 
   va_start (ap, format);
-#if defined(_WIN32)
-  size = _vscprintf (format, ap);
-  if (SQUASH_UNLIKELY(size < 0))
-    return squash_error (SQUASH_FAILED);
-#else
-  size = vsnprintf (buf, sizeof (buf), format, ap);
-  if (SQUASH_UNLIKELY(size < 0))
-    return squash_error (SQUASH_FAILED);
-  else if (size >= (int) sizeof (buf))
-#endif
-  {
-    heap_buf = malloc (size + 1);
-    if (SQUASH_UNLIKELY(heap_buf == NULL))
-      return squash_error (SQUASH_MEMORY);
-
-    const int written = vsnprintf (heap_buf, size + 1, format, ap);
-    if (SQUASH_UNLIKELY(written != size))
-      res = squash_error (SQUASH_FAILED);
-  }
+  res = squash_file_vprintf (file, format, ap);
   va_end (ap);
-
-  if (SQUASH_LIKELY(res == SQUASH_OK))
-    res = squash_file_write (file, size, (uint8_t*) ((heap_buf == NULL) ? buf : heap_buf));
-
-  free (heap_buf);
 
   return res;
 }
@@ -718,6 +856,37 @@ squash_file_unlock (SquashFile* file) {
 
   mtx_unlock (&(file->mtx));
 }
+
+#if defined(SQUASH_ENABLE_WIDE_CHAR_API)
+SquashFile*
+squash_file_wopen (SquashCodec* codec, const wchar_t* filename, const wchar_t* mode, ...) {
+  va_list ap;
+  SquashOptions* options;
+
+  assert (filename != NULL);
+  assert (mode != NULL);
+  assert (codec != NULL);
+
+  va_start (ap, mode);
+  options = squash_options_newvw (codec, ap);
+  va_end (ap);
+
+  return squash_file_wopen_with_options (codec, filename, mode, options);
+}
+
+SquashStatus
+squash_file_wprintf (SquashFile* file,
+                     const wchar_t* format,
+                     ...) {
+  va_list ap;
+
+  va_start (ap, format);
+  SquashStatus res = squash_file_vwprintf (file, format, ap);
+  va_end (ap);
+
+  return res;
+}
+#endif /* defined(SQUASH_ENABLE_WIDE_CHAR_API) */
 
 /**
  * @}
