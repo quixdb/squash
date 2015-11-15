@@ -127,8 +127,17 @@ squash_brieflz_get_uncompressed_size (SquashCodec* codec,
                                       size_t compressed_size,
                                       const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   uint64_t v;
+  size_t r;
 
-  return read_varuint64 (compressed, compressed_size, &v) == 0 ? 0 : v;
+  r = read_varuint64 (compressed, compressed_size, &v);
+  if (SQUASH_UNLIKELY(r == 0))
+    return 0;
+#if SIZE_MAX < UINT64_MAX
+  if (SQUASH_UNLIKELY(SIZE_MAX < v))
+    return 0;
+#endif
+
+  return (size_t) v;
 }
 
 static SquashStatus

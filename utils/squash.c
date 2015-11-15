@@ -6,6 +6,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#if defined(_WIN32)
+#include <io.h>
+#endif
+
 #if !defined(_MSC_VER)
 #include <unistd.h>
 #include <strings.h>
