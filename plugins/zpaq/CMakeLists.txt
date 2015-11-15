@@ -9,4 +9,5 @@ squash_plugin (
     -Wno-cast-align
   INCLUDE_DIRS zpaq
   EMBED_COMPILER_FLAGS
-    -Wno-shift-negative-value)
+    -Wno-shift-negative-value
+    /wd4244)

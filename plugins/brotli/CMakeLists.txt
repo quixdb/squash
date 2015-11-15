@@ -37,6 +37,10 @@ squash_plugin (
   COMPILER_FLAGS
     -Wno-cast-align
     -Wno-sign-compare
+  EMBED_COMPILER_FLAGS
+    /wd4244
+    /wd4018
+    /wd4334
   INCLUDE_DIRS brotli
   EMBED_DEFINES
     ${BROTLI_PLATFORM_DEFINES})
