@@ -608,21 +608,56 @@ squash_file_vwprintf (SquashFile* file,
   return res;
 }
 
+#if defined(__MINGW32__) || defined(__MINGW64__) || defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
+#endif
+
 SquashStatus
 squash_file_vprintf (SquashFile* file,
                      const char* format,
                      va_list ap) {
-  wchar_t* wformat = squash_charset_utf8_to_wide (format);
-  if (wformat == NULL)
-    return squash_error (SQUASH_FAILED);
+  SquashStatus res = SQUASH_OK;
+  int size;
+  char* heap_buf = NULL;
 
-  return squash_file_vwprintf (file, wformat, ap);
+  assert (file != NULL);
+  assert (format != NULL);
+
+#if defined(_WIN32)
+  size = _vscprintf (format, ap);
+  if (SQUASH_UNLIKELY(size < 0))
+    return squash_error (SQUASH_FAILED);
+#else
+  char buf[256];
+  size = vsnprintf (buf, sizeof (buf), format, ap);
+  if (SQUASH_UNLIKELY(size < 0))
+    return squash_error (SQUASH_FAILED);
+  else if (size >= (int) sizeof (buf))
+#endif
+  {
+    heap_buf = malloc (size + 1);
+    if (SQUASH_UNLIKELY(heap_buf == NULL))
+      return squash_error (SQUASH_MEMORY);
+
+    const int written = vsnprintf (heap_buf, size + 1, format, ap);
+    if (SQUASH_UNLIKELY(written != size))
+      res = squash_error (SQUASH_FAILED);
+  }
+
+  if (SQUASH_LIKELY(res == SQUASH_OK)) {
+    res = squash_file_write (file, size,
+#if !defined(_WIN32)
+                             (heap_buf == NULL) ? (uint8_t*) buf :
+#endif
+                             (uint8_t*) heap_buf);
+  }
+
+  free (heap_buf);
+
+  return res;
 }
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
-#endif
 SquashStatus
 squash_file_printf (SquashFile* file,
                     const char* format,
@@ -636,6 +671,7 @@ squash_file_printf (SquashFile* file,
 
   return res;
 }
+
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #pragma GCC diagnostic pop
 #endif
