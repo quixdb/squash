@@ -1211,7 +1211,7 @@ squash_codec_decompress_to_buffer (SquashCodec* codec,
   assert (compressed != NULL);
 
   uint8_t* decompressed_data = NULL;
-  size_t decompressed_alloc = squash_npot (compressed_size) << 3;
+  size_t decompressed_alloc = squash_npot (compressed_size) << 2;
   size_t decompressed_size;
   do {
     decompressed_alloc <<= 1;
