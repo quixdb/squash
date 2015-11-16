@@ -53,7 +53,8 @@ else ()
     -Wundef
     -Wuninitialized
     -WUnsafe-loop-optimizations
-    -Wwrite-strings)
+    -Wwrite-strings
+    -Wsuggest-attribute=format)
 endif ()
 
 mark_as_advanced (EXTRA_WARNING_FLAGS)
