@@ -1211,17 +1211,41 @@ squash_codec_decompress_to_buffer (SquashCodec* codec,
   assert (compressed != NULL);
 
   uint8_t* decompressed_data = NULL;
-  size_t decompressed_alloc = squash_npot (compressed_size) << 2;
+  const size_t compressed_npot_size = squash_npot (compressed_size);
+  size_t decompressed_alloc = compressed_npot_size << 3;
   size_t decompressed_size;
+  bool try_smaller = false;
   do {
-    decompressed_alloc <<= 1;
-    decompressed_size = decompressed_alloc;
+    if (SQUASH_UNLIKELY(try_smaller))
+      decompressed_alloc >>= 1;
+    else
+      decompressed_alloc <<= 1;
+
+    /* Use 1 less than a power of two so we can get a bit more range
+       out of codecs which take signed values for buffer sizes. */
+    decompressed_size = decompressed_alloc - 1;
+
     free (decompressed_data);
     decompressed_data = malloc (decompressed_alloc);
     if (SQUASH_UNLIKELY(decompressed_data == NULL))
       return squash_error (SQUASH_MEMORY);
 
     res = squash_codec_decompress_with_options(codec, &decompressed_size, decompressed_data, compressed_size, compressed, options);
+    /* If we failed because of API restrictions in the codec on the
+       buffer size, maybe it will work with a slightly smaller
+       buffer... */
+    if (SQUASH_UNLIKELY(res == SQUASH_RANGE) && (decompressed_alloc <= (compressed_npot_size << 3)) && !try_smaller) {
+      try_smaller = true;
+      res = SQUASH_BUFFER_FULL;
+      continue;
+    } else if (SQUASH_UNLIKELY(try_smaller) && res == SQUASH_BUFFER_FULL) {
+      /* We're caught between the buffer being to big for the API and
+         too small for the data.  This shouldn't usually happen since
+         the API wouldn't allow us to compress the data in the first
+         case, but maybe we're dealing with data compressed by an API
+         that can handle larger buffers... */
+      break;
+    }
   } while (res == SQUASH_BUFFER_FULL);
 
   if (SQUASH_LIKELY(res == SQUASH_OK))
