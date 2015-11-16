@@ -57,18 +57,78 @@ squash_charset_get_locale (void) {
 #endif
 }
 
+#if defined(__GNUC__)
+__attribute__((__const__))
+#endif
 const char*
 squash_charset_get_wide (void) {
-#if (WCHAR_MAX == INT16_MAX) && defined(__STDC_UTF_16__)
-  return "UTF-16";
+#if defined(_WIN32)
+  /* Windows always encodes wchar_t as UTF-16LE. */
+  return "UTF-16LE";
 #elif (WCHAR_MAX == INT32_MAX) && defined(__STDC_UTF_32__)
-  return "UTF-32";
-#elif defined(_WIN32)
-  return "UTF-16";
+  /* AFAIK this should take care of most modern Linux and BSD
+     distributions.
+
+     This is basically known to be buggy in theory, but in practice I
+     think it will work.  Problems:
+
+     * __STDC_UTF_*__ technically refers to char16_t and char32_t; it
+       says nothing about wchar_t.  I have no idea why wchar_t
+       wouldn't be the same as one of those, but it's possible....
+     * We assume that the data is native-endian encoded.
+     * Someone could use -fwide-exec-charset to request a
+       non-UTF-16/32 charset.  But really, who does that?
+
+     If anyone encounters issues with it in practice, please let us
+     know. */
+#  if BYTE_ORDER == LITTLE_ENDIAN
+  return "UTF-32LE";
+#  else
+  return "UTF-32BE";
+#  endif
+#elif (WCHAR_MAX == INT16_MAX) && defined(__STDC_UTF_16__)
+  /* I'm not aware of any platforms which would trigger this (Windows
+     seems to be the only one using UTF-16, and they don't define
+     __STDC_UTF_16__ (hence the special case above).  That said, the
+     same issues as the 4-byte case above apply. */
+#  if BYTE_ORDER == LITTLE_ENDIAN
+  return "UTF-16LE";
+#  else
+  return "UTF-16BE";
+#  endif
 #elif (WCHAR_MAX == INT32_MAX) && defined(__APPLE__)
-  return "UTF-32";
+  /* AFAIK OS X is actually always little-endian, but they do allow
+     for other values in their API... */
+#  if BYTE_ORDER == LITTLE_ENDIAN
+  return "UTF-32LE";
+#  else
+  return "UTF-32BE";
+#  endif
 #else
-#  error wchar_t encoding is unknown
+  /* Fall back on runtime detection.  Currently we only know about
+     UTF-16 and UTF-32, but hopefully if anyone has a platform with
+     another encoding they'll let us know.  I'll add an error message
+     somewhere in the library if the encoding is unknown with a link
+     to the issue tracker. */
+  wchar_t test_char = L'ѡ';
+  uint8_t* alias = (uint8_t*) &test_char;
+
+  switch (sizeof(wchar_t)) {
+    case 2:
+      if (memcmp (alias, (uint8_t[]) { 0x61, 0x04 }, 2) == 0)
+	return "UTF-16LE";
+      else if (memcmp (alias, (uint8_t[]) { 0x04, 0x61 }, 2) == 0)
+	return "UTF-16BE";
+      break;
+    case 4:
+      if (memcmp (alias, (uint8_t[]) { 0x61, 0x04, 0x00, 0x00 }, 4) == 0)
+	return "UTF-32LE";
+      else if (memcmp (alias, (uint8_t[]) { 0x00, 0x00, 0x04, 0x61 }, 4) == 0)
+	return "UTF-32BE";
+      break;
+  }
+
+  return "Unknown";
 #endif
 }
 
