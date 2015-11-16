@@ -516,9 +516,6 @@ squash_stream_newv (SquashCodec* codec,
   assert (codec != NULL);
 
   opts = squash_options_newv (codec, options);
-  if (opts == NULL) {
-    return NULL;
-  }
 
   return squash_stream_new_with_options (codec, stream_type, opts);
 }
