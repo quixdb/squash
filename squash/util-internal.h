@@ -34,8 +34,9 @@
 
 SQUASH_BEGIN_DECLS
 
-size_t squash_get_page_size (void);
-size_t squash_npot          (size_t v);
+size_t squash_get_page_size      (void);
+size_t squash_npot               (size_t v);
+size_t squash_get_huge_page_size (void);
 
 SQUASH_END_DECLS
 
