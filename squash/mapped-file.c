@@ -78,14 +78,22 @@ squash_mapped_file_init_full (SquashMappedFile* mapped, FILE* fp, size_t size, b
   }
   mapped->size = size;
 
+#if defined(MAP_HUGETLB)
+  /* TODO: we should probably get this value from /proc/meminfo (the
+     Hugepagesize property) instead of assuming 2 MiB. */
+  const size_t page_size = 2048 * 1024;
+  const int map_flags = MAP_SHARED | MAP_HUGETLB;
+#else
   const size_t page_size = squash_get_page_size ();
+  const int map_flags = MAP_SHARED;
+#endif
   mapped->window_offset = (size_t) offset % page_size;
   mapped->map_size = size + mapped->window_offset;
 
   if (writable)
-    mapped->data = mmap (NULL, mapped->map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset - mapped->window_offset);
+    mapped->data = mmap (NULL, mapped->map_size, PROT_READ | PROT_WRITE, map_flags, fd, offset - mapped->window_offset);
   else
-    mapped->data = mmap (NULL, mapped->map_size, PROT_READ, MAP_SHARED, fd, offset - mapped->window_offset);
+    mapped->data = mmap (NULL, mapped->map_size, PROT_READ, map_flags, fd, offset - mapped->window_offset);
 
   if (mapped->data == MAP_FAILED)
     return false;
