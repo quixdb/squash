@@ -248,6 +248,7 @@ squash_brotli_decompress_stream (SquashStream* stream, SquashOperation operation
     }
     return squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
+    (void) e;
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
     return squash_error (SQUASH_FAILED);
@@ -286,6 +287,7 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
     res = BrotliDecompressStream (&available_in, &next_in, &available_out,
         &next_out, &total_out, &s);
   } catch (const std::bad_alloc& e) {
+    (void) e;
     BrotliStateCleanup(&s);
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
@@ -314,6 +316,7 @@ squash_brotli_compress_buffer (SquashCodec* codec,
                                             compressed_size, compressed);
     return SQUASH_LIKELY(res == 1) ? SQUASH_OK : squash_error (SQUASH_FAILED);
   } catch (const std::bad_alloc& e) {
+    (void) e;
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
     return squash_error (SQUASH_FAILED);

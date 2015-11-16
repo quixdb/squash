@@ -12,6 +12,13 @@
 
 #include <squash/squash.h>
 
+/* Code in the g_assert_cmpint macro causes MSVC to emit this warning;
+   there is nothing we can do about it here, so just disable the
+   warning. */
+#if defined(_MSC_VER)
+#pragma warning(disable : 4244)
+#endif
+
 #ifndef MIN
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif

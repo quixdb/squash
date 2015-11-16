@@ -62,6 +62,7 @@
 
 #include <squash/config.h>
 
+#include "charset-internal.h"
 #include "tree-internal.h"
 #include "types-internal.h"
 #include "context-internal.h"

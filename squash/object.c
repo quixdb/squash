@@ -34,7 +34,7 @@
 #  define squash_atomic_dec(var) __sync_fetch_and_sub(var, 1)
 #  define squash_atomic_cas(var, orig, val) __sync_val_compare_and_swap(var, orig, val)
 #elif defined(_WIN32)
-#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, orig, val)
+#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, val, orig)
 #else
 SQUASH_MTX_DEFINE(atomic_ref)
 
@@ -210,7 +210,7 @@ squash_object_ref (void* obj) {
 
   SquashObject* object = (SquashObject*) obj;
 
-  if (object->is_floating) {
+  if (object->is_floating != 0) {
     if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
       squash_atomic_inc (&(object->ref_count));
     }
@@ -307,7 +307,7 @@ squash_object_init (void* obj, bool is_floating, SquashDestroyNotify destroy_not
   assert (object != NULL);
 
   object->ref_count = 1;
-  object->is_floating = is_floating;
+  object->is_floating = is_floating ? 1 : 0;
   object->destroy_notify = destroy_notify;
 }
 

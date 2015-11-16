@@ -78,6 +78,7 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
     *compressed_size = res.size();
     return SQUASH_OK;
   } catch (const std::bad_alloc& e) {
+    (void) e;
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
     return squash_error (SQUASH_FAILED);
@@ -101,8 +102,10 @@ squash_yalz77_decompress_buffer (SquashCodec* codec,
     *decompressed_size = res.size();
     return (done && remaining.empty()) ? SQUASH_OK : SQUASH_FAILED;
   } catch (std::length_error& e) {
+    (void) e;
     return squash_error (SQUASH_BUFFER_FULL);
   } catch (const std::bad_alloc& e) {
+    (void) e;
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
     return squash_error (SQUASH_FAILED);

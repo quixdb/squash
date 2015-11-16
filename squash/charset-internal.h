@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -23,37 +23,37 @@
  * Authors:
  *   Evan Nemerson <evan@nemerson.com>
  */
-/* IWYU pragma: private, include <squash/squash.h> */
+/* IWYU pragma: private, include <squash/internal.h> */
 
-#ifndef SQUASH_OBJECT_H
-#define SQUASH_OBJECT_H
+#ifndef SQUASH_CHARSET_INTERNAL_H
+#define SQUASH_CHARSET_INTERNAL_H
 
-#if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
-#error "Only <squash/squash.h> can be included directly."
+#if !defined (SQUASH_COMPILATION)
+#error "This is internal API; you cannot use it."
 #endif
 
-#include <stdbool.h>
+#include <wchar.h>
 
 SQUASH_BEGIN_DECLS
 
-SQUASH_API void*        squash_object_ref           (void* obj);
-SQUASH_API void*        squash_object_unref         (void* obj);
-SQUASH_API unsigned int squash_object_get_ref_count (void* obj);
-SQUASH_API void*        squash_object_ref_sink      (void* obj);
-
-typedef void (*SquashDestroyNotify) (void* data);
-
-struct SquashObject_ {
-  volatile unsigned int ref_count;
-  volatile int is_floating;
-  SquashDestroyNotify destroy_notify;
-};
-
+const char*  squash_charset_get_locale     (void);
+const char*  squash_charset_get_wide       (void);
+SQUASH_NONNULL(2, 3, 5, 6)
+bool         squash_charset_convert        (size_t* output_size, char** output, const char* output_charset,
+                                            size_t input_size, const char* input, const char* input_charset);
 SQUASH_NONNULL(1)
-SQUASH_API void         squash_object_init          (void* obj, bool is_floating, SquashDestroyNotify destroy_notify);
+char*        squash_charset_utf8_to_locale (const char* input);
 SQUASH_NONNULL(1)
-SQUASH_API void         squash_object_destroy       (void* obj);
+char*        squash_charset_locale_to_utf8 (const char* input);
+SQUASH_NONNULL(1)
+wchar_t*     squash_charset_locale_to_wide (const char* input);
+SQUASH_NONNULL(1)
+char*        squash_charset_wide_to_locale (const wchar_t* input);
+SQUASH_NONNULL(1)
+char*        squash_charset_wide_to_utf8   (const wchar_t* input);
+SQUASH_NONNULL(1)
+wchar_t*     squash_charset_utf8_to_wide   (const char* input);
 
 SQUASH_END_DECLS
 
-#endif /* SQUASH_OBJECT_H */
+#endif /* SQUASH_CHARSET_INTERNAL_H */

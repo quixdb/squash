@@ -83,29 +83,20 @@ struct SquashStream_ {
 
 SQUASH_SENTINEL
 SQUASH_NONNULL(1)
-SQUASH_API SquashStream*   squash_stream_new                    (const char* codec,
+SQUASH_API SquashStream*   squash_stream_new                    (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  ...);
 SQUASH_NONNULL(1, 3)
-SQUASH_API SquashStream*   squash_stream_newv                   (const char* codec,
+SQUASH_API SquashStream*   squash_stream_newv                   (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  va_list options);
 SQUASH_NONNULL(1)
-SQUASH_API SquashStream*   squash_stream_newa                   (const char* codec,
+SQUASH_API SquashStream*   squash_stream_newa                   (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  const char* const* keys,
                                                                  const char* const* values);
 SQUASH_NONNULL(1)
-SQUASH_API SquashStream*   squash_stream_new_with_options       (const char* codec,
-                                                                 SquashStreamType stream_type,
-                                                                 SquashOptions* options);
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
-SQUASH_API SquashStream*   squash_stream_new_codec              (SquashCodec* codec,
-                                                                 SquashStreamType stream_type,
-                                                                 ...);
-SQUASH_NONNULL(1)
-SQUASH_API SquashStream*   squash_stream_new_codec_with_options (SquashCodec* codec,
+SQUASH_API SquashStream*   squash_stream_new_with_options       (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options);
 

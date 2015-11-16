@@ -5,7 +5,7 @@
 #include <squash/squash.h>
 
 int main (int argc, char** argv) {
-  char* codec_name;
+  SquashCodec* codec;
   const char* uncompressed;
   size_t uncompressed_length;
   size_t compressed_length;
@@ -15,39 +15,44 @@ int main (int argc, char** argv) {
 
   if (argc != 3) {
     fprintf (stderr, "USAGE: %s ALGORITHM STRING\n", argv[0]);
-    exit (-1);
+    return EXIT_FAILURE;
   }
 
-  codec_name = argv[1];
+  codec = squash_get_codec (argv[1]);
+  if (codec == NULL) {
+    fprintf (stderr, "Unable to find algorithm '%s'.\n", argv[1]);
+    return EXIT_FAILURE;
+  }
+
   uncompressed = argv[2];
   uncompressed_length = strlen (uncompressed);
-  compressed_length = squash_get_max_compressed_size (codec_name, uncompressed_length);
+  compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
   compressed = (uint8_t*) malloc (compressed_length);
   decompressed_length = uncompressed_length + 1;
   decompressed = (char*) malloc (uncompressed_length + 1);
 
   SquashStatus res =
-    squash_compress (codec_name,
-                     &compressed_length, compressed,
-                     uncompressed_length, (const uint8_t*) uncompressed,
-                     NULL);
+    squash_codec_compress (codec,
+                           &compressed_length, compressed,
+                           uncompressed_length, (const uint8_t*) uncompressed,
+                           NULL);
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to compress data [%d]: %s\n",
              res, squash_status_to_string (res));
-    exit (res);
+    return EXIT_FAILURE;
   }
 
   fprintf (stdout, "Compressed a %u byte buffer to %u bytes.\n",
            (unsigned int) uncompressed_length, (unsigned int) compressed_length);
 
-  res = squash_decompress (codec_name,
-                           &decompressed_length, (uint8_t*) decompressed,
-                           compressed_length, compressed, NULL);
+  res = squash_codec_decompress (codec,
+                                 &decompressed_length, (uint8_t*) decompressed,
+                                 compressed_length, compressed, NULL);
 
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to decompress data [%d]: %s\n",
              res, squash_status_to_string (res));
-    exit (res);
+    return EXIT_FAILURE;
   }
 
   /* Notice that we didn't compress the *NULL* byte at the end of the
@@ -56,10 +61,10 @@ int main (int argc, char** argv) {
 
   if (strcmp (decompressed, uncompressed) != 0) {
     fprintf (stderr, "Bad decompressed data.\n");
-    exit (-1);
+    EXIT_FAILURE;
   }
 
   fprintf (stdout, "Successfully decompressed.\n");
 
-  return 0;
+  return EXIT_SUCCESS;
 }

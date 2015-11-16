@@ -129,6 +129,7 @@ squash_zpaq_splice (SquashCodec* codec,
       decompress (&stream, &stream);
     }
   } catch (const std::bad_alloc& e) {
+    (void) e;
     return squash_error (SQUASH_MEMORY);
   } catch (const SquashStatus e) {
     return e;

@@ -21,6 +21,7 @@ endif ()
 set (squash_SOURCES
   ${RAGEL_ini_OUTPUTS}
   buffer.c
+  charset.c
   codec.c
   file.c
   license.c
@@ -39,6 +40,9 @@ set (squash_SOURCES
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   list (APPEND squash_SOURCES
     mapped-file.c)
+else ()
+  list (APPEND squash_SOURCES
+    win-iconv/win_iconv.c)
 endif ()
 
 set (squash_PUBLIC_HEADERS
@@ -59,6 +63,12 @@ add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
 squash_set_target_visibility (squash${SQUASH_VERSION_API} hidden)
 target_require_c_standard (squash${SQUASH_VERSION_API} "c99")
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set_property (TARGET "squash${SQUASH_VERSION_API}"
+    APPEND PROPERTY INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/win-iconv")
+  source_file_add_compiler_flags ("win-iconv/win_iconv.c" "-Wno-sign-compare" "-Wno-maybe-uninitialized")
+endif ()
 
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   CHECK_CXX_COMPILER_FLAG ("-Wno-tautological-pointer-compare" "CFLAG__Wno_tautological_pointer_compare")
@@ -98,6 +108,11 @@ else ()
   if (${DLOPEN_REQUIRES_DL})
     target_link_libraries (squash${SQUASH_VERSION_API} dl)
   endif ()
+
+  include (FindIconv)
+  target_link_libraries (squash${SQUASH_VERSION_API} ${ICONV_LIBRARIES})
+  set_property (TARGET squash${SQUASH_VERSION_API}
+    APPEND PROPERTY INCLUDE_DIRECTORIES ${ICONV_INCLUDE_DIR})
 endif ()
 
 install (TARGETS squash${SQUASH_VERSION_API}

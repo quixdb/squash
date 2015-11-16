@@ -39,4 +39,7 @@
 #  define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
 #endif
 
+#cmakedefine CFLAG_Wsuggest_attribute_format
+#cmakedefine CFLAG_Wformat_nonliteral
+
 #endif /* SQUASH_CONFIG_H */

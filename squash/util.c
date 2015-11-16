@@ -27,6 +27,10 @@
 #include <squash/internal.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
+#include <limits.h>
+#include <errno.h>
+#include <ctype.h>
 
 #include "internal.h" /* IWYU pragma: keep */
 
@@ -62,6 +66,60 @@ squash_get_page_size (void) {
   }
 
   return page_size;
+}
+
+size_t squash_huge_page_size = 0;
+once_flag squash_huge_page_size_once = ONCE_FLAG_INIT;
+
+static void
+squash_huge_page_size_init (void) {
+  char line[1024];
+  FILE* meminfo = fopen ("/proc/meminfo", "r");
+
+  if (meminfo == NULL)
+    return;
+
+  do {
+    char* r = fgets (line, sizeof (line), meminfo);
+    if (r != line)
+      goto cleanup;
+
+    if (strncmp ("Hugepagesize:", line, 13) == 0) {
+      char* units = NULL;
+      long b = (size_t) strtoll (line + 13, &units, 0);
+      if ((b == LONG_MIN || b == LONG_MAX) && (errno == ERANGE))
+        goto cleanup;
+
+      while (isspace (*units))
+        units++;
+
+      size_t multiplier = 1;
+      switch (tolower (*units)) {
+        case 'k':
+          multiplier = 1024;
+          break;
+        case 'm':
+          multiplier = 1024 * 1024;
+          break;
+        case 'g':
+          multiplier = 1024 * 1024 * 1024;
+          break;
+      }
+
+      squash_huge_page_size = multiplier * ((size_t) b);
+      break;
+    }
+  } while (!feof (meminfo));
+
+ cleanup:
+
+  fclose (meminfo);
+}
+
+size_t
+squash_get_huge_page_size (void) {
+  call_once (&squash_huge_page_size_once, squash_huge_page_size_init);
+  return squash_huge_page_size;
 }
 
 #if defined(__GNUC__)

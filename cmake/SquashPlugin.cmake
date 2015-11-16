@@ -60,8 +60,6 @@ function (SQUASH_PLUGIN)
     source_file_add_extra_warning_flags (${source})
   endforeach ()
 
-  target_add_compiler_flags (${PLUGIN_TARGET} ${SQUASH_PLUGIN_COMPILER_FLAGS})
-
   if (NOT "${SQUASH_PLUGIN_C_STANDARD}" STREQUAL "")
     target_require_c_standard (${PLUGIN_TARGET} ${SQUASH_PLUGIN_C_STANDARD})
   endif ()
@@ -90,6 +88,8 @@ function (SQUASH_PLUGIN)
       set_property (TARGET ${PLUGIN_TARGET} APPEND PROPERTY INCLUDE_DIRECTORIES ${${SQUASH_PLUGIN_EXTERNAL_PKG_PREFIX}_INCLUDE_DIR})
     endif ()
   endif ()
+
+  target_add_compiler_flags (${PLUGIN_TARGET} ${SQUASH_PLUGIN_COMPILER_FLAGS})
 
   # Mostly so we can use the plugins uninstalled
   configure_file (squash.ini squash.ini)

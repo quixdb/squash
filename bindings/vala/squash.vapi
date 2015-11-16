@@ -76,22 +76,14 @@ namespace Squash {
   [Compact, CCode (free_function = "squash_file_close")]
   public class File {
     [CCode (cname = "squash_file_open")]
-    public File (string filename, string mode, string codec, ...);
-    [CCode (cname = "squash_file_open_codec")]
-    public File.codec (string filename, string mode, Squash.Codec codec, ...);
+    public File (string filename, string mode, Squash.Codec codec, ...);
     [CCode (cname = "squash_file_open_with_options")]
-    public File.with_options (string filename, string mode, string codec, Squash.Options? options = null);
-    [CCode (cname = "squash_file_open_codec_with_options")]
-    public File.codec_with_options (string filename, string mode, Squash.Codec codec, Squash.Options? options = null);
+    public File.with_options (string filename, string mode, Squash.Codec codec, Squash.Options? options = null);
 
     [CCode (cname = "squash_file_steal")]
-    public File.steal (owned GLib.FileStream file, string codec, ...);
-    [CCode (cname = "squash_file_steal_codec")]
-    public File.steal_codec (owned GLib.FileStream file, Squash.Codec codec, ...);
+    public File.steal (owned GLib.FileStream file, Squash.Codec codec, ...);
     [CCode (cname = "squash_file_steal_with_options")]
-    public File.steal_with_options (owned GLib.FileStream file, string codec, Squash.Options? options = null);
-    [CCode (cname = "squash_file_steal_codec_with_options")]
-    public File.steal_codec_with_options (owned GLib.FileStream file, Squash.Codec codec, Squash.Options? options = null);
+    public File.steal_with_options (owned GLib.FileStream file, Squash.Codec codec, Squash.Options? options = null);
 
     public Squash.Status read (ref size_t decompressed_size, [CCode (has_array_length = false)] uint8[] decompressed);
     public Squash.Status write ([CCode (array_length_type = "size_t", array_length_pos = 0.5)] uint8[] uncompressed);
@@ -110,11 +102,8 @@ namespace Squash {
 
   [Compact]
   public class Stream : Squash.Object {
-    public Stream (string codec, Squash.StreamType stream_type, ...);
-    public Stream.with_options (string codec, Squash.StreamType stream_type, Squash.Options? options = null);
-    [CCode (cname = "squash_stream_new_codec")]
-    public Stream.with_codec (Squash.Codec codec, Squash.StreamType stream_type, ...);
-    public Stream.codec_with_options (Squash.Codec codec, Squash.StreamType stream_type, Squash.Options? options = null);
+    public Stream (Squash.Codec codec, Squash.StreamType stream_type, ...);
+    public Stream.with_options (Squash.Codec codec, Squash.StreamType stream_type, Squash.Options? options = null);
 
     [CCode (array_length_cname = "avail_in", array_length_type = "size_t")]
     public unowned uint8[] next_in;
@@ -130,9 +119,9 @@ namespace Squash {
     public Squash.DestroyNotify destroy_user_data;
 
     [CCode (cname = "squash_stream_newv")]
-    public Stream.v (string codec, Squash.StreamType stream_type, va_list options);
+    public Stream.v (Squash.Codec codec, Squash.StreamType stream_type, va_list options);
     [CCode (cname = "squash_stream_newa")]
-    public Stream.array (string codec, Squash.StreamType stream_type, [CCode (array_length = false, array_null_terminated = true)] string[] keys, [CCode (array_length = false, array_null_terminated = true)] string[] values);
+    public Stream.array (Squash.Codec codec, Squash.StreamType stream_type, [CCode (array_length = false, array_null_terminated = true)] string[] keys, [CCode (array_length = false, array_null_terminated = true)] string[] values);
 
     public Squash.Status process ();
     public Squash.Status flush ();
@@ -270,19 +259,9 @@ namespace Squash {
   public static void foreach_codec (Squash.CodecForeachFunc func);
 
   public static Squash.CodecInfo get_info (string codec);
-  public static size_t get_uncompressed_size (string codec, [CCode (array_length_type = "size_t", array_length_pos = 1.5)] uint8[] uncompressed);
-  public static size_t get_max_compressed_size (string codec, size_t uncompressed_size);
-  public static Squash.Status compress (string codec, ref size_t compressed_size, [CCode (array_length = false)] uint8[] compressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] uncompressed, ...);
-  public static Squash.Status compress_with_options (string codec, ref size_t compressed_size, [CCode (array_length = false)] uint8[] compressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] uncompressed, Squash.Options? options = null);
-  public static Squash.Status decompress (string codec, ref size_t decompressed_size, [CCode (array_length = false)] uint8[] decompressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] compressed, ...);
-  public static Squash.Status decompress_with_options (string codec, ref size_t decompressed_size, [CCode (array_length = false)] uint8[] decompressed, [CCode (array_length_type = "size_t", array_length_pos = 3.5)] uint8[] compressed, Squash.Options? options = null);
 
   [CCode (cname = "squash_splice")]
-  public static Squash.Status splice (string codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, ...);
-  [CCode (cname = "squash_splice_codec")]
-  public static Squash.Status splice_codec (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, ...);
+  public static Squash.Status splice (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, ...);
   [CCode (cname = "squash_splice_with_options")]
-  public static Squash.Status splice_with_options (string codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, Squash.Options? options = null);
-  [CCode (cname = "squash_splice_codec_with_options")]
-  public static Squash.Status splice_codec_with_options (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, Squash.Options? options = null);
+  public static Squash.Status splice_with_options (Squash.Codec codec, Squash.StreamType stream_type, GLib.FileStream fp_out, GLib.FileStream fp_in, size_t size, Squash.Options? options = null);
 }

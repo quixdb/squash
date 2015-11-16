@@ -5,7 +5,7 @@ include (AddCompilerFlags)
 
 if (MSVC)
   set (EXTRA_WARNING_FLAGS
-    /W1)
+    /W3)
 else ()
   set (EXTRA_WARNING_FLAGS
     -Wall
@@ -53,7 +53,8 @@ else ()
     -Wundef
     -Wuninitialized
     -WUnsafe-loop-optimizations
-    -Wwrite-strings)
+    -Wwrite-strings
+    -Wsuggest-attribute=format)
 endif ()
 
 mark_as_advanced (EXTRA_WARNING_FLAGS)

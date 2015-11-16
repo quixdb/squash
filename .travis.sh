@@ -273,16 +273,10 @@ case "${1}" in
     "test")
         case "${TRAVIS_OS_NAME}" in
             "linux")
-                if [ "${CROSS_COMPILE}" = "no" ]; then
-                    ulimit -c unlimited
-                    CTEST_OUTPUT_ON_FAILURE=TRUE make test || \
-                        (for i in $(find ./ -maxdepth 1 -name 'core*' -print); do
-                             gdb $(pwd)/tests core* -ex "thread apply all bt" -ex "set pagination 0" -batch;
-                         done && exit -1);
-                fi
+                CTEST_OUTPUT_ON_FAILURE=TRUE make test || exit 1
                 ;;
             "osx")
-                CTEST_OUTPUT_ON_FAILURE=TRUE make test
+                CTEST_OUTPUT_ON_FAILURE=TRUE make test || exit 1
                 ;;
         esac
 
