@@ -274,15 +274,28 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
                                  size_t compressed_size,
                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
+  BrotliState s;
+  BrotliResult res;
+  size_t total_out = 0;
+  size_t available_in = compressed_size;
+  const uint8_t* next_in = compressed;
+  size_t available_out = *decompressed_size;
+  uint8_t* next_out = decompressed;
+  BrotliStateInit (&s);
   try {
-    BrotliResult res = BrotliDecompressBuffer (compressed_size, compressed,
-                                               decompressed_size, decompressed);
-    return squash_brotli_status_to_squash_status (res);
+    res = BrotliDecompressStream (&available_in, &next_in, &available_out,
+        &next_out, &total_out, &s);
   } catch (const std::bad_alloc& e) {
+    BrotliStateCleanup(&s);
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
+    BrotliStateCleanup(&s);
     return squash_error (SQUASH_FAILED);
   }
+
+  BrotliStateCleanup(&s);
+  *decompressed_size = total_out;
+  return squash_brotli_status_to_squash_status (res);
 }
 
 static SquashStatus
