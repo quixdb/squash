@@ -68,6 +68,13 @@ most of them, so I will not spend much time on the details here.
 Instead, the primary purpose of this section is to explain how each
 interface is implemented.
 
+The only callback that *all* plugins must implement is one to get the
+worst-case size of compressed data:
+
+~~~{.c}
+size_t (* get_max_compressed_size) (SquashCodec* codec, size_t uncompressed_size);
+~~~
+
 ### All-In-One
 
 Unsurprisingly, the preferred path for the all-in-one interface is to
@@ -100,6 +107,36 @@ Once compression to the temporary buffer is complete, if there is
 enough room Squash will copy the data over to the output buffer,
 otherwise it will return @ref SQUASH_BUFFER_FULL.
 
+In order to implement this interface, plugins must provide a
+decompression callback with the following:
+
+~~~{.c}
+SquashStatus (* decompress_buffer)      (SquashCodec* codec,
+                                         size_t* decompressed_size,
+                                         uint8_t decompressed[],
+                                         size_t compressed_size,
+                                         const uint8_t compressed[],
+                                         SquashOptions* options);
+~~~
+
+Additionally plugins must provide one or more of the following
+callbacks for compression:
+
+~~~{.c}
+SquashStatus (* compress_buffer)        (SquashCodec* codec,
+                                         size_t* compressed_size,
+                                         uint8_t compressed[],
+                                         size_t uncompressed_size,
+                                         const uint8_t uncompressed[],
+                                         SquashOptions* options);
+SquashStatus (* compress_buffer_unsafe) (SquashCodec* codec,
+                                         size_t* compressed_size,
+                                         uint8_t compressed[],
+                                         size_t uncompressed_size,
+                                         const uint8_t uncompressed[],
+                                         SquashOptions* options);
+~~~
+
 ### Streaming
 
 Optimially, the streaming API exposed by Squash is just a thin wrapper
@@ -129,6 +166,13 @@ If a plugin only implements the all-in-one interface Squash will
 buffer all input until @ref squash_stream_finish is called, then
 process the entire contents at once.
 
+The required callbacks for this interface are:
+
+~~~{.c}
+SquashStream* (* create_stream) (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
+SquashStatus (* process_stream) (SquashStream* stream, SquashOperation operation);
+~~~
+
 ### Splicing
 
 While the splicing API is implemented using the splicing interface
@@ -138,6 +182,18 @@ without significant performance degredation.
 If the streaming interface is also unavailable, the splicing API will
 fall back on buffering and using the all-in-one interface just like
 the streaming interface does.
+
+In order to implement the splicing interface, a plugin must implement
+the following callback:
+
+~~~{.c}
+SquashStatus (* splice) (SquashCodec* codec,
+                         SquashOptions* options,
+                         SquashStreamType stream_type,
+                         SquashReadFunc read_cb,
+                         SquashWriteFunc write_cb,
+                         void* user_data);
+~~~
 
 ### File I/O
 
@@ -170,3 +226,6 @@ If the memory mapping fails, Squash will fall back on reading the
 entire input into RAM, allocate a buffer large enough to hold the
 entire output, use the all-in-one interface to compress/decompress,
 then write the output.
+
+The File I/O API is implemented in Squash based on one of the other
+APIs; plugins needn't implement anything.
