@@ -1,4 +1,4 @@
-.TH squash 1 "14 September 2015" "squash" "Squash"
+.TH squash 1 "16 November 2015" "squash" "Squash"
 .IX squash
 .SH NAME
 squash \- compress and decompress files
@@ -63,6 +63,28 @@ Overwrite the output file if it exists.
 .TP
 .B \-d
 Decompress (the default is to compress).
+
+.SH ENVIRONMENT VARIABLES
+There are several environment variables which can be used to alter the
+behavior of Squash:
+.TP
+.B SQUASH_PLUGINS=/path/to/plugins
+If set, Squash will look for plugins in the specified location instead
+of searching the default path.
+.TP
+.B SQUASH_FUZZ_MODE=yes
+If set, this will cause the CLI to always return as if it succeeded,
+even if it encountered an error.  This is useful for fuzz testing,
+where a failure to decompress garbage data is expected but a
+segmentation fault or other catastrophic error is not.
+.TP
+.B SQUASH_MAP_SPLICE=yes|no|always
+This effects Squash's behavior when splicing from one file to another.
+If set to "yes" (the default) Squash will use prefer memory-mapped
+files over buffering contents in memory.  If set to "no", Squash will
+always read the entire input into memory, then perform the compression
+or decompression.  If set to always, Squash will always attempt to use
+memory mapped files, even if the requested codec supports streaming.
 
 .SH HOMEPAGE
 .TP
