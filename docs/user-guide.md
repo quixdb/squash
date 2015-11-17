@@ -25,8 +25,19 @@ assumed to be compatible.  A single [plugin](@ref SquashPlugin) can,
 and often does, provide an implementation of several different codecs.
 
 Typically you will not deal with [contexts](@ref SquashContext) or
-plugins directly, and you may only deal with strings to represent
-codecs.
+plugins directly.  In order to get a codec instance, you can simply
+call @ref squash_get_codec:
+
+~~~{.c}
+SquashCodec*
+squash_get_codec (const char* name);
+~~~
+
+The @a name parameter is simply an ASCII string containing the name of
+the codec.  You can see a list of available codecs by running `squash
+-L`.  The convention is that codecs are just the lowercase name of the
+algorithm.  For example, "gzip", "lz4", and "bzip2" are all what you
+would probably expect.
 
 @section buffers Buffer API
 
@@ -35,7 +46,7 @@ decompress), the easiest way to do so is using the buffer API.
 
 ~~~{.c}
 SquashStatus
-squash_compress (const char* codec,
+squash_compress (SquashCodec* codec,
                  size_t* compressed_length,
                  uint8_t compressed[],
                  size_t uncompressed_length,
@@ -47,11 +58,6 @@ Like many functions in Squash, ::squash_compress returns a
 [SquashStatus](@ref SquashStatus).  If the operation was successful, a
 positive number is returned (generally ::SQUASH_OK), and a negative
 number is returned on failure.
-
-The first argument is the name of the codec.  To list available
-codecs, you can use the `squash -L` command; the convention is that
-codecs are just the lowercase name of the algorithm.  For example,
-"gzip", "lz4", and "bzip2" are all what you would probably expect.
 
 The @a compressed and @a compressed_length arguments represent the
 buffer which you wish to compress the data into.  Notice that @a
@@ -68,7 +74,7 @@ because the function does not need to modify the value.
 Finally, this function is variadic—it accepts an arbitrary number of
 options, which you can use to control things like the compression
 level.  Options are key/value pairs of strings, terminated by a *NULL*
-sentinel… More on that later, but for now, just know that passing
+sentinel…  More on that later, but for now just know that passing
 *NULL* there will use the defaults, which is generally what you want.
 
 Knowing how big the @a compressed buffer needs to be generally
@@ -90,11 +96,12 @@ you end up with something like this:
 ~~~{.c}
 const char* uncompressed = "Hello, world!";
 size_t uncompressed_length = strlen (uncompressed);
-size_t compressed_length = squash_get_max_compressed_size ("deflate", uncompressed_length);
+size_t compressed_length = squash_get_max_compressed_size (codec, uncompressed_length);
 uint8_t* compressed = (uint8_t*) malloc (compressed_length);
+SquashCodec* codec = squash_get_codec ("deflate");
 
 SquashStatus res =
-  squash_compress ("deflate",
+  squash_compress (codec,
                    &compressed_length, compressed,
                    uncompressed_length, (const uint8_t*) uncompressed,
                    NULL);
@@ -115,7 +122,7 @@ Decompression is basically the same:
 size_t decompressed_length = uncompressed_length + 1;
 char* decompressed = (char*) malloc (uncompressed_length + 1);
 
-res = squash_decompress ("deflate",
+res = squash_decompress (codec,
                          &decompressed_length, (uint8_t*) decompressed
                          compressed_length, compressed, NULL);
 
@@ -142,7 +149,7 @@ compress (it "compresses" from 13 bytes to 15 bytes here), but using a
 longer string will yield better results.  You can find a complete,
 self-contained example in [simple.c](@ref simple.c).
 
-@section streams File I/O API
+@section file File I/O API
 
 While the buffer API is very easy to use it can be a bit limiting.  If
 you want to compress a lot of data without loading it into memory then
@@ -230,11 +237,20 @@ squash_splice (const char* codec,
                ...);
 ~~~
 
-Beyond just being convenient, this function has the advantage that for
-codecs which don't implement streaming natively Squash will attempt to
+Beyond just being convenient, this function has the advantage that, for
+codecs which don't implement streaming natively, Squash will attempt to
 memory map the files and pass those addresses directly to the
 buffer-to-buffer compression function.  This eliminates a lot of
 buffering which, for larger files, can consume significant amounts of
 memory.
 
+@section streams Streaming API
+
+The streaming API is the most powerful API, but it's also the most
+difficult to use.  For now, only the reference manual is available; if
+you need help understanding it, you can look at the documentation for
+zlib; Squash's streaming API is very similar to zlib's.  Additionally,
+an example is available in [stream.c](@ref stream.c)
+
 @example simple.c
+@example stream.c
