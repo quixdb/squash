@@ -28,6 +28,17 @@
 #define EXIT_FAILURE (-1)
 #endif
 
+static int
+exit_failure (void) {
+  char* ev = getenv ("SQUASH_FUZZ_MODE");
+  if (ev == NULL)
+    return EXIT_FAILURE;
+  else if (strcmp (ev, "yes") == 0)
+    return EXIT_SUCCESS;
+  else
+    return EXIT_FAILURE;
+}
+
 #include <squash/squash.h>
 
 #if defined(__GNUC__)
@@ -80,7 +91,7 @@ parse_option (char*** keys, char*** values, const char* option) {
   value = strchr (key, '=');
   if (value == NULL) {
     fprintf (stderr, "Invalid option (\"%s\").", option);
-    exit (EXIT_FAILURE);
+    exit (exit_failure ());
   }
   *value = '\0';
   value++;
@@ -193,7 +204,7 @@ int main (int argc, char** argv) {
         codec = squash_get_codec (ps.optarg);
         if ( codec == NULL ) {
           fprintf (stderr, "Unable to find codec '%s'\n", ps.optarg);
-          retval = EXIT_FAILURE;
+          retval = exit_failure ();
           goto cleanup;
         }
         break;
@@ -267,7 +278,7 @@ int main (int argc, char** argv) {
     }
   } else {
     fprintf (stderr, "You must provide an input file name.\n");
-    retval = EXIT_FAILURE;
+    retval = exit_failure ();
     goto cleanup;
   }
 
@@ -308,13 +319,13 @@ int main (int argc, char** argv) {
 
   if ( codec == NULL ) {
     fprintf (stderr, "Unable to determine codec.  Please pass -c \"codec\", or -L to see a list of available codecs.\n");
-    retval = EXIT_FAILURE;
+    retval = exit_failure ();
     goto cleanup;
   }
 
   if ( output_name == NULL ) {
     fprintf (stderr, "Unable to determine output file.\n");
-    retval = EXIT_FAILURE;
+    retval = exit_failure ();
     goto cleanup;
   }
 
@@ -324,7 +335,7 @@ int main (int argc, char** argv) {
     input = fopen (input_name, "rb");
     if ( input == NULL ) {
       perror ("Unable to open input file");
-      retval = EXIT_FAILURE;
+      retval = exit_failure ();
       goto cleanup;
     }
   }
@@ -343,13 +354,13 @@ int main (int argc, char** argv) {
     );
     if ( output_fd < 0 ) {
       perror ("Unable to open output file");
-      retval = EXIT_FAILURE;
+      retval = exit_failure ();
       goto cleanup;
     }
     output = fdopen (output_fd, "wb");
     if ( output == NULL ) {
       perror ("Unable to open output");
-      retval = EXIT_FAILURE;
+      retval = exit_failure ();
       goto cleanup;
     }
   }
@@ -362,7 +373,7 @@ int main (int argc, char** argv) {
     fprintf (stderr, "Failed to %s: %s\n",
              (direction == SQUASH_STREAM_COMPRESS) ? "compress" : "decompress",
              squash_status_to_string (res));
-    retval = EXIT_FAILURE;
+    retval = exit_failure ();
     goto cleanup;
   }
 
