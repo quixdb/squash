@@ -339,8 +339,8 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
     case SQUASH_OPTION_TYPE_INT: {
         int res = atoi (value);
         if (info->type == SQUASH_OPTION_TYPE_RANGE_INT) {
-          if (SQUASH_UNLIKELY(!((res == 0 && info->info.range_int.allow_zero) ||
-                                (res >= info->info.range_int.min && res <= info->info.range_int.max))))
+          if (!(res >= info->info.range_int.min && res <= info->info.range_int.max) &&
+              (res != 0 || !info->info.range_int.allow_zero))
             return squash_error (SQUASH_BAD_VALUE);
         }
         val->int_value = res;
@@ -352,6 +352,12 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
     case SQUASH_OPTION_TYPE_SIZE: {
         char* endptr = NULL;
         unsigned long long int res = strtoull (value, &endptr, 10);
+
+        if (info->type == SQUASH_OPTION_TYPE_RANGE_SIZE) {
+          if (!(res >= info->info.range_size.min && res <= info->info.range_size.max) &&
+              (res != 0 || !info->info.range_size.allow_zero))
+            return squash_error (SQUASH_BAD_VALUE);
+        }
 
         /* Parse X(KMG)[i[B]] into a size in bytes. */
         if (*endptr != '\0') {
