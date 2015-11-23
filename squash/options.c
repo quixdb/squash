@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #if !defined(_MSC_VER)
 #include <strings.h>
@@ -310,8 +311,10 @@ squash_options_get_size (SquashOptions* options, const char* key) {
  * @param value The option value to parse.
  * @return A status code.
  * @retval SQUASH_OK Option parsed successfully.
- * @retval SQUASH_BAD_PARAM Invalid @a key.
+ * @retval SQUASH_BAD_PARAM Invalid @a key
  * @retval SQUASH_BAD_VALUE Invalid @a value
+ * @retval SQUASH_RANGE Value was well-formed, but outside of the
+ *   allowable range
  */
 SquashStatus
 squash_options_parse_option (SquashOptions* options, const char* key, const char* value) {
@@ -337,7 +340,22 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
   switch (info->type) {
     case SQUASH_OPTION_TYPE_RANGE_INT:
     case SQUASH_OPTION_TYPE_INT: {
-        int res = atoi (value);
+        char* endptr;
+        long int res = strtol (value, &endptr, 0);
+
+        if (SQUASH_UNLIKELY(*endptr != '\0'))
+          return squash_error (SQUASH_BAD_VALUE);
+
+#if INT_MAX < LONG_MAX
+        if (SQUASH_UNLIKELY(res > INT_MAX))
+          return squash_error (SQUASH_RANGE);
+#endif
+
+#if INT_MIN > LONG_MIN
+        if (SQUASH_UNLIKELY(res < INT_MIN))
+          return squash_error (SQUASH_RANGE);
+#endif
+
         if (info->type == SQUASH_OPTION_TYPE_RANGE_INT) {
           if (!(res >= info->info.range_int.min && res <= info->info.range_int.max) &&
               (res != 0 || !info->info.range_int.allow_zero))
@@ -351,7 +369,14 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
     case SQUASH_OPTION_TYPE_RANGE_SIZE:
     case SQUASH_OPTION_TYPE_SIZE: {
         char* endptr = NULL;
-        unsigned long long int res = strtoull (value, &endptr, 10);
+        unsigned long long int i = strtoull (value, &endptr, 10);
+
+#if SIZE_MAX < ULLONG_MAX
+        if (SQUASH_UNLIKELY(i > SIZE_MAX))
+          return squash_error (SQUASH_RANGE);
+#endif
+
+        size_t res = (size_t) i;
 
         if (info->type == SQUASH_OPTION_TYPE_RANGE_SIZE) {
           if (!(res >= info->info.range_size.min && res <= info->info.range_size.max) &&
@@ -361,22 +386,31 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
 
         /* Parse X(KMG)[i[B]] into a size in bytes. */
         if (*endptr != '\0') {
-          switch (*endptr++) {
-            case 'g':
-            case 'G':
-              res *= 1024;
-              /* Fall through */
-            case 'm':
-            case 'M':
-              res *= 1024;
-              /* Fall through */
-            case 'k':
-            case 'K':
-              res *= 1024;
-              break;
-            default:
-              return squash_error (SQUASH_BAD_VALUE);
+          if (res != 0) {
+            switch (*endptr) {
+              case 'g':
+              case 'G':
+                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                  return squash_error (SQUASH_RANGE);
+                res *= 1024;
+                /* Fall through */
+              case 'm':
+              case 'M':
+                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                  return squash_error (SQUASH_RANGE);
+                res *= 1024;
+                /* Fall through */
+              case 'k':
+              case 'K':
+                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                  return squash_error (SQUASH_RANGE);
+                res *= 1024;
+                break;
+              default:
+                return squash_error (SQUASH_BAD_VALUE);
+            }
           }
+          endptr++;
 
           if (*endptr != '\0') {
             if (*endptr == 'i' || *endptr == 'I')
