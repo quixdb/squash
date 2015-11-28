@@ -64,9 +64,9 @@ squash_pithy_get_uncompressed_size (SquashCodec* codec,
                                     const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   size_t uncompressed_size = 0;
 
-  pithy_GetDecompressedLength ((const char*) compressed, compressed_size, &uncompressed_size);
+  int r = pithy_GetDecompressedLength ((const char*) compressed, compressed_size, &uncompressed_size);
 
-  return uncompressed_size;
+  return SQUASH_LIKELY(r > 0) ? uncompressed_size : 0;
 }
 
 static SquashStatus
@@ -89,6 +89,9 @@ squash_pithy_decompress_buffer (SquashCodec* codec,
                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   size_t outlen = squash_pithy_get_uncompressed_size(codec, compressed_size, compressed);
+  if (SQUASH_UNLIKELY(outlen == 0))
+    return squash_error (SQUASH_FAILED);
+
   if (SQUASH_UNLIKELY(*decompressed_size < outlen))
     return squash_error (SQUASH_BUFFER_FULL);
 
