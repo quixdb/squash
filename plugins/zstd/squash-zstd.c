@@ -32,7 +32,7 @@
 #include <squash/squash.h>
 
 #include "zstd/lib/zstd.h"
-#include "zstd/lib/zstdhc.h"
+#include "zstd/lib/zstd_static.h"
 #include "zstd/lib/error.h"
 
 SQUASH_PLUGIN_EXPORT
@@ -46,9 +46,9 @@ static SquashOptionInfo squash_zstd_options[] = {
   { "level",
     SQUASH_OPTION_TYPE_RANGE_INT,
     .info.range_int = {
-      .min = 7,
-      .max = 15 },
-    .default_value.int_value = 7 },
+      .min = 1,
+      .max = ZSTD_MAX_CLEVEL },
+    .default_value.int_value = 9 },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
@@ -70,6 +70,8 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_dstSize_tooSmall:
       return squash_error (SQUASH_BUFFER_FULL);
     case ZSTD_error_prefix_unknown:
+    case ZSTD_error_frameParameter_unsupported:
+    case ZSTD_error_frameParameter_unsupportedBy32bitsImplementation:
       return squash_error (SQUASH_INVALID_BUFFER);
     case ZSTD_error_tableLog_tooLarge:
     case ZSTD_error_maxCode:
@@ -78,6 +80,7 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_corruption_detected:
     case ZSTD_error_maxSymbolValue_tooSmall:
     case ZSTD_error_maxSymbolValue_tooLarge:
+    case ZSTD_error_init_missing:
     default:
       return squash_error (SQUASH_FAILED);
   }
@@ -104,19 +107,9 @@ squash_zstd_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  int level = squash_codec_get_option_int_index (codec, options, SQUASH_ZSTD_OPT_LEVEL);
+  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_ZSTD_OPT_LEVEL);
 
-  if (level == 7) {
-    *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size);
-  } else if (level > 7) {
-    level = (level - 7) * 3;
-    if (level == 24)
-      level = 23;
-
-    *compressed_size = ZSTD_HC_compress (compressed, *compressed_size, uncompressed, uncompressed_size, level);
-  } else {
-    squash_assert_unreachable ();
-  }
+  *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size, level);
 
   return squash_zstd_status_from_zstd_error (*compressed_size);
 }

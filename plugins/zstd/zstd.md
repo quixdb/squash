@@ -13,10 +13,8 @@ https://github.com/Cyan4973/zstd
 
 ### Compression-only ###
 
-- **level** — (integer, 7-15, default 7): compression level.  7
-  corresponds to the default zstd algorithm (`ZSTD_compress`).  Levels
-  above 7 correspond to the HC implementation (`ZSTD_HC_compress`),
-  with a level of `(level - 7) * 3`
+- **level** — (integer, 1-20, default 7): compression level.  Higher
+  levels compress slower, but yield a better compression ratio.
 
 ## License ##
 
