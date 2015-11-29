@@ -98,7 +98,7 @@ squash_bsc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size
 }
 
 static size_t
-squash_lzg_get_uncompressed_size (SquashCodec* codec,
+squash_bsc_get_uncompressed_size (SquashCodec* codec,
                                   size_t compressed_size,
                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
   int p_block_size, p_data_size;
@@ -132,17 +132,17 @@ squash_bsc_options_get_features (SquashCodec* codec,
 }
 
 static SquashStatus
-squash_bsc_compress_buffer (SquashCodec* codec,
-                            size_t* compressed_size,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
-                            size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
-                            SquashOptions* options) {
-  int lzp_hash_size = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_HASH_SIZE);
-  int lzp_min_len = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_MIN_LEN);
-  int block_sorter = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_BLOCK_SORTER);
-  int coder = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_CODER);
-  int features = squash_bsc_options_get_features (codec, options);
+squash_bsc_compress_buffer_unsafe (SquashCodec* codec,
+                                   size_t* compressed_size,
+                                   uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                   size_t uncompressed_size,
+                                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                                   SquashOptions* options) {
+  const int lzp_hash_size = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_HASH_SIZE);
+  const int lzp_min_len = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_MIN_LEN);
+  const int block_sorter = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_BLOCK_SORTER);
+  const int coder = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_CODER);
+  const int features = squash_bsc_options_get_features (codec, options);
 
 #if INT_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size))
@@ -216,10 +216,10 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
 
   if (SQUASH_LIKELY(strcmp ("bsc", name) == 0)) {
     impl->options = squash_bsc_options;
-    impl->get_uncompressed_size = squash_lzg_get_uncompressed_size;
+    impl->get_uncompressed_size = squash_bsc_get_uncompressed_size;
     impl->get_max_compressed_size = squash_bsc_get_max_compressed_size;
     impl->decompress_buffer = squash_bsc_decompress_buffer;
-    impl->compress_buffer = squash_bsc_compress_buffer;
+    impl->compress_buffer_unsafe = squash_bsc_compress_buffer_unsafe;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
   }
