@@ -17,9 +17,7 @@ set (lzham_SOURCES
   lzham/lzhamdecomp/lzham_symbol_codec.cpp
   lzham/lzhamdecomp/lzham_timer.cpp
   lzham/lzhamdecomp/lzham_vector.cpp
-  lzham/lzhamlib/lzham_lib.cpp
-  lzham/lzhamtest/lzhamtest.cpp
-  lzham/lzhamtest/timer.cpp)
+  lzham/lzhamlib/lzham_lib.cpp)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   list (APPEND lzham_SOURCES lzham/lzhamcomp/lzham_pthreads_threading.cpp)

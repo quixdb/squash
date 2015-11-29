@@ -306,7 +306,11 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
 
 static size_t
 squash_lzham_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return uncompressed_size + 10;
+  /* Based on tests, it seems like the overhead is 5 bytes, plus an
+     additional 5 bytes per 1/2 MiB or fraction thereof. */
+  const size_t block_size = 1024 * 512;
+  const size_t blocks = (uncompressed_size / block_size) + (((uncompressed_size % block_size) != 0) ? 1 : 0);
+  return uncompressed_size + 5 + (5 * blocks);
 }
 
 static SquashStatus
@@ -326,8 +330,15 @@ squash_lzham_compress_buffer (SquashCodec* codec,
                                   uncompressed, uncompressed_size,
                                   NULL);
 
-  if (status != LZHAM_COMP_STATUS_SUCCESS) {
-    return SQUASH_FAILED;
+  if (SQUASH_UNLIKELY(status != LZHAM_COMP_STATUS_SUCCESS)) {
+    switch ((int) status) {
+      case LZHAM_COMP_STATUS_INVALID_PARAMETER:
+        return squash_error (SQUASH_BAD_VALUE);
+      case LZHAM_COMP_STATUS_OUTPUT_BUF_TOO_SMALL:
+        return squash_error (SQUASH_BUFFER_FULL);
+      default:
+        return squash_error (SQUASH_FAILED);
+    }
   }
 
   return SQUASH_OK;
