@@ -20,7 +20,7 @@ install:
 before_build:
   - mkdir build
   - cd build
-  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_GIPFELI=no -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_ZLING=no ..
+  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_PITHY=no -DENABLE_ZLING=no ..
 
 build_script: cmake --build . --target install --config %CONFIGURATION%
 
