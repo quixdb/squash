@@ -23,7 +23,7 @@ check_codec (SquashCodec* codec) {
   }
   g_assert (pos == uncompressed_length && pos == LOREM_IPSUM_LENGTH);
 
-  if (strcmp ("lz4", squash_codec_get_name (codec)) != 0) {
+  if (strcmp ("lz4-raw", squash_codec_get_name (codec)) != 0) {
     uncompressed_length = LOREM_IPSUM_LENGTH - 1;
     res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
     g_assert_cmpint (res, ==, SQUASH_BUFFER_FULL);

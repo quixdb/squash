@@ -7,11 +7,24 @@ https://cyan4973.github.io/lz4/
 
 ## Codecs ##
 
-- **lz4** — Raw LZ4 data.
+- **lz4** — Framed LZ4 data (compatible with lz4 CLI tool)
+- **lz4-raw** — Raw LZ4 data.
 
 ## Options ##
 
 ### lz4 ###
+
+- **level** (integer, 0 - 16, default 0) — higher = better
+  compression ratio but slower compression speed
+- **block-size** (enum, default 4) — input block size
+  - 4 — 64 KiB
+  - 5 — 256 KiB
+  - 6 — 1 MiB
+  - 7 — 4 MiB
+- **checksum** (boolean, default false) — whether or not to include a
+  checksum (xxHash) for verification
+
+### lz4-raw ###
 
 - **level** (integer, 1-14, default 7) — higher level corresponds to
   better compression ratio but slower compression speed.
@@ -29,18 +42,6 @@ https://cyan4973.github.io/lz4/
   - **12** — LZ4HC level 12
   - **13** — LZ4HC level 14
   - **14** — LZ4HC level 16
-
-### lz4f ###
-
-- **level** (integer, 0 - 16, default 0) — higher = better
-  compression ratio but slower compression speed
-- **block-size** (enum, default 4) — input block size
-  - 4 — 64 KiB
-  - 5 — 256 KiB
-  - 6 — 1 MiB
-  - 7 — 4 MiB
-- **checksum** (boolean, default false) — whether or not to include a
-  checksum (xxHash) for verification
 
 ## License ##
 
