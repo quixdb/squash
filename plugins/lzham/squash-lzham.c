@@ -32,15 +32,6 @@
 
 #include "lzham/include/lzham.h"
 
-typedef struct SquashLZHAMOptions_s {
-  SquashOptions base_object;
-
-  lzham_compress_level level;
-  lzham_compress_flags comp_flags;
-  lzham_decompress_flags decomp_flags;
-
-} SquashLZHAMOptions;
-
 typedef struct SquashLZHAMStream_s {
   SquashStream base_object;
 
