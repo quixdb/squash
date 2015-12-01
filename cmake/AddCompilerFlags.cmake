@@ -100,7 +100,7 @@ function (global_add_compiler_flags)
     unset (c_test_name)
 
     string (REGEX REPLACE "[^a-zA-Z0-9]+" "_" cxx_test_name "CFLAG_${flag_to_test}")
-    CHECK_C_COMPILER_FLAG ("${ADD_COMPILER_FLAGS_PREPEND} ${flag_to_test}" ${cxx_test_name})
+    CHECK_CXX_COMPILER_FLAG ("${ADD_COMPILER_FLAGS_PREPEND} ${flag_to_test}" ${cxx_test_name})
     if (${cxx_test_name})
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
     endif ()
