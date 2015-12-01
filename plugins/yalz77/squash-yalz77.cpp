@@ -53,7 +53,7 @@ SquashStatus squash_plugin_init_plugin (SquashPlugin* plugin);
 
 static size_t
 squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return uncompressed_size + 4;
+  return uncompressed_size + 8 + (uncompressed_size / (1024 * 512));
 }
 
 static SquashStatus
