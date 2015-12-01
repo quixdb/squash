@@ -265,7 +265,7 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
 
 static size_t
 squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return uncompressed_size + 5;
+  return uncompressed_size + 5 + ((uncompressed_size / (1024 * 1024 * 8)) * 4);
 }
 
 static SquashStatus
