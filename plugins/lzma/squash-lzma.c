@@ -375,7 +375,20 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
 
 static size_t
 squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return lzma_stream_buffer_bound (uncompressed_size);
+  SquashLZMAType lzma_type = squash_lzma_codec_to_type (codec);
+
+  switch (lzma_type) {
+    case SQUASH_LZMA_TYPE_XZ:
+    case SQUASH_LZMA_TYPE_LZMA2:
+      return lzma_stream_buffer_bound (uncompressed_size) + (uncompressed_size / (256 * 1024));
+      break;
+    case SQUASH_LZMA_TYPE_LZMA:
+    case SQUASH_LZMA_TYPE_LZMA1:
+      return (uncompressed_size / 56) + uncompressed_size + 48;
+      break;
+  }
+
+  squash_assert_unreachable ();
 }
 
 SquashStatus
