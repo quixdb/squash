@@ -52,6 +52,7 @@ Squash currently contains plugins for the following libraries:
 - [LZJB](@ref md_plugins_lzjb_lzjb)
 - [liblzma](@ref md_plugins_lzma_lzma)
 - [LZO](@ref md_plugins_lzo_lzo)
+- [miniz](@ref md_plugins_miniz_miniz)
 - [ms-compress](@ref md_plugins_ms-compress_ms-compress)
 - [ncompress](@ref md_plugins_ncompress_ncompress)
 - [Pithy](@ref md_plugins_pithy_pithy)

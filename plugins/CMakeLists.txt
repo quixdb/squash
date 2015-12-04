@@ -19,6 +19,7 @@ set (plugins_available
   lzjb
   lzma
   lzo
+  miniz
   ms-compress
   ncompress
   pithy

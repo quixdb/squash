@@ -92,3 +92,6 @@
 [submodule "squash/win-iconv"]
 	path = squash/win-iconv
 	url = https://github.com/win-iconv/win-iconv
+[submodule "plugins/miniz/miniz"]
+	path = plugins/miniz/miniz
+	url = https://github.com/richgel999/miniz.git
