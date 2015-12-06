@@ -29,8 +29,8 @@ check_codec (SquashCodec* codec) {
 
     res = squash_codec_compress (codec, &compressed_length, compressed_data, uncompressed_length, (uint8_t*) uncompressed_data, NULL);
     SQUASH_ASSERT_OK(res);
-    g_assert (compressed_length > 0);
-    g_assert (compressed_length <= squash_codec_get_max_compressed_size (codec, uncompressed_length));
+    g_assert_cmpint (compressed_length, >, 0);
+    g_assert_cmpint (compressed_length, <=, squash_codec_get_max_compressed_size (codec, uncompressed_length));
 
     // Helpful when adding new codecs which don't document this…
     // g_message ("%" G_GSIZE_FORMAT " -> %" G_GSIZE_FORMAT " (%" G_GSIZE_FORMAT ")", uncompressed_length, compressed_length, compressed_length - uncompressed_length);
