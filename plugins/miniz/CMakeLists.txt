@@ -7,4 +7,6 @@ squash_plugin (
   INCLUDE_DIRS
     miniz
   COMPILER_FLAGS
-    -Wno-unused-function)
+    -Wno-unused-function
+    -Wno-cast-align
+    -Wno-undef)
