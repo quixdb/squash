@@ -1,3 +1,48 @@
+####
+## Version information
+####
+
+# Library version
+#
+# This should be incremented with every release.  See semver.org.
+set (SQUASH_VERSION_MAJOR    0)
+set (SQUASH_VERSION_MINOR    8)
+set (SQUASH_VERSION_REVISION 0)
+
+# API version.
+#
+# This will go in the pkg-config and shared library names.  Should
+# only be changed if the API breaks backwards compatibility.
+set (SQUASH_VERSION_API      "0.8")
+
+# ABI version
+#
+# Rules from § 11.4: Library Versioning of the autobook
+# https://www.sourceware.org/autobook/autobook/autobook_61.html
+#
+# 1) If you have changed any of the sources for this library, the
+#    revision number must be incremented. This is a new revision of
+#    the current interface.
+# 2) If the interface has changed, then current must be incremented,
+#    and revision reset to ‘0’. This is the first revision of a new
+#    interface.
+# 3) If the new interface is a superset of the previous interface
+#    (that is, if the previous interface has not been broken by the
+#    changes in this new release), then age must be incremented. This
+#    release is backwards compatible with the previous release.
+# 4) If the new interface has removed elements with respect to the
+#    previous interface, then you have broken backward compatibility
+#    and age must be reset to ‘0’. This release has a new, but
+#    backwards incompatible interface.
+#
+# Conveniently, this also matches semantic versioning for the most
+# part (API changes are a bit more complicated since we change the
+# library and pkg-config names and can reset these to whatever we
+# want, but we don't *have* to.
+set (SQUASH_SOVERSION_CURRENT  ${SQUASH_VERSION_MAJOR})
+set (SQUASH_SOVERSION_REVISION ${SQUASH_VERSION_MINOR})
+set (SQUASH_SOVERSION_AGE      ${SQUASH_VERSION_REVISION})
+
 cmake_minimum_required (VERSION 2.8.7)
 
 if (CMAKE_VERSION VERSION_GREATER 3.1.2)

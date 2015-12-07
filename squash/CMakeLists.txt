@@ -64,6 +64,10 @@ target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
 squash_set_target_visibility (squash${SQUASH_VERSION_API} hidden)
 target_require_c_standard (squash${SQUASH_VERSION_API} "c99")
 
+set_target_properties ("squash${SQUASH_VERSION_API}" PROPERTIES
+  SOVERSION "${SQUASH_SOVERSION_CURRENT}.${SQUASH_SOVERSION_REVISION}.${SQUASH_SOVERSION_AGE}"
+  VERSION   "${SQUASH_SOVERSION_CURRENT}.${SQUASH_SOVERSION_REVISION}")
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set_property (TARGET "squash${SQUASH_VERSION_API}"
     APPEND PROPERTY INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/win-iconv")
