@@ -581,7 +581,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
         size_t write_remaining = SQUASH_SPLICE_BUF_SIZE - stream->avail_out;
         if (limit_output && stream->total_out > size) {
           const size_t overrun = stream->total_out - size;
-          assert (overrun < SQUASH_SPLICE_BUF_SIZE);
+          assert (overrun <= SQUASH_SPLICE_BUF_SIZE);
           write_remaining -= overrun;
           res = SQUASH_OK;
           eof = true;
