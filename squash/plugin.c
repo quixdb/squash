@@ -53,7 +53,7 @@
 
 /**
  * @typedef SquashPluginForeachFunc
- * @brief Squashlback to be invoked on each @ref SquashPlugin in a set.
+ * @brief Callback to be invoked on each @ref SquashPlugin in a set.
  *
  * @param plugin A plugin
  * @param data User-supplied data

@@ -647,7 +647,7 @@ squash_options_newa (SquashCodec* codec, const char* const* keys, const char* co
  *
  * @param options The instance to initialize.
  * @param codec The codec to use.
- * @param destroy_notify The function to be squashled when the reference
+ * @param destroy_notify The function to be called when the reference
  *   count reaches 0
  */
 void

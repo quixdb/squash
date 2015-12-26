@@ -248,7 +248,7 @@ squash_codec_extension_compare (SquashCodec* a, SquashCodec* b) {
 
 /**
  * @typedef SquashCodecForeachFunc
- * @brief Squashlback to be invoked on each @ref SquashCodec in a set
+ * @brief Callback to be invoked on each @ref SquashCodec in a set
  *
  * @param codec A codec
  * @param data User-supplied data
@@ -441,7 +441,7 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
  *
  * @warning The result of this function is not guaranteed to be
  * correct for use with the @ref SquashStream API—it should only be
- * used with the single-squashl buffer-to-buffer functions such as
+ * used with the single-call buffer-to-buffer functions such as
  * ::squash_codec_compress and ::squash_codec_compress_with_options.
  *
  * @param codec The codec

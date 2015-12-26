@@ -598,7 +598,7 @@ squash_context_foreach_codec_ref_cb (SquashCodecRef* codec_ref, void* data) {
  * callback will only be invoked for the highest-priority codec.  If
  * you would like to invoke a callback even when a higher priority
  * codec exists, you can use ::squash_context_foreach_plugin to iterate
- * through all the plugins and squashl ::squash_plugin_foreach_codec on each
+ * through all the plugins and call ::squash_plugin_foreach_codec on each
  * @ref SquashPlugin.
  *
  * @param context The context to use
@@ -632,7 +632,7 @@ squash_foreach_plugin (SquashPluginForeachFunc func, void* data) {
  * callback will only be invoked for the highest-priority codec.  If
  * you would like to invoke a callback even when a higher priority
  * codec exists, you can use ::squash_foreach_plugin to iterate through
- * all the plugins and squashl ::squash_plugin_foreach_codec on each @ref
+ * all the plugins and call ::squash_plugin_foreach_codec on each @ref
  * SquashPlugin.
  *
  * @param func The callback to execute
@@ -672,7 +672,7 @@ squash_context_create_default (void) {
 /**
  * @brief Retrieve the default @ref SquashContext.
  *
- * If this is the first time squashling this function, a new @ref
+ * If this is the first time calling this function, a new @ref
  * SquashContext will be created and Squash will attempt to scan the plugin
  * directories for information.
  *

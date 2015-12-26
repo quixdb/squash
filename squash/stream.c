@@ -117,7 +117,7 @@
 
 /**
  * @var SquashStream_::destroy_user_data
- * @brief Squashlback to invoke on *user_data* when it is no longer
+ * @brief Callback to invoke on *user_data* when it is no longer
  *   necessary.
  */
 
@@ -785,7 +785,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
  * @brief Process a stream.
  *
  * This method will attempt to process data in a stream.  It should be
- * squashled repeatedly, adding data to the *avail_in* field and removing
+ * called repeatedly, adding data to the *avail_in* field and removing
  * data from the *avail_out* field as necessary.
  *
  * @param stream The stream.
@@ -807,7 +807,7 @@ squash_stream_process (SquashStream* stream) {
  * @brief Flush a stream.
  *
  * This method will attempt to process data in a stream.  It should be
- * squashled repeatedly, adding data to the *avail_in* field and removing
+ * called repeatedly, adding data to the *avail_in* field and removing
  * data from the *avail_out* field as necessary.
  *
  * @param stream The stream.
