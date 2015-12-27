@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2015 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,73 +25,17 @@
  */
 /* IWYU pragma: private, include <squash/internal.h> */
 
-#ifndef SQUASH_TYPES_INTERNAL_H
-#define SQUASH_TYPES_INTERNAL_H
+#ifndef SQUASH_MEMORY_INTERNAL_H
+#define SQUASH_MEMORY_INTERNAL_H
 
 #if !defined (SQUASH_COMPILATION)
 #error "This is internal API; you cannot use it."
 #endif
 
-#if defined(_WIN32)
-#include <windows.h>
-#endif
-
 SQUASH_BEGIN_DECLS
 
-typedef SQUASH_TREE_HEAD(SquashPluginTree_, SquashPlugin_) SquashPluginTree;
-typedef SQUASH_TREE_HEAD(SquashCodecTree_, SquashCodec_) SquashCodecTree;
-typedef SQUASH_TREE_HEAD(SquashCodecRefTree_, SquashCodecRef_) SquashCodecRefTree;
-
-struct SquashContext_ {
-  SquashPluginTree plugins;
-  SquashCodecRefTree codecs;
-  SquashCodecRefTree extensions;
-  SquashMemoryFuncs memfns;
-};
-
-struct SquashPlugin_ {
-  SquashContext* context;
-
-  char* name;
-  char* directory;
-  SquashLicense* license;
-
-#if !defined(_WIN32)
-  void* plugin;
-#else
-  HMODULE plugin;
-#endif
-
-  SquashCodecTree codecs;
-
-  SQUASH_TREE_ENTRY(SquashPlugin_) tree;
-};
-
-struct SquashCodec_ {
-  SquashPlugin* plugin;
-
-  char* name;
-  int priority;
-  char* extension;
-
-  bool initialized;
-  SquashCodecImpl impl;
-
-  SQUASH_TREE_ENTRY(SquashCodec_) tree;
-};
-
-typedef struct SquashCodecRef_ {
-  SquashCodec* codec;
-
-  SQUASH_TREE_ENTRY(SquashCodecRef_) tree;
-} SquashCodecRef;
-
-typedef struct SquashBuffer_ {
-  uint8_t* data;
-  size_t size;
-  size_t allocated;
-} SquashBuffer;
+void squash_get_memory_functions (SquashMemoryFuncs* memfns);
 
 SQUASH_END_DECLS
 
-#endif /* SQUASH_TYPES_INTERNAL_H */
+#endif /* SQUASH_SLIST_INTERNAL_H */

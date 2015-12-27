@@ -363,6 +363,19 @@ squash_codec_get_plugin (SquashCodec* codec) {
 }
 
 /**
+ * @brief Get the context associated with a codec
+ *
+ * @param codec The codec
+ * @return The context to which the codec belongs
+ */
+SquashContext*
+squash_codec_get_context (SquashCodec* codec) {
+  assert (codec != NULL);
+
+  return codec->plugin->context;
+}
+
+/**
  * @brief Initialize a codec
  *
  * @note This function is generally only useful inside of a callback

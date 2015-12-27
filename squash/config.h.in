@@ -39,6 +39,10 @@
 #  define SQUASH_FUNLOCKFILE(filehandle) do { } while(0)
 #endif
 
+#cmakedefine HAVE_ALIGNED_ALLOC
+#cmakedefine HAVE_POSIX_MEMALIGN
+#cmakedefine HAVE__ALIGNED_MALLOC
+
 #cmakedefine CFLAG_Wsuggest_attribute_format
 #cmakedefine CFLAG_Wformat_nonliteral
 

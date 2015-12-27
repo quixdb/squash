@@ -25,6 +25,7 @@ set (squash_SOURCES
   codec.c
   file.c
   license.c
+  memory.c
   options.c
   status.c
   buffer-stream.c
@@ -50,6 +51,7 @@ set (squash_PUBLIC_HEADERS
   codec.h
   file.h
   license.h
+  memory.h
   object.h
   options.h
   plugin.h
@@ -95,6 +97,12 @@ check_prototype_exists ("fread_unlocked" "stdio.h" "HAVE_FREAD_UNLOCKED")
 check_prototype_exists ("fwrite_unlocked" "stdio.h" "HAVE_FWRITE_UNLOCKED")
 check_prototype_exists ("fflush_unlocked" "stdio.h" "HAVE_FFLUSH_UNLOCKED")
 check_prototype_exists ("flockfile" "stdio.h" "HAVE_FLOCKFILE")
+set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
+
+list (APPEND CMAKE_REQUIRED_DEFINITIOnS -D_ISOC11_SOURCE -D_POSIX_C_SOURCE=200112L)
+check_prototype_exists ("aligned_alloc" "stdlib.h" "HAVE_ALIGNED_ALLOC")
+check_prototype_exists ("posix_memalign" "stdlib.h" "HAVE_POSIX_MEMALIGN")
+check_prototype_exists ("_aligned_malloc" "malloc.h" "HAVE__ALIGNED_MALLOC")
 set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
 
 list (APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)

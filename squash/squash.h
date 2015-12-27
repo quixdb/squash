@@ -106,6 +106,16 @@
 #  define SQUASH_UNLIKELY(expr) (expr)
 #endif
 
+#if defined(_Thread_local) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L))
+#  define SQUASH_THREAD_LOCAL _Thread_local
+#elif defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
+#  define SQUASH_THREAD_LOCAL __thread
+#elif defined(_WIN32)
+#  define SQUASH_THREAD_LOCAL __declspec(thread)
+#else
+#  define SQUASH_THREAD_LOCAL _Thread_local
+#endif
+
 #include <squash/version.h>
 
 #include "status.h"
@@ -118,6 +128,7 @@
 #include "codec.h"
 #include "splice.h"
 #include "plugin.h"
+#include "memory.h"
 #include "context.h"
 
 #undef SQUASH_H_INSIDE

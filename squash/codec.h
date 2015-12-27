@@ -124,6 +124,8 @@ SQUASH_API unsigned int            squash_codec_get_priority                 (Sq
 SQUASH_NONNULL(1)
 SQUASH_API SquashPlugin*           squash_codec_get_plugin                   (SquashCodec* codec);
 SQUASH_NONNULL(1)
+SQUASH_API SquashContext*          squash_codec_get_context                  (SquashCodec* codec);
+SQUASH_NONNULL(1)
 SQUASH_API const char*             squash_codec_get_extension                (SquashCodec* codec);
 
 SQUASH_NONNULL(1, 3)

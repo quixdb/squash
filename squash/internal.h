@@ -65,6 +65,7 @@
 #include "charset-internal.h"
 #include "tree-internal.h"
 #include "types-internal.h"
+#include "memory-internal.h"
 #include "context-internal.h"
 #include "plugin-internal.h"
 #include "codec-internal.h"
