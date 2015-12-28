@@ -66,7 +66,7 @@ squash_copy_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashCopyStream*) malloc (sizeof (SquashCopyStream));
+  stream = (SquashCopyStream*) squash_malloc (squash_codec_get_context (codec), sizeof (SquashCopyStream));
   squash_copy_stream_init (stream, codec, stream_type, options, squash_copy_stream_free);
 
   return stream;
@@ -89,7 +89,7 @@ squash_copy_stream_destroy (void* stream) {
 static void
 squash_copy_stream_free (void* stream) {
   squash_copy_stream_destroy (stream);
-  free (stream);
+  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
 }
 
 static SquashStream*

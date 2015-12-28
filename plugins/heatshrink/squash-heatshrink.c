@@ -82,7 +82,7 @@ squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, 
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashHeatshrinkStream*) malloc (sizeof (SquashHeatshrinkStream));
+  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashHeatshrinkStream));
   if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
@@ -132,7 +132,7 @@ squash_heatshrink_stream_destroy (void* stream) {
 static void
 squash_heatshrink_stream_free (void* stream) {
   squash_heatshrink_stream_destroy (stream);
-  free (stream);
+  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
 }
 
 static SquashStream*

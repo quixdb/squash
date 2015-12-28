@@ -37,6 +37,7 @@ struct SquashCrushData {
   SquashReadFunc reader;
   SquashWriteFunc writer;
   SquashStatus last_res;
+  SquashContext* context;
 };
 
 enum SquashCrushOptIndex {
@@ -55,6 +56,16 @@ static SquashOptionInfo squash_crush_options[] = {
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
+
+static void*
+squash_crush_malloc (size_t size, void* user_data) {
+  return squash_malloc (((struct SquashCrushData*) user_data)->context, size);
+}
+
+static void
+squash_crush_free (void* ptr, void* user_data) {
+  return squash_free (((struct SquashCrushData*) user_data)->context, ptr);
+}
 
 static size_t
 squash_crush_reader (void* buffer, size_t size, void* user_data) {
@@ -96,12 +107,13 @@ squash_crush_splice (SquashCodec* codec,
     user_data,
     read_cb,
     write_cb,
-    SQUASH_OK
+    SQUASH_OK,
+    squash_codec_get_context (codec)
   };
   CrushContext ctx;
   int res;
 
-  crush_init (&ctx, squash_crush_reader, squash_crush_writer, &data, NULL);
+  crush_init_full (&ctx, squash_crush_reader, squash_crush_writer, squash_crush_malloc, squash_crush_free, &data, NULL);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     res = crush_compress (&ctx, squash_codec_get_option_int_index (codec, options, SQUASH_CRUSH_OPT_LEVEL));

@@ -105,6 +105,18 @@ static SquashZlibStream*  squash_zlib_stream_new     (SquashCodec* codec, Squash
 static void               squash_zlib_stream_destroy (void* stream);
 static void               squash_zlib_stream_free    (void* stream);
 
+static voidpf
+squash_zlib_malloc (voidpf opaque, uInt items, uInt size) {
+  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
+  return (voidpf) squash_malloc (ctx, (size_t) items * (size_t) size);
+}
+
+static void
+squash_zlib_free (voidpf opaque, voidpf address) {
+  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
+  squash_free (ctx, (void*) address);
+}
+
 static SquashZlibType squash_zlib_codec_to_type (SquashCodec* codec) {
   const char* name = squash_codec_get_name (codec);
   if (strcmp ("gzip", name) == 0) {
@@ -128,6 +140,9 @@ squash_zlib_stream_init (SquashZlibStream* stream,
 
   z_stream tmp = { 0, };
   stream->stream = tmp;
+  stream->stream.opaque = stream;
+  stream->stream.zalloc = squash_zlib_malloc;
+  stream->stream.zfree  = squash_zlib_free;
 }
 
 static void
@@ -147,7 +162,7 @@ squash_zlib_stream_destroy (void* stream) {
 static void
 squash_zlib_stream_free (void* stream) {
   squash_zlib_stream_destroy (stream);
-  free (stream);
+  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
 }
 
 static SquashZlibStream*
@@ -159,7 +174,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashZlibStream*) malloc (sizeof (SquashZlibStream));
+  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashZlibStream));
   squash_zlib_stream_init (stream, codec, stream_type, options, squash_zlib_stream_free);
 
   stream->type = squash_zlib_codec_to_type (codec);

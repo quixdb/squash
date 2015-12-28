@@ -78,6 +78,16 @@ static SquashBrotliStream*  squash_brotli_stream_new      (SquashCodec* codec,
 static void                 squash_brotli_stream_destroy  (void* stream);
 static void                 squash_brotli_stream_free     (void* stream);
 
+static void*
+squash_brotli_malloc (void* opaque, size_t size) {
+  return squash_malloc ((SquashContext*) opaque, size);
+}
+
+static void
+squash_brotli_free (void* opaque, void* ptr) {
+  squash_free ((SquashContext*) opaque, ptr);
+}
+
 static SquashBrotliStream*
 squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashBrotliStream* stream;
@@ -85,7 +95,7 @@ squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squa
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashBrotliStream*) malloc (sizeof (SquashBrotliStream));
+  stream = (SquashBrotliStream*) squash_malloc (squash_codec_get_context (codec), sizeof (SquashBrotliStream));
   squash_brotli_stream_init (stream, codec, stream_type, options, squash_brotli_stream_free);
 
   return stream;
@@ -112,8 +122,7 @@ squash_brotli_stream_init (SquashBrotliStream* s,
     s->should_flush = false;
     s->should_seal = false;
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    s->decompressor = new BrotliState ();
-    BrotliStateInit(s->decompressor);
+    s->decompressor = BrotliCreateState(squash_brotli_malloc, squash_brotli_free, squash_codec_get_context (codec));
   } else {
     squash_assert_unreachable();
   }
@@ -126,8 +135,7 @@ squash_brotli_stream_destroy (void* stream) {
   if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_COMPRESS) {
     delete s->compressor;
   } else if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_DECOMPRESS) {
-    BrotliStateCleanup(s->decompressor);
-    delete s->decompressor;
+    BrotliDestroyState(s->decompressor);
   } else {
     squash_assert_unreachable();
   }
@@ -138,7 +146,7 @@ squash_brotli_stream_destroy (void* stream) {
 static void
 squash_brotli_stream_free (void* stream) {
   squash_brotli_stream_destroy (stream);
-  free (stream);
+  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
 }
 
 static SquashStream*
@@ -275,27 +283,27 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
                                  size_t compressed_size,
                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
-  BrotliState s;
   BrotliResult res;
   size_t total_out = 0;
   size_t available_in = compressed_size;
   const uint8_t* next_in = compressed;
   size_t available_out = *decompressed_size;
   uint8_t* next_out = decompressed;
-  BrotliStateInit (&s);
+  BrotliState* s = BrotliCreateState(squash_brotli_malloc, squash_brotli_free, squash_codec_get_context (codec));
+
   try {
     res = BrotliDecompressStream (&available_in, &next_in, &available_out,
-        &next_out, &total_out, &s);
+        &next_out, &total_out, s);
   } catch (const std::bad_alloc& e) {
     (void) e;
-    BrotliStateCleanup(&s);
+    BrotliDestroyState(s);
     return squash_error (SQUASH_MEMORY);
   } catch (...) {
-    BrotliStateCleanup(&s);
+    BrotliDestroyState(s);
     return squash_error (SQUASH_FAILED);
   }
 
-  BrotliStateCleanup(&s);
+  BrotliDestroyState(s);
   *decompressed_size = total_out;
   return squash_brotli_status_to_squash_status (res);
 }

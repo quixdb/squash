@@ -53,7 +53,19 @@
 #define HASH1_SHIFT ((HASH1_BITS+(HASH1_LEN-1))/HASH1_LEN)
 #define HASH2_SHIFT ((HASH2_BITS+(HASH2_LEN-1))/HASH2_LEN)
 
-void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data)
+static void*
+crush_malloc (size_t size, void* user_data) {
+  (void) user_data;
+  return malloc(size);
+}
+
+static void
+crush_free (void* ptr, void* user_data) {
+  (void) user_data;
+  return free(ptr);
+}
+
+void crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, CrushMalloc alloc, CrushFree dealloc, void* user_data, CrushDestroyNotify destroy_data)
 {
 	ctx->bit_buf = 0;
 	ctx->bit_count = 0;
@@ -62,9 +74,16 @@ void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, 
 	ctx->writer = writer;
 	ctx->user_data = user_data;
 	ctx->user_data_destroy = destroy_data;
+  ctx->alloc = alloc;
+  ctx->dealloc = dealloc;
 
-	ctx->buf = (unsigned char*)malloc(BUF_SIZE+MAX_MATCH);
+	ctx->buf = (unsigned char*)alloc(BUF_SIZE+MAX_MATCH, user_data);
 	memset(ctx->buf, 0, BUF_SIZE+MAX_MATCH);
+}
+
+void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data)
+{
+  crush_init_full(ctx, reader, writer, crush_malloc, crush_free, user_data, destroy_data);
 }
 
 struct CrushStdioData {
@@ -96,7 +115,7 @@ static size_t crush_stdio_fwrite (const void* ptr, size_t size, void* user_data)
 
 void crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
 {
-	struct CrushStdioData* data = (struct CrushStdioData*)malloc(sizeof(struct CrushStdioData));
+	struct CrushStdioData* data = (struct CrushStdioData*)ctx->alloc(sizeof(struct CrushStdioData), ctx->user_data);
 	data->in = in;
 	data->out = out;
 
@@ -109,7 +128,7 @@ void crush_destroy(CrushContext* ctx)
 	{
 		ctx->user_data_destroy(ctx->user_data);
 	}
-	free(ctx->buf);
+	ctx->dealloc(ctx->buf, ctx->user_data);
 }
 
 static void init_bits(CrushContext* ctx)
@@ -184,8 +203,11 @@ static int get_penalty(int a, int b)
 
 int crush_compress(CrushContext* ctx, int level)
 {
-	int* head = (int*)calloc(HASH1_SIZE+HASH2_SIZE, sizeof(int));
-	int* prev = (int*)calloc(W_SIZE, sizeof(int));
+  int* head = (int*)ctx->alloc((HASH1_SIZE+HASH2_SIZE) * sizeof(int), ctx->user_data);
+  int* prev = (int*)ctx->alloc(W_SIZE * sizeof(int), ctx->user_data);
+
+  memset (head, 0, (HASH1_SIZE+HASH2_SIZE) * sizeof(int));
+  memset (prev, 0, W_SIZE * sizeof(int));
 
 	const int max_chain[]={4, 256, 1<<12};
 
@@ -354,8 +376,8 @@ int crush_compress(CrushContext* ctx, int level)
 
 		flush_bits(ctx);
 	}
-	free(head);
-	free(prev);
+	ctx->dealloc(head, ctx->user_data);
+	ctx->dealloc(prev, ctx->user_data);
 	return 0;
 }
 

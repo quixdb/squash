@@ -36,6 +36,7 @@
 #define MINIZ_NO_ARCHIVE_WRITING_APIS
 //#define MINIZ_NO_ZLIB_APIS
 #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+#define MINIZ_NO_MALLOC
 #include "miniz/miniz.c"
 
 typedef enum SquashMinizType_e {
@@ -110,6 +111,18 @@ static SquashMinizStream* squash_miniz_stream_new     (SquashCodec* codec, Squas
 static void               squash_miniz_stream_destroy (void* stream);
 static void               squash_miniz_stream_free    (void* stream);
 
+static void*
+squash_zlib_malloc (void* opaque, size_t items, size_t size) {
+  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
+  return squash_malloc (ctx, items * size);
+}
+
+static void
+squash_zlib_free (void* opaque, void* address) {
+  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
+  squash_free (ctx, address);
+}
+
 static SquashMinizType squash_miniz_codec_to_type (SquashCodec* codec) {
   const char* name = squash_codec_get_name (codec);
   if (strcmp ("gzip", name) == 0) {
@@ -125,14 +138,17 @@ static SquashMinizType squash_miniz_codec_to_type (SquashCodec* codec) {
 
 static void
 squash_miniz_stream_init (SquashMinizStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
+                          SquashCodec* codec,
+                          SquashStreamType stream_type,
+                          SquashOptions* options,
+                          SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
   mz_stream tmp = { 0, };
   stream->stream = tmp;
+  stream->stream.opaque = stream;
+  stream->stream.zalloc = squash_zlib_malloc;
+  stream->stream.zfree  = squash_zlib_free;
 }
 
 static void
@@ -152,7 +168,7 @@ squash_miniz_stream_destroy (void* stream) {
 static void
 squash_miniz_stream_free (void* stream) {
   squash_miniz_stream_destroy (stream);
-  free (stream);
+  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
 }
 
 static SquashMinizStream*
@@ -164,7 +180,7 @@ squash_miniz_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squas
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashMinizStream*) malloc (sizeof (SquashMinizStream));
+  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashMinizStream));
   squash_miniz_stream_init (stream, codec, stream_type, options, squash_miniz_stream_free);
 
   stream->type = squash_miniz_codec_to_type (codec);

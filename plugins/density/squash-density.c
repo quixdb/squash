@@ -33,6 +33,20 @@
 
 #include "density/src/density_api.h"
 
+static SQUASH_THREAD_LOCAL SquashContext* squash_density_context = NULL;
+
+static void*
+squash_density_malloc (size_t size) {
+  assert (squash_density_context != NULL);
+  return squash_malloc (squash_density_context, size);
+}
+
+static void
+squash_density_free (void* ptr) {
+  assert (squash_density_context != NULL);
+  squash_free (squash_density_context, ptr);
+}
+
 #define SQUASH_DENSITY_INPUT_MULTIPLE 32
 
 typedef enum {
@@ -123,7 +137,7 @@ squash_density_stream_init (SquashDensityStream* stream,
                             SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
-  stream->stream = density_stream_create (NULL, NULL);
+  stream->stream = density_stream_create (squash_density_malloc, squash_density_free);
   stream->next = SQUASH_DENSITY_ACTION_INIT;
 
   stream->buffer_size = 0;
@@ -142,8 +156,9 @@ static void
 squash_density_stream_destroy (void* stream) {
   SquashDensityStream* s = (SquashDensityStream*) stream;
 
+  squash_density_context = squash_codec_get_context (s->base_object.codec);
   density_stream_destroy (s->stream);
-
+  squash_density_context = NULL;
   squash_stream_destroy (stream);
 }
 
@@ -155,7 +170,10 @@ squash_density_stream_free (void* stream) {
 
 static SquashStream*
 squash_density_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_density_stream_new (codec, stream_type, options);
+  squash_density_context = squash_codec_get_context (codec);
+  SquashDensityStream* stream = squash_density_stream_new (codec, stream_type, options);
+  squash_density_context = NULL;
+  return (SquashStream*) stream;
 }
 
 static DENSITY_COMPRESSION_MODE
@@ -200,11 +218,14 @@ static size_t total_bytes_written = 0;
 
 static SquashStatus
 squash_density_process_stream (SquashStream* stream, SquashOperation operation) {
+  SquashStatus res = SQUASH_OK;
   SquashDensityStream* s = (SquashDensityStream*) stream;
+  squash_density_context = squash_codec_get_context (stream->codec);
 
   if (s->buffer_size > 0) {
     squash_density_flush_internal_buffer (stream);
-    return SQUASH_PROCESSING;
+    res = SQUASH_PROCESSING;
+    goto finish;
   }
 
   if (s->next == SQUASH_DENSITY_ACTION_INIT) {
@@ -216,8 +237,10 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       s->buffer_active = false;
       s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_size, stream->next_out, stream->avail_out);
     }
-    if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY))
-      return squash_error (SQUASH_FAILED);
+    if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
+      res = squash_error (SQUASH_FAILED);
+      goto finish;
+    }
   }
 
   switch (s->state) {
@@ -243,7 +266,8 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           s->state = DENSITY_STREAM_STATE_READY;
         } else {
           assert (stream->avail_in == 0);
-          return SQUASH_OK;
+          res = SQUASH_OK;
+          goto finish;
         }
       } else {
         s->active_input_size = (stream->stream_type == SQUASH_STREAM_COMPRESS) ? ((stream->avail_in / SQUASH_DENSITY_INPUT_MULTIPLE) * SQUASH_DENSITY_INPUT_MULTIPLE) : stream->avail_in;
@@ -277,7 +301,8 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
           }
 
           s->output_invalid = true;
-          return SQUASH_PROCESSING;
+          res = SQUASH_PROCESSING;
+          goto finish;
         } else {
           if (stream->avail_out < DENSITY_MINIMUM_OUTPUT_BUFFER_SIZE) {
             s->buffer_active = true;
@@ -296,7 +321,8 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
     case DENSITY_STREAM_STATE_ERROR_OUTPUT_BUFFER_TOO_SMALL:
     case DENSITY_STREAM_STATE_ERROR_INVALID_INTERNAL_STATE:
     case DENSITY_STREAM_STATE_ERROR_INTEGRITY_CHECK_FAIL:
-      return squash_error (SQUASH_FAILED);
+      res = squash_error (SQUASH_FAILED);
+      goto finish;
   }
 
   assert (s->output_invalid == false);
@@ -316,8 +342,10 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         } else {
           s->state = density_stream_decompress_init (s->stream, NULL);
         }
-        if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY))
-          return squash_error (SQUASH_FAILED);
+        if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
+          res = squash_error (SQUASH_FAILED);
+          goto finish;
+        }
         s->next = SQUASH_DENSITY_ACTION_CONTINUE;
         break;
       case SQUASH_DENSITY_ACTION_CONTINUE_OR_FINISH:
@@ -390,7 +418,8 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         }
 
         s->output_invalid = true;
-        return SQUASH_PROCESSING;
+        res = SQUASH_PROCESSING;
+        goto finish;
       } else {
         squash_assert_unreachable();
       }
@@ -400,11 +429,11 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
   if (operation == SQUASH_OPERATION_FINISH)
     total_bytes_written = 0;
 
-  if (stream->avail_in == 0) {
-    return SQUASH_OK;
-  } else {
-    return SQUASH_PROCESSING;
-  }
+  res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
+
+ finish:
+  squash_density_context = NULL;
+  return res;
 }
 
 SquashStatus

@@ -194,6 +194,7 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
                                 size_t uncompressed_size,
                                 const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                 SquashOptions* options) {
+  SquashContext* context = squash_codec_get_context (codec);
   uint8_t *dst = compressed;
   void *workmem = NULL;
   size_t size;
@@ -217,7 +218,7 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
 
   dst += size;
 
-  workmem = malloc (blz_workmem_size ((unsigned long) uncompressed_size));
+  workmem = squash_malloc (context, blz_workmem_size ((unsigned long) uncompressed_size));
 
   if (SQUASH_UNLIKELY(workmem == NULL)) {
     return squash_error (SQUASH_MEMORY);
@@ -227,7 +228,7 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
                     (unsigned long) uncompressed_size,
                     workmem);
 
-  free(workmem);
+  squash_free (context, workmem);
 
 #if SIZE_MAX < ULONG_MAX
   if (SQUASH_UNLIKELY(SIZE_MAX < size))
