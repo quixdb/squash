@@ -48,8 +48,11 @@ squash_fari_decompress_buffer (SquashCodec* codec,
                                size_t compressed_size,
                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
+  SquashContext* ctx = squash_codec_get_context (codec);
+  void* workmem = squash_malloc (ctx, FA_WORKMEM);
   int fari_e = (size_t) fa_decompress ((const unsigned char*) compressed, (unsigned char*) decompressed,
-                                       compressed_size, decompressed_size);
+                                       compressed_size, decompressed_size, workmem);
+  squash_free (ctx, workmem);
 
   switch (fari_e) {
     case 0:
@@ -74,8 +77,11 @@ squash_fari_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
+  SquashContext* ctx = squash_codec_get_context (codec);
+  void* workmem = squash_malloc (ctx, FA_WORKMEM);
   int fari_e = fa_compress ((const unsigned char*) uncompressed, (unsigned char*) compressed,
-                            uncompressed_size, compressed_size);
+                            uncompressed_size, compressed_size, workmem);
+  squash_free (ctx, workmem);
 
   return SQUASH_LIKELY(fari_e == 0) ? SQUASH_OK : SQUASH_FAILED;
 }
