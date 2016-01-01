@@ -27,10 +27,40 @@ static GOptionEntry options[] = {
   { NULL }
 };
 
+static void* squash_test_malloc (size_t size) {
+  uint64_t* ptr = malloc (size + sizeof(uint64_t));
+  *ptr = 0xBADC0FFEE0DDF00D;
+  return (void*) (ptr + 1);
+}
+
+static void* squash_test_realloc (void* ptr, size_t size) {
+  uint64_t* rptr = ((uint64_t*) ptr) - 1;
+  g_assert (*rptr == 0xBADC0FFEE0DDF00D);
+  rptr = realloc (rptr, size + sizeof(uint64_t));
+  return (void*) (rptr + 1);
+}
+
+static void squash_test_free (void* ptr) {
+  if (ptr == NULL)
+    return;
+
+  uint64_t* rptr = ((uint64_t*) ptr) - 1;
+  g_assert (*rptr == 0xBADC0FFEE0DDF00D);
+  free (rptr);
+}
+
 int
 main (int argc, char** argv) {
   GError *error = NULL;
   GOptionContext *context;
+  SquashMemoryFuncs memfns = {
+    squash_test_malloc,
+    squash_test_realloc,
+    squash_test_free,
+    NULL,
+  };
+
+  squash_set_memory_functions (memfns);
 
   g_test_init (&argc, &argv, NULL);
 
