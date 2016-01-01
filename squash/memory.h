@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015, 2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,6 +32,12 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
+#if defined(__GNUC__)
+#define SQUASH_MALLOC __attribute__((__malloc__))
+#else
+#define SQUASH_MALLOC
+#endif
+
 SQUASH_BEGIN_DECLS
 
 typedef struct SquashMemoryFuncs_ {
@@ -44,13 +50,14 @@ typedef struct SquashMemoryFuncs_ {
 } SquashMemoryFuncs;
 
 SQUASH_API void  squash_set_memory_functions (SquashMemoryFuncs memfn);
-SQUASH_NONNULL(1)
+
+SQUASH_NONNULL(1) SQUASH_MALLOC
 SQUASH_API void* squash_malloc               (SquashContext* ctx, size_t size);
 SQUASH_NONNULL(1)
 SQUASH_API void* squash_realloc              (SquashContext* ctx, void* ptr, size_t size);
 SQUASH_NONNULL(1)
 SQUASH_API void  squash_free                 (SquashContext* ctx, void* ptr);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_MALLOC
 SQUASH_API void* squash_aligned_alloc        (SquashContext* ctx, size_t alignment, size_t size);
 SQUASH_NONNULL(1)
 SQUASH_API void  squash_aligned_free         (SquashContext* ctx, void* ptr);
