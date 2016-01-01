@@ -252,6 +252,7 @@ squash_lzma_stream_destroy (void* stream) {
 
 static void
 squash_lzma_stream_free (void* stream) {
+  squash_lzma_stream_destroy (stream);
   SquashContext* ctx = squash_codec_get_context (((SquashStream*) stream)->codec);
   squash_free (ctx, stream);
 }
