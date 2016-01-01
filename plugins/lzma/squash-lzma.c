@@ -44,6 +44,7 @@ typedef struct SquashLZMAStream_s {
 
   SquashLZMAType type;
   lzma_stream stream;
+  lzma_allocator allocator;
 } SquashLZMAStream;
 
 enum SquashLZMAOptIndex {
@@ -210,6 +211,19 @@ static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
   }
 }
 
+static void* squash_lzma_calloc (void *opaque, size_t nmemb, size_t size) {
+  SquashContext* ctx = (SquashContext*) opaque;
+  void* ptr = squash_malloc (ctx, nmemb * size);
+  if (SQUASH_UNLIKELY(ptr == NULL))
+    return ptr;
+  return memset (ptr, 0, nmemb * size);
+}
+
+static void squash_lzma_free (void *opaque, void* ptr) {
+  SquashContext* ctx = (SquashContext*) opaque;
+  squash_free (ctx, ptr);
+}
+
 static void
 squash_lzma_stream_init (SquashLZMAStream* stream,
                          SquashCodec* codec,
@@ -219,7 +233,13 @@ squash_lzma_stream_init (SquashLZMAStream* stream,
                          SquashDestroyNotify destroy_notify) {
   squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
 
+  stream->allocator.opaque = squash_codec_get_context (codec);
+  stream->allocator.alloc = squash_lzma_calloc;
+  stream->allocator.free = squash_lzma_free;
+
   lzma_stream s = LZMA_STREAM_INIT;
+  s.allocator = &(stream->allocator);
+
   stream->stream = s;
   stream->type = type;
 }
@@ -232,8 +252,8 @@ squash_lzma_stream_destroy (void* stream) {
 
 static void
 squash_lzma_stream_free (void* stream) {
-  squash_lzma_stream_destroy (stream);
-  free (stream);
+  SquashContext* ctx = squash_codec_get_context (((SquashStream*) stream)->codec);
+  squash_free (ctx, stream);
 }
 
 static SquashLZMAStream*
@@ -243,8 +263,11 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   SquashLZMAType lzma_type;
   lzma_options_lzma lzma_options = { 0, };
   lzma_filter filters[2];
+  SquashContext* ctx;
 
   assert (codec != NULL);
+
+  ctx = squash_codec_get_context (codec);
 
   lzma_type = squash_lzma_codec_to_type (codec);
 
@@ -269,7 +292,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   filters[1].id = LZMA_VLI_UNKNOWN;
   filters[1].options = NULL;
 
-  stream = (SquashLZMAStream*) malloc (sizeof (SquashLZMAStream));
+  stream = (SquashLZMAStream*) squash_malloc (ctx, sizeof (SquashLZMAStream));
   squash_lzma_stream_init (stream, codec, lzma_type, stream_type, options, squash_lzma_stream_free);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
