@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -92,6 +92,16 @@ static SquashOptionInfo squash_bsc_options[] = {
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 
+static SQUASH_THREAD_LOCAL SquashContext* squash_bsc_context = NULL;
+
+static void* squash_bsc_malloc (size_t size) {
+  return squash_malloc (squash_bsc_context, size);
+}
+
+static void squash_bsc_free (void* ptr) {
+  squash_free (squash_bsc_context, ptr);
+}
+
 static size_t
 squash_bsc_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   return uncompressed_size + LIBBSC_HEADER_SIZE;
@@ -152,8 +162,10 @@ squash_bsc_compress_buffer_unsafe (SquashCodec* codec,
   if (SQUASH_UNLIKELY(*compressed_size < (uncompressed_size + LIBBSC_HEADER_SIZE)))
     return squash_error (SQUASH_BUFFER_FULL);
 
+  squash_bsc_context = squash_codec_get_context (codec);
   const int res = bsc_compress (uncompressed, compressed, (int) uncompressed_size,
                                 lzp_hash_size, lzp_min_len, block_sorter, coder, features);
+  squash_bsc_context = NULL;
 
   if (SQUASH_UNLIKELY(res < 0)) {
     return squash_error (SQUASH_FAILED);
@@ -193,7 +205,9 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
   if (SQUASH_UNLIKELY(p_data_size > (int) *decompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
+  squash_bsc_context = squash_codec_get_context (codec);
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, features);
+  squash_bsc_context = NULL;
 
   if (SQUASH_UNLIKELY(res < 0))
     return squash_error (SQUASH_FAILED);
@@ -210,7 +224,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
-  bsc_init (LIBBSC_DEFAULT_FEATURES);
+  bsc_init_full (LIBBSC_DEFAULT_FEATURES, squash_bsc_malloc, NULL, squash_bsc_free);
 
   const char* name = squash_codec_get_name (codec);
 
