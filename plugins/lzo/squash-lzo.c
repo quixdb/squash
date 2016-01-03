@@ -349,14 +349,12 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   lzo_voidp work_mem = NULL;
   int lzo_e;
   lzo_uint uncompressed_len, compressed_len;
-  SquashContext* ctx;
 
   assert (codec != NULL);
   codec_name = squash_codec_get_name (codec);
   assert (codec_name != NULL);
   lzo_codec = squash_lzo_codec_from_name (codec_name);
   assert (lzo_codec != NULL);
-  ctx = squash_codec_get_context (codec);
 
   compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_codec_get_option_int_index (codec, options, SQUASH_LZO_OPT_LEVEL));
 
