@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,22 +34,24 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_INTERNAL
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, const uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 bool          squash_buffer_append_c       (SquashBuffer* buffer, char c);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 void          squash_buffer_clear          (SquashBuffer* buffer);
+SQUASH_INTERNAL
 void          squash_buffer_free           (SquashBuffer* buffer);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 bool          squash_buffer_set_size       (SquashBuffer* buffer, size_t size);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 void          squash_buffer_steal          (SquashBuffer* buffer,
                                             size_t data_size,
                                             size_t data_allocated,
                                             uint8_t data[SQUASH_ARRAY_PARAM(data_allocated)]);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 uint8_t*      squash_buffer_release        (SquashBuffer* buffer,
                                             size_t* size);
 

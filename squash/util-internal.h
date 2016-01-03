@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,8 +34,11 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_INTERNAL
 size_t squash_get_page_size      (void);
+SQUASH_INTERNAL
 size_t squash_npot               (size_t v);
+SQUASH_INTERNAL
 size_t squash_get_huge_page_size (void);
 
 SQUASH_END_DECLS

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -38,7 +38,7 @@ typedef bool (* SquashIniParserCallback) (const char* section,
                                           size_t value_size,
                                           void* user_data);
 
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 bool squash_ini_parse (FILE* input,
                        SquashIniParserCallback callback,
                        void* user_data);

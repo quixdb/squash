@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -47,18 +47,18 @@ typedef struct SquashMappedFile_s {
 
 static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 bool squash_mapped_file_init_full (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t size,
                                    bool size_is_suggestion,
                                    bool writable);
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 bool squash_mapped_file_init      (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t size,
                                    bool writable);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 bool squash_mapped_file_destroy   (SquashMappedFile* mapped,
                                    bool success);
 

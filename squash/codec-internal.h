@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,18 +34,19 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_INTERNAL
 SquashCodec*            squash_codec_new                     (SquashPlugin* plugin, const char* name);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 void                    squash_codec_set_extension           (SquashCodec* codec, const char* extension);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 void                    squash_codec_set_priority            (SquashCodec* codec, unsigned int priority);
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 int                     squash_codec_compare                 (SquashCodec* a, SquashCodec* b);
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 int                     squash_codec_extension_compare       (SquashCodec* a, SquashCodec* b);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 SquashCodecImpl*        squash_codec_get_impl                (SquashCodec* codec);
-SQUASH_NONNULL(1, 2, 4)
+SQUASH_NONNULL(1, 2, 4) SQUASH_INTERNAL
 SquashStatus            squash_codec_decompress_to_buffer    (SquashCodec* codec,
                                                               SquashBuffer* decompressed,
                                                               size_t compressed_size,

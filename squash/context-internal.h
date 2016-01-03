@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013, 2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,7 +34,7 @@
 
 SQUASH_BEGIN_DECLS
 
-SQUASH_NONNULL(1, 2)
+SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
 void            squash_context_add_codec     (SquashContext* context, SquashCodec* codec);
 
 SQUASH_TREE_PROTOTYPES(SquashCodecRef_, tree)

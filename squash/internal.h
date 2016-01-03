@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,25 +33,6 @@
 
 #ifdef SQUASH_H
 #  error "You must include internal.h instead of squash.h"
-#endif
-
-#ifndef SQUASH_API
-  #if defined _WIN32 || defined __CYGWIN__
-    #ifdef __GNUC__
-      #define SQUASH_API __attribute__ ((dllexport))
-    #else
-      #define SQUASH_API __declspec(dllexport)
-    #endif
-    #define SQUASH_INTERNAL
-  #else
-    #if __GNUC__ >= 4
-      #define SQUASH_API __attribute__ ((visibility ("default")))
-      #define SQUASH_INTERNAL __attribute__ ((visibility ("hidden")))
-    #else
-      #define SQUASH_API
-      #define SQUASH_INTERNAL
-    #endif
-  #endif
 #endif
 
 #ifndef SQUASH_FILE_BUF_SIZE

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -48,10 +48,6 @@
 #else
 #  define SQUASH_BEGIN_DECLS
 #  define SQUASH_END_DECLS
-#endif
-
-#ifndef SQUASH_API
-#  define SQUASH_API extern
 #endif
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
@@ -114,6 +110,30 @@
 #  define SQUASH_THREAD_LOCAL __declspec(thread)
 #else
 #  define SQUASH_THREAD_LOCAL _Thread_local
+#endif
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#  if defined(__GNUC__)
+#    define SQUASH_INTERNAL __attribute__((__dllimport__))
+#    define SQUASH_EXTERNAL __attribute__((__dllexport__))
+#  else
+#    define SQUASH_INTERNAL __declspec(dllimport)
+#    define SQUASH_EXTERNAL __declspec(dllexport)
+#  endif
+#else
+#  if defined(__GNUC__) && (__GNUC__ >= 4)
+#    define SQUASH_INTERNAL __attribute__ ((visibility ("hidden")))
+#    define SQUASH_EXTERNAL __attribute__ ((visibility ("default")))
+#  else
+#    define SQUASH_INTERNAL
+#    define SQUASH_EXTERNAL
+#  endif
+#endif
+
+#if defined(SQUASH_COMPILATION)
+#  define SQUASH_API SQUASH_EXTERNAL
+#else
+#  define SQUASH_API extern
 #endif
 
 #include <squash/version.h>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -51,11 +51,11 @@ typedef struct SquashBufferStream_ {
   size_t output_pos;
 } SquashBufferStream;
 
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 SquashBufferStream* squash_buffer_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 SquashStatus        squash_buffer_stream_process (SquashBufferStream* stream);
-SQUASH_NONNULL(1)
+SQUASH_NONNULL(1) SQUASH_INTERNAL
 SquashStatus        squash_buffer_stream_finish  (SquashBufferStream* stream);
 
 SQUASH_END_DECLS
