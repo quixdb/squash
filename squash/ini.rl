@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 Evan Nemerson <evan@nemerson.com>
+/* Copyright (c) 2015-2016 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -176,11 +176,11 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   assert (callback != NULL);
 
   bool result = true;
-  char* section = malloc (SQUASH_INI_PARSER_MAX_SECTION_LENGTH);
+  char* section = squash_malloc (SQUASH_INI_PARSER_MAX_SECTION_LENGTH);
   size_t section_length = 0;
-  char* key = malloc (SQUASH_INI_PARSER_MAX_KEY_LENGTH);
+  char* key = squash_malloc (SQUASH_INI_PARSER_MAX_KEY_LENGTH);
   size_t key_length = 0;
-  char* value = malloc (SQUASH_INI_PARSER_MAX_VALUE_LENGTH);
+  char* value = squash_malloc (SQUASH_INI_PARSER_MAX_VALUE_LENGTH);
   size_t value_length = 0;
   bool value_escaped = false;
 
@@ -213,11 +213,11 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
 
   cleanup:
     if (section != NULL)
-      free (section);
+      squash_free (section);
     if (key != NULL)
-      free (key);
+      squash_free (key);
     if (value != NULL)
-      free (value);
+      squash_free (value);
 
   return result;
 }

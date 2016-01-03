@@ -1,6 +1,6 @@
 
 /* #line 1 "ini.rl" */
-/* Copyright (c) 2015 Evan Nemerson <evan@nemerson.com>
+/* Copyright (c) 2015-2016 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -56,11 +56,11 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   assert (callback != NULL);
 
   bool result = true;
-  char* section = malloc (SQUASH_INI_PARSER_MAX_SECTION_LENGTH);
+  char* section = squash_malloc (SQUASH_INI_PARSER_MAX_SECTION_LENGTH);
   size_t section_length = 0;
-  char* key = malloc (SQUASH_INI_PARSER_MAX_KEY_LENGTH);
+  char* key = squash_malloc (SQUASH_INI_PARSER_MAX_KEY_LENGTH);
   size_t key_length = 0;
-  char* value = malloc (SQUASH_INI_PARSER_MAX_VALUE_LENGTH);
+  char* value = squash_malloc (SQUASH_INI_PARSER_MAX_VALUE_LENGTH);
   size_t value_length = 0;
   bool value_escaped = false;
 
@@ -71,72 +71,72 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
     goto cleanup;
   }
 
-  
+
 /* #line 76 "ini.c" */
 static const char _SquashIniParser_actions[] = {
-	0, 1, 0, 1, 1, 1, 2, 1, 
-	3, 1, 4, 1, 5, 1, 7, 1, 
+	0, 1, 0, 1, 1, 1, 2, 1,
+	3, 1, 4, 1, 5, 1, 7, 1,
 	8, 1, 9, 2, 6, 1
 };
 
 static const char _SquashIniParser_key_offsets[] = {
-	0, 0, 14, 28, 33, 38, 40, 42, 
+	0, 0, 14, 28, 33, 38, 40, 42,
 	43, 43, 52, 62
 };
 
 static const char _SquashIniParser_trans_keys[] = {
-	10, 32, 91, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, 9, 32, 
-	61, 95, 11, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, 9, 32, 61, 11, 
-	13, 10, 32, 34, 9, 13, 10, 34, 
-	34, 92, 10, 95, 45, 46, 48, 57, 
-	65, 90, 97, 122, 93, 95, 45, 46, 
-	48, 57, 65, 90, 97, 122, 10, 32, 
-	91, 95, 9, 13, 45, 46, 48, 57, 
+	10, 32, 91, 95, 9, 13, 45, 46,
+	48, 57, 65, 90, 97, 122, 9, 32,
+	61, 95, 11, 13, 45, 46, 48, 57,
+	65, 90, 97, 122, 9, 32, 61, 11,
+	13, 10, 32, 34, 9, 13, 10, 34,
+	34, 92, 10, 95, 45, 46, 48, 57,
+	65, 90, 97, 122, 93, 95, 45, 46,
+	48, 57, 65, 90, 97, 122, 10, 32,
+	91, 95, 9, 13, 45, 46, 48, 57,
 	65, 90, 97, 122, 0
 };
 
 static const char _SquashIniParser_single_lengths[] = {
-	0, 4, 4, 3, 3, 2, 2, 1, 
+	0, 4, 4, 3, 3, 2, 2, 1,
 	0, 1, 2, 4
 };
 
 static const char _SquashIniParser_range_lengths[] = {
-	0, 5, 5, 1, 1, 0, 0, 0, 
+	0, 5, 5, 1, 1, 0, 0, 0,
 	0, 4, 4, 5
 };
 
 static const char _SquashIniParser_index_offsets[] = {
-	0, 0, 10, 20, 25, 30, 33, 36, 
+	0, 0, 10, 20, 25, 30, 33, 36,
 	38, 39, 45, 52
 };
 
 static const char _SquashIniParser_indicies[] = {
-	2, 1, 4, 3, 1, 3, 3, 3, 
-	3, 0, 5, 5, 6, 3, 5, 3, 
-	3, 3, 3, 0, 5, 5, 6, 5, 
-	0, 2, 8, 9, 8, 7, 2, 0, 
-	7, 11, 12, 10, 2, 0, 13, 14, 
-	14, 14, 14, 14, 0, 16, 15, 15, 
-	15, 15, 15, 0, 2, 1, 4, 3, 
+	2, 1, 4, 3, 1, 3, 3, 3,
+	3, 0, 5, 5, 6, 3, 5, 3,
+	3, 3, 3, 0, 5, 5, 6, 5,
+	0, 2, 8, 9, 8, 7, 2, 0,
+	7, 11, 12, 10, 2, 0, 13, 14,
+	14, 14, 14, 14, 0, 16, 15, 15,
+	15, 15, 15, 0, 2, 1, 4, 3,
 	1, 3, 3, 3, 3, 17, 0
 };
 
 static const char _SquashIniParser_trans_targs[] = {
-	0, 1, 11, 2, 9, 3, 4, 5, 
-	4, 6, 6, 7, 8, 6, 10, 10, 
+	0, 1, 11, 2, 9, 3, 4, 5,
+	4, 6, 6, 7, 8, 6, 10, 10,
 	7, 0
 };
 
 static const char _SquashIniParser_trans_actions[] = {
-	1, 0, 15, 5, 0, 0, 0, 7, 
-	7, 17, 9, 0, 0, 11, 19, 3, 
+	1, 0, 15, 5, 0, 0, 0, 7,
+	7, 17, 9, 0, 0, 11, 19, 3,
 	13, 0
 };
 
 static const char _SquashIniParser_eof_actions[] = {
-	0, 1, 1, 1, 1, 1, 1, 1, 
+	0, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 0
 };
 
@@ -148,7 +148,7 @@ static const int SquashIniParser_en_main = 11;
 
 
 /* #line 195 "ini.rl" */
-  
+
 /* #line 153 "ini.c" */
 	{
 	cs = SquashIniParser_start;
@@ -170,7 +170,7 @@ static const int SquashIniParser_en_main = 11;
     p = cur_block;
     pe = cur_block + bytes_read;
 
-    
+
 /* #line 175 "ini.c" */
 	{
 	int _klen;
@@ -403,11 +403,11 @@ _again:
 
   cleanup:
     if (section != NULL)
-      free (section);
+      squash_free (section);
     if (key != NULL)
-      free (key);
+      squash_free (key);
     if (value != NULL)
-      free (value);
+      squash_free (value);
 
   return result;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -157,13 +157,13 @@ squash_file_open_with_options (SquashCodec* codec, const char* filename, const c
 
   wchar_t* wmode = squash_charset_utf8_to_wide (mode);
   if (wmode == NULL) {
-    free (wfilename);
+    squash_free (wfilename);
     return NULL;
   }
 
   SquashFile* file = squash_file_wopen_with_options (codec, wfilename, wmode, options);
-  free (wfilename);
-  free (wmode);
+  squash_free (wfilename);
+  squash_free (wmode);
   return file;
 #endif
 }
@@ -200,13 +200,13 @@ squash_file_wopen_with_options (SquashCodec* codec, const wchar_t* filename, con
 
   char* nmode = squash_charset_wide_to_utf8 (mode);
   if (nmode == NULL) {
-    free (nfilename);
+    squash_free (nfilename);
     return NULL;
   }
 
   SquashFile* file = squash_file_open_with_options (codec, nfilename, nmode, options);
-  free (nfilename);
-  free (nmode);
+  squash_free (nfilename);
+  squash_free (nmode);
   return file;
 #else
   FILE* fp = _wfopen (filename, mode);
@@ -261,7 +261,7 @@ squash_file_steal_with_options (SquashCodec* codec, FILE* fp, SquashOptions* opt
   assert (fp != NULL);
   assert (codec != NULL);
 
-  SquashFile* file = malloc (sizeof (SquashFile));
+  SquashFile* file = squash_malloc (sizeof (SquashFile));
   if (file == NULL)
     return NULL;
 
@@ -619,7 +619,7 @@ squash_file_vwprintf (SquashFile* file,
       res = squash_error (SQUASH_FAILED);
   }
 
-  free (buf);
+  squash_free (buf);
 
   return res;
 }
@@ -657,7 +657,7 @@ squash_file_vprintf (SquashFile* file,
   else if (size >= (int) sizeof (buf))
 #endif
   {
-    heap_buf = malloc (size + 1);
+    heap_buf = squash_malloc (size + 1);
     if (SQUASH_UNLIKELY(heap_buf == NULL))
       return squash_error (SQUASH_MEMORY);
 
@@ -674,7 +674,7 @@ squash_file_vprintf (SquashFile* file,
                              (uint8_t*) heap_buf);
   }
 
-  free (heap_buf);
+  squash_free (heap_buf);
 
   return res;
 }
@@ -868,7 +868,7 @@ squash_file_free (SquashFile* file, FILE** fp) {
 
   mtx_destroy (&(file->mtx));
 
-  free (file);
+  squash_free (file);
 
   return res;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -590,7 +590,7 @@ squash_options_new (SquashCodec* codec, ...) {
 
 static SquashOptions*
 squash_options_create (SquashCodec* codec) {
-  SquashOptions* options = malloc (sizeof (SquashOptions));
+  SquashOptions* options = squash_malloc (sizeof (SquashOptions));
   squash_options_init (options, codec, squash_options_free);
   return options;
 }
@@ -671,7 +671,9 @@ squash_options_init (void* options,
 
     assert (n_options != 0);
 
-    o->values = calloc (n_options, sizeof (SquashOptionValue));
+    o->values = squash_malloc (n_options * sizeof (SquashOptionValue));
+    assert (o->values != NULL);
+    memset (o->values, 0, n_options * sizeof (SquashOptionValue));
     for (size_t c_option = 0 ; c_option < n_options ; c_option++) {
       switch (info[c_option].type) {
         case SQUASH_OPTION_TYPE_ENUM_STRING:
@@ -721,9 +723,9 @@ squash_options_destroy (void* options) {
 
     for (int i = 0 ; info[i].name != NULL ; i++)
       if (info[i].type == SQUASH_OPTION_TYPE_STRING)
-        free (values[i].string_value);
+        squash_free (values[i].string_value);
 
-    free (values);
+    squash_free (values);
   }
 
   squash_object_destroy (o);
@@ -732,7 +734,7 @@ squash_options_destroy (void* options) {
 static void
 squash_options_free (void* options) {
   squash_options_destroy ((SquashOptions*) options);
-  free (options);
+  squash_free (options);
 }
 
 #if defined(SQUASH_ENABLE_WIDE_CHAR_API)
@@ -768,8 +770,8 @@ squash_options_parse_optionw (SquashOptions* options, const wchar_t* key, const 
   res = squash_options_parse_option (options, nkey, nvalue);
 
  finish:
-  free (nkey);
-  free (nvalue);
+  squash_free (nkey);
+  squash_free (nvalue);
 
   return res;
 }

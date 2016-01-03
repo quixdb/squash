@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -145,7 +145,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  * void
  * my_object_destroy (MyObject* obj) {
  *   if (obj->greeting != NULL) {
- *     free (obj->greeting);
+ *     squash_free (obj->greeting);
  *   }
  *
  *   squash_object_destroy (obj);
@@ -161,7 +161,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  * void
  * my_object_free (MyObject* obj) {
  *   my_object_destroy (obj);
- *   free (obj);
+ *   squash_free (obj);
  * }
  * @endcode
  *
@@ -172,7 +172,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  * my_object_new (char* greeting) {
  *   MyObject obj;
  *
- *   obj = malloc (sizeof (MyObject));
+ *   obj = squash_malloc (sizeof (MyObject));
  *   my_object_init (obj, greeting, (SquashDestroyNotify) my_object_free);
  *
  *   return obj;

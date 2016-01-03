@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -409,7 +409,7 @@ squash_stream_init (void* stream,
   s->destroy_user_data = NULL;
 
   if (codec->impl.create_stream == NULL && codec->impl.splice != NULL) {
-    s->priv = malloc (sizeof (SquashStreamPrivate));
+    s->priv = squash_malloc (sizeof (SquashStreamPrivate));
 
     mtx_init (&(s->priv->io_mtx), mtx_plain);
     mtx_lock (&(s->priv->io_mtx));
@@ -470,7 +470,7 @@ squash_stream_destroy (void* stream) {
     cnd_destroy (&(priv->result_cnd));
     mtx_destroy (&(priv->io_mtx));
 
-    free (s->priv);
+    squash_free (s->priv);
   }
 
   if (s->destroy_user_data != NULL && s->user_data != NULL) {

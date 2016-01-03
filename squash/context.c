@@ -55,9 +55,7 @@
 
 #if !defined(_WIN32)
 #define SQUASH_STRTOK_R(str,delim,saveptr) strtok_r(str,delim,saveptr)
-#define squash_strndup(s,n) strndup(s,n)
 #else
-static char* squash_strndup(const char* s, size_t n);
 #define SQUASH_STRTOK_R(str,delim,saveptr) strtok_s(str,delim,saveptr)
 #endif
 
@@ -116,14 +114,14 @@ SquashCodec*
 squash_context_get_codec (SquashContext* context, const char* codec) {
   const char* sep_pos = strchr (codec, ':');
   if (sep_pos != NULL) {
-    char* plugin_name = (char*) malloc ((sep_pos - codec) + 1);
+    char* plugin_name = (char*) squash_malloc ((sep_pos - codec) + 1);
 
     strncpy (plugin_name, codec, sep_pos - codec);
     plugin_name[sep_pos - codec] = 0;
     codec = sep_pos + 1;
 
     SquashPlugin* plugin = squash_context_get_plugin (context, plugin_name);
-    free (plugin_name);
+    squash_free (plugin_name);
     if (plugin == NULL)
       return NULL;
 
@@ -239,8 +237,8 @@ squash_context_add_plugin (SquashContext* context, char* name, char* directory) 
 
     SQUASH_TREE_INSERT(&(context->plugins), SquashPlugin_, tree, plugin);
   } else {
-    free (name);
-    free (directory);
+    squash_free (name);
+    squash_free (directory);
 
     plugin = NULL;
   }
@@ -271,7 +269,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
   codec_ref = squash_context_get_codec_ref (context, codec->name);
   if (codec_ref == NULL) {
     /* Insert a new entry into context->codecs */
-    codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
+    codec_ref = (SquashCodecRef*) squash_malloc (sizeof (SquashCodecRef));
     codec_ref->codec = codec;
     SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
     SQUASH_TREE_INSERT (&(context->codecs), SquashCodecRef_, tree, codec_ref);
@@ -283,7 +281,7 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
   if (codec->extension != NULL) {
     codec_ref = squash_context_get_codec_ref_from_extension (context, codec->extension);
     if (codec_ref == NULL) {
-      codec_ref = (SquashCodecRef*) malloc (sizeof (SquashCodecRef));
+      codec_ref = (SquashCodecRef*) squash_malloc (sizeof (SquashCodecRef));
       codec_ref->codec = codec;
       SQUASH_TREE_ENTRY_INIT(codec_ref->tree);
       SQUASH_TREE_INSERT (&(context->extensions), SquashCodecRef_, tree, codec_ref);
@@ -291,6 +289,17 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
       codec_ref->codec = codec;
     }
   }
+}
+
+static char*
+squash_strndup(const char* s, size_t n) {
+	const char* eos = (const char*) memchr (s, '\0', n);
+	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
+  char* res = (char*) squash_malloc (res_len + 1);
+	memcpy (res, s, res_len);
+	res[res_len] = '\0';
+
+	return res;
 }
 
 /**
@@ -317,18 +326,18 @@ squash_codecs_file_parser_callback (const char* section,
     if (strcasecmp (key, "license") == 0) {
       size_t n = 0;
       if (parser->plugin->license != NULL) {
-        free (parser->plugin->license);
+        squash_free (parser->plugin->license);
         parser->plugin->license = NULL;
       }
 
-      char* licenses = strdup (value);
+      char* licenses = squash_strndup (value, strlen (value) + 1);
       char* saveptr = NULL;
       char* license = SQUASH_STRTOK_R (licenses, ";", &saveptr);
 
       while (license != NULL) {
         SquashLicense license_value = squash_license_from_string (license);
         if (license_value != SQUASH_LICENSE_UNKNOWN) {
-          parser->plugin->license = realloc (parser->plugin->license, sizeof (SquashLicense) * (n + 2));
+          parser->plugin->license = squash_realloc (parser->plugin->license, sizeof (SquashLicense) * (n + 2));
           parser->plugin->license[n++] = squash_license_from_string (license);
           parser->plugin->license[n] = SQUASH_LICENSE_UNKNOWN;
 
@@ -338,7 +347,7 @@ squash_codecs_file_parser_callback (const char* section,
         license = SQUASH_STRTOK_R (NULL, ";", &saveptr);
       };
 
-      free (licenses);
+      squash_free (licenses);
     } else if (strcasecmp (key, "priority") == 0) {
       char* endptr = NULL;
       long priority = strtol (value, &endptr, 0);
@@ -372,26 +381,13 @@ squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
   }
 }
 
-#if defined(_WIN32)
-static char*
-squash_strndup(const char* s, size_t n) {
-	const char* eos = (const char*) memchr (s, '\0', n);
-	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
-  char* res = (char*) malloc (res_len + 1);
-	memcpy (res, s, res_len);
-	res[res_len] = '\0';
-
-	return res;
-}
-#endif
-
 static void
 squash_context_check_directory_for_plugin (SquashContext* context, const char* directory_name, const char* plugin_name) {
   size_t directory_name_size = strlen (directory_name);
   size_t plugin_name_size = strlen (plugin_name);
 
   size_t codecs_file_name_size = directory_name_size + (plugin_name_size * 2) + 10;
-  char* codecs_file_name = (char*) malloc (codecs_file_name_size + 1);
+  char* codecs_file_name = (char*) squash_malloc (codecs_file_name_size + 1);
   snprintf (codecs_file_name, codecs_file_name_size, "%s/%s/squash.ini",
             directory_name, plugin_name);
 
@@ -399,7 +395,7 @@ squash_context_check_directory_for_plugin (SquashContext* context, const char* d
 
   if (codecs_file != NULL) {
     size_t plugin_directory_name_size = directory_name_size + plugin_name_size + 1;
-    char* plugin_directory_name = (char*) malloc (plugin_directory_name_size + 1);
+    char* plugin_directory_name = (char*) squash_malloc (plugin_directory_name_size + 1);
     snprintf (plugin_directory_name, plugin_directory_name_size + 1, "%s/%s",
               directory_name, plugin_name);
 
@@ -414,7 +410,7 @@ squash_context_check_directory_for_plugin (SquashContext* context, const char* d
     fclose (codecs_file);
   }
 
-  free (codecs_file_name);
+  squash_free (codecs_file_name);
 }
 
 static void
@@ -430,7 +426,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
     long name_max = pathconf (directory_name, _PC_NAME_MAX);
     if (name_max == -1)
       name_max = 255;
-    entry = (struct dirent*) malloc (offsetof (struct dirent, d_name) + name_max + 1);
+    entry = (struct dirent*) squash_malloc (offsetof (struct dirent, d_name) + name_max + 1);
   }
 
   while ( readdir_r (directory, entry, &result) == 0 && result != NULL ) {
@@ -448,7 +444,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
     squash_context_check_directory_for_plugin (context, directory_name, entry->d_name);
   }
 
-  free (entry);
+  squash_free (entry);
   closedir (directory);
 #else
   WIN32_FIND_DATA entry;
@@ -462,7 +458,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
     return;
   }
 
-  directory_query = (TCHAR*) malloc (directory_query_size * sizeof(TCHAR));
+  directory_query = (TCHAR*) squash_malloc (directory_query_size * sizeof(TCHAR));
 
   StringCchCopy (directory_query, directory_query_size, directory_name);
   StringCchCat (directory_query, directory_query_size, TEXT("\\*"));
@@ -485,7 +481,7 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
   while (FindNextFile (directory_handle, &entry) != 0);
 
   FindClose(directory_handle);
-  free (directory_query);
+  squash_free (directory_query);
 #endif /* defined(_WIN32) */
 }
 

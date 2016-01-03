@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -116,7 +116,7 @@ squash_plugin_init (SquashPlugin* plugin) {
     plugin_dir_size = strlen (plugin->directory);
     plugin_name_size = strlen (plugin->name);
     plugin_file_name_max_size = plugin_dir_size + squash_version_api_size + plugin_name_size + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
-    plugin_file_name = (char*) malloc (plugin_file_name_max_size + 1);
+    plugin_file_name = (char*) squash_malloc (plugin_file_name_max_size + 1);
 
 #if defined(_MSC_VER)
     snprintf (plugin_file_name, plugin_file_name_max_size + 1,
@@ -132,7 +132,7 @@ squash_plugin_init (SquashPlugin* plugin) {
     handle = LoadLibrary (TEXT(plugin_file_name));
 #endif
 
-    free (plugin_file_name);
+    squash_free (plugin_file_name);
 
     if (SQUASH_LIKELY(handle != NULL)) {
       SQUASH_MTX_LOCK(plugin_init);
@@ -318,7 +318,7 @@ squash_plugin_foreach_codec (SquashPlugin* plugin, SquashCodecForeachFunc func, 
  */
 SquashPlugin*
 squash_plugin_new (char* name, char* directory, SquashContext* context) {
-  SquashPlugin* plugin = (SquashPlugin*) malloc (sizeof (SquashPlugin));
+  SquashPlugin* plugin = (SquashPlugin*) squash_malloc (sizeof (SquashPlugin));
 
   plugin->name = name;
   plugin->license = NULL;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -60,14 +60,14 @@ squash_buffer_stream_destroy (void* stream) {
 static void
 squash_buffer_stream_free (void* options) {
   squash_buffer_stream_destroy (options);
-  free (options);
+  squash_free (options);
 }
 
 SquashBufferStream*
 squash_buffer_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashBufferStream* stream;
 
-  stream = (SquashBufferStream*) malloc (sizeof (SquashBufferStream));
+  stream = (SquashBufferStream*) squash_malloc (sizeof (SquashBufferStream));
   squash_buffer_stream_init (stream, codec, stream_type, options, squash_buffer_stream_free);
 
   return stream;
@@ -168,7 +168,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
       } else {
         /* If we have >= npot(compressed_size) << 3 bytes in next_out,
            first attempt to decompress directly to next_out.  If it
-           works, it saves us a malloc and a memcpy. */
+           works, it saves us a squash_malloc and a memcpy. */
         decompressed_size = squash_npot (input->size) << 3;
         decompressed_size = 1;
         if (decompressed_size <= s->avail_out) {

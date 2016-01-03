@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -52,7 +52,7 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
     /* To catch very very large requests */
     if (SQUASH_LIKELY(next_allocation > allocation))
       allocation = next_allocation;
-    uint8_t* mem = (uint8_t*) realloc (buffer->data, allocation);
+    uint8_t* mem = (uint8_t*) squash_realloc (buffer->data, allocation);
     if (mem == NULL)
       return false;
     buffer->allocated = allocation;
@@ -72,7 +72,7 @@ squash_buffer_ensure_allocation (SquashBuffer* buffer, size_t allocation) {
  */
 SquashBuffer*
 squash_buffer_new (size_t preallocated_len) {
-  SquashBuffer* buffer = (SquashBuffer*) malloc (sizeof (SquashBuffer));
+  SquashBuffer* buffer = (SquashBuffer*) squash_malloc (sizeof (SquashBuffer));
   if (SQUASH_UNLIKELY(buffer == NULL))
     return NULL;
 
@@ -103,7 +103,7 @@ void
 squash_buffer_clear (SquashBuffer* buffer) {
   assert (buffer != NULL);
 
-  free (buffer->data);
+  squash_free (buffer->data);
   buffer->data = NULL;
   buffer->allocated = 0;
   buffer->size = 0;
@@ -137,9 +137,9 @@ squash_buffer_free (SquashBuffer* buffer) {
     return;
 
   if (buffer->data != NULL) {
-    free (buffer->data);
+    squash_free (buffer->data);
   }
-  free (buffer);
+  squash_free (buffer);
 }
 
 uint8_t*
@@ -149,7 +149,7 @@ squash_buffer_release (SquashBuffer* buffer,
   if (size != NULL)
     *size = buffer->size;
 
-  free (buffer);
+  squash_free (buffer);
 
   return data;
 }

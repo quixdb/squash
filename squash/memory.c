@@ -92,7 +92,7 @@ static SquashMemoryFuncs squash_memfns = {
  */
 
 /**
- * Set memory management functions for future contexts
+ * Set memory management functions
  *
  * The `aligned_alloc` and `aligned_free` functions may be `NULL`,
  * but all other functions must be implemented.
@@ -101,6 +101,13 @@ static SquashMemoryFuncs squash_memfns = {
  * before *any* other function in the Squash, or your program will
  * likely crash (due to attempting to free a buffer allocated with the
  * standard allocator using your non-standard free function).
+ *
+ * @note While Squash itself does not call other memory management
+ * functions (such as malloc and free) directly, we can't make any
+ * promises about plugins or third-party libraries.  We try to make
+ * sure as many as possible support custom memory management functions
+ * (often filing bugs and patches upstream), but it's unlikely this
+ * feature will ever reach 100% coverage.
  *
  * @param memfn Functions to use to manage memory
  */

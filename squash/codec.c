@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -683,7 +683,7 @@ squash_codec_compress_with_options (SquashCodec* codec,
                                    options);
       goto cleanup;
     } else {
-      uint8_t* tmp_buf = malloc (max_compressed_size);
+      uint8_t* tmp_buf = squash_malloc (max_compressed_size);
       if (SQUASH_UNLIKELY(tmp_buf == NULL)) {
         res = squash_error (SQUASH_MEMORY);
         goto cleanup;
@@ -696,18 +696,18 @@ squash_codec_compress_with_options (SquashCodec* codec,
       if (res == SQUASH_OK) {
         if (SQUASH_UNLIKELY(*compressed_size < max_compressed_size)) {
           *compressed_size = max_compressed_size;
-          free (tmp_buf);
+          squash_free (tmp_buf);
           res = squash_error (SQUASH_BUFFER_FULL);
           goto cleanup;
         } else {
           *compressed_size = max_compressed_size;
           memcpy (compressed, tmp_buf, max_compressed_size);
-          free (tmp_buf);
+          squash_free (tmp_buf);
           res = SQUASH_OK;
           goto cleanup;
         }
       } else {
-        free (tmp_buf);
+        squash_free (tmp_buf);
         goto cleanup;
       }
     }
@@ -913,7 +913,7 @@ squash_codec_decompress (SquashCodec* codec,
  */
 SquashCodec*
 squash_codec_new (SquashPlugin* plugin, const char* name) {
-  SquashCodec* codecp = (SquashCodec*) malloc (sizeof (SquashCodec));
+  SquashCodec* codecp = (SquashCodec*) squash_malloc (sizeof (SquashCodec));
   SquashCodec codec = { 0, };
 
   codec.plugin = plugin;
@@ -938,7 +938,7 @@ squash_codec_new (SquashPlugin* plugin, const char* name) {
 void
 squash_codec_set_extension (SquashCodec* codec, const char* extension) {
   if (codec->extension != NULL)
-    free (codec->extension);
+    squash_free (codec->extension);
 
   codec->extension = (extension != NULL) ? strdup (extension) : NULL;
 }
@@ -1238,8 +1238,8 @@ squash_codec_decompress_to_buffer (SquashCodec* codec,
        out of codecs which take signed values for buffer sizes. */
     decompressed_size = decompressed_alloc - 1;
 
-    free (decompressed_data);
-    decompressed_data = malloc (decompressed_alloc);
+    squash_free (decompressed_data);
+    decompressed_data = squash_malloc (decompressed_alloc);
     if (SQUASH_UNLIKELY(decompressed_data == NULL))
       return squash_error (SQUASH_MEMORY);
 
@@ -1264,7 +1264,7 @@ squash_codec_decompress_to_buffer (SquashCodec* codec,
   if (SQUASH_LIKELY(res == SQUASH_OK))
     squash_buffer_steal (decompressed, decompressed_size, decompressed_alloc, decompressed_data);
   else
-    free (decompressed_data);
+    squash_free (decompressed_data);
 
   return res;
 }

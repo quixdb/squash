@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -228,7 +228,7 @@ squash_splice_stream (FILE* fp_in,
       goto cleanup;
     }
 
-    data = malloc (SQUASH_FILE_BUF_SIZE);
+    data = squash_malloc (SQUASH_FILE_BUF_SIZE);
     if (SQUASH_UNLIKELY(data == NULL)) {
       res = squash_error (SQUASH_MEMORY);
       goto cleanup;
@@ -291,7 +291,7 @@ squash_splice_stream (FILE* fp_in,
 #if defined(SQUASH_MMAP_IO)
   squash_mapped_file_destroy (&map, false);
 #endif
-  free (data);
+  squash_free (data);
 
   return res;
 }
@@ -539,8 +539,8 @@ squash_splice_custom_with_options (SquashCodec* codec,
     if (SQUASH_UNLIKELY(stream == NULL))
       return squash_error (SQUASH_FAILED);
 
-    uint8_t* const in_buf = malloc (SQUASH_SPLICE_BUF_SIZE);
-    uint8_t* const out_buf = malloc (SQUASH_SPLICE_BUF_SIZE);
+    uint8_t* const in_buf = squash_malloc (SQUASH_SPLICE_BUF_SIZE);
+    uint8_t* const out_buf = squash_malloc (SQUASH_SPLICE_BUF_SIZE);
 
     if (SQUASH_UNLIKELY(in_buf == NULL) || SQUASH_UNLIKELY(out_buf == NULL)) {
       res = squash_error (SQUASH_MEMORY);
@@ -605,8 +605,8 @@ squash_splice_custom_with_options (SquashCodec* codec,
 
   cleanup_stream:
     squash_object_unref (stream);
-    free (in_buf);
-    free (out_buf);
+    squash_free (in_buf);
+    squash_free (out_buf);
   } else {
     SquashBuffer* buffer = squash_buffer_new (0);
     bool eof = false;
@@ -640,7 +640,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
     /* Process (compress or decompress) the data. */
     if (stream_type == SQUASH_STREAM_COMPRESS) {
       out_data_size = squash_codec_get_max_compressed_size (codec, buffer->size);
-      out_data = malloc (out_data_size);
+      out_data = squash_malloc (out_data_size);
       if (SQUASH_UNLIKELY(out_data == NULL)) {
         res = squash_error (SQUASH_MEMORY);
         goto cleanup_buffer;
@@ -660,7 +660,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
           goto cleanup_buffer;
         }
 
-        out_data = malloc (out_data_size);
+        out_data = squash_malloc (out_data_size);
         if (SQUASH_UNLIKELY(out_data == NULL)) {
           res = squash_error (SQUASH_MEMORY);
           goto cleanup_buffer;
@@ -698,7 +698,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
 
   cleanup_buffer:
     squash_buffer_free (buffer);
-    free (out_data);
+    squash_free (out_data);
   }
 
   squash_object_unref (options);

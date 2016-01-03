@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -143,7 +143,7 @@ squash_charset_convert (size_t* output_size, char** output, const char* output_c
   assert (input_charset != NULL);
 
   if (strcasecmp (output_charset, input_charset) == 0) {
-    *output = malloc (input_size);
+    *output = squash_malloc (input_size);
     if (*output == NULL)
       return false;
 
@@ -164,7 +164,7 @@ squash_charset_convert (size_t* output_size, char** output, const char* output_c
   const char* in_p = input;
   do {
     out_size *= 2;
-    out_start = realloc (out_start, out_size);
+    out_start = squash_realloc (out_start, out_size);
     if (out_start == NULL)
       return false;
 
@@ -190,7 +190,7 @@ squash_charset_convert (size_t* output_size, char** output, const char* output_c
   iconv_close (ctx);
 
   if (!res)
-    free (out_start);
+    squash_free (out_start);
 
   return res;
 }
