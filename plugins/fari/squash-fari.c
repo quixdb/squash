@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -48,11 +48,10 @@ squash_fari_decompress_buffer (SquashCodec* codec,
                                size_t compressed_size,
                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
-  SquashContext* ctx = squash_codec_get_context (codec);
-  void* workmem = squash_malloc (ctx, FA_WORKMEM);
+  void* workmem = squash_malloc (FA_WORKMEM);
   int fari_e = (size_t) fa_decompress ((const unsigned char*) compressed, (unsigned char*) decompressed,
                                        compressed_size, decompressed_size, workmem);
-  squash_free (ctx, workmem);
+  squash_free (workmem);
 
   switch (fari_e) {
     case 0:
@@ -77,11 +76,10 @@ squash_fari_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  SquashContext* ctx = squash_codec_get_context (codec);
-  void* workmem = squash_malloc (ctx, FA_WORKMEM);
+  void* workmem = squash_malloc (FA_WORKMEM);
   int fari_e = fa_compress ((const unsigned char*) uncompressed, (unsigned char*) compressed,
                             uncompressed_size, compressed_size, workmem);
-  squash_free (ctx, workmem);
+  squash_free (workmem);
 
   return SQUASH_LIKELY(fari_e == 0) ? SQUASH_OK : SQUASH_FAILED;
 }

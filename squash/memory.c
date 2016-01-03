@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -92,21 +92,15 @@ static SquashMemoryFuncs squash_memfns = {
  */
 
 /**
- * @internal
- * @brief Get memory management functions
- *
- * @param[out] memfns Location to store memory management functions
- */
-void
-squash_get_memory_functions (SquashMemoryFuncs* memfns) {
-  *memfns = squash_memfns;
-}
-
-/**
  * Set memory management functions for future contexts
  *
  * The `aligned_alloc` and `aligned_free` functions may be `NULL`,
  * but all other functions must be implemented.
+ *
+ * @note If you choose to call this function then you must do so
+ * before *any* other function in the Squash, or your program will
+ * likely crash (due to attempting to free a buffer allocated with the
+ * standard allocator using your non-standard free function).
  *
  * @param memfn Functions to use to manage memory
  */
@@ -124,18 +118,18 @@ squash_set_memory_functions (SquashMemoryFuncs memfn) {
 }
 
 void*
-squash_malloc (SquashContext* ctx, size_t size) {
-  return ctx->memfns.malloc (size);
+squash_malloc (size_t size) {
+  return squash_memfns.malloc (size);
 }
 
 void*
-squash_realloc (SquashContext* ctx, void* ptr, size_t size) {
-  return ctx->memfns.realloc (ptr, size);
+squash_realloc (void* ptr, size_t size) {
+  return squash_memfns.realloc (ptr, size);
 }
 
 void
-squash_free (SquashContext* ctx, void* ptr) {
-  ctx->memfns.free (ptr);
+squash_free (void* ptr) {
+  squash_memfns.free (ptr);
 }
 
 /**
@@ -164,9 +158,9 @@ squash_free (SquashContext* ctx, void* ptr) {
  * @param size Number of bytes to allocate
  */
 void*
-squash_aligned_alloc (SquashContext* ctx, size_t alignment, size_t size) {
-  if (ctx->memfns.aligned_alloc != NULL) {
-    return ctx->memfns.aligned_alloc (alignment, size);
+squash_aligned_alloc (size_t alignment, size_t size) {
+  if (squash_memfns.aligned_alloc != NULL) {
+    return squash_memfns.aligned_alloc (alignment, size);
   } else {
     /* This code is only used when people provide custom memory
      * functions but don't bother providing aligned versions.  AFAIK
@@ -181,7 +175,7 @@ squash_aligned_alloc (SquashContext* ctx, size_t alignment, size_t size) {
      * implementation. */
 
     const size_t ms = size + alignment + sizeof(void*);
-    const void* ptr = ctx->memfns.malloc (ms);
+    const void* ptr = squash_memfns.malloc (ms);
     const uintptr_t addr = (uintptr_t) ptr;
 
     /* Figure out where to put the object.  We want a pointer to the
@@ -205,11 +199,11 @@ squash_aligned_alloc (SquashContext* ctx, size_t alignment, size_t size) {
  * @param ctx The context
  * @param ptr Buffer to deallocate
  */
-void squash_aligned_free (SquashContext* ctx, void* ptr) {
-  if (ctx->memfns.aligned_free != NULL) {
-    return ctx->memfns.aligned_free (ptr);
+void squash_aligned_free (void* ptr) {
+  if (squash_memfns.aligned_free != NULL) {
+    return squash_memfns.aligned_free (ptr);
   } else if (ptr != NULL) {
-    ctx->memfns.free ((void*) (((uintptr_t) ptr) - sizeof(void*)));
+    squash_memfns.free ((void*) (((uintptr_t) ptr) - sizeof(void*)));
   }
 }
 

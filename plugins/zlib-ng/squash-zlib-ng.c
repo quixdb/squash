@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -107,14 +107,12 @@ static void               squash_zlib_stream_free    (void* stream);
 
 static voidpf
 squash_zlib_malloc (voidpf opaque, uInt items, uInt size) {
-  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
-  return (voidpf) squash_malloc (ctx, (size_t) items * (size_t) size);
+  return (voidpf) squash_malloc (((size_t) items) * ((size_t) size));
 }
 
 static void
 squash_zlib_free (voidpf opaque, voidpf address) {
-  SquashContext* ctx = squash_codec_get_context (((SquashStream*) opaque)->codec);
-  squash_free (ctx, (void*) address);
+  squash_free ((void*) address);
 }
 
 static SquashZlibType squash_zlib_codec_to_type (SquashCodec* codec) {
@@ -140,7 +138,6 @@ squash_zlib_stream_init (SquashZlibStream* stream,
 
   z_stream tmp = { 0, };
   stream->stream = tmp;
-  stream->stream.opaque = stream;
   stream->stream.zalloc = squash_zlib_malloc;
   stream->stream.zfree  = squash_zlib_free;
 }
@@ -162,7 +159,7 @@ squash_zlib_stream_destroy (void* stream) {
 static void
 squash_zlib_stream_free (void* stream) {
   squash_zlib_stream_destroy (stream);
-  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
+  squash_free (stream);
 }
 
 static SquashZlibStream*
@@ -174,7 +171,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashZlibStream));
+  stream = squash_malloc (sizeof (SquashZlibStream));
   squash_zlib_stream_init (stream, codec, stream_type, options, squash_zlib_stream_free);
 
   stream->type = squash_zlib_codec_to_type (codec);

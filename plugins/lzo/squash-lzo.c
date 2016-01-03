@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -297,10 +297,8 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   int lzo_e;
   lzo_voidp work_mem = NULL;
   lzo_uint decompressed_len, compressed_len;
-  SquashContext* ctx;
 
   assert (codec != NULL);
-  ctx = squash_codec_get_context (codec);
   codec_name = squash_codec_get_name (codec);
   assert (codec_name != NULL);
   lzo_codec = squash_lzo_codec_from_name (codec_name);
@@ -314,7 +312,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   decompressed_len = (lzo_uint) *decompressed_size;
 
   if (lzo_codec->work_mem > 0) {
-    work_mem = squash_malloc (ctx, lzo_codec->work_mem);
+    work_mem = squash_malloc (lzo_codec->work_mem);
     if (SQUASH_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
@@ -323,7 +321,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   lzo_e = lzo_codec->decompress (compressed, compressed_len,
                                  decompressed, &decompressed_len,
                                  work_mem);
-  squash_free (ctx, work_mem);
+  squash_free (work_mem);
 
   if (lzo_e != LZO_E_OK)
     return squash_lzo_status_to_squash_status (lzo_e);
@@ -371,7 +369,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   compressed_len = (lzo_uint) (*compressed_size);
 
   if (compressor->work_mem > 0) {
-    work_mem = squash_malloc (ctx, compressor->work_mem);
+    work_mem = squash_malloc (compressor->work_mem);
     if (SQUASH_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
@@ -381,7 +379,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
                                 compressed, &compressed_len,
                                 work_mem);
 
-  squash_free (ctx, work_mem);
+  squash_free (work_mem);
 
   if (lzo_e != LZO_E_OK)
     return squash_lzo_status_to_squash_status (lzo_e);

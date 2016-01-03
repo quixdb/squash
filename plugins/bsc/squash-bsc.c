@@ -92,14 +92,12 @@ static SquashOptionInfo squash_bsc_options[] = {
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 
-static SQUASH_THREAD_LOCAL SquashContext* squash_bsc_context = NULL;
-
 static void* squash_bsc_malloc (size_t size) {
-  return squash_malloc (squash_bsc_context, size);
+  return squash_malloc (size);
 }
 
 static void squash_bsc_free (void* ptr) {
-  squash_free (squash_bsc_context, ptr);
+  squash_free (ptr);
 }
 
 static size_t
@@ -162,10 +160,8 @@ squash_bsc_compress_buffer_unsafe (SquashCodec* codec,
   if (SQUASH_UNLIKELY(*compressed_size < (uncompressed_size + LIBBSC_HEADER_SIZE)))
     return squash_error (SQUASH_BUFFER_FULL);
 
-  squash_bsc_context = squash_codec_get_context (codec);
   const int res = bsc_compress (uncompressed, compressed, (int) uncompressed_size,
                                 lzp_hash_size, lzp_min_len, block_sorter, coder, features);
-  squash_bsc_context = NULL;
 
   if (SQUASH_UNLIKELY(res < 0)) {
     return squash_error (SQUASH_FAILED);
@@ -205,9 +201,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
   if (SQUASH_UNLIKELY(p_data_size > (int) *decompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
-  squash_bsc_context = squash_codec_get_context (codec);
   res = bsc_decompress (compressed, p_block_size, decompressed, p_data_size, features);
-  squash_bsc_context = NULL;
 
   if (SQUASH_UNLIKELY(res < 0))
     return squash_error (SQUASH_FAILED);

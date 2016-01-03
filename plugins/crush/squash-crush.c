@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -59,12 +59,12 @@ SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, Squ
 
 static void*
 squash_crush_malloc (size_t size, void* user_data) {
-  return squash_malloc (((struct SquashCrushData*) user_data)->context, size);
+  return squash_malloc (size);
 }
 
 static void
 squash_crush_free (void* ptr, void* user_data) {
-  return squash_free (((struct SquashCrushData*) user_data)->context, ptr);
+  return squash_free (ptr);
 }
 
 static size_t

@@ -34,10 +34,14 @@ static void* squash_test_malloc (size_t size) {
 }
 
 static void* squash_test_realloc (void* ptr, size_t size) {
-  uint64_t* rptr = ((uint64_t*) ptr) - 1;
-  g_assert (*rptr == 0xBADC0FFEE0DDF00D);
-  rptr = realloc (rptr, size + sizeof(uint64_t));
-  return (void*) (rptr + 1);
+  if (ptr == NULL) {
+    return squash_test_malloc (size);
+  } else {
+    uint64_t* rptr = ((uint64_t*) ptr) - 1;
+    g_assert (*rptr == 0xBADC0FFEE0DDF00D);
+    rptr = realloc (rptr, size + sizeof(uint64_t));
+    return (void*) (rptr + 1);
+  }
 }
 
 static void squash_test_free (void* ptr) {

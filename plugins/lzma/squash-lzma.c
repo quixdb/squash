@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -212,16 +212,14 @@ static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
 }
 
 static void* squash_lzma_calloc (void *opaque, size_t nmemb, size_t size) {
-  SquashContext* ctx = (SquashContext*) opaque;
-  void* ptr = squash_malloc (ctx, nmemb * size);
+  void* ptr = squash_malloc (nmemb * size);
   if (SQUASH_UNLIKELY(ptr == NULL))
     return ptr;
   return memset (ptr, 0, nmemb * size);
 }
 
 static void squash_lzma_free (void *opaque, void* ptr) {
-  SquashContext* ctx = (SquashContext*) opaque;
-  squash_free (ctx, ptr);
+  squash_free (ptr);
 }
 
 static void
@@ -253,8 +251,7 @@ squash_lzma_stream_destroy (void* stream) {
 static void
 squash_lzma_stream_free (void* stream) {
   squash_lzma_stream_destroy (stream);
-  SquashContext* ctx = squash_codec_get_context (((SquashStream*) stream)->codec);
-  squash_free (ctx, stream);
+  squash_free (stream);
 }
 
 static SquashLZMAStream*
@@ -264,11 +261,8 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   SquashLZMAType lzma_type;
   lzma_options_lzma lzma_options = { 0, };
   lzma_filter filters[2];
-  SquashContext* ctx;
 
   assert (codec != NULL);
-
-  ctx = squash_codec_get_context (codec);
 
   lzma_type = squash_lzma_codec_to_type (codec);
 
@@ -293,7 +287,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   filters[1].id = LZMA_VLI_UNKNOWN;
   filters[1].options = NULL;
 
-  stream = (SquashLZMAStream*) squash_malloc (ctx, sizeof (SquashLZMAStream));
+  stream = (SquashLZMAStream*) squash_malloc (sizeof (SquashLZMAStream));
   squash_lzma_stream_init (stream, codec, lzma_type, stream_type, options, squash_lzma_stream_free);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {

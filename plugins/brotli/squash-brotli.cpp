@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -80,12 +80,12 @@ static void                 squash_brotli_stream_free     (void* stream);
 
 static void*
 squash_brotli_malloc (void* opaque, size_t size) {
-  return squash_malloc ((SquashContext*) opaque, size);
+  return squash_malloc (size);
 }
 
 static void
 squash_brotli_free (void* opaque, void* ptr) {
-  squash_free ((SquashContext*) opaque, ptr);
+  squash_free (ptr);
 }
 
 static SquashBrotliStream*
@@ -95,7 +95,7 @@ squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squa
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashBrotliStream*) squash_malloc (squash_codec_get_context (codec), sizeof (SquashBrotliStream));
+  stream = (SquashBrotliStream*) squash_malloc (sizeof (SquashBrotliStream));
   squash_brotli_stream_init (stream, codec, stream_type, options, squash_brotli_stream_free);
 
   return stream;
@@ -146,7 +146,7 @@ squash_brotli_stream_destroy (void* stream) {
 static void
 squash_brotli_stream_free (void* stream) {
   squash_brotli_stream_destroy (stream);
-  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
+  squash_free (stream);
 }
 
 static SquashStream*

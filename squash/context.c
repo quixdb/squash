@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -645,15 +645,11 @@ squash_foreach_codec (SquashCodecForeachFunc func, void* data) {
 
 static SquashContext*
 squash_context_new (void) {
-  SquashMemoryFuncs memfns;
-  squash_get_memory_functions (&memfns);
-
-  SquashContext* context = memfns.malloc (sizeof (SquashContext));
+  SquashContext* context = squash_malloc (sizeof (SquashContext));
   memset (context, 0, sizeof (SquashContext));
 
   assert (context != NULL);
 
-  context->memfns = memfns;
   SQUASH_TREE_INIT(&(context->codecs), squash_codec_ref_compare);
   SQUASH_TREE_INIT(&(context->plugins), squash_plugin_compare);
   SQUASH_TREE_INIT(&(context->extensions), squash_codec_ref_extension_compare);

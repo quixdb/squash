@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -77,12 +77,12 @@ static void              squash_bz2_stream_free     (void* stream);
 
 static void*
 squash_bz2_malloc (void* opaque, int a, int b) {
-  return squash_malloc ((SquashContext*) opaque, ((size_t) a) * ((size_t) b));
+  return squash_malloc (((size_t) a) * ((size_t) b));
 }
 
 static void
 squash_bz2_free (void* opaque, void* ptr) {
-  return squash_free ((SquashContext*) opaque, ptr);
+  return squash_free (ptr);
 }
 
 static SquashBZ2Stream*
@@ -93,7 +93,7 @@ squash_bz2_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashO
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashBZ2Stream));
+  stream = squash_malloc (sizeof (SquashBZ2Stream));
   squash_bz2_stream_init (stream, codec, stream_type, options, squash_bz2_stream_free);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
@@ -150,7 +150,7 @@ squash_bz2_stream_destroy (void* stream) {
 static void
 squash_bz2_stream_free (void* stream) {
   squash_bz2_stream_destroy (stream);
-  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
+  squash_free (stream);
 }
 
 static SquashStream*

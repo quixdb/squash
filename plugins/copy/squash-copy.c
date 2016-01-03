@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -66,7 +66,7 @@ squash_copy_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashCopyStream*) squash_malloc (squash_codec_get_context (codec), sizeof (SquashCopyStream));
+  stream = (SquashCopyStream*) squash_malloc (sizeof (SquashCopyStream));
   squash_copy_stream_init (stream, codec, stream_type, options, squash_copy_stream_free);
 
   return stream;
@@ -89,7 +89,7 @@ squash_copy_stream_destroy (void* stream) {
 static void
 squash_copy_stream_free (void* stream) {
   squash_copy_stream_destroy (stream);
-  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
+  squash_free (stream);
 }
 
 static SquashStream*

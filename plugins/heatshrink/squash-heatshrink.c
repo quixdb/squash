@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -82,7 +82,7 @@ squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, 
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = squash_malloc (squash_codec_get_context (codec), sizeof (SquashHeatshrinkStream));
+  stream = squash_malloc (sizeof (SquashHeatshrinkStream));
   if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
@@ -132,7 +132,7 @@ squash_heatshrink_stream_destroy (void* stream) {
 static void
 squash_heatshrink_stream_free (void* stream) {
   squash_heatshrink_stream_destroy (stream);
-  squash_free (squash_codec_get_context (((SquashStream*) stream)->codec), stream);
+  squash_free (stream);
 }
 
 static SquashStream*

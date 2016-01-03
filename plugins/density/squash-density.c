@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,18 +33,14 @@
 
 #include "density/src/density_api.h"
 
-static SQUASH_THREAD_LOCAL SquashContext* squash_density_context = NULL;
-
 static void*
 squash_density_malloc (size_t size) {
-  assert (squash_density_context != NULL);
-  return squash_malloc (squash_density_context, size);
+  return squash_malloc (size);
 }
 
 static void
 squash_density_free (void* ptr) {
-  assert (squash_density_context != NULL);
-  squash_free (squash_density_context, ptr);
+  squash_free (ptr);
 }
 
 #define SQUASH_DENSITY_INPUT_MULTIPLE 32
@@ -123,7 +119,7 @@ squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squ
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashDensityStream*) malloc (sizeof (SquashDensityStream));
+  stream = (SquashDensityStream*) squash_malloc (sizeof (SquashDensityStream));
   squash_density_stream_init (stream, codec, stream_type, options, squash_density_stream_free);
 
   return stream;
@@ -156,24 +152,19 @@ static void
 squash_density_stream_destroy (void* stream) {
   SquashDensityStream* s = (SquashDensityStream*) stream;
 
-  squash_density_context = squash_codec_get_context (s->base_object.codec);
   density_stream_destroy (s->stream);
-  squash_density_context = NULL;
   squash_stream_destroy (stream);
 }
 
 static void
 squash_density_stream_free (void* stream) {
   squash_density_stream_destroy (stream);
-  free (stream);
+  squash_free (stream);
 }
 
 static SquashStream*
 squash_density_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  squash_density_context = squash_codec_get_context (codec);
-  SquashDensityStream* stream = squash_density_stream_new (codec, stream_type, options);
-  squash_density_context = NULL;
-  return (SquashStream*) stream;
+  return (SquashStream*) squash_density_stream_new (codec, stream_type, options);
 }
 
 static DENSITY_COMPRESSION_MODE
@@ -220,7 +211,6 @@ static SquashStatus
 squash_density_process_stream (SquashStream* stream, SquashOperation operation) {
   SquashStatus res = SQUASH_OK;
   SquashDensityStream* s = (SquashDensityStream*) stream;
-  squash_density_context = squash_codec_get_context (stream->codec);
 
   if (s->buffer_size > 0) {
     squash_density_flush_internal_buffer (stream);
@@ -432,7 +422,6 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
   res = (stream->avail_in == 0) ? SQUASH_OK : SQUASH_PROCESSING;
 
  finish:
-  squash_density_context = NULL;
   return res;
 }
 
