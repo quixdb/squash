@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -109,7 +109,6 @@ static void                squash_lzham_stream_init     (SquashLZHAMStream* stre
                                                          SquashDestroyNotify destroy_notify);
 static SquashLZHAMStream*  squash_lzham_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                squash_lzham_stream_destroy  (void* stream);
-static void                squash_lzham_stream_free     (void* stream);
 
 static void                squash_lzham_compress_apply_options   (SquashCodec* codec,
                                                                   lzham_compress_params* params,
@@ -169,8 +168,8 @@ squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squas
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = (SquashLZHAMStream*) malloc (sizeof (SquashLZHAMStream));
-  squash_lzham_stream_init (stream, codec, stream_type, options, squash_lzham_stream_free);
+  stream = (SquashLZHAMStream*) squash_malloc (sizeof (SquashLZHAMStream));
+  squash_lzham_stream_init (stream, codec, stream_type, options, squash_lzham_stream_destroy);
 
   return stream;
 }
@@ -203,12 +202,6 @@ squash_lzham_stream_destroy (void* stream) {
   }
 
   squash_stream_destroy (stream);
-}
-
-static void
-squash_lzham_stream_free (void* stream) {
-  squash_lzham_stream_destroy (stream);
-  free (stream);
 }
 
 static SquashStream*

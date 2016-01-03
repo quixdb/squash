@@ -103,7 +103,6 @@ static void               squash_zlib_stream_init    (SquashZlibStream* stream,
                                                       SquashDestroyNotify destroy_notify);
 static SquashZlibStream*  squash_zlib_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_zlib_stream_destroy (void* stream);
-static void               squash_zlib_stream_free    (void* stream);
 
 static voidpf
 squash_zlib_malloc (voidpf opaque, uInt items, uInt size) {
@@ -156,12 +155,6 @@ squash_zlib_stream_destroy (void* stream) {
   squash_stream_destroy (stream);
 }
 
-static void
-squash_zlib_stream_free (void* stream) {
-  squash_zlib_stream_destroy (stream);
-  squash_free (stream);
-}
-
 static SquashZlibStream*
 squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   int zlib_e = 0;
@@ -172,7 +165,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = squash_malloc (sizeof (SquashZlibStream));
-  squash_zlib_stream_init (stream, codec, stream_type, options, squash_zlib_stream_free);
+  squash_zlib_stream_init (stream, codec, stream_type, options, squash_zlib_stream_destroy);
 
   stream->type = squash_zlib_codec_to_type (codec);
 

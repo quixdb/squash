@@ -44,7 +44,6 @@ static void              squash_copy_stream_init     (SquashCopyStream* stream,
                                                       SquashDestroyNotify destroy_notify);
 static SquashCopyStream* squash_copy_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void              squash_copy_stream_destroy  (void* stream);
-static void              squash_copy_stream_free     (void* stream);
 
 
 static size_t
@@ -67,7 +66,7 @@ squash_copy_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = (SquashCopyStream*) squash_malloc (sizeof (SquashCopyStream));
-  squash_copy_stream_init (stream, codec, stream_type, options, squash_copy_stream_free);
+  squash_copy_stream_init (stream, codec, stream_type, options, squash_copy_stream_destroy);
 
   return stream;
 }
@@ -84,12 +83,6 @@ squash_copy_stream_init (SquashCopyStream* stream,
 static void
 squash_copy_stream_destroy (void* stream) {
   squash_stream_destroy (stream);
-}
-
-static void
-squash_copy_stream_free (void* stream) {
-  squash_copy_stream_destroy (stream);
-  squash_free (stream);
 }
 
 static SquashStream*

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -147,12 +147,6 @@ squash_snappy_framed_stream_destroy (void* stream) {
   squash_stream_destroy (stream);
 }
 
-static void
-squash_snappy_framed_stream_free (void* stream) {
-  squash_snappy_framed_stream_destroy (stream);
-  free (stream);
-}
-
 static SquashSnappyFramedStream*
 squash_snappy_framed_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   SquashSnappyFramedStream* stream;
@@ -161,7 +155,7 @@ squash_snappy_framed_stream_new (SquashCodec* codec, SquashStreamType stream_typ
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = (SquashSnappyFramedStream*) malloc (sizeof (SquashSnappyFramedStream));
-  squash_snappy_framed_stream_init (stream, codec, stream_type, options, squash_snappy_framed_stream_free);
+  squash_snappy_framed_stream_init (stream, codec, stream_type, options, squash_snappy_framed_stream_destroy);
 
   return stream;
 }

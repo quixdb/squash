@@ -40,8 +40,6 @@
 #include <strings.h>
 #endif
 
-static void squash_options_free (void* options);
-
 /**
  * @var SquashOptions_::base_object
  * @brief Base object.
@@ -591,7 +589,7 @@ squash_options_new (SquashCodec* codec, ...) {
 static SquashOptions*
 squash_options_create (SquashCodec* codec) {
   SquashOptions* options = squash_malloc (sizeof (SquashOptions));
-  squash_options_init (options, codec, squash_options_free);
+  squash_options_init (options, codec, squash_options_destroy);
   return options;
 }
 
@@ -729,12 +727,6 @@ squash_options_destroy (void* options) {
   }
 
   squash_object_destroy (o);
-}
-
-static void
-squash_options_free (void* options) {
-  squash_options_destroy ((SquashOptions*) options);
-  squash_free (options);
 }
 
 #if defined(SQUASH_ENABLE_WIDE_CHAR_API)

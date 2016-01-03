@@ -110,7 +110,6 @@ static void                  squash_density_stream_init     (SquashDensityStream
                                                              SquashDestroyNotify destroy_notify);
 static SquashDensityStream*  squash_density_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                  squash_density_stream_destroy  (void* stream);
-static void                  squash_density_stream_free     (void* stream);
 
 static SquashDensityStream*
 squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
@@ -120,7 +119,7 @@ squash_density_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squ
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = (SquashDensityStream*) squash_malloc (sizeof (SquashDensityStream));
-  squash_density_stream_init (stream, codec, stream_type, options, squash_density_stream_free);
+  squash_density_stream_init (stream, codec, stream_type, options, squash_density_stream_destroy);
 
   return stream;
 }
@@ -154,12 +153,6 @@ squash_density_stream_destroy (void* stream) {
 
   density_stream_destroy (s->stream);
   squash_stream_destroy (stream);
-}
-
-static void
-squash_density_stream_free (void* stream) {
-  squash_density_stream_destroy (stream);
-  squash_free (stream);
 }
 
 static SquashStream*

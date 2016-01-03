@@ -153,19 +153,7 @@ squash_atomic_dec (volatile unsigned int* var) {
  * @endcode
  *
  * If your class is not abstract (it is meant to be instantiated, not
- * just subclassed), you should create two more functions.  First, a
- * *_free function which will call your *_destroy function and release
- * any memory you've allocated for the struct itself:
- *
- * @code
- * void
- * my_object_free (MyObject* obj) {
- *   my_object_destroy (obj);
- *   squash_free (obj);
- * }
- * @endcode
- *
- * Finally, a constructor:
+ * just subclassed), you should create a constructor:
  *
  * @code
  * MyObject*
@@ -178,6 +166,9 @@ squash_atomic_dec (volatile unsigned int* var) {
  *   return obj;
  * }
  * @endcode
+ *
+ * Note that you *must* use @ref squash_malloc to allocate your
+ * object; Squash will call @ref squash_free on it later.
  *
  * @{
  */
@@ -262,9 +253,11 @@ squash_object_unref (void* obj) {
   unsigned int ref_count = squash_atomic_dec (&(object->ref_count));
 
   if (ref_count == 1) {
-    if (object->destroy_notify != NULL) {
+    if (SQUASH_LIKELY(object->destroy_notify != NULL))
       object->destroy_notify (obj);
-    }
+
+    squash_free (obj);
+
     return NULL;
   } else {
     return NULL;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -50,7 +50,6 @@ static void                 squash_ms_stream_init     (SquashMSCompStream* strea
                                                        SquashDestroyNotify destroy_notify);
 static SquashMSCompStream*  squash_ms_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                 squash_ms_stream_destroy  (void* stream);
-static void                 squash_ms_stream_free     (void* stream);
 
 static MSCompFormat
 squash_ms_format_from_codec (SquashCodec* codec) {
@@ -93,11 +92,11 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
   assert (codec != NULL);
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
-  stream = malloc (sizeof (SquashMSCompStream));
+  stream = squash_malloc (sizeof (SquashMSCompStream));
   if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
-  squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_free);
+  squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_destroy);
 
   MSCompStatus status;
   MSCompFormat format = squash_ms_format_from_codec (codec);
@@ -135,12 +134,6 @@ squash_ms_stream_destroy (void* stream) {
   }
 
   squash_stream_destroy (stream);
-}
-
-static void
-squash_ms_stream_free (void* stream) {
-  squash_ms_stream_destroy (stream);
-  free (stream);
 }
 
 static SquashStream*

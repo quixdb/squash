@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -102,7 +102,6 @@ static void               squash_lz4f_stream_init     (SquashLZ4FStream* stream,
                                                        SquashDestroyNotify destroy_notify);
 static SquashLZ4FStream*  squash_lz4f_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_lz4f_stream_destroy  (void* stream);
-static void               squash_lz4f_stream_free     (void* stream);
 
 static SquashStatus
 squash_lz4f_get_status (size_t res) {
@@ -149,11 +148,11 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   assert (codec != NULL);
 
-  stream = (SquashLZ4FStream*) malloc (sizeof (SquashLZ4FStream));
+  stream = (SquashLZ4FStream*) squash_malloc (sizeof (SquashLZ4FStream));
   if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
-  squash_lz4f_stream_init (stream, codec, stream_type, options, squash_lz4f_stream_free);
+  squash_lz4f_stream_init (stream, codec, stream_type, options, squash_lz4f_stream_destroy);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     ec = LZ4F_createCompressionContext(&(stream->data.comp.ctx), LZ4F_VERSION);
@@ -208,18 +207,12 @@ squash_lz4f_stream_destroy (void* stream) {
     LZ4F_freeCompressionContext(s->data.comp.ctx);
 
     if (s->data.comp.output_buffer != NULL)
-      free (s->data.comp.output_buffer);
+      squash_free (s->data.comp.output_buffer);
   } else {
     LZ4F_freeDecompressionContext(s->data.decomp.ctx);
   }
 
   squash_stream_destroy (stream);
-}
-
-static void
-squash_lz4f_stream_free (void* stream) {
-  squash_lz4f_stream_destroy (stream);
-  free (stream);
 }
 
 static SquashStream*
@@ -266,7 +259,7 @@ squash_lz4f_stream_get_output_buffer (SquashStream* stream) {
   SquashLZ4FStream* s = (SquashLZ4FStream*) stream;
 
   if (s->data.comp.output_buffer == NULL)
-    s->data.comp.output_buffer = malloc (squash_lz4f_stream_get_output_buffer_size (stream));
+    s->data.comp.output_buffer = squash_malloc (squash_lz4f_stream_get_output_buffer_size (stream));
 
   return s->data.comp.output_buffer;
 }

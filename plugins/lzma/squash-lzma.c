@@ -194,7 +194,6 @@ static void               squash_lzma_stream_init     (SquashLZMAStream* stream,
                                                        SquashDestroyNotify destroy_notify);
 static SquashLZMAStream*  squash_lzma_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void               squash_lzma_stream_destroy  (void* stream);
-static void               squash_lzma_stream_free     (void* stream);
 
 static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
   const char* name = squash_codec_get_name (codec);
@@ -248,12 +247,6 @@ squash_lzma_stream_destroy (void* stream) {
   squash_stream_destroy (stream);
 }
 
-static void
-squash_lzma_stream_free (void* stream) {
-  squash_lzma_stream_destroy (stream);
-  squash_free (stream);
-}
-
 static SquashLZMAStream*
 squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   lzma_ret lzma_e;
@@ -288,7 +281,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   filters[1].options = NULL;
 
   stream = (SquashLZMAStream*) squash_malloc (sizeof (SquashLZMAStream));
-  squash_lzma_stream_init (stream, codec, lzma_type, stream_type, options, squash_lzma_stream_free);
+  squash_lzma_stream_init (stream, codec, lzma_type, stream_type, options, squash_lzma_stream_destroy);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {

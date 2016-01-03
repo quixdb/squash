@@ -73,7 +73,6 @@ static void                    squash_heatshrink_stream_init     (SquashHeatshri
                                                                   SquashDestroyNotify destroy_notify);
 static SquashHeatshrinkStream* squash_heatshrink_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
 static void                    squash_heatshrink_stream_destroy  (void* stream);
-static void                    squash_heatshrink_stream_free     (void* stream);
 
 static SquashHeatshrinkStream*
 squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
@@ -86,7 +85,7 @@ squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, 
   if (SQUASH_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
-  squash_heatshrink_stream_init (stream, codec, stream_type, options, squash_heatshrink_stream_free);
+  squash_heatshrink_stream_init (stream, codec, stream_type, options, squash_heatshrink_stream_destroy);
 
   const uint8_t window_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
   const uint8_t lookahead_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_LOOKAHEAD_SIZE);
@@ -127,12 +126,6 @@ squash_heatshrink_stream_destroy (void* stream) {
     heatshrink_decoder_free (s->ctx.decomp);
 
   squash_stream_destroy (stream);
-}
-
-static void
-squash_heatshrink_stream_free (void* stream) {
-  squash_heatshrink_stream_destroy (stream);
-  squash_free (stream);
 }
 
 static SquashStream*
