@@ -114,10 +114,10 @@
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(__GNUC__)
-#    define SQUASH_INTERNAL __attribute__((__dllimport__))
+#    define SQUASH_INTERNAL
 #    define SQUASH_EXTERNAL __attribute__((__dllexport__))
 #  else
-#    define SQUASH_INTERNAL __declspec(dllimport)
+#    define SQUASH_INTERNAL
 #    define SQUASH_EXTERNAL __declspec(dllexport)
 #  endif
 #else
