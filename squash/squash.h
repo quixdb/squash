@@ -113,13 +113,9 @@
 #endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#  if defined(__GNUC__)
-#    define SQUASH_INTERNAL
-#    define SQUASH_EXTERNAL __attribute__((__dllexport__))
-#  else
-#    define SQUASH_INTERNAL
-#    define SQUASH_EXTERNAL __declspec(dllexport)
-#  endif
+#  define SQUASH_INTERNAL
+#  define SQUASH_EXTERNAL   __declspec(dllexport)
+#  define SQUASH_IMPORT     __declspec(dllimport)
 #else
 #  if defined(__GNUC__) && (__GNUC__ >= 4)
 #    define SQUASH_INTERNAL __attribute__ ((visibility ("hidden")))
@@ -128,12 +124,13 @@
 #    define SQUASH_INTERNAL
 #    define SQUASH_EXTERNAL
 #  endif
+#  define SQUASH_IMPORT     extern
 #endif
 
 #if defined(SQUASH_COMPILATION)
 #  define SQUASH_API SQUASH_EXTERNAL
 #else
-#  define SQUASH_API extern
+#  define SQUASH_API SQUASH_IMPORT
 #endif
 
 #include <squash/version.h>
