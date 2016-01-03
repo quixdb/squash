@@ -79,7 +79,7 @@ squash_bz2_malloc (void* opaque, int a, int b) {
   return squash_malloc (((size_t) a) * ((size_t) b));
 }
 
-static void*
+static void
 squash_bz2_free (void* opaque, void* ptr) {
   squash_free (ptr);
 }
