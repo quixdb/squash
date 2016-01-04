@@ -117,13 +117,13 @@ squash_csc_splice (SquashCodec* codec,
                    SquashWriteFunc write_cb,
                    void* user_data) {
   const struct SquashCscInStream in_stream = {
-    squash_csc_reader,
+    { squash_csc_reader },
     user_data,
     read_cb,
     write_cb
   };
   const struct SquashCscOutStream out_stream = {
-    squash_csc_writer,
+    { squash_csc_writer },
     user_data,
     read_cb,
     write_cb
