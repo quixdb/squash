@@ -2,7 +2,6 @@ include (SquashPlugin)
 
 squash_plugin (
   NAME csc
-  DEFAULT_DISABLED
   SOURCES squash-csc.cpp
   EMBED_SOURCES
     csc/src/libcsc/csc_analyzer.cpp

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -63,6 +63,19 @@ extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
 extern "C" SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_plugin  (SquashPlugin* plugin);
+
+static void* squash_csc_alloc (void* p, size_t size) {
+  return squash_malloc (size);
+}
+
+static void squash_csc_free (void* p, void* address) {
+  squash_free (address);
+}
+
+static const ISzAlloc squash_csc_allocator = {
+  squash_csc_alloc,
+  squash_csc_free
+};
 
 struct SquashCscInStream {
   ISeqInStream stream;
@@ -132,7 +145,7 @@ squash_csc_splice (SquashCodec* codec,
     if (SQUASH_UNLIKELY(bytes_written != CSC_PROP_SIZE))
       return squash_error (SQUASH_FAILED);
 
-    CSCEncHandle comp = CSCEnc_Create (&props, (ISeqOutStream*) &out_stream);
+    CSCEncHandle comp = CSCEnc_Create (&props, (ISeqOutStream*) &out_stream, (ISzAlloc*) &squash_csc_allocator);
     CSCEnc_Encode (comp, (ISeqInStream*) &in_stream, NULL);
     CSCEnc_Encode_Flush (comp);
   } else {
@@ -143,7 +156,7 @@ squash_csc_splice (SquashCodec* codec,
 
     CSCDec_ReadProperties (&props, props_buf);
 
-    CSCDecHandle decomp = CSCDec_Create (&props, (ISeqInStream*) &in_stream);
+    CSCDecHandle decomp = CSCDec_Create (&props, (ISeqInStream*) &in_stream, (ISzAlloc*) &squash_csc_allocator);
     CSCDec_Decode (decomp, (ISeqOutStream*) &out_stream, NULL);
   }
 
@@ -178,7 +191,6 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (SQUASH_LIKELY(strcmp ("csc", name) == 0)) {
-    impl->info = SQUASH_CODEC_INFO_RUN_IN_THREAD;
     impl->options = squash_csc_options;
     impl->splice = squash_csc_splice;
     impl->get_max_compressed_size = squash_csc_get_max_compressed_size;
