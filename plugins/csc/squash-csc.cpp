@@ -46,16 +46,16 @@ enum SquashCscOptionIndex {
    least, I can't figure out how to do it), so there is some extra
    code in the init_plugin func to finish it off. */
 static SquashOptionInfo squash_csc_options[] = {
-  { .name = (char*) "level",
-    .type = SQUASH_OPTION_TYPE_RANGE_INT },
-  { .name = (char*) "dict-size",
-    .type = SQUASH_OPTION_TYPE_RANGE_SIZE },
-  { .name = (char*) "delta-filter",
-    .type = SQUASH_OPTION_TYPE_BOOL },
-  { .name = (char*) "exe-filter",
-    .type = SQUASH_OPTION_TYPE_BOOL },
-  { .name = (char*) "txt-filter",
-    .type = SQUASH_OPTION_TYPE_BOOL },
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT },
+  { "dict-size",
+    SQUASH_OPTION_TYPE_RANGE_SIZE },
+  { "delta-filter",
+    SQUASH_OPTION_TYPE_BOOL },
+  { "exe-filter",
+    SQUASH_OPTION_TYPE_BOOL },
+  { "txt-filter",
+    SQUASH_OPTION_TYPE_BOOL },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
