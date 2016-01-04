@@ -10,7 +10,6 @@ for plugin in \
     bzip2 \
     copy \
     crush \
-    csc \
     density \
     fari \
     fastlz \
@@ -44,6 +43,7 @@ ENABLE_VARS="coverage|yes|ENABLE_COVERAGE"
 ENABLE_ENABLE_COVERAGE_DOC="enable coverage analysis"
 
 for plugin in \
+    csc \
     doboz; do
   NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
   ENABLE_VARS="${ENABLE_VARS} ${plugin}|yes|ENABLE_${NAME_UC}"

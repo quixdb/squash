@@ -2,6 +2,7 @@ include (SquashPlugin)
 
 squash_plugin (
   NAME csc
+  DEFAULT_DISABLED
   SOURCES squash-csc.cpp
   EMBED_SOURCES
     csc/src/libcsc/csc_analyzer.cpp
@@ -18,6 +19,4 @@ squash_plugin (
     csc/src/libcsc/csc_profiler.cpp
     csc/src/libcsc/decomp.cpp
   DEFINES _7Z_TYPES_
-  INCLUDE_DIRS csc/src/libcsc
-  EMBED_COMPILER_FLAGS
-    -Wno-odr)
+  INCLUDE_DIRS csc/src/libcsc)
