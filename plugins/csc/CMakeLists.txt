@@ -7,6 +7,7 @@ squash_plugin (
     csc/src/libcsc/csc_analyzer.cpp
     csc/src/libcsc/csc_coder.cpp
     csc/src/libcsc/csc_dec.cpp
+    csc/src/libcsc/csc_default_alloc.cpp
     csc/src/libcsc/csc_enc.cpp
     csc/src/libcsc/csc_encoder_main.cpp
     csc/src/libcsc/csc_filters.cpp
@@ -17,4 +18,6 @@ squash_plugin (
     csc/src/libcsc/csc_profiler.cpp
     csc/src/libcsc/decomp.cpp
   DEFINES _7Z_TYPES_
-  INCLUDE_DIRS csc/src/libcsc)
+  INCLUDE_DIRS csc/src/libcsc
+  EMBED_COMPILER_FLAGS
+    -Wno-odr)
