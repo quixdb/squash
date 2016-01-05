@@ -116,6 +116,8 @@ squash_csc_splice (SquashCodec* codec,
                    SquashReadFunc read_cb,
                    SquashWriteFunc write_cb,
                    void* user_data) {
+  int csc_res;
+  SquashStatus res = SQUASH_OK;
   const struct SquashCscInStream in_stream = {
     { squash_csc_reader },
     user_data,
@@ -146,8 +148,16 @@ squash_csc_splice (SquashCodec* codec,
       return squash_error (SQUASH_FAILED);
 
     CSCEncHandle comp = CSCEnc_Create (&props, (ISeqOutStream*) &out_stream, (ISzAlloc*) &squash_csc_allocator);
-    CSCEnc_Encode (comp, (ISeqInStream*) &in_stream, NULL);
-    CSCEnc_Encode_Flush (comp);
+    csc_res = CSCEnc_Encode (comp, (ISeqInStream*) &in_stream, NULL);
+    if (SQUASH_UNLIKELY(csc_res != 0)) {
+      res = squash_error (SQUASH_FAILED);
+    } else {
+      csc_res = CSCEnc_Encode_Flush (comp);
+      if (SQUASH_UNLIKELY(csc_res != 0)) {
+        res = squash_error (SQUASH_FAILED);
+      }
+    }
+    CSCEnc_Destroy (comp);
   } else {
     size_t prop_l = CSC_PROP_SIZE;
     squash_csc_reader ((void*) &in_stream, props_buf, &prop_l);
@@ -157,10 +167,14 @@ squash_csc_splice (SquashCodec* codec,
     CSCDec_ReadProperties (&props, props_buf);
 
     CSCDecHandle decomp = CSCDec_Create (&props, (ISeqInStream*) &in_stream, (ISzAlloc*) &squash_csc_allocator);
-    CSCDec_Decode (decomp, (ISeqOutStream*) &out_stream, NULL);
+    csc_res = CSCDec_Decode (decomp, (ISeqOutStream*) &out_stream, NULL);
+    if (csc_res != 0) {
+      res = squash_error (SQUASH_FAILED);
+    }
+    CSCDec_Destroy (decomp);
   }
 
-  return SQUASH_OK;
+  return res;
 }
 
 static size_t
