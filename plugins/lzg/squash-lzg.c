@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -116,9 +116,13 @@ squash_lzg_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  lzg_uint32_t res = LZG_Encode ((const unsigned char*) uncompressed, (lzg_uint32_t) uncompressed_size,
-                                 (unsigned char*) compressed, (lzg_uint32_t) *compressed_size,
-                                 &cfg);
+  uint8_t* workmem = squash_malloc (LZG_WorkMemSize (&cfg));
+  if (SQUASH_UNLIKELY(workmem == NULL))
+    return squash_error (SQUASH_MEMORY);
+  lzg_uint32_t res = LZG_EncodeFull ((const unsigned char*) uncompressed, (lzg_uint32_t) uncompressed_size,
+                                     (unsigned char*) compressed, (lzg_uint32_t) *compressed_size,
+                                     &cfg, workmem);
+  squash_free (workmem);
 
   if (res == 0) {
     return squash_error (SQUASH_FAILED);
