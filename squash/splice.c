@@ -456,27 +456,37 @@ struct SquashSpliceLimitedData {
   size_t written;
 };
 
+static SQUASH_THREAD_LOCAL SquashStatus squash_splice_custom_limited_res;
+
 static SquashStatus
 squash_splice_custom_limited_write (size_t* data_size, const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)], void* user_data) {
   assert (user_data != NULL);
 
+  SquashStatus res = SQUASH_OK;
   struct SquashSpliceLimitedData* ctx = user_data;
   const bool limit_output = ctx->stream_type == SQUASH_STREAM_DECOMPRESS;
+  const size_t request_size = *data_size;
+  squash_splice_custom_limited_res = SQUASH_OK;
 
-  if (limit_output && *data_size > ctx->remaining)
+  if (limit_output && request_size > ctx->remaining)
     *data_size = ctx->remaining;
 
-  if (limit_output && *data_size == 0) {
-    return SQUASH_END_OF_STREAM;
+  if (*data_size != 0) {
+    res = ctx->write_func (data_size, data, ctx->user_data);
+    if (res < 0)
+      return res;
   }
-
-  SquashStatus res = ctx->write_func (data_size, data, ctx->user_data);
-  if (res < 0)
-    return res;
 
   if (limit_output)
     ctx->remaining -= *data_size;
   ctx->written += *data_size;
+
+  if (*data_size != request_size) {
+    /* Don't call squash_error because this isn't an error; we have
+       intentionally limited the output.  We use a thread-local
+       file-level variable so we can pick up the issue later */
+    return squash_splice_custom_limited_res = SQUASH_BUFFER_FULL;
+  }
 
   return res;
 }
@@ -532,7 +542,11 @@ squash_splice_custom_with_options (SquashCodec* codec,
         size,
         0
       };
+      squash_splice_custom_limited_res = SQUASH_OK;
       res = codec->impl.splice (codec, options, stream_type, squash_splice_custom_limited_read, squash_splice_custom_limited_write, &ctx);
+      if (res < 0 && squash_splice_custom_limited_res == SQUASH_BUFFER_FULL) {
+        res = SQUASH_OK;
+      }
     }
   } else if (codec->impl.process_stream) {
     SquashStream* stream = squash_stream_new_with_options(codec, stream_type, options);
