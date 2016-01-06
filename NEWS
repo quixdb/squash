@@ -5,7 +5,7 @@ Squash 0.8.0
  * File API is now thread safe, with *_unlocked variants
  * New 'splice' interface for plugins
  * Enable zling plugin
- * Disable csc plugin
+ * Disable csc and pithy plugins
  * Add nonnull and sentinel attributes
  * Add support for multiple levels in lzf
  * Add heatshrink plugin
