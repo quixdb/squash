@@ -228,6 +228,9 @@ case "${1}" in
             "coverage")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_COVERAGE=yes"
                 ;;
+            "asan")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_DENSITY=no"
+                ;;
         esac
 
         case "${COMPILER}" in
