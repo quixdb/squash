@@ -15,4 +15,5 @@ squash_plugin (
     -Wno-missing-declarations
     -Wno-pointer-to-int-cast
     /wd4090
-    /wd4244)
+    /wd4244
+    -wd3656)

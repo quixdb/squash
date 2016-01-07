@@ -161,6 +161,8 @@ squash_plugin (
   EMBED_INCLUDE_DIRS
     lzo/include
   EMBED_DEFINES
-    ${squash_lzo_defs})
+    ${squash_lzo_defs}
+  COMPILER_FLAGS
+    -wd193)
 
 unset (squash_lzo_defs)

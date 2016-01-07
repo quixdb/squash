@@ -55,6 +55,11 @@ case "${COMPILER}" in
         export GCOV=i686-w64-mingw32-gcov
         CROSS_COMPILE=yes
         ;;
+    "icc")
+        export CC=icc
+        export CXX=icpc
+        export GCOV=gcov
+        ;;
     *)
         COMPILER="gcc-5"
         export CC=gcc-5
@@ -117,6 +122,11 @@ case "${1}" in
                         ;;
                     "i686-w64-mingw32-gcc")
                         sudo apt-get install -qq mingw-w64
+                        ;;
+                    "icc")
+                        wget -q -O /dev/stdout \
+                             'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | \
+                            /bin/sh
                         ;;
                 esac
 

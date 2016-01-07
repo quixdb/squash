@@ -6,7 +6,7 @@ os:
   - osx
 branches:
   except:
-    - /^(wip\/)?msvc\-.+$/
+    - /^(wip\/)?(msvc)(\-.+)?$/
 env:
   matrix:
     - COMPILER=gcc-5 BUILD_TYPE=debug
@@ -24,11 +24,14 @@ env:
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
     - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
+    - COMPILER=icc BUILD_TYPE=debug
   global:
     # Coveralls.io
     - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
     # Coverity Scan
     - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
+    # Intel C Compiler
+    - secure: "mlMhIsz3GCfm796RN4jqNVMTdNkOXwTIgCKTv/om/KqU2+yUhCweOD4u98QmYIFNGnaPkqur6xGwkUtyJOrgY4FTZ6BtHUWY9y7+Z7cTdvCpnXA28LtcBYTq2F+S8q+Z3mJcz9LNz1ufiK2ZzOFVm03d1sYu0QMNz6FLZ6HtaEU="
 matrix:
   exclude:
     - os: osx
@@ -49,9 +52,13 @@ matrix:
       env: COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - os: osx
       env: COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=icc BUILD_TYPE=debug
 before_install:
  - ./.travis.sh deps
-script: ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test
+script:
+ - source ~/.bashrc # For ICC
+ - ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test
 # notifications:
 #   irc:
 #     channels:

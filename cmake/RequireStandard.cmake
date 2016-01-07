@@ -1,5 +1,17 @@
+include (AddCompilerFlags)
+
 function (target_require_c_standard target standard)
-  if (${CMAKE_VERSION} VERSION_GREATER 3.1)
+  if (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
+    get_target_property (sources ${target} SOURCES)
+
+    foreach (source ${sources})
+      if ("${source}" MATCHES "\\.c$")
+        source_file_add_compiler_flags ("${source}" "-std=${standard}")
+      endif ()
+    endforeach (source)
+
+    unset (sources)
+  else ()
     if ("${standard}" STREQUAL "c11")
       set_property (TARGET ${target} PROPERTY C_STANDARD "11")
     elseif ("${standard}" STREQUAL "c99")
@@ -13,22 +25,21 @@ function (target_require_c_standard target standard)
     endif ()
 
     set_property (TARGET ${target} PROPERTY C_STANDARD_REQUIRED TRUE)
-  else ()
-    # TODO: make this portable
-    get_target_property (sources ${target} SOURCES)
-
-    foreach (source ${sources})
-      if ("${source}" MATCHES "\\.c$")
-        set_property (SOURCE "${source}" APPEND_STRING PROPERTY COMPILE_FLAGS " -std=${standard}")
-      endif ()
-    endforeach (source)
-
-    unset (sources)
   endif ()
 endfunction ()
 
 function (target_require_cxx_standard target standard)
-  if (${CMAKE_VERSION} VERSION_GREATER 3.1)
+  if (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    get_target_property (sources ${target} SOURCES)
+
+    foreach (source ${sources})
+      if ("${source}" MATCHES "\\.(cpp|cc|cxx)$")
+        source_file_add_compiler_flags ("${source}" "-std=${standard}")
+      endif ()
+    endforeach (source)
+
+    unset (sources)
+  else ()
     if ("${standard}" STREQUAL "c++14")
       set_property (TARGET ${target} PROPERTY CXX_STANDARD "14")
     elseif ("${standard}" STREQUAL "c++11")
@@ -40,16 +51,5 @@ function (target_require_cxx_standard target standard)
     endif ()
 
     set_property (TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED TRUE)
-  else ()
-    # TODO: make this portable
-    get_target_property (sources ${target} SOURCES)
-
-    foreach (source ${sources})
-      if ("${source}" MATCHES "\\.(cpp|cxx|cc)$")
-        set_property (SOURCE "${source}" APPEND_STRING PROPERTY COMPILE_FLAGS " -std=${standard}")
-      endif ()
-    endforeach (source)
-
-    unset (sources)
   endif ()
 endfunction ()

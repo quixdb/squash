@@ -9,7 +9,7 @@ environment:
 
 branches:
   except:
-    - /^(wip\/)?(travis|osx|mingw)\-.+$/
+    - /^(wip\/)?(travis|osx|mingw|ipp)(\-.+)?$/
 
 configuration: Debug
 

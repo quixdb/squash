@@ -30,4 +30,6 @@ squash_plugin (
     density/src/memory_teleport.c
     density/src/stream.c
     density/src/spookyhash/src/context.c
-    density/src/spookyhash/src/spookyhash.c)
+    density/src/spookyhash/src/spookyhash.c
+  EMBED_COMPILER_FLAGS
+    -wd858)
