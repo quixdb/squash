@@ -65,7 +65,7 @@ crush_free (void* ptr, void* user_data) {
   return free(ptr);
 }
 
-void crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, CrushMalloc alloc, CrushFree dealloc, void* user_data, CrushDestroyNotify destroy_data)
+int crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, CrushMalloc alloc, CrushFree dealloc, void* user_data, CrushDestroyNotify destroy_data)
 {
 	ctx->bit_buf = 0;
 	ctx->bit_count = 0;
@@ -79,11 +79,13 @@ void crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc wri
 
 	ctx->buf = (unsigned char*)alloc(BUF_SIZE+MAX_MATCH, user_data);
 	memset(ctx->buf, 0, BUF_SIZE+MAX_MATCH);
+
+  return 0;
 }
 
-void crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data)
+int crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data)
 {
-  crush_init_full(ctx, reader, writer, crush_malloc, crush_free, user_data, destroy_data);
+  return crush_init_full(ctx, reader, writer, crush_malloc, crush_free, user_data, destroy_data);
 }
 
 struct CrushStdioData {
@@ -113,9 +115,12 @@ static size_t crush_stdio_fwrite (const void* ptr, size_t size, void* user_data)
 	return fwrite(ptr, 1, size, ((struct CrushStdioData*) user_data)->out);
 }
 
-void crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
+int crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
 {
 	struct CrushStdioData* data = (struct CrushStdioData*)ctx->alloc(sizeof(struct CrushStdioData), ctx->user_data);
+  if (data == NULL)
+    return -1;
+
 	data->in = in;
 	data->out = out;
 
@@ -205,6 +210,12 @@ int crush_compress(CrushContext* ctx, int level)
 {
   int* head = (int*)ctx->alloc((HASH1_SIZE+HASH2_SIZE) * sizeof(int), ctx->user_data);
   int* prev = (int*)ctx->alloc(W_SIZE * sizeof(int), ctx->user_data);
+
+  if (head == NULL || prev == NULL) {
+    free (head);
+    free (prev);
+    return -1;
+  }
 
   memset (head, 0, (HASH1_SIZE+HASH2_SIZE) * sizeof(int));
   memset (prev, 0, W_SIZE * sizeof(int));
@@ -445,6 +456,7 @@ int main(int argc, char* argv[])
 	CrushContext ctx;
 	FILE* in;
 	FILE* out;
+  int res;
 
 	if (argc!=4)
 	{
@@ -470,7 +482,9 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	crush_init_stdio(&ctx, in, out);
+	res = crush_init_stdio(&ctx, in, out);
+  if (res != 0)
+    return -1;
 
 	if (*argv[1]=='c')
 	{

@@ -25,9 +25,9 @@ typedef struct {
 	CrushDestroyNotify user_data_destroy;
 } CrushContext;
 
-void crush_init (CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data);
-void crush_init_full (CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, CrushMalloc alloc, CrushFree dealloc, void* user_data, CrushDestroyNotify destroy_data);
-void crush_init_stdio (CrushContext* ctx, FILE* in, FILE* out);
+int crush_init (CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data);
+int crush_init_full (CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, CrushMalloc alloc, CrushFree dealloc, void* user_data, CrushDestroyNotify destroy_data);
+int crush_init_stdio (CrushContext* ctx, FILE* in, FILE* out);
 void crush_destroy (CrushContext* ctx);
 int crush_compress (CrushContext* ctx, int level);
 int crush_decompress (CrushContext* ctx);

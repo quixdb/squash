@@ -113,7 +113,9 @@ squash_crush_splice (SquashCodec* codec,
   CrushContext ctx;
   int res;
 
-  crush_init_full (&ctx, squash_crush_reader, squash_crush_writer, squash_crush_malloc, squash_crush_free, &data, NULL);
+  res = crush_init_full (&ctx, squash_crush_reader, squash_crush_writer, squash_crush_malloc, squash_crush_free, &data, NULL);
+  if (res != 0)
+    return squash_error (SQUASH_FAILED);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     res = crush_compress (&ctx, squash_codec_get_option_int_index (codec, options, SQUASH_CRUSH_OPT_LEVEL));
