@@ -124,7 +124,7 @@ int crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
 	data->in = in;
 	data->out = out;
 
-	crush_init(ctx, crush_stdio_fread, crush_stdio_fwrite, data, crush_stdio_destroy);
+	return crush_init(ctx, crush_stdio_fread, crush_stdio_fwrite, data, crush_stdio_destroy);
 }
 
 void crush_destroy(CrushContext* ctx)
