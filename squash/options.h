@@ -133,6 +133,11 @@ SQUASH_API int            squash_options_get_int       (SquashOptions* options, 
 SQUASH_NONNULL(2)
 SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, const char* key);
 
+SQUASH_API const char*    squash_options_get_string_at (SquashOptions* options, size_t index);
+SQUASH_API bool           squash_options_get_bool_at   (SquashOptions* options, size_t index);
+SQUASH_API int            squash_options_get_int_at    (SquashOptions* options, size_t index);
+SQUASH_API size_t         squash_options_get_size_at   (SquashOptions* options, size_t index);
+
 SQUASH_SENTINEL
 SQUASH_NONNULL(1)
 SQUASH_API SquashStatus   squash_options_parse         (SquashOptions* options, ...);

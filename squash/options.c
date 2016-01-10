@@ -156,13 +156,16 @@
  * @brief value to use if none is provided by the user
  */
 
-static int
+static ssize_t
 squash_options_find (SquashOptions* options, const char* key) {
   assert (options != NULL);
   assert (key != NULL);
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
-  unsigned int option_n = 0;
+  if (info == NULL)
+    return -1;
+
+  ssize_t option_n = 0;
 
   {
     while (info->name != NULL) {
@@ -192,12 +195,94 @@ squash_options_get_string (SquashOptions* options, const char* key) {
   if (options == NULL)
     return NULL;
 
-  const int option_n = squash_options_find (options, key);
-  if (option_n == -1)
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
     return NULL;
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
-  const SquashOptionValue* val = &(options->values[option_n]);
+  return squash_options_get_string_at (options, option_n);
+}
+
+/**
+ * Retrieve the value of a boolean option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+bool
+squash_options_get_bool (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return false;
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return false;
+
+  return squash_options_get_bool_at (options, option_n);
+}
+
+/**
+ * Retrieve the value of an integer option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+int
+squash_options_get_int (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return -1;
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return -1;
+
+  return squash_options_get_int_at (options, option_n);
+}
+
+/**
+ * Retrieve the value of a size option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value
+ */
+size_t
+squash_options_get_size (SquashOptions* options, const char* key) {
+  if (options == NULL)
+    return 0;
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return 0;
+
+  return squash_options_get_size_at (options, option_n);
+}
+
+/**
+ * Retrieve the value of a string option
+ *
+ * @note If the option is not natively a string (e.g., if it is an
+ * integer, size, or boolean), it will not be serialized to one.
+ *
+ * @note It is undefined behavior to specify an index greater than
+ * the number of options.
+ *
+ * @param options the options to retrieve the value from
+ * @param index the index of the desired option
+ * @returns the value, or *NULL* on failure
+ */
+const char*
+squash_options_get_string_at (SquashOptions* options, size_t index) {
+  if (options == NULL)
+    return NULL;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  if (info == NULL)
+    return NULL;
+  info += index;
+  assert (options->values != NULL);
+  const SquashOptionValue* val = options->values + index;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_ENUM_STRING:
@@ -214,21 +299,24 @@ squash_options_get_string (SquashOptions* options, const char* key) {
 /**
  * Retrieve the value of a boolean option
  *
+ * @note It is undefined behavior to specify an index greater than
+ * the number of options.
+ *
  * @param options the options to retrieve the value from
- * @param key name of the option to retrieve the value from
+ * @param index the index of the desired option
  * @returns the value
  */
 bool
-squash_options_get_bool (SquashOptions* options, const char* key) {
+squash_options_get_bool_at (SquashOptions* options, size_t index) {
   if (options == NULL)
     return false;
 
-  const int option_n = squash_options_find (options, key);
-  if (option_n == -1)
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  if (info == NULL)
     return false;
-
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
-  const SquashOptionValue* val = &(options->values[option_n]);
+  info += index;
+  assert (options->values != NULL);
+  const SquashOptionValue* val = options->values + index;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_BOOL:
@@ -241,23 +329,26 @@ squash_options_get_bool (SquashOptions* options, const char* key) {
 }
 
 /**
- * Retrieve the value of an integer option
+ * Retrieve the value of an int option
+ *
+ * @note It is undefined behavior to specify an index greater than
+ * the number of options.
  *
  * @param options the options to retrieve the value from
- * @param key name of the option to retrieve the value from
+ * @param index the index of the desired option
  * @returns the value
  */
 int
-squash_options_get_int (SquashOptions* options, const char* key) {
+squash_options_get_int_at (SquashOptions* options, size_t index) {
   if (options == NULL)
     return -1;
 
-  const int option_n = squash_options_find (options, key);
-  if (option_n == -1)
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  if (info == NULL)
     return -1;
-
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
-  const SquashOptionValue* val = &(options->values[option_n]);
+  info += index;
+  assert (options->values != NULL);
+  const SquashOptionValue* val = options->values + index;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_INT:
@@ -274,21 +365,24 @@ squash_options_get_int (SquashOptions* options, const char* key) {
 /**
  * Retrieve the value of a size option
  *
+ * @note It is undefined behavior to specify an index greater than
+ * the number of options.
+ *
  * @param options the options to retrieve the value from
- * @param key name of the option to retrieve the value from
+ * @param index the index of the desired option
  * @returns the value
  */
 size_t
-squash_options_get_size (SquashOptions* options, const char* key) {
+squash_options_get_size_at (SquashOptions* options, size_t index) {
   if (options == NULL)
     return 0;
 
-  const int option_n = squash_options_find (options, key);
-  if (option_n == -1)
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  if (info == NULL)
     return 0;
-
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec) + option_n;
-  const SquashOptionValue* val = &(options->values[option_n]);
+  info += index;
+  assert (options->values != NULL);
+  const SquashOptionValue* val = options->values + index;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_SIZE:
@@ -328,7 +422,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
   else
     assert (options->values != NULL);
 
-  const int option_n = squash_options_find (options, key);
+  const ssize_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return SQUASH_BAD_PARAM;
 
