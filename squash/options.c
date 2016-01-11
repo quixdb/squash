@@ -396,6 +396,186 @@ squash_options_get_size_at (SquashOptions* options, size_t index) {
 }
 
 /**
+ * @brief Set the value of a string option
+ *
+ * @param options the options on which to set the value
+ * @param key name of the option to set
+ * @param value new value to be set
+ * @return A status code.
+ * @retval SQUASH_OK Option set successfully.
+ * @retval SQUASH_BAD_PARAM Invalid @a key
+ * @retval SQUASH_BAD_VALUE Invalid @a value
+ */
+SquashStatus
+squash_options_set_string (SquashOptions* options, const char* key, const char* value) {
+  assert (options != NULL);
+  assert (key != NULL);
+  assert (value != NULL);
+  assert (options->codec != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return squash_error (SQUASH_BAD_PARAM);
+
+  assert (options->values != NULL);
+
+  info = info + option_n;
+  SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_STRING:
+      val->string_value = strdup (value);
+      return SQUASH_OK;
+    case SQUASH_OPTION_TYPE_ENUM_STRING:
+      for (unsigned int i = 0 ; info->info.enum_string.values[i].name != NULL ; i++) {
+        if (strcasecmp (value, info->info.enum_string.values[i].name) == 0) {
+          val->int_value = info->info.enum_string.values[i].value;
+          return SQUASH_OK;
+        }
+      }
+      return squash_error (SQUASH_BAD_VALUE);
+    default:
+      return squash_error (SQUASH_BAD_VALUE);
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * @brief Set the value of a bool option
+ *
+ * @param options the options on which to set the value
+ * @param key name of the option to set
+ * @param value new value to be set
+ * @return A status code.
+ * @retval SQUASH_OK Option set successfully.
+ * @retval SQUASH_BAD_PARAM Invalid @a key
+ */
+SquashStatus
+squash_options_set_bool (SquashOptions* options, const char* key, bool value) {
+  assert (options != NULL);
+  assert (key != NULL);
+  assert (options->codec != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return squash_error (SQUASH_BAD_PARAM);
+  
+  assert (options->values != NULL);
+
+  info = info + option_n;
+  SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_BOOL:
+      val->bool_value = value;
+      return SQUASH_OK;
+    default:
+      return squash_error (SQUASH_BAD_VALUE);
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * @brief Set the value of a int option
+ *
+ * @param options the options on which to set the value
+ * @param key name of the option to set
+ * @param value new value to be set
+ * @return A status code.
+ * @retval SQUASH_OK Option set successfully.
+ * @retval SQUASH_BAD_PARAM Invalid @a key
+ * @retval SQUASH_BAD_VALUE Invalid @a value
+ */
+SquashStatus
+squash_options_set_int (SquashOptions* options, const char* key, int value) {
+  assert (options != NULL);
+  assert (key != NULL);
+  assert (options->codec != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return squash_error (SQUASH_BAD_PARAM);
+
+  assert (options->values != NULL);
+
+  info = info + option_n;
+  SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_RANGE_INT:
+    case SQUASH_OPTION_TYPE_INT:
+      if (info->type == SQUASH_OPTION_TYPE_RANGE_INT) {
+        if (!(value >= info->info.range_int.min && value <= info->info.range_int.max) &&
+            (value != 0 || !info->info.range_int.allow_zero))
+          return squash_error (SQUASH_BAD_VALUE);
+      }
+      val->int_value = value;
+      return SQUASH_OK;
+    default:
+      return squash_error (SQUASH_BAD_VALUE);
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
+ * @brief Set the value of a size option
+ *
+ * @param options the options on which to set the value
+ * @param key name of the option to set
+ * @param value new value to be set
+ * @return A status code.
+ * @retval SQUASH_OK Option set successfully.
+ * @retval SQUASH_BAD_PARAM Invalid @a key
+ * @retval SQUASH_BAD_VALUE Invalid @a value
+ */
+SquashStatus
+squash_options_set_size (SquashOptions* options, const char* key, size_t value) {
+  assert (options != NULL);
+  assert (key != NULL);
+  assert (options->codec != NULL);
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+
+  const ssize_t option_n = squash_options_find (options, key);
+  if (option_n < 0)
+    return squash_error (SQUASH_BAD_PARAM);
+
+  assert (options->values != NULL);
+
+  info = info + option_n;
+  SquashOptionValue* val = &(options->values[option_n]);
+
+  switch ((int) info->type) {
+    case SQUASH_OPTION_TYPE_RANGE_SIZE:
+    case SQUASH_OPTION_TYPE_SIZE:
+      if (info->type == SQUASH_OPTION_TYPE_RANGE_SIZE) {
+        if (!(value >= info->info.range_size.min && value <= info->info.range_size.max) &&
+            (value != 0 || !info->info.range_size.allow_zero))
+          return squash_error (SQUASH_BAD_VALUE);
+
+        if (SQUASH_UNLIKELY(!((value == 0 && info->info.range_size.allow_zero) ||
+                              (value >= info->info.range_size.min && value <= info->info.range_size.max))))
+          return squash_error (SQUASH_BAD_VALUE);
+      }
+      val->size_value = value;
+      return SQUASH_OK;
+    default:
+      return SQUASH_BAD_VALUE;
+  }
+
+  squash_assert_unreachable ();
+}
+
+/**
  * @brief Parse a single option.
  *
  * @param options The options context.
