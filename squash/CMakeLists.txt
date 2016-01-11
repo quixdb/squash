@@ -116,10 +116,7 @@ else ()
     target_link_libraries (squash${SQUASH_VERSION_API} rt)
   endif ()
 
-  include (FindDlopen)
-  if (${DLOPEN_REQUIRES_DL})
-    target_link_libraries (squash${SQUASH_VERSION_API} dl)
-  endif ()
+  target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_DL_LIBS})
 
   include (FindIconv)
   target_link_libraries (squash${SQUASH_VERSION_API} ${ICONV_LIBRARIES})
