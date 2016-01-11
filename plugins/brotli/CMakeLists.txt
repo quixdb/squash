@@ -24,6 +24,8 @@ squash_plugin (
     brotli/enc/backward_references.cc
     brotli/enc/block_splitter.cc
     brotli/enc/brotli_bit_stream.cc
+    brotli/enc/compress_fragment.cc
+    brotli/enc/compress_fragment_two_pass.cc
     brotli/enc/dictionary.cc
     brotli/enc/encode.cc
     brotli/enc/encode_parallel.cc
