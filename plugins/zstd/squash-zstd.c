@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -81,6 +81,7 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_maxSymbolValue_tooSmall:
     case ZSTD_error_maxSymbolValue_tooLarge:
     case ZSTD_error_init_missing:
+    case ZSTD_error_stage_wrong:
     default:
       return squash_error (SQUASH_FAILED);
   }
