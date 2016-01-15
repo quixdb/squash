@@ -156,7 +156,7 @@
  * @brief value to use if none is provided by the user
  */
 
-static ssize_t
+static ptrdiff_t
 squash_options_find (SquashOptions* options, const char* key) {
   assert (options != NULL);
   assert (key != NULL);
@@ -165,7 +165,7 @@ squash_options_find (SquashOptions* options, const char* key) {
   if (info == NULL)
     return -1;
 
-  ssize_t option_n = 0;
+  ptrdiff_t option_n = 0;
 
   {
     while (info->name != NULL) {
@@ -195,7 +195,7 @@ squash_options_get_string (SquashOptions* options, const char* key) {
   if (options == NULL)
     return NULL;
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return NULL;
 
@@ -214,7 +214,7 @@ squash_options_get_bool (SquashOptions* options, const char* key) {
   if (options == NULL)
     return false;
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return false;
 
@@ -233,7 +233,7 @@ squash_options_get_int (SquashOptions* options, const char* key) {
   if (options == NULL)
     return -1;
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return -1;
 
@@ -252,7 +252,7 @@ squash_options_get_size (SquashOptions* options, const char* key) {
   if (options == NULL)
     return 0;
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return 0;
 
@@ -412,7 +412,7 @@ squash_options_set_string (SquashOptions* options, const char* key, const char* 
   assert (key != NULL);
   assert (value != NULL);
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -434,7 +434,7 @@ squash_options_set_bool (SquashOptions* options, const char* key, bool value) {
   assert (options != NULL);
   assert (key != NULL);
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
   
@@ -457,7 +457,7 @@ squash_options_set_int (SquashOptions* options, const char* key, int value) {
   assert (options != NULL);
   assert (key != NULL);
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -480,7 +480,7 @@ squash_options_set_size (SquashOptions* options, const char* key, size_t value) 
   assert (options != NULL);
   assert (key != NULL);
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -516,7 +516,7 @@ squash_options_set_string_at (SquashOptions* options, size_t index, const char* 
       val->string_value = strdup (value);
       return SQUASH_OK;
     case SQUASH_OPTION_TYPE_ENUM_STRING:
-      for (ssize_t i = 0 ; info->info.enum_string.values[i].name != NULL ; i++) {
+      for (ptrdiff_t i = 0 ; info->info.enum_string.values[i].name != NULL ; i++) {
         if (strcasecmp (value, info->info.enum_string.values[i].name) == 0) {
           val->int_value = info->info.enum_string.values[i].value;
           return SQUASH_OK;
@@ -668,7 +668,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
   assert (value != NULL);
   assert (options->codec != NULL);
 
-  const ssize_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
