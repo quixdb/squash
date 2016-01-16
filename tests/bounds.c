@@ -1,76 +1,161 @@
-#include "test-codecs.h"
+#include "test-squash.h"
 
-#include <errno.h>
-#include <string.h>
-
-void
-check_codec (SquashCodec* codec) {
-  uint8_t* uncompressed = NULL;
-  uint8_t* compressed = NULL;
-  uint8_t* decompressed = NULL;
-
-  SquashStatus res;
+struct BoundsInfo {
+  SquashCodec* codec;
+  uint8_t* compressed;
   size_t compressed_length;
-  size_t decompressed_length;
-  size_t real_compressed_length;
+};
 
-  if (strcmp (squash_codec_get_name (codec), "density") == 0) {
-#if defined(GLIB_VERSION_2_38)
-    g_test_skip ("https://github.com/centaurean/density/issues/53");
-#endif
-    return;
-  }
+static void*
+squash_test_bounds_setup(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = munit_new (struct BoundsInfo);
+  info->codec = squash_get_codec (munit_parameters_get(params, "codec"));
+  munit_assert_non_null (info->codec);
+  info->compressed_length = squash_codec_get_max_compressed_size (info->codec, LOREM_IPSUM_LENGTH);
+  munit_assert_cmp_size (info->compressed_length, >=, LOREM_IPSUM_LENGTH);
+  info->compressed = munit_malloc(info->compressed_length);
 
-  uncompressed = malloc (LOREM_IPSUM_LENGTH);
-  memcpy (uncompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH);
+  SquashStatus res =
+    squash_codec_compress (info->codec,
+                           &(info->compressed_length), info->compressed,
+                           LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
+  SQUASH_ASSERT_OK (res);
 
-  compressed = malloc (8192);
-  compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
-  g_assert (compressed_length < 8192);
+  return info;
+}
 
-  /* Determine the true size of the compressed data. */
-  res = squash_codec_compress (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, uncompressed, NULL);
-  g_assert (res == SQUASH_OK);
-  real_compressed_length = compressed_length;
+static void
+squash_test_bounds_tear_down(void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+  free (info->compressed);
+  free (info);
+}
 
-  /* Decompress to a buffer which is exactly the right size */
-  decompressed = malloc (LOREM_IPSUM_LENGTH);
-  decompressed_length = LOREM_IPSUM_LENGTH;
-  res = squash_codec_decompress (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
-  g_assert (res == SQUASH_OK);
+static MunitResult
+squash_test_bounds_decode_exact(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
 
-  /* Decompress to a buffer which is barely too small */
-  decompressed_length = LOREM_IPSUM_LENGTH - 1;
-  res = squash_codec_decompress (codec, &decompressed_length, decompressed + 1, compressed_length, compressed, NULL);
-  g_assert (res != SQUASH_OK);
+  size_t decompressed_length = LOREM_IPSUM_LENGTH;
+  uint8_t* decompressed = munit_malloc(decompressed_length);
+  SquashStatus res =
+    squash_codec_decompress (info->codec,
+                             &decompressed_length, decompressed,
+                             info->compressed_length, info->compressed, NULL);
+  SQUASH_ASSERT_OK(res);
+  munit_assert_cmp_size(LOREM_IPSUM_LENGTH, ==, decompressed_length);
 
-  /* Decompress to a buffer which is significantly too small */
-  decompressed_length = (size_t) g_test_rand_int_range (1, LOREM_IPSUM_LENGTH - 1);
-  res = squash_codec_decompress (codec, &decompressed_length, decompressed + (LOREM_IPSUM_LENGTH - decompressed_length), compressed_length, compressed, NULL);
-  g_assert (res != SQUASH_OK);
+  munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
-  /* Compress to a buffer which is exactly the right size */
-  compressed_length = real_compressed_length;
-  res = squash_codec_compress (codec, &compressed_length, compressed + (8192 - real_compressed_length), LOREM_IPSUM_LENGTH, uncompressed, NULL);
+  return MUNIT_OK;
+}
+
+static MunitResult
+squash_test_bounds_decode_small(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+
+  /* Between 1 and length - 1 bytes (usually way too small) */
+  size_t decompressed_length = (size_t) munit_rand_int_range(1, LOREM_IPSUM_LENGTH - 1);
+  uint8_t* decompressed = munit_malloc(decompressed_length);
+  SquashStatus res =
+    squash_codec_decompress (info->codec,
+                             &decompressed_length, decompressed,
+                             info->compressed_length, info->compressed, NULL);
+  munit_assert_cmp_int(res, <, 0);
+  free (decompressed);
+
+  return MUNIT_OK;
+}
+
+static MunitResult
+squash_test_bounds_decode_tiny(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+
+  /* Between 1 and length - 1 bytes (usually way too small) */
+  size_t decompressed_length = (size_t) munit_rand_int_range(1, LOREM_IPSUM_LENGTH - 1);
+  uint8_t* decompressed = munit_malloc(decompressed_length);
+  SquashStatus res =
+    squash_codec_decompress (info->codec,
+                             &decompressed_length, decompressed,
+                             info->compressed_length, info->compressed, NULL);
+  munit_assert_cmp_int(res, <, 0);
+  free (decompressed);
+
+  return MUNIT_OK;
+}
+
+static MunitResult
+squash_test_bounds_encode_exact(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+
+  size_t compressed_length = info->compressed_length;
+  uint8_t* compressed = munit_malloc(compressed_length);
+  squash_codec_compress (info->codec,
+                         &compressed_length, compressed,
+                         LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
   /* It's okay if some codecs require a few extra bytes to *compress*,
      as long as they don't write outside the buffer they were provided,
      so don't check the return value here. */
 
-  /* Compress to a buffer which is barely too small */
-  compressed_length = real_compressed_length - 1;
-  res = squash_codec_compress (codec, &compressed_length, compressed + (8192 - (real_compressed_length - 1)), LOREM_IPSUM_LENGTH, uncompressed, NULL);
-  g_assert (res != SQUASH_OK);
+  free(compressed);
 
-  free (uncompressed);
-  free (compressed);
-  free (decompressed);
+  return MUNIT_OK;
 }
 
-void
-squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
-  gchar* test_name = g_strdup_printf ("/bounds/%s/%s",
-                                      squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                                      squash_codec_get_name (codec));
-  g_test_add_data_func (test_name, codec, (GTestDataFunc) check_codec);
-  g_free (test_name);
+static MunitResult
+squash_test_bounds_encode_small(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+
+  size_t compressed_length = info->compressed_length - 1;
+  uint8_t* compressed = munit_malloc(compressed_length);
+  SquashStatus res =
+    squash_codec_compress (info->codec,
+                           &compressed_length, compressed,
+                           LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
+  munit_assert_cmp_int(res, <, 0);
+
+  free(compressed);
+
+  return MUNIT_OK;
 }
+
+static MunitResult
+squash_test_bounds_encode_tiny(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_non_null (info);
+
+  size_t compressed_length = munit_rand_int_range (1, info->compressed_length - 1);
+  uint8_t* compressed = munit_malloc(compressed_length);
+  SquashStatus res =
+    squash_codec_compress (info->codec,
+                           &compressed_length, compressed,
+                           LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
+  munit_assert_cmp_int(res, <, 0);
+
+  free(compressed);
+
+  return MUNIT_OK;
+}
+
+MunitTest squash_bounds_tests[] = {
+  { (char*) "/decode/exact", squash_test_bounds_decode_exact, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/decode/small", squash_test_bounds_decode_small, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/decode/tiny", squash_test_bounds_decode_tiny, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/encode/exact", squash_test_bounds_encode_exact, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/encode/small", squash_test_bounds_encode_small, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/encode/tiny", squash_test_bounds_encode_tiny, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
+};
+
+MunitSuite squash_test_suite_bounds = {
+  (char*) "/bounds",
+  squash_bounds_tests,
+  NULL,
+  1,
+  MUNIT_SUITE_OPTION_NONE
+};

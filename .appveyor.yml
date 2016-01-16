@@ -1,4 +1,4 @@
-version: 0.8.0-{build}
+version: "{build}"
 
 environment:
   matrix:
@@ -15,7 +15,6 @@ configuration: Debug
 
 install:
   - git submodule update --init --recursive
-  - nuget install glib -ExcludeVersion
 
 before_build:
   - mkdir build

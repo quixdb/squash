@@ -1,12 +1,14 @@
-#include "test-codecs.h"
+#include "test-squash.h"
 
-static void*
+#include "../squash/tinycthread/source/tinycthread.h"
+
+static int
 compress_buffer_thread_func (SquashCodec* codec) {
   const size_t max_compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
   size_t compressed_length;
   size_t decompressed_length = LOREM_IPSUM_LENGTH;
-  uint8_t* compressed = (uint8_t*) malloc (max_compressed_length);
-  uint8_t* decompressed = (uint8_t*) malloc (LOREM_IPSUM_LENGTH);
+  uint8_t* compressed = munit_malloc (max_compressed_length);
+  uint8_t* decompressed = munit_malloc (LOREM_IPSUM_LENGTH);
   SquashStatus res;
   int i = 0;
 
@@ -18,51 +20,51 @@ compress_buffer_thread_func (SquashCodec* codec) {
 
     res = squash_codec_decompress (codec, &decompressed_length, decompressed, compressed_length, compressed, NULL);
     SQUASH_ASSERT_OK(res);
-    g_assert (decompressed_length == LOREM_IPSUM_LENGTH);
+    munit_assert_cmp_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
 
-    g_assert (memcmp (LOREM_IPSUM, decompressed, LOREM_IPSUM_LENGTH) == 0);
+    munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
   }
 
   free (compressed);
   free (decompressed);
 
-  return NULL;
+  return (int) MUNIT_OK;
 }
 
-void
-check_codec (SquashCodec* codec) {
-  guint n_threads;
-  GThread** threads;
 
-#if GLIB_CHECK_VERSION(2, 36, 0)
-  n_threads = g_get_num_processors ();
-#else
-  n_threads = 2;
-#endif
-  threads = (GThread**) calloc(n_threads, sizeof(GThread*));
+static MunitResult
+squash_test_threads_buffer(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  munit_assert_non_null(user_data);
+  SquashCodec* codec = (SquashCodec*) user_data;
 
-  guint i = 0;
-  GError* inner_error = NULL;
+  const unsigned int n_threads = 3;
+  thrd_t threads[3];
 
-  for ( ; i < n_threads ; i++ ) {
-    threads[i] = g_thread_create ((GThreadFunc) compress_buffer_thread_func, codec, true, &inner_error);
-    if (inner_error != NULL) {
-      g_error ("Unable to create thread #%d: %s", i, inner_error->message);
-    }
+  for (unsigned int i = 0 ; i < n_threads ; i++) {
+    const int r = thrd_create(&(threads[i]), (thrd_start_t) compress_buffer_thread_func, codec);
+    munit_assert_cmp_int (r, ==, thrd_success);
   }
 
-  for ( i = 0 ; i < n_threads ; i++ ) {
-    g_assert (g_thread_join (threads[i]) == NULL);
+  for (unsigned int i = 0 ; i < n_threads ; i++) {
+    int retval;
+    const int r = thrd_join(threads[i], &retval);
+    munit_assert_cmp_int (r, ==, thrd_success);
+    if (MUNIT_UNLIKELY(retval != MUNIT_OK))
+      return (MunitResult) retval;
   }
 
-  free (threads);
+  return MUNIT_OK;
 }
 
-void
-squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
-  gchar* test_name = g_strdup_printf ("/threads/%s/%s",
-                                      squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                                      squash_codec_get_name (codec));
-  g_test_add_data_func (test_name, codec, (GTestDataFunc) check_codec);
-  g_free (test_name);
-}
+MunitTest squash_threads_tests[] = {
+  { (char*) "/buffer", squash_test_threads_buffer, squash_test_get_codec, NULL, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
+};
+
+MunitSuite squash_test_suite_threads = {
+  (char*) "/threads",
+  squash_threads_tests,
+  NULL,
+  1,
+  MUNIT_SUITE_OPTION_NONE
+};

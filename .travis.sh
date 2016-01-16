@@ -198,7 +198,7 @@ case "${1}" in
                 ;;
             *)
                 echo "Unknown OS!"
-                exit -1
+                exit 1
                 ;;
         esac
         ;;
@@ -284,14 +284,9 @@ case "${1}" in
         ;;
 
     "test")
-        case "${TRAVIS_OS_NAME}" in
-            "linux")
-                CTEST_OUTPUT_ON_FAILURE=TRUE make test || exit 1
-                ;;
-            "osx")
-                CTEST_OUTPUT_ON_FAILURE=TRUE make test || exit 1
-                ;;
-        esac
+        if [ "x${CROSS_COMPILE}" != "xyes" ]; then
+            ./tests/test-squash || exit 1
+        fi
 
         case "${BUILD_TYPE}" in
             "coverage")
@@ -301,6 +296,6 @@ case "${1}" in
         ;;
     *)
         echo "Unknown step."
-        exit -1
+        exit 1
         ;;
 esac

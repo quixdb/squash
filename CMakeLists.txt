@@ -53,7 +53,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project (squash)
 
-include (CTest)
 include (GNUInstallDirs)
 include (ExtraWarningFlags)
 include (CheckFunctionExists)
@@ -187,5 +186,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 if (ENABLE_COVERAGE STREQUAL "yes")
-  SETUP_TARGET_FOR_COVERAGE(coverage ctest coverage)
+  SETUP_TARGET_FOR_COVERAGE(coverage test coverage)
 endif ()

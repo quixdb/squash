@@ -95,3 +95,6 @@
 [submodule "plugins/miniz/miniz"]
 	path = plugins/miniz/miniz
 	url = https://github.com/richgel999/miniz.git
+[submodule "tests/munit"]
+	path = tests/munit
+	url = https://github.com/nemequ/munit.git

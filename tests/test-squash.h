@@ -1,73 +1,42 @@
 #ifndef __TEST_CODECS_H__
 #define __TEST_CODECS_H__
 
-#define GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_26
-#define GLIB_VERSION_MAX_ALLOWED G_ENCODE_VERSION(2,38)
-
-#include <glib.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <stdio.h>
-
 #include <squash/squash.h>
 
-/* Code in the g_assert_cmpint macro causes MSVC to emit this warning;
-   there is nothing we can do about it here, so just disable the
-   warning. */
-#if defined(_MSC_VER)
-#pragma warning(disable : 4244)
-#endif
+#include "munit/munit.h"
+
+void* squash_test_get_codec(MUNIT_UNUSED const MunitParameter params[], void* user_data);
+
+#define SQUASH_CODEC_PARAMETER ((MunitParameterEnum*)(uintptr_t) 0xdeadbeef)
+
+MunitSuite squash_test_suite_buffer;
+MunitSuite squash_test_suite_bounds;
+MunitSuite squash_test_suite_file;
+MunitSuite squash_test_suite_flush;
+MunitSuite squash_test_suite_random;
+MunitSuite squash_test_suite_splice;
+MunitSuite squash_test_suite_stream;
+MunitSuite squash_test_suite_threads;
 
 #ifndef MIN
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#define SQUASH_ASSERT_VALUE(expr, expected)           \
-  do {                                                \
-    if ((expr) != (expected)) {                       \
-      fprintf (stderr, "%s:%d: %s != %s\n",           \
-               __FILE__, __LINE__, #expr, #expected); \
-      abort ();                                       \
-    }                                                 \
-  } while (0)
-
-static inline void
-squash__assert_status (SquashStatus value, SquashStatus status, const char* file, const int line) {
-  if (value != status) {
-      fprintf (stderr, "%s:%d: %s (%d), expected %s (%d)\n",
-               file, line,
-               squash_status_to_string (value), value,
-               squash_status_to_string (status), status);
-      abort ();
-  }
-}
-
 #define SQUASH_ASSERT_STATUS(expr, status) \
-  squash__assert_status ((expr), (status), __FILE__, __LINE__)
+  munit_assert_cmp_int(expr, ==, status)
 
 #define SQUASH_ASSERT_OK(expr) \
   SQUASH_ASSERT_STATUS(expr, SQUASH_OK)
 
 #define SQUASH_ASSERT_NO_ERROR(expr)                                    \
   do {                                                                  \
-    if ((expr) < 0) {                                                   \
-      fprintf (stderr, "%s:%d: %s (%d)\n",__FILE__, __LINE__, squash_status_to_string ((expr)), (expr)); \
-      abort ();                                                   \
+    const SquashStatus squash_tmp_status_ = (SquashStatus) (expr);      \
+    if (squash_tmp_status_ < 0) {                                       \
+      munit_errorf("%s (%d)", squash_status_to_string(squash_tmp_status_), squash_tmp_status_); \
     }                                                                   \
   } while (0)
 
-static inline void squash__assert (bool e, const char* expr, const char* file, int line) {
-  if (!e) {
-    fprintf (stderr, "%s:%d: assertion (%s) failed\n", file, line, expr);
-    abort ();
-  }
-}
-
-#define SQUASH_ASSERT(expr) \
-  squash__assert ((expr), #expr, __FILE__, __LINE__)
-
-#define LOREM_IPSUM                                                     \
+#define LOREM_IPSUM (uint8_t*)                                          \
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vulputate " \
   "lectus nisl, vitae ultricies justo dictum nec. Vestibulum ante ipsum " \
   "primis in faucibus orci luctus et ultrices posuere cubilia Curae; "  \
@@ -116,9 +85,5 @@ static inline void squash__assert (bool e, const char* expr, const char* file, i
   "sagittis. Curabitur ut urna felis. Etiam sed vulputate nisi. Praesent " \
   "at libero eleifend, sagittis quam a, varius sapien."
 #define LOREM_IPSUM_LENGTH ((size_t) 2725)
-
-void check_codec (SquashCodec* codec);
-
-void squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data);
 
 #endif /* __TEST_CODECS_H__ */

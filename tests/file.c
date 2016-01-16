@@ -1,229 +1,229 @@
-#include "test-codecs.h"
+#if defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE < 200112L)
+#  undef _POSIX_C_SOURCE
+#endif
+#if !defined(_POSIX_C_SOURCE)
+#  define _POSIX_C_SOURCE 200112L
+#endif
 
-#include <glib/gstdio.h>
+#include "test-squash.h"
 
 #ifdef _MSC_VER
-#define off_t long
-#define ftello ftell
+#  define off_t long
+#  define ftello ftell
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 
 struct Single {
-  char* filename;
-  int fd;
+  SquashCodec* codec;
+  FILE* file;
 };
 
-static void
-single_setup (struct Single* data, gconstpointer user_data) {
-  GError* e = NULL;
+struct Triple {
+  SquashCodec* codec;
+  FILE* file[3];
+};
 
-  data->fd = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename), &e);
-  assert (e == NULL);
+static void*
+squash_test_single_setup(const MunitParameter params[], MUNIT_UNUSED void* user_data) {
+  struct Single* data = munit_new(struct Single);
+  data->codec = squash_get_codec (munit_parameters_get(params, "codec"));
+  munit_assert_non_null (data);
+
+  data->file = tmpfile();
+  munit_assert_non_null (data->file);
+
+  return data;
 }
 
 static void
-single_teardown (struct Single* data, gconstpointer user_data) {
-  GError* e = NULL;
+squash_test_single_tear_down(void* user_data) {
+  struct Single* data = (struct Single*) user_data;
+  munit_assert_non_null (data);
 
-  g_close(data->fd, &e);
-  assert (e == NULL);
-  unlink (data->filename);
-  g_free (data->filename);
+  fclose (data->file);
+
+  free (data);
+}
+
+static void*
+squash_test_triple_setup(const MunitParameter params[], MUNIT_UNUSED void* user_data) {
+  struct Triple* data = munit_new(struct Triple);
+  data->codec = squash_get_codec (munit_parameters_get(params, "codec"));
+  munit_assert_non_null (data);
+
+  for (unsigned int n = 0 ; n < 3 ; n++) {
+    data->file[n] = tmpfile();
+    munit_assert_non_null (data->file[n]);
+  }
+
+  return data;
 }
 
 static void
-test_file_io (struct Single* data, gconstpointer user_data) {
-  SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open (codec, data->filename, "w+b", NULL);
-  g_assert (file != NULL);
+squash_test_triple_tear_down(void* user_data) {
+  struct Triple* data = (struct Triple*) user_data;
+  munit_assert_non_null (data);
 
+  for (unsigned int n = 0 ; n < 3 ; n++)
+    fclose (data->file[n]);
+
+  free (data);
+}
+
+static MunitResult
+squash_test_io(const MunitParameter params[], void* user_data) {
+  struct Single* data = (struct Single*) user_data;
+  munit_assert_non_null (data);
+
+  SquashFile* file = squash_file_steal (data->codec, data->file, NULL);
+  munit_assert_non_null (file);
   SquashStatus res = squash_file_write (file, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM);
-  g_assert (res == SQUASH_OK);
+  SQUASH_ASSERT_OK(res);
+  squash_file_free (file, NULL);
 
-  squash_file_close (file);
+  fflush (data->file);
+  rewind (data->file);
 
-  file = squash_file_open (codec, data->filename, "rb", NULL);
-  g_assert (file != NULL);
-
+  file = squash_file_steal (data->codec, data->file, NULL);
   uint8_t decompressed[LOREM_IPSUM_LENGTH];
   size_t total_read = 0;
   do {
-    size_t bytes_read = 256;
+    size_t bytes_read = (size_t) munit_rand_int_range (32, 256);
     res = squash_file_read (file, &bytes_read, decompressed + total_read);
-    assert (res > 0);
+    SQUASH_ASSERT_NO_ERROR(res);
     total_read += bytes_read;
-    assert (total_read <= LOREM_IPSUM_LENGTH);
+    munit_assert_cmp_size (total_read, <=, LOREM_IPSUM_LENGTH);
   } while (!squash_file_eof (file));
 
-  g_assert_cmpint (total_read, ==, LOREM_IPSUM_LENGTH);
-  g_assert (memcmp (decompressed, LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+  munit_assert_cmp_size (total_read, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
-  squash_file_close (file);
+  squash_file_free (file, NULL);
+
+  return MUNIT_OK;
 }
 
-struct Triple {
-  char* filename[3];
-  int fd[3];
-};
-
-static void
-triple_setup (struct Triple* data, gconstpointer user_data) {
-  GError* e = NULL;
-
-  data->fd[0] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[0]), &e);
-  g_assert (e == NULL);
-  data->fd[1] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[1]), &e);
-  g_assert (e == NULL);
-  data->fd[2] = g_file_open_tmp ("squash-file-test-XXXXXX", &(data->filename[2]), &e);
-  g_assert (e == NULL);
-}
-
-static void
-triple_teardown (struct Triple* data, gconstpointer user_data) {
-  GError* e = NULL;
-
-  g_close(data->fd[0], &e);
-  assert (e == NULL);
-  g_close(data->fd[1], &e);
-  assert (e == NULL);
-  g_close(data->fd[2], &e);
-  assert (e == NULL);
-  unlink (data->filename[0]);
-  unlink (data->filename[1]);
-  unlink (data->filename[2]);
-  g_free (data->filename[0]);
-  g_free (data->filename[1]);
-  g_free (data->filename[2]);
-}
-
-static void
-test_file_splice (struct Triple* data, gconstpointer user_data) {
-  SquashCodec* codec = (SquashCodec*) user_data;
+static MunitResult
+squash_test_splice_full(const MunitParameter params[], void* user_data) {
+  struct Triple* data = (struct Triple*) user_data;
+  munit_assert_non_null (data);
   const uint8_t offset_buf[4096] = { 0, };
   size_t offset;
   size_t bytes_written;
   int ires;
 
-  FILE* uncompressed = fopen (data->filename[0], "w+b");
-  g_assert (uncompressed != NULL);
-  FILE* compressed = fopen (data->filename[1], "w+b");
-  g_assert (compressed != NULL);
-  FILE* decompressed = fopen (data->filename[2], "w+b");
-  g_assert (decompressed != NULL);
+  FILE* uncompressed = data->file[0];
+  FILE* compressed   = data->file[1];
+  FILE* decompressed = data->file[2];
 
   bytes_written = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
-  g_assert_cmpint (bytes_written, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_cmp_size (bytes_written, ==, LOREM_IPSUM_LENGTH);
   fflush (uncompressed);
   rewind (uncompressed);
 
   /* Start in the middle of the file, just to make sure it works. */
-  offset = (size_t) g_test_rand_int_range (1, 4096);
+  offset = (size_t) munit_rand_int_range (1, sizeof(offset_buf));
   bytes_written = fwrite (offset_buf, 1, offset, compressed);
-  g_assert_cmpint (bytes_written, ==, offset);
+  munit_assert_cmp_int (ftello (compressed), ==, offset);
 
-  g_assert_cmpint (ftello (compressed), ==, offset);
-
-  SquashStatus res = squash_splice (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
-  g_assert (res == SQUASH_OK);
+  SquashStatus res = squash_splice (data->codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
+  SQUASH_ASSERT_OK(res);
 
   ires = fseek (compressed, offset, SEEK_SET);
-  g_assert_cmpint (ires, ==, 0);
+  munit_assert_cmp_int (ires, ==, 0);
 
-  res = squash_splice (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
-  g_assert (res == SQUASH_OK);
+  res = squash_splice (data->codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
+  SQUASH_ASSERT_OK(res);
 
-  g_assert_cmpint (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
+  munit_assert_cmp_int (ftello (decompressed), ==, LOREM_IPSUM_LENGTH);
 
   rewind (decompressed);
   {
-    uint8_t* decompressed_data = malloc (LOREM_IPSUM_LENGTH);
-    g_assert (decompressed_data != NULL);
+    uint8_t* decompressed_data = munit_malloc (LOREM_IPSUM_LENGTH);
 
     size_t bytes_read = fread (decompressed_data, 1, LOREM_IPSUM_LENGTH, decompressed);
-    g_assert_cmpint (bytes_read, ==, LOREM_IPSUM_LENGTH);
+    munit_assert_cmp_int (bytes_read, ==, LOREM_IPSUM_LENGTH);
 
-    g_assert (memcmp (decompressed_data, LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+    munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed_data, LOREM_IPSUM);
 
     free (decompressed_data);
   }
 
-  fclose (uncompressed);
-  fclose (compressed);
-  fclose (decompressed);
+  return MUNIT_OK;
 }
 
-static void
-test_file_splice_partial (struct Triple* data, gconstpointer user_data) {
-  SquashCodec* codec = (SquashCodec*) user_data;
+static MunitResult
+squash_test_splice_partial(const MunitParameter params[], void* user_data) {
+  struct Triple* data = (struct Triple*) user_data;
+  SquashCodec* codec = data->codec;
   uint8_t filler[LOREM_IPSUM_LENGTH] = { 0, };
   uint8_t decompressed_data[LOREM_IPSUM_LENGTH] = { 0, };
   size_t bytes;
   size_t len1, len2;
 
-  FILE* uncompressed = fopen (data->filename[0], "w+b");
-  g_assert (uncompressed != NULL);
-  FILE* compressed = fopen (data->filename[1], "w+b");
-  g_assert (compressed != NULL);
-  FILE* decompressed = fopen (data->filename[2], "w+b");
-  g_assert (decompressed != NULL);
+  FILE* uncompressed = data->file[0];
+  FILE* compressed   = data->file[1];
+  FILE* decompressed = data->file[2];
 
   for (len1 = 0 ; len1 < (size_t) LOREM_IPSUM_LENGTH ; len1++)
-    filler[len1] = (uint8_t) g_test_rand_int_range (0x00, 0xff);
+    filler[len1] = (uint8_t) munit_rand_int_range (0x00, 0xff);
 
   bytes = fwrite (LOREM_IPSUM, 1, LOREM_IPSUM_LENGTH, uncompressed);
-  g_assert_cmpint (bytes, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_cmp_size (bytes, ==, LOREM_IPSUM_LENGTH);
   fflush (uncompressed);
   rewind (uncompressed);
 
-  len1 = (size_t) g_test_rand_int_range (128, LOREM_IPSUM_LENGTH - 1);
-  len2 = (size_t) g_test_rand_int_range (64, len1 - 1);
+  len1 = (size_t) munit_rand_int_range (128, LOREM_IPSUM_LENGTH - 1);
+  len2 = (size_t) munit_rand_int_range (64, len1 - 1);
 
   SquashStatus res = squash_splice (codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, len1, NULL);
-  g_assert_cmpint (res, ==, SQUASH_OK);
-  g_assert_cmpint (ftello (uncompressed), ==, len1);
+  munit_assert_cmp_size (res, ==, SQUASH_OK);
+  munit_assert_cmp_size (ftello (uncompressed), ==, len1);
   rewind (uncompressed);
   rewind (compressed);
 
   res = squash_splice (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, 0, NULL);
-  g_assert (res == SQUASH_OK);
-  g_assert_cmpint (ftello (decompressed), ==, (off_t) len1);
+  SQUASH_ASSERT_OK (res);
+  munit_assert_cmp_size (ftello (decompressed), ==, (off_t) len1);
   rewind (compressed);
   rewind (decompressed);
 
   bytes = fread (decompressed_data, 1, LOREM_IPSUM_LENGTH, decompressed);
-  g_assert (bytes == len1);
-  g_assert (feof (decompressed));
+  munit_assert_cmp_size (bytes, ==, len1);
+  munit_assert (feof (decompressed));
   rewind (compressed);
   rewind (decompressed);
 
   memcpy (decompressed_data, filler, sizeof (decompressed_data));
   res = squash_splice (codec, SQUASH_STREAM_DECOMPRESS, decompressed, compressed, len2, NULL);
-  g_assert_cmpint (res, ==, SQUASH_OK);
+  SQUASH_ASSERT_OK(res);
 
-  fclose (uncompressed);
-  fclose (compressed);
-  fclose (decompressed);
+  return MUNIT_OK;
 }
 
 #define HELLO_WORLD_LENGTH ((size_t) 13)
 
-static void
-test_file_printf (struct Single* data, gconstpointer user_data) {
-  SquashCodec* codec = (SquashCodec*) user_data;
-  SquashFile* file = squash_file_open (codec, data->filename, "w+b", NULL);
-  g_assert (file != NULL);
+static MunitResult
+squash_test_printf(const MunitParameter params[], void* user_data) {
+  struct Single* data = (struct Single*) user_data;
+  munit_assert_non_null (data);
+
+  SquashCodec* codec = data->codec;
+  SquashFile* file = squash_file_steal (codec, data->file, NULL);
+  munit_assert_non_null (file);
   uint8_t decompressed[LOREM_IPSUM_LENGTH + HELLO_WORLD_LENGTH + 1];
 
   SquashStatus res = squash_file_printf (file, "Hello, %s\n", "world");
   SQUASH_ASSERT_STATUS(res, SQUASH_OK);
-  res = squash_file_printf (file, LOREM_IPSUM);
+  res = squash_file_printf (file, (const char*) LOREM_IPSUM);
   SQUASH_ASSERT_STATUS(res, SQUASH_OK);
 
-  squash_file_close (file);
+  squash_file_free (file, NULL);
+  rewind (data->file);
 
-  file = squash_file_open (codec, data->filename, "rb", NULL);
-  g_assert (file != NULL);
+  file = squash_file_steal (codec, data->file, NULL);
+  munit_assert_non_null (file);
 
   size_t total_read = 0;
   do {
@@ -233,45 +233,30 @@ test_file_printf (struct Single* data, gconstpointer user_data) {
     total_read += bytes_read;
   } while (!squash_file_eof (file));
 
-  g_assert_cmpint (total_read, ==, HELLO_WORLD_LENGTH + LOREM_IPSUM_LENGTH);
+  munit_assert_cmp_size (total_read, ==, HELLO_WORLD_LENGTH + LOREM_IPSUM_LENGTH);
   /* Note that we don't store the trailing null byte, so we need to
      add it back in here. */
   decompressed[HELLO_WORLD_LENGTH + LOREM_IPSUM_LENGTH] = 0x00;
-  g_assert (strncmp ((char*) decompressed, "Hello, world\n", HELLO_WORLD_LENGTH) == 0);
-  g_assert (strncmp ((char*) decompressed + HELLO_WORLD_LENGTH, (char*) LOREM_IPSUM, LOREM_IPSUM_LENGTH) == 0);
+  munit_assert_memory_equal (HELLO_WORLD_LENGTH, decompressed, "Hello, world\n");
+  munit_assert_string_equal ((char*) decompressed + HELLO_WORLD_LENGTH, (char*) LOREM_IPSUM);
 
-  squash_file_close (file);
+  squash_file_free (file, NULL);
+
+  return MUNIT_OK;
 }
 
-void
-squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
-  gchar* test_name;
+MunitTest squash_file_tests[] = {
+  { (char*) "/io", squash_test_io, squash_test_single_setup, squash_test_single_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/splice/full", squash_test_splice_full, squash_test_triple_setup, squash_test_triple_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/splice/partial", squash_test_splice_partial, squash_test_triple_setup, squash_test_triple_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/printf", squash_test_printf, squash_test_single_setup, squash_test_single_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
+};
 
-  test_name =
-    g_strdup_printf ("/file/printf/%s/%s",
-                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                     squash_codec_get_name (codec));
-  g_test_add (test_name, struct Single, codec, single_setup, test_file_printf, single_teardown);
-  g_free (test_name);
-
-  test_name =
-    g_strdup_printf ("/file/io/%s/%s",
-                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                     squash_codec_get_name (codec));
-  g_test_add (test_name, struct Single, codec, single_setup, test_file_io, single_teardown);
-  g_free (test_name);
-
-  test_name =
-    g_strdup_printf ("/file/splice/full/%s/%s",
-                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                     squash_codec_get_name (codec));
-  g_test_add (test_name, struct Triple, codec, triple_setup, test_file_splice, triple_teardown);
-  g_free (test_name);
-
-  test_name =
-    g_strdup_printf ("/file/splice/partial/%s/%s",
-                     squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                     squash_codec_get_name (codec));
-  g_test_add (test_name, struct Triple, codec, triple_setup, test_file_splice_partial, triple_teardown);
-  g_free (test_name);
-}
+MunitSuite squash_test_suite_file = {
+  (char*) "/file",
+  squash_file_tests,
+  NULL,
+  1,
+  MUNIT_SUITE_OPTION_NONE
+};

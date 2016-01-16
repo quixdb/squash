@@ -1,43 +1,77 @@
-#include "test-codecs.h"
+#include "test-squash.h"
 
-void
-check_codec (SquashCodec* codec) {
+static MunitResult
+squash_test_basic(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  munit_assert_non_null(user_data);
+  SquashCodec* codec = (SquashCodec*) user_data;
+
   size_t compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
   size_t uncompressed_length = LOREM_IPSUM_LENGTH;
   uint8_t* compressed = (uint8_t*) malloc (compressed_length);
   uint8_t* uncompressed = (uint8_t*) malloc (LOREM_IPSUM_LENGTH);
   SquashStatus res;
-  size_t pos = 0;
+
+  if (strcmp ("lz4-raw", squash_codec_get_name (codec)) == 0)
+    return MUNIT_SKIP;
+
+  munit_assert_cmp_size(compressed_length, >=, LOREM_IPSUM_LENGTH);
+  munit_assert_non_null(compressed);
+  munit_assert_non_null(uncompressed);
 
   res = squash_codec_compress (codec, &compressed_length, compressed, LOREM_IPSUM_LENGTH, (uint8_t*) LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK(res);
 
   res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
-  g_assert_cmpint (LOREM_IPSUM_LENGTH, ==, uncompressed_length);
+  munit_assert_cmp_int(LOREM_IPSUM_LENGTH, ==, uncompressed_length);
   SQUASH_ASSERT_OK(res);
 
-  for (pos = 0 ; pos < uncompressed_length && pos < LOREM_IPSUM_LENGTH ; pos++) {
-    if (uncompressed[pos] != LOREM_IPSUM[pos]) {
-      g_error ("Decompressed data differs from the original at offset %" G_GSIZE_FORMAT, pos);
-    }
-  }
-  g_assert (pos == uncompressed_length && pos == LOREM_IPSUM_LENGTH);
+  munit_assert_memory_equal(LOREM_IPSUM_LENGTH, uncompressed, LOREM_IPSUM);
 
-  if (strcmp ("lz4-raw", squash_codec_get_name (codec)) != 0) {
-    uncompressed_length = LOREM_IPSUM_LENGTH - 1;
-    res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
-    g_assert_cmpint (res, ==, SQUASH_BUFFER_FULL);
-  }
+  uncompressed_length = LOREM_IPSUM_LENGTH - 1;
+  res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
+  munit_assert_cmp_int (res, ==, SQUASH_BUFFER_FULL);
 
   free (compressed);
   free (uncompressed);
+
+  return MUNIT_OK;
 }
 
-void
-squash_check_setup_tests_for_codec (SquashCodec* codec, void* user_data) {
-  gchar* test_name = g_strdup_printf ("/buffer/%s/%s",
-                                      squash_plugin_get_name (squash_codec_get_plugin (codec)),
-                                      squash_codec_get_name (codec));
-  g_test_add_data_func (test_name, codec, (GTestDataFunc) check_codec);
-  g_free (test_name);
+static MunitResult
+squash_test_single_byte(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  munit_assert_non_null(user_data);
+  SquashCodec* codec = (SquashCodec*) user_data;
+
+  uint8_t uncompressed = (uint8_t) munit_rand_int_range (0x00, 0xff);
+  uint8_t decompressed;
+  uint8_t* compressed = NULL;
+  size_t compressed_length;
+  size_t decompressed_length = 1;
+
+  compressed_length = squash_codec_get_max_compressed_size (codec, 1);
+  munit_assert_cmp_size (compressed_length, >=, 1);
+  compressed = munit_malloc (compressed_length);
+
+  SquashStatus res = squash_codec_compress (codec, &compressed_length, compressed, 1, &uncompressed, NULL);
+  SQUASH_ASSERT_OK(res);
+  res = squash_codec_decompress (codec, &decompressed_length, &decompressed, compressed_length, compressed, NULL);
+  SQUASH_ASSERT_OK(res);
+
+  munit_assert_memory_equal(1, &uncompressed, &decompressed);
+
+  return MUNIT_OK;
 }
+
+MunitTest squash_buffer_tests[] = {
+  { (char*) "/basic", squash_test_basic, squash_test_get_codec, NULL, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/single-byte", squash_test_single_byte, squash_test_get_codec, NULL, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
+};
+
+MunitSuite squash_test_suite_buffer = {
+  (char*) "/buffer",
+  squash_buffer_tests,
+  NULL,
+  1,
+  MUNIT_SUITE_OPTION_NONE
+};
