@@ -10,6 +10,13 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list (APPEND BROTLI_PLATFORM_DEFINES "OS_MACOSX")
 endif ()
 
+set_compiler_specific_flags(
+  VARIABLE embed_compiler_flags
+  MSVC
+    /wd4244
+    /wd4018
+    /wd4334)
+
 squash_plugin (
   NAME brotli
   SOURCES squash-brotli.cpp
@@ -40,9 +47,7 @@ squash_plugin (
     -Wno-cast-align
     -Wno-sign-compare
   EMBED_COMPILER_FLAGS
-    /wd4244
-    /wd4018
-    /wd4334
+    ${embed_compiler_flags}
   INCLUDE_DIRS brotli
   EMBED_DEFINES
     ${BROTLI_PLATFORM_DEFINES})

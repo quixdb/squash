@@ -8,7 +8,7 @@ set_compiler_specific_flags(
     -Wno-shadow
     -Wno-missing-declarations
     -Wno-pointer-to-int-cast
-  ICC -wd3656
+  INTEL -wd3656
   MSVC
     /wd4090
     /wd4244)

@@ -31,7 +31,7 @@ endif ()
 #    (i.e., anything but MSVC).
 #  - CLANG: clang
 #  - MSVC: Microsoft Visual C++ compiler
-#  - Intel: Intel C Compiler
+#  - INTEL: Intel C Compiler
 #
 # Note: the compiler is determined based on the value of the
 # CMAKE_C_COMPILER_ID variable, not CMAKE_CXX_COMPILER_ID.

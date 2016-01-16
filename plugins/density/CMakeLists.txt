@@ -2,7 +2,7 @@ include (SquashPlugin)
 
 set_compiler_specific_flags(
   VARIABLE compiler_flags
-  ICC -wd858)
+  INTEL -wd858)
 
 squash_plugin (
   NAME density

@@ -88,7 +88,7 @@ configure_lzo ()
 
 set_compiler_specific_flags(
   VARIABLE compiler_flags
-  ICC -wd193)
+  INTEL -wd193)
 
 squash_plugin (
   NAME lzo

@@ -4,7 +4,7 @@ set_compiler_specific_flags(
   VARIABLE compiler_flags
   GCCISH -Wno-cast-align
   MSVC /wd4244
-  ICC -wd69)
+  INTEL -wd69)
 
 squash_plugin (
   NAME zpaq

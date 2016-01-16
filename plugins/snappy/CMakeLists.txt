@@ -10,6 +10,12 @@ CHECK_TYPE_SIZE    ("ssize_t"    HAVE_SSIZE_T)
 configure_file (snappy-stubs-public.h.in snappy-stubs-public.h)
 configure_file (config.h.in config.h)
 
+set_compiler_specific_flags(
+  VARIABLE embed_compiler_flags
+  MSVC
+    /wd4267
+    /wd4018)
+
 squash_plugin (
   NAME snappy
   SOURCES squash-snappy.c
@@ -25,5 +31,4 @@ squash_plugin (
   EMBED_DEFINES
     HAVE_CONFIG_H
   EMBED_COMPILER_FLAGS
-    /wd4267
-    /wd4018)
+    ${embed_compiler_flags})
