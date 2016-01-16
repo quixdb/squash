@@ -15,6 +15,54 @@ elseif ("Clang" STREQUAL "${CMAKE_C_COMPILER_ID}")
   set (ADD_COMPILER_FLAGS_PREPEND "-Werror=unknown-warning-option")
 endif ()
 
+##
+# Set a variable to different flags, depending on which compiler is in
+# use.
+#
+# Example:
+#   set_compiler_flags(VARIABLE varname MSVC /wd666 INTEL /wd1729)
+#
+#   This will set varname to /wd666 if the compiler is MSVC, and /wd1729
+#   if it is Intel.
+#
+# Possible compilers:
+#  - GCC: GNU C Compiler
+#  - GCCISH: A compiler that (tries to) be GCC-compatible on the CLI
+#    (i.e., anything but MSVC).
+#  - CLANG: clang
+#  - MSVC: Microsoft Visual C++ compiler
+#  - Intel: Intel C Compiler
+#
+# Note: the compiler is determined based on the value of the
+# CMAKE_C_COMPILER_ID variable, not CMAKE_CXX_COMPILER_ID.
+##
+function (set_compiler_specific_flags)
+  set (oneValueArgs VARIABLE)
+  set (multiValueArgs GCC GCCISH INTEL CLANG MSVC)
+  cmake_parse_arguments(COMPILER_SPECIFIC_FLAGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  unset (options)
+  unset (oneValueArgs)
+  unset (multiValueArgs)
+
+  set (compiler_flags)
+
+  if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+    list (APPEND compiler_flags ${COMPILER_SPECIFIC_FLAGS_GCC})
+  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    list (APPEND compiler_flags ${COMPILER_SPECIFIC_FLAGS_CLANG})
+  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
+    list (APPEND compiler_flags ${COMPILER_SPECIFIC_FLAGS_INTEL})
+  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+    list (APPEND compiler_flags ${COMPILER_SPECIFIC_FLAGS_MSVC})
+  endif()
+
+  if (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+    list (APPEND compiler_flags ${COMPILER_SPECIFIC_FLAGS_GCCISH})
+  endif ()
+
+  set (${COMPILER_SPECIFIC_FLAGS_VARIABLE} "${compiler_flags}" PARENT_SCOPE)
+endfunction ()
+
 function (source_file_add_compiler_flags_unchecked file)
   set (flags ${ARGV})
   list (REMOVE_AT flags 0)

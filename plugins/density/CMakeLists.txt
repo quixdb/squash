@@ -1,5 +1,9 @@
 include (SquashPlugin)
 
+set_compiler_specific_flags(
+  VARIABLE compiler_flags
+  ICC -wd858)
+
 squash_plugin (
   NAME density
   SOURCES squash-density
@@ -32,4 +36,4 @@ squash_plugin (
     density/src/spookyhash/src/context.c
     density/src/spookyhash/src/spookyhash.c
   EMBED_COMPILER_FLAGS
-    -wd858)
+    ${compiler_flags})

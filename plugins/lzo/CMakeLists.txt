@@ -86,6 +86,10 @@ endmacro (configure_lzo)
 
 configure_lzo ()
 
+set_compiler_specific_flags(
+  VARIABLE compiler_flags
+  ICC -wd193)
+
 squash_plugin (
   NAME lzo
   SOURCES squash-lzo.c
@@ -163,6 +167,6 @@ squash_plugin (
   EMBED_DEFINES
     ${squash_lzo_defs}
   COMPILER_FLAGS
-    -wd193)
+    ${compiler_flags})
 
 unset (squash_lzo_defs)

@@ -1,5 +1,18 @@
 include (SquashPlugin)
 
+set_compiler_specific_flags(
+  VARIABLE compiler_flags
+  GCCISH
+    -Wno-undef
+    -Wno-missing-prototypes
+    -Wno-shadow
+    -Wno-missing-declarations
+    -Wno-pointer-to-int-cast
+  ICC -wd3656
+  MSVC
+    /wd4090
+    /wd4244)
+
 squash_plugin (
   NAME lzf
   SOURCES squash-lzf.c
@@ -9,11 +22,4 @@ squash_plugin (
   INCLUDE_DIRS
     liblzf
   COMPILER_FLAGS
-    -Wno-undef
-    -Wno-missing-prototypes
-    -Wno-shadow
-    -Wno-missing-declarations
-    -Wno-pointer-to-int-cast
-    /wd4090
-    /wd4244
-    -wd3656)
+    ${compiler_flags})

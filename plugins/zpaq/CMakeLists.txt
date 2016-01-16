@@ -1,14 +1,18 @@
 include (SquashPlugin)
 
+set_compiler_specific_flags(
+  VARIABLE compiler_flags
+  GCCISH -Wno-cast-align
+  MSVC /wd4244
+  ICC -wd69)
+
 squash_plugin (
   NAME zpaq
   SOURCES squash-zpaq.cpp
   EMBED_SOURCES zpaq/libzpaq.cpp
   COMPILER_FLAGS
     "-include \"${CMAKE_CURRENT_SOURCE_DIR}/zpaq-config.h\""
-    -Wno-cast-align
-    -wd69
-    /wd4244
+    ${compiler_flags}
   INCLUDE_DIRS zpaq
   EMBED_COMPILER_FLAGS
     -Wno-shift-negative-value)
