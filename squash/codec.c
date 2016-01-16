@@ -823,6 +823,9 @@ squash_codec_decompress_with_options (SquashCodec* codec,
   if (SQUASH_UNLIKELY(decompressed == compressed))
     return squash_error (SQUASH_INVALID_BUFFER);
 
+  if (SQUASH_UNLIKELY(decompressed_size == NULL || *decompressed_size == 0))
+    return squash_error (SQUASH_INVALID_BUFFER);
+
   if (impl->decompress_buffer != NULL) {
     SquashStatus res;
     res = impl->decompress_buffer (codec,
