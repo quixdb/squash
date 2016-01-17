@@ -38,7 +38,7 @@ set (SQUASH_TESTS
   /stream/single-byte
   /threads/buffer)
 
-add_definitions(-DSQUASH_TEST_PLUGIN_DIR="${CMAKE_BINARY_DIR}/plugins")
+add_definitions(-DSQUASH_TEST_PLUGIN_DIR="${SQUASH_PLUGIN_DIRECTORY}")
 
 set_compiler_specific_flags(
   VARIABLE extra_compiler_flags
@@ -53,6 +53,12 @@ target_add_compiler_flags (test-squash ${extra_compiler_flags})
 if (WIN32)
   add_custom_command(TARGET test-squash POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:squash${SQUASH_VERSION_API}>" "$<TARGET_FILE_DIR:test-squash>")
+  # Increase stack size for ms-compress plugin
+  if (MSVC)
+    target_link_libraries (test-squash "-STACK:8388608")
+  else ()
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,8388608")
+  endif ()
 endif ()
 
 foreach(test_name ${SQUASH_TESTS})
