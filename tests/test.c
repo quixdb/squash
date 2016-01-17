@@ -7,6 +7,10 @@
 
 #include "test-squash.h"
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#  define snprintf _snprintf
+#endif
+
 void*
 squash_test_get_codec(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   return squash_get_codec (munit_parameters_get (params, "codec"));
