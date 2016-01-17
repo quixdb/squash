@@ -23,4 +23,4 @@ before_build:
 
 build_script: cmake --build . --target install --config %CONFIGURATION%
 
-test_script: ctest -V --interactive-debug-mode 0 --timeout 300 .
+test_script: ctest -V --interactive-debug-mode 0 --timeout 300 -C %CONFIGURATION% .
