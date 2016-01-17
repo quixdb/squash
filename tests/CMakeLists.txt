@@ -50,6 +50,11 @@ target_link_libraries(test-squash ${CMAKE_THREAD_LIBS_INIT})
 target_require_c_standard (test-squash "c99")
 target_add_compiler_flags (test-squash ${extra_compiler_flags})
 
+if (WIN32)
+  add_custom_command(TARGET test-squash POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:squash${SQUASH_VERSION_API}>" "$<TARGET_FILE_DIR:test-squash>")
+endif ()
+
 foreach(test_name ${SQUASH_TESTS})
   add_test(NAME ${test_name}
     COMMAND $<TARGET_FILE:test-squash> test-squash ${test_name})
