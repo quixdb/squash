@@ -87,6 +87,11 @@ main(int argc, const char* argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   }
 
   squash_foreach_codec (squash_codec_generate_list, NULL);
+  if (codec_list_l == 0) {
+    fprintf(stderr, "Unable to find any plugins in `%s'.\n", getenv ("SQUASH_PLUGINS"));
+    return EXIT_FAILURE;
+  }
+
   squash_suite_set_params (&squash_suite);
 
   int ret = munit_suite_main(&squash_suite, NULL, argc, argv);
