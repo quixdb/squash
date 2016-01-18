@@ -84,6 +84,34 @@ squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
 
 SQUASH_MTX_DEFINE(plugin_init)
 
+#if defined(__GNUC__)
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
+static char*
+squash_strdup_printf (const char* fmt, ...) {
+  va_list ap;
+  char* buf = NULL;
+  size_t l = 0;
+
+  va_start (ap, fmt);
+#if !defined(_WIN32)
+  l = vsnprintf (buf, l, fmt, ap);
+#else
+  l = _vscprintf (fmt, ap);
+#endif
+  va_end (ap);
+
+  l++;
+  buf = squash_malloc (l);
+  if (buf != NULL) {
+    va_start (ap, fmt);
+    vsnprintf(buf, l, fmt, ap);
+    va_end (ap);
+  }
+
+  return buf;
+}
+
 /**
  * @brief load a %SquashPlugin
  *
@@ -108,28 +136,20 @@ squash_plugin_init (SquashPlugin* plugin) {
     HMODULE handle;
 #endif
     char* plugin_file_name;
-    size_t plugin_dir_size;
-    size_t plugin_name_size;
-    size_t plugin_file_name_max_size;
-    size_t squash_version_api_size = strlen (SQUASH_VERSION_API);
 
-    plugin_dir_size = strlen (plugin->directory);
-    plugin_name_size = strlen (plugin->name);
-    plugin_file_name_max_size = plugin_dir_size + squash_version_api_size + plugin_name_size + 19 + strlen (SQUASH_SHARED_LIBRARY_SUFFIX);
-    plugin_file_name = (char*) squash_malloc (plugin_file_name_max_size + 1);
-
-#if defined(_MSC_VER)
-    snprintf (plugin_file_name, plugin_file_name_max_size + 1,
-              "%s/squash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
-#else
-    snprintf (plugin_file_name, plugin_file_name_max_size + 1,
-              "%s/libsquash%s-plugin-%s%s", plugin->directory, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
-#endif
+    plugin_file_name = squash_strdup_printf ("%s/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+    if (plugin_file_name == NULL)
+      return squash_error (SQUASH_MEMORY);
 
 #if !defined(_WIN32)
     handle = dlopen (plugin_file_name, RTLD_LAZY);
 #else
     handle = LoadLibrary (TEXT(plugin_file_name));
+    if (handle == NULL) {
+      squash_free (plugin_file_name);
+      plugin_file_name = squash_strdup_printf ("%s/%s/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_BUILD_TYPE, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+      handle = LoadLibrary (TEXT(plugin_file_name));
+    }
 #endif
 
     squash_free (plugin_file_name);

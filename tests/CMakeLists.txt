@@ -38,7 +38,7 @@ set (SQUASH_TESTS
   /stream/single-byte
   /threads/buffer)
 
-add_definitions(-DSQUASH_TEST_PLUGIN_DIR="${SQUASH_PLUGIN_DIRECTORY}")
+add_definitions(-DSQUASH_TEST_PLUGIN_DIR="${CMAKE_BINARY_DIR}/plugins")
 
 set_compiler_specific_flags(
   VARIABLE extra_compiler_flags
