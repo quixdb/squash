@@ -59,7 +59,7 @@ SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, Squ
 
 static void*
 squash_crush_malloc (size_t size, void* user_data) {
-  return squash_malloc (size);
+  return squash_calloc (size, 1);
 }
 
 static void

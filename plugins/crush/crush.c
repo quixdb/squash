@@ -56,7 +56,7 @@
 static void*
 crush_malloc (size_t size, void* user_data) {
   (void) user_data;
-  return malloc(size);
+  return calloc(size, 1);
 }
 
 static void
@@ -78,7 +78,6 @@ int crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writ
   ctx->dealloc = dealloc;
 
 	ctx->buf = (unsigned char*)alloc(BUF_SIZE+MAX_MATCH, user_data);
-	memset(ctx->buf, 0, BUF_SIZE+MAX_MATCH);
 
   return 0;
 }
@@ -216,9 +215,6 @@ int crush_compress(CrushContext* ctx, int level)
     free (prev);
     return -1;
   }
-
-  memset (head, 0, (HASH1_SIZE+HASH2_SIZE) * sizeof(int));
-  memset (prev, 0, W_SIZE * sizeof(int));
 
 	const int max_chain[]={4, 256, 1<<12};
 

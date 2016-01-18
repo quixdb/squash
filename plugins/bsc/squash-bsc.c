@@ -96,6 +96,10 @@ static void* squash_bsc_malloc (size_t size) {
   return squash_malloc (size);
 }
 
+static void* squash_bsc_zero_malloc (size_t size) {
+  return squash_calloc (size, 1);
+}
+
 static void squash_bsc_free (void* ptr) {
   squash_free (ptr);
 }
@@ -218,7 +222,7 @@ squash_bsc_decompress_buffer (SquashCodec* codec,
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
-  bsc_init_full (LIBBSC_DEFAULT_FEATURES, squash_bsc_malloc, NULL, squash_bsc_free);
+  bsc_init_full (LIBBSC_DEFAULT_FEATURES, squash_bsc_malloc, squash_bsc_zero_malloc, squash_bsc_free);
 
   const char* name = squash_codec_get_name (codec);
 
