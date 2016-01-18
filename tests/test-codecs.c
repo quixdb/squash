@@ -27,9 +27,17 @@ static GOptionEntry options[] = {
   { NULL }
 };
 
+#define SQUASH_PTR_TEST_INT INT64_C(0xBADC0FFEE0DDF00D)
+
 static void* squash_test_malloc (size_t size) {
   uint64_t* ptr = malloc (size + sizeof(uint64_t));
-  *ptr = 0xBADC0FFEE0DDF00D;
+  *ptr = SQUASH_PTR_TEST_INT;
+  return (void*) (ptr + 1);
+}
+
+static void* squash_test_calloc (size_t nmemb, size_t size) {
+  uint64_t* ptr = calloc (1, (nmemb * size) + sizeof(uint64_t));
+  *ptr = SQUASH_PTR_TEST_INT;
   return (void*) (ptr + 1);
 }
 
@@ -38,7 +46,7 @@ static void* squash_test_realloc (void* ptr, size_t size) {
     return squash_test_malloc (size);
   } else {
     uint64_t* rptr = ((uint64_t*) ptr) - 1;
-    g_assert (*rptr == 0xBADC0FFEE0DDF00D);
+    g_assert (*rptr == SQUASH_PTR_TEST_INT);
     rptr = realloc (rptr, size + sizeof(uint64_t));
     return (void*) (rptr + 1);
   }
@@ -49,7 +57,7 @@ static void squash_test_free (void* ptr) {
     return;
 
   uint64_t* rptr = ((uint64_t*) ptr) - 1;
-  g_assert (*rptr == 0xBADC0FFEE0DDF00D);
+  g_assert (*rptr == SQUASH_PTR_TEST_INT);
   free (rptr);
 }
 
@@ -60,6 +68,7 @@ main (int argc, char** argv) {
   SquashMemoryFuncs memfns = {
     squash_test_malloc,
     squash_test_realloc,
+    squash_test_calloc,
     squash_test_free,
     NULL,
   };

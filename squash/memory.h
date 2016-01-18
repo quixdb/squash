@@ -43,6 +43,7 @@ SQUASH_BEGIN_DECLS
 typedef struct SquashMemoryFuncs_ {
   void* (* malloc)                (size_t size);
   void* (* realloc)               (void* ptr, size_t size);
+  void* (* calloc)                (size_t nmemb, size_t size);
   void  (* free)                  (void* ptr);
 
   void* (* aligned_alloc)         (size_t alignment, size_t size);
@@ -54,6 +55,7 @@ SQUASH_API void  squash_set_memory_functions (SquashMemoryFuncs memfn);
 SQUASH_MALLOC
 SQUASH_API void* squash_malloc               (size_t size);
 SQUASH_API void* squash_realloc              (void* ptr, size_t size);
+SQUASH_API void* squash_calloc               (size_t nmemb, size_t size);
 SQUASH_API void  squash_free                 (void* ptr);
 SQUASH_API void* squash_aligned_alloc        (size_t alignment, size_t size);
 SQUASH_API void  squash_aligned_free         (void* ptr);

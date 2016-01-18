@@ -66,6 +66,7 @@ squash_wrap_aligned_alloc (size_t alignment, size_t size) {
 static SquashMemoryFuncs squash_memfns = {
   malloc,
   realloc,
+  calloc,
   free,
 
 #if defined(HAVE_ALIGNED_ALLOC)
@@ -81,6 +82,20 @@ static SquashMemoryFuncs squash_memfns = {
 #endif
 };
 
+static void*
+squash_wrap_calloc (size_t nmemb, size_t size) {
+  const size_t s = nmemb * size;
+  void* ptr = squash_memfns.malloc (s);
+  if (ptr != NULL)
+    memset (ptr, 0, s);
+  return ptr;
+}
+
+static void*
+squash_wrap_malloc (size_t size) {
+  return squash_memfns.calloc (1, size);
+}
+
 /**
  * @defgroup Memory
  * @brief Low-level memory management
@@ -94,8 +109,9 @@ static SquashMemoryFuncs squash_memfns = {
 /**
  * Set memory management functions
  *
- * The `aligned_alloc` and `aligned_free` functions may be `NULL`,
- * but all other functions must be implemented.
+ * The `aligned_alloc` and `aligned_free` functions may be `NULL`, as
+ * well as either `malloc` or `calloc`.  Other callbacks require a
+ * value.
  *
  * @note If you choose to call this function then you must do so
  * before *any* other function in the Squash, or your program will
@@ -106,8 +122,8 @@ static SquashMemoryFuncs squash_memfns = {
  * functions (such as malloc and free) directly, we can't make any
  * promises about plugins or third-party libraries.  We try to make
  * sure as many as possible support custom memory management functions
- * (often filing bugs and patches upstream), but it's unlikely this
- * feature will ever reach 100% coverage.
+ * (often filing bugs and patches upstream), but it is unlikely we
+ * will ever reach 100% coverage.
  *
  * @param memfn Functions to use to manage memory
  */
@@ -116,6 +132,15 @@ squash_set_memory_functions (SquashMemoryFuncs memfn) {
   assert (memfn.malloc != NULL);
   assert (memfn.realloc != NULL);
   assert (memfn.free != NULL);
+
+  if (memfn.calloc == NULL) {
+    assert (memfn.malloc != NULL);
+    memfn.calloc = squash_wrap_calloc;
+  } else if (memfn.malloc == NULL) {
+    assert (memfn.calloc != NULL);
+    memfn.malloc = squash_wrap_malloc;
+  }
+
   if (memfn.aligned_alloc == NULL || memfn.aligned_free) {
     assert (memfn.aligned_alloc == NULL);
     assert (memfn.aligned_free == NULL);
@@ -127,6 +152,11 @@ squash_set_memory_functions (SquashMemoryFuncs memfn) {
 void*
 squash_malloc (size_t size) {
   return squash_memfns.malloc (size);
+}
+
+void*
+squash_calloc (size_t nmemb, size_t size) {
+  return squash_memfns.calloc (nmemb, size);
 }
 
 void*
