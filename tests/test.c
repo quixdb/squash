@@ -10,6 +10,39 @@
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #  define snprintf _snprintf
 #endif
+#define SQUASH_PTR_TEST_INT INT64_C(0xBADC0FFEE0DDF00D)
+
+static void* squash_test_malloc (size_t size) {
+  uint64_t* ptr = malloc (size + sizeof(uint64_t));
+  *ptr = SQUASH_PTR_TEST_INT;
+  return (void*) (ptr + 1);
+}
+
+static void* squash_test_calloc (size_t nmemb, size_t size) {
+  uint64_t* ptr = calloc (1, (nmemb * size) + sizeof(uint64_t));
+  *ptr = SQUASH_PTR_TEST_INT;
+  return (void*) (ptr + 1);
+}
+
+static void* squash_test_realloc (void* ptr, size_t size) {
+  if (ptr == NULL) {
+    return squash_test_malloc (size);
+  } else {
+    uint64_t* rptr = ((uint64_t*) ptr) - 1;
+    munit_assert_cmp_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
+    rptr = realloc (rptr, size + sizeof(uint64_t));
+    return (void*) (rptr + 1);
+  }
+}
+
+static void squash_test_free (void* ptr) {
+  if (ptr == NULL)
+    return;
+
+  uint64_t* rptr = ((uint64_t*) ptr) - 1;
+  munit_assert_cmp_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
+  free (rptr);
+}
 
 void*
 squash_test_get_codec(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
@@ -77,6 +110,15 @@ main(int argc, const char* argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
     1,
     MUNIT_SUITE_OPTION_NONE
   };
+  SquashMemoryFuncs memfns = {
+    squash_test_malloc,
+    squash_test_realloc,
+    squash_test_calloc,
+    squash_test_free,
+    NULL, NULL
+  };
+
+  squash_set_memory_functions (memfns);
 
   if (getenv ("SQUASH_PLUGINS") == NULL) {
 #if !defined(_WIN32)
