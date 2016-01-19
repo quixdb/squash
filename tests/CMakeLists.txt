@@ -63,5 +63,5 @@ endif ()
 
 foreach(test_name ${SQUASH_TESTS})
   add_test(NAME ${test_name}
-    COMMAND $<TARGET_FILE:test-squash> test-squash ${test_name})
+    COMMAND $<TARGET_FILE:test-squash> ${test_name})
 endforeach(test_name)
