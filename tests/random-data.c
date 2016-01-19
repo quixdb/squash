@@ -1,6 +1,6 @@
 #include "test-squash.h"
 
-#define INPUT_BUF_SIZE ((size_t) (1024 * 1024 * 6))
+#define INPUT_BUF_SIZE ((size_t) (1024 * 1024 * 3))
 
 static MunitResult
 squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
