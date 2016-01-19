@@ -116,7 +116,7 @@ squash_lzg_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  uint8_t* workmem = squash_malloc (LZG_WorkMemSize (&cfg));
+  uint8_t* workmem = squash_calloc (LZG_WorkMemSize (&cfg), 1);
   if (SQUASH_UNLIKELY(workmem == NULL))
     return squash_error (SQUASH_MEMORY);
   lzg_uint32_t res = LZG_EncodeFull ((const unsigned char*) uncompressed, (lzg_uint32_t) uncompressed_size,
