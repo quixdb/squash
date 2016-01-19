@@ -1,23 +1,23 @@
 #include "test-squash.h"
 
-#define MAX_UNCOMPRESSED_LENGTH 4096
+#define INPUT_BUF_SIZE ((size_t) (1024 * 1024 * 6))
 
 static MunitResult
 squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
   size_t uncompressed_length;
-  uint8_t uncompressed_data[MAX_UNCOMPRESSED_LENGTH];
-  const size_t max_compressed_size = squash_codec_get_max_compressed_size (codec, MAX_UNCOMPRESSED_LENGTH);
+  uint8_t* uncompressed_data = munit_newa (uint8_t, INPUT_BUF_SIZE);
+  const size_t max_compressed_size = squash_codec_get_max_compressed_size (codec, INPUT_BUF_SIZE);
   size_t compressed_length;
   uint8_t* compressed_data = munit_newa (uint8_t, max_compressed_size);
   size_t decompressed_length;
-  uint8_t decompressed_data[MAX_UNCOMPRESSED_LENGTH];
+  uint8_t* decompressed_data = munit_newa (uint8_t, INPUT_BUF_SIZE);
 
-  munit_rand_memory(sizeof(uncompressed_data), uncompressed_data);
+  munit_rand_memory(INPUT_BUF_SIZE, uncompressed_data);
 
   for (uncompressed_length = 1 ;
-       uncompressed_length < MAX_UNCOMPRESSED_LENGTH ;
-       uncompressed_length += munit_rand_int_range (32, 128)) {
+       uncompressed_length < INPUT_BUF_SIZE ;
+       uncompressed_length += munit_rand_int_range (256, 1024) * (2 + (uncompressed_length / 512))) {
     compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
     munit_assert_cmp_size (compressed_length, <=, max_compressed_size);
     munit_assert_cmp_size (compressed_length, >, 0);
@@ -36,6 +36,10 @@ squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* us
     munit_assert_memory_equal (decompressed_length, decompressed_data, uncompressed_data);
   }
 
+  free (uncompressed_data);
+  free (compressed_data);
+  free (decompressed_data);
+
   return MUNIT_OK;
 }
 
@@ -43,17 +47,20 @@ static MunitResult
 squash_test_random_decompress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
   size_t compressed_length;
-  uint8_t compressed_data[MAX_UNCOMPRESSED_LENGTH];
+  uint8_t* compressed_data = munit_newa (uint8_t, INPUT_BUF_SIZE);
   size_t decompressed_length;
-  uint8_t decompressed_data[MAX_UNCOMPRESSED_LENGTH];
+  uint8_t* decompressed_data = munit_newa (uint8_t, INPUT_BUF_SIZE);
 
   for (compressed_length = 1 ;
-       compressed_length < MAX_UNCOMPRESSED_LENGTH ;
-       compressed_length += munit_rand_int_range (32, 128)) {
-    decompressed_length = MAX_UNCOMPRESSED_LENGTH;
+       compressed_length < INPUT_BUF_SIZE ;
+       compressed_length += munit_rand_int_range (256, 1024) * (2 + (compressed_length / 512))) {
+    decompressed_length = INPUT_BUF_SIZE;
     munit_rand_memory(compressed_length, compressed_data);
     squash_codec_decompress (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
   }
+
+  free (decompressed_data);
+  free (compressed_data);
 
   return MUNIT_OK;
 }
