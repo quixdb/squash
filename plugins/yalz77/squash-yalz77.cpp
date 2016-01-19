@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -53,7 +53,7 @@ SquashStatus squash_plugin_init_plugin (SquashPlugin* plugin);
 
 static size_t
 squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return uncompressed_size + 8 + (uncompressed_size / (1024 * 512));
+  return uncompressed_size + 8 + (uncompressed_size / (1024 * 256));
 }
 
 static SquashStatus
