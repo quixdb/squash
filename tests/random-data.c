@@ -18,14 +18,17 @@ squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* us
   for (uncompressed_length = 1 ;
        uncompressed_length < INPUT_BUF_SIZE ;
        uncompressed_length += munit_rand_int_range (256, 1024) * (2 + (uncompressed_length / 512))) {
-    compressed_length = squash_codec_get_max_compressed_size (codec, uncompressed_length);
+    const size_t req_max = squash_codec_get_max_compressed_size (codec, uncompressed_length);
+    compressed_length = req_max;
     munit_assert_cmp_size (compressed_length, <=, max_compressed_size);
     munit_assert_cmp_size (compressed_length, >, 0);
 
     SquashStatus res = squash_codec_compress (codec, &compressed_length, compressed_data, uncompressed_length, uncompressed_data, NULL);
     /* Helpful when adding new codecs which don't document this… */
-    munit_logf (MUNIT_LOG_DEBUG, "%" MUNIT_SIZE_MODIFIER "u -> %" MUNIT_SIZE_MODIFIER "u (%" MUNIT_SIZE_MODIFIER "u)",
-                uncompressed_length, compressed_length, compressed_length - uncompressed_length);
+    munit_logf (MUNIT_LOG_DEBUG, "%" MUNIT_SIZE_MODIFIER "u -> %" MUNIT_SIZE_MODIFIER "u "
+                "(%" MUNIT_SIZE_MODIFIER "u of %" MUNIT_SIZE_MODIFIER "u used, %" MUNIT_SIZE_MODIFIER "u extra)",
+                uncompressed_length, compressed_length,
+                compressed_length - uncompressed_length, req_max - uncompressed_length, req_max - compressed_length);
     SQUASH_ASSERT_OK(res);
 
     decompressed_length = uncompressed_length;
