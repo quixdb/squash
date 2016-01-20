@@ -53,12 +53,6 @@ target_add_compiler_flags (test-squash ${extra_compiler_flags})
 if (WIN32)
   add_custom_command(TARGET test-squash POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:squash${SQUASH_VERSION_API}>" "$<TARGET_FILE_DIR:test-squash>")
-  # Increase stack size for ms-compress plugin
-  if (MSVC)
-    target_link_libraries (test-squash "-STACK:8388608")
-  else ()
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,8388608")
-  endif ()
 endif ()
 
 foreach(test_name ${SQUASH_TESTS})

@@ -12,4 +12,5 @@ squash_plugin (
     ms-compress/src/xpress_huff_compress.cpp
     ms-compress/src/xpress_huff_decompress.cpp
   EMBED_DEFINES
-    MSCOMP_WITHOUT_UNALIGNED_ACCESS)
+    MSCOMP_WITHOUT_UNALIGNED_ACCESS
+    MSCOMP_WITHOUT_LARGE_STACK)
