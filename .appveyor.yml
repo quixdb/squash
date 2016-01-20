@@ -21,6 +21,6 @@ before_build:
   - cd build
   - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
 
-build_script: cmake --build . --target install --config %CONFIGURATION%
+build_script: cmake --build . --config %CONFIGURATION%
 
 test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION% .

@@ -147,7 +147,11 @@ squash_plugin_init (SquashPlugin* plugin) {
     handle = LoadLibrary (TEXT(plugin_file_name));
     if (handle == NULL) {
       squash_free (plugin_file_name);
-      plugin_file_name = squash_strdup_printf ("%s/%s/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_BUILD_TYPE, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#if defined(_DEBUG)
+      plugin_file_name = squash_strdup_printf ("%s/Debug/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#else
+      plugin_file_name = squash_strdup_printf ("%s/Release/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#endif
       handle = LoadLibrary (TEXT(plugin_file_name));
     }
 #endif
