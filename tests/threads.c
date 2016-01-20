@@ -17,14 +17,13 @@ squash_test_cpu_count (void) {
 
 #if defined(_WIN32)
     /* TODO: Figure out how Windows programmers ever get anything done. */
-    PDWORD lpProcessAffinityMask;
-    PDWORD lpSystemAffinityMask;
+    DWORD_PTR lpProcessAffinityMask;
+    DWORD_PTR lpSystemAffinityMask;
 
-    if (!GetProcessAffinityMask (GetCurrentProcess (), &lpProcessAffinityMask, &lpSystemAffinityMask)) {
-      DWORD ec = GetLastError ();
+    if (MUNIT_UNLIKELY(GetProcessAffinityMask (GetCurrentProcess (), &lpProcessAffinityMask, &lpSystemAffinityMask) == 0)) {
       count = 1;
     } else {
-      for (unsigned int i = 0 ; lpProcessAffinityMask != 0 ; lpProcessAffinityMask >>= 1) {
+      for (; lpProcessAffinityMask != 0 ; lpProcessAffinityMask >>= 1) {
         if (lpProcessAffinityMask & 1)
           c++;
       }
