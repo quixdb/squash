@@ -86,6 +86,9 @@
 [submodule "plugins/heatshrink/heatshrink"]
 	path = plugins/heatshrink/heatshrink
 	url = https://github.com/atomicobject/heatshrink.git
+[submodule "plugins/libdeflate/libdeflate"]
+	path = plugins/libdeflate/libdeflate
+	url = https://github.com/ebiggers/libdeflate.git
 [submodule "utils/parg"]
 	path = utils/parg
 	url = https://github.com/jibsen/parg.git

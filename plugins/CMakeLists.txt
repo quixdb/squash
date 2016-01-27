@@ -12,6 +12,7 @@ set (plugins_available
   fastlz
   gipfeli
   heatshrink
+  libdeflate
   lz4
   lzf
   lzg

@@ -15,6 +15,7 @@ for plugin in \
     fastlz \
     gipfeli \
     heatshrink \
+    libdeflate \
     lz4 \
     lzf \
     lzg \
