@@ -56,9 +56,17 @@ case "${COMPILER}" in
         CROSS_COMPILE=yes
         ;;
     "icc")
-        export CC=icc
-        export CXX=icpc
-        export GCOV=gcov
+        # ICC doesn't work from pull requests because encrypted
+        # variables (which are used for the serial number) aren't
+        # available to pull requests, so unfortunately we need to skip
+        # it.
+        if  [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+            export CC=icc
+            export CXX=icpc
+            export GCOV=gcov
+        else
+            exit 0;
+        fi
         ;;
     *)
         COMPILER="gcc-5"
