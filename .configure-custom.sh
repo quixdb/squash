@@ -36,7 +36,7 @@ for plugin in \
     zstd; do
   NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
   DISABLE_VARS="${DISABLE_VARS} ${plugin}|no|ENABLE_${NAME_UC}"
-  declare DISABLE_ENABLE_${NAME_UC}_DOC="disable the ${plugin} plugin"
+  eval "DISABLE_ENABLE_${NAME_UC}_DOC=\"disable the ${plugin} plugin\""
 done
 
 ENABLE_VARS="coverage|yes|ENABLE_COVERAGE"
@@ -48,7 +48,7 @@ for plugin in \
     pithy; do
   NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
   ENABLE_VARS="${ENABLE_VARS} ${plugin}|yes|ENABLE_${NAME_UC}"
-  declare ENABLE_ENABLE_${NAME_UC}_DOC="enable the ${plugin} plugin (disabled due to bugs)"
+  eval "ENABLE_ENABLE_${NAME_UC}_DOC=\"enable the ${plugin} plugin (disabled due to bugs)\""
 done
 
 WITH_VARS="plugin-dir|path|PLUGIN_DIRECTORY search-path|path|SEARCH_PATH"
