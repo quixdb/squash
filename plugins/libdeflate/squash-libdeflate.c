@@ -69,7 +69,7 @@ squash_libdeflate_compress_buffer (SquashCodec* codec,
   struct deflate_compressor *compressor = deflate_alloc_compressor(level);
   *compressed_size = deflate_compress(compressor, uncompressed, uncompressed_size, compressed, *compressed_size);
   deflate_free_compressor(compressor);
-  return (*compressed_size != 0) ? SQUASH_OK : SQUASH_FAILED;
+  return SQUASH_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
 static SquashStatus
@@ -85,7 +85,18 @@ squash_libdeflate_decompress_buffer (SquashCodec* codec,
                                              decompressed, *decompressed_size, &actual_out_nbytes);
   deflate_free_decompressor(decompressor);
   *decompressed_size = actual_out_nbytes;
-  return ret == DECOMPRESS_SUCCESS ? SQUASH_OK : SQUASH_FAILED;
+  switch (ret) {
+    case DECOMPRESS_SUCCESS:
+      return SQUASH_OK;
+    case DECOMPRESS_BAD_DATA:
+      return squash_error (SQUASH_FAILED);
+    case DECOMPRESS_SHORT_OUTPUT:
+      return squash_error (SQUASH_BUFFER_FULL);
+    case DECOMPRESS_INSUFFICIENT_SPACE:
+      return squash_error (SQUASH_BUFFER_FULL);
+  }
+
+  squash_assert_unreachable ();
 }
 
 SquashStatus
