@@ -118,7 +118,7 @@ squash_crush_splice (SquashCodec* codec,
     return squash_error (SQUASH_FAILED);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
-    res = crush_compress (&ctx, squash_codec_get_option_int_index (codec, options, SQUASH_CRUSH_OPT_LEVEL));
+    res = crush_compress (&ctx, squash_options_get_int_at (options, codec, SQUASH_CRUSH_OPT_LEVEL));
   } else {
     res = crush_decompress (&ctx);
   }

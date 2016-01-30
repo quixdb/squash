@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -65,7 +65,7 @@ squash_libdeflate_compress_buffer (SquashCodec* codec,
                               size_t uncompressed_size,
                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
-  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_LIBDEFLATE_OPT_LEVEL);
+  const int level = squash_options_get_int_at (options, codec, SQUASH_LIBDEFLATE_OPT_LEVEL);
   struct deflate_compressor *compressor = deflate_alloc_compressor(level);
   *compressed_size = deflate_compress(compressor, uncompressed, uncompressed_size, compressed, *compressed_size);
   deflate_free_compressor(compressor);

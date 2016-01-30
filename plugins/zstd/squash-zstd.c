@@ -108,7 +108,7 @@ squash_zstd_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_ZSTD_OPT_LEVEL);
+  const int level = squash_options_get_int_at (options, codec, SQUASH_ZSTD_OPT_LEVEL);
 
   *compressed_size = ZSTD_compress (compressed, *compressed_size, uncompressed, uncompressed_size, level);
 

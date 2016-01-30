@@ -124,13 +124,9 @@ SQUASH_API SquashOptions* squash_options_newv          (SquashCodec* codec, va_l
 SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_newa          (SquashCodec* codec, const char* const* keys, const char* const* values);
 
-SQUASH_NONNULL(2)
 SQUASH_API const char*    squash_options_get_string    (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2)
 SQUASH_API bool           squash_options_get_bool      (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2)
 SQUASH_API int            squash_options_get_int       (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2)
 SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, SquashCodec* codec, const char* key);
 
 SQUASH_API const char*    squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t index);

@@ -97,13 +97,13 @@ squash_bz2_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashO
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     bz2_e = BZ2_bzCompressInit (&(stream->stream),
-                                squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_LEVEL),
+                                squash_options_get_int_at (options, codec, SQUASH_BZ2_OPT_LEVEL),
                                 0,
-                                squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_WORK_FACTOR));
+                                squash_options_get_int_at (options, codec, SQUASH_BZ2_OPT_WORK_FACTOR));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     bz2_e = BZ2_bzDecompressInit (&(stream->stream),
                                   0,
-                                  squash_codec_get_option_int_index (codec, options, SQUASH_BZ2_OPT_SMALL));
+                                  squash_options_get_bool_at (options, codec, SQUASH_BZ2_OPT_SMALL));
   } else {
     squash_assert_unreachable();
   }

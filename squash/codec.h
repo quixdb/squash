@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -175,38 +175,6 @@ SQUASH_NONNULL(1)
 SQUASH_API SquashCodecInfo         squash_codec_get_info                     (SquashCodec* codec);
 SQUASH_NONNULL(1)
 SQUASH_API const SquashOptionInfo* squash_codec_get_option_info              (SquashCodec* codec);
-SQUASH_NONNULL(1)
-SQUASH_API const char*             squash_codec_get_option_string            (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              const char* key);
-SQUASH_NONNULL(1)
-SQUASH_API bool                    squash_codec_get_option_bool              (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              const char* key);
-SQUASH_NONNULL(1)
-SQUASH_API int                     squash_codec_get_option_int               (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              const char* key);
-SQUASH_NONNULL(1)
-SQUASH_API size_t                  squash_codec_get_option_size              (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              const char* key);
-SQUASH_NONNULL(1)
-SQUASH_API const char*             squash_codec_get_option_string_index      (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              size_t index);
-SQUASH_NONNULL(1)
-SQUASH_API bool                    squash_codec_get_option_bool_index        (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              size_t index);
-SQUASH_NONNULL(1)
-SQUASH_API int                     squash_codec_get_option_int_index         (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              size_t index);
-SQUASH_NONNULL(1)
-SQUASH_API size_t                  squash_codec_get_option_size_index        (SquashCodec* codec,
-                                                                              SquashOptions* options,
-                                                                              size_t index);
 
 SQUASH_END_DECLS
 

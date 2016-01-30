@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -168,7 +168,7 @@ squash_zling_splice (SquashCodec* codec,
     int zres = 0;
 
     if (stream_type == SQUASH_STREAM_COMPRESS) {
-      zres = baidu::zling::Encode(&stream, &stream, NULL, squash_codec_get_option_int_index (codec, options, SQUASH_ZLING_OPT_LEVEL));
+      zres = baidu::zling::Encode(&stream, &stream, NULL, squash_options_get_int_at (options, codec, SQUASH_ZLING_OPT_LEVEL));
     } else {
       zres = baidu::zling::Decode(&stream, &stream, NULL);
     }

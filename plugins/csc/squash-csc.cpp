@@ -137,10 +137,10 @@ squash_csc_splice (SquashCodec* codec,
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     CSCEncProps_Init (&props,
                       squash_codec_get_option_size_index (codec, options, SQUASH_CSC_OPT_DICT_SIZE),
-                      squash_codec_get_option_int_index (codec, options, SQUASH_CSC_OPT_LEVEL));
-    props.DLTFilter = squash_codec_get_option_bool_index (codec, options, SQUASH_CSC_OPT_DELTA_FILTER);
-    props.EXEFilter = squash_codec_get_option_bool_index (codec, options, SQUASH_CSC_OPT_EXE_FILTER);
-    props.TXTFilter = squash_codec_get_option_bool_index (codec, options, SQUASH_CSC_OPT_TXT_FILTER);
+                      squash_options_get_int_at (options, codec, SQUASH_CSC_OPT_LEVEL));
+    props.DLTFilter = squash_options_get_bool_at (options, codec, SQUASH_CSC_OPT_DELTA_FILTER);
+    props.EXEFilter = squash_options_get_bool_at (options, codec, SQUASH_CSC_OPT_EXE_FILTER);
+    props.TXTFilter = squash_options_get_bool_at (options, codec, SQUASH_CSC_OPT_TXT_FILTER);
 
     CSCEnc_WriteProperties (&props, props_buf, 0);
     size_t bytes_written = squash_csc_writer ((void*) &out_stream, props_buf, CSC_PROP_SIZE);

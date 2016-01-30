@@ -112,8 +112,8 @@ squash_brotli_stream_init (SquashBrotliStream* s,
   s->finished = false;
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     brotli::BrotliParams params;
-    params.quality = squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_LEVEL);
-    params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_BROTLI_OPT_MODE);
+    params.quality = squash_options_get_int_at (stream->options, stream->codec, SQUASH_BROTLI_OPT_LEVEL);
+    params.mode = (brotli::BrotliParams::Mode) squash_options_get_int_at (stream->options, stream->codec, SQUASH_BROTLI_OPT_MODE);
     s->compressor = new brotli::BrotliCompressor (params);
     s->remaining_block_in = s->compressor->input_block_size();
     s->remaining_out = 0;
@@ -309,8 +309,8 @@ squash_brotli_compress_buffer (SquashCodec* codec,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
   brotli::BrotliParams params;
-  params.quality = squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_LEVEL);
-  params.mode = (brotli::BrotliParams::Mode) squash_codec_get_option_int_index (codec, options, SQUASH_BROTLI_OPT_MODE);
+  params.quality = squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_LEVEL);
+  params.mode = (brotli::BrotliParams::Mode) squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_MODE);
   try {
     int res = brotli::BrotliCompressBuffer (params,
                                             uncompressed_size, uncompressed,

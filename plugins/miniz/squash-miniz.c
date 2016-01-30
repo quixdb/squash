@@ -175,7 +175,7 @@ squash_miniz_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squas
 
   stream->type = squash_miniz_codec_to_type (codec);
 
-  window_bits = squash_codec_get_option_int_index (codec, options, SQUASH_MINIZ_OPT_WINDOW_BITS);
+  window_bits = squash_options_get_int_at (options, codec, SQUASH_MINIZ_OPT_WINDOW_BITS);
   if (stream->type == SQUASH_MINIZ_TYPE_DEFLATE) {
     window_bits = -window_bits;
   } else if (stream->type == SQUASH_MINIZ_TYPE_GZIP) {
@@ -184,11 +184,11 @@ squash_miniz_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squas
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     miniz_e = mz_deflateInit2 (&(stream->stream),
-                               squash_codec_get_option_int_index (codec, options, SQUASH_MINIZ_OPT_LEVEL),
+                               squash_options_get_int_at (options, codec, SQUASH_MINIZ_OPT_LEVEL),
                                MZ_DEFLATED,
                                window_bits,
-                               squash_codec_get_option_int_index (codec, options, SQUASH_MINIZ_OPT_MEM_LEVEL),
-                               squash_codec_get_option_int_index (codec, options, SQUASH_MINIZ_OPT_STRATEGY));
+                               squash_options_get_int_at (options, codec, SQUASH_MINIZ_OPT_MEM_LEVEL),
+                               squash_options_get_int_at (options, codec, SQUASH_MINIZ_OPT_STRATEGY));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     miniz_e = mz_inflateInit2 (&(stream->stream), window_bits);
   } else {

@@ -123,20 +123,20 @@ squash_lzham_compress_apply_options (SquashCodec* codec,
                                      SquashOptions* options) {
   lzham_compress_params opts = {
     .m_struct_size                     = sizeof(lzham_compress_params),
-    .m_dict_size_log2                  = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DICT_SIZE_LOG2),
-    .m_level                           = (lzham_compress_level) squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_LEVEL),
-    .m_table_update_rate               = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_UPDATE_RATE),
+    .m_dict_size_log2                  = squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_DICT_SIZE_LOG2),
+    .m_level                           = (lzham_compress_level) squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_LEVEL),
+    .m_table_update_rate               = squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_UPDATE_RATE),
     .m_max_helper_threads              = -1,
     .m_compress_flags                  =
-      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_EXTREME_PARSING) ?
+      squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_EXTREME_PARSING) ?
         LZHAM_COMP_FLAG_EXTREME_PARSING : 0 |
-      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DETERMINISTIC_PARSING) ?
+      squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_DETERMINISTIC_PARSING) ?
         LZHAM_COMP_FLAG_DETERMINISTIC_PARSING : 0 |
-      squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO) ?
+      squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_DECOMPRESSION_RATE_FOR_RATIO) ?
         LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO : 0,
     .m_num_seed_bytes                  = 0,
     .m_pSeed_bytes                     = NULL,
-    .m_table_max_update_interval       = squash_codec_get_option_int_index (codec, options, SQUASH_LZHAM_OPT_UPDATE_INTERVAL),
+    .m_table_max_update_interval       = squash_options_get_int_at (options, codec, SQUASH_LZHAM_OPT_UPDATE_INTERVAL),
     .m_table_update_interval_slow_rate = 0
   };
 

@@ -315,9 +315,9 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       case SQUASH_DENSITY_ACTION_INIT:
         if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
           DENSITY_COMPRESSION_MODE compression_mode =
-            squash_density_level_to_mode (squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_DENSITY_OPT_LEVEL));
+            squash_density_level_to_mode (squash_options_get_int_at (stream->options, stream->codec, SQUASH_DENSITY_OPT_LEVEL));
           DENSITY_BLOCK_TYPE block_type =
-            squash_codec_get_option_bool_index (stream->codec, stream->options, SQUASH_DENSITY_OPT_CHECKSUM) ?
+            squash_options_get_bool_at (stream->options, stream->codec, SQUASH_DENSITY_OPT_CHECKSUM) ?
               DENSITY_BLOCK_TYPE_WITH_HASHSUM_INTEGRITY_CHECK :
               DENSITY_BLOCK_TYPE_DEFAULT;
 

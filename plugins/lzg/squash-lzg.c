@@ -104,8 +104,8 @@ squash_lzg_compress_buffer (SquashCodec* codec,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   lzg_encoder_config_t cfg = {
-    squash_codec_get_option_int_index (codec, options, SQUASH_LZG_OPT_LEVEL),
-    squash_codec_get_option_bool_index (codec, options, SQUASH_LZG_OPT_FAST),
+    squash_options_get_int_at (options, codec, SQUASH_LZG_OPT_LEVEL),
+    squash_options_get_bool_at (options, codec, SQUASH_LZG_OPT_FAST),
     NULL,
     NULL
   };

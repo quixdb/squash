@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -112,7 +112,7 @@ squash_lzf_compress_buffer (SquashCodec* codec,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   unsigned int lzf_e;
-  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZF_OPT_LEVEL);
+  const int level = squash_options_get_int_at (options, codec, SQUASH_LZF_OPT_LEVEL);
 
 #if UINT_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_size) ||

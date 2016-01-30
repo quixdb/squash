@@ -356,7 +356,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   lzo_codec = squash_lzo_codec_from_name (codec_name);
   assert (lzo_codec != NULL);
 
-  compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_codec_get_option_int_index (codec, options, SQUASH_LZO_OPT_LEVEL));
+  compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_options_get_int_at (options, codec, SQUASH_LZO_OPT_LEVEL));
 
 #if UINT_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_size) ||

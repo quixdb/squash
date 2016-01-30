@@ -103,10 +103,11 @@ squash_fastlz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_RANGE);
 #endif
 
-  const int fastlz_e = fastlz_compress_level (squash_codec_get_option_int_index (codec, options, SQUASH_FASTLZ_OPT_LEVEL),
-                                              (const void*) uncompressed,
-                                              (int) uncompressed_size,
-                                              (void*) compressed);
+  const int fastlz_e =
+    fastlz_compress_level (squash_options_get_int_at (options, codec, SQUASH_FASTLZ_OPT_LEVEL),
+                           (const void*) uncompressed,
+                           (int) uncompressed_size,
+                           (void*) compressed);
 
 #if SIZE_MAX < INT_MAX
   if (SQUASH_UNLIKELY(SIZE_MAX < fastlz_e))

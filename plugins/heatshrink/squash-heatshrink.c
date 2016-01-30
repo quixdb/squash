@@ -87,8 +87,8 @@ squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, 
 
   squash_heatshrink_stream_init (stream, codec, stream_type, options, squash_heatshrink_stream_destroy);
 
-  const uint8_t window_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
-  const uint8_t lookahead_size = (uint8_t) squash_codec_get_option_int_index (codec, options, SQUASH_HEATSHRINK_OPT_LOOKAHEAD_SIZE);
+  const uint8_t window_size = (uint8_t) squash_options_get_int_at (options, codec, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
+  const uint8_t lookahead_size = (uint8_t) squash_options_get_int_at (options, codec, SQUASH_HEATSHRINK_OPT_LOOKAHEAD_SIZE);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     stream->ctx.comp = heatshrink_encoder_alloc (window_size, lookahead_size);

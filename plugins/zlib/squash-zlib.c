@@ -169,7 +169,7 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   stream->type = squash_zlib_codec_to_type (codec);
 
-  window_bits = squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_WINDOW_BITS);
+  window_bits = squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_WINDOW_BITS);
   if (stream->type == SQUASH_ZLIB_TYPE_DEFLATE) {
     window_bits = -window_bits;
   } else if (stream->type == SQUASH_ZLIB_TYPE_GZIP) {
@@ -178,11 +178,11 @@ squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     zlib_e = deflateInit2 (&(stream->stream),
-                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_LEVEL),
+                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_LEVEL),
                            Z_DEFLATED,
                            window_bits,
-                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_MEM_LEVEL),
-                           squash_codec_get_option_int_index (codec, options, SQUASH_ZLIB_OPT_STRATEGY));
+                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_MEM_LEVEL),
+                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_STRATEGY));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     zlib_e = inflateInit2 (&(stream->stream), window_bits);
   } else {

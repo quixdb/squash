@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -130,8 +130,8 @@ squash_wflz_compress_buffer (SquashCodec* codec,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
-  const uint32_t swap = ((uint32_t) squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
-  const int level = squash_codec_get_option_int_index (codec, options, SQUASH_WFLZ_OPT_LEVEL);
+  const uint32_t swap = ((uint32_t) squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
+  const int level = squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_LEVEL);
 
 #if UINT32_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
@@ -156,7 +156,7 @@ squash_wflz_compress_buffer (SquashCodec* codec,
   } else {
     wres =
       wfLZ_ChunkCompress ((uint8_t*) uncompressed, (uint32_t) uncompressed_size,
-                          squash_codec_get_option_size_index (codec, options, SQUASH_WFLZ_OPT_CHUNK_SIZE),
+                          squash_options_get_size_at (options, codec, SQUASH_WFLZ_OPT_CHUNK_SIZE),
                           compressed, work_mem, swap, level == 1 ? 1 : 0);
   }
 

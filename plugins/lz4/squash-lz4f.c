@@ -167,13 +167,13 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
 
     stream->data.comp.prefs = (LZ4F_preferences_t) {
       {
-        (LZ4F_blockSizeID_t) squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_BLOCK_SIZE),
+        (LZ4F_blockSizeID_t) squash_options_get_int_at (options, codec, SQUASH_LZ4F_OPT_BLOCK_SIZE),
         blockLinked,
-        squash_codec_get_option_bool_index (codec, options, SQUASH_LZ4F_OPT_CHECKSUM) ?
+        squash_options_get_bool_at (options, codec, SQUASH_LZ4F_OPT_CHECKSUM) ?
           contentChecksumEnabled :
           noContentChecksum,
       },
-      squash_codec_get_option_int_index (codec, options, SQUASH_LZ4F_OPT_LEVEL)
+      squash_options_get_int_at (options, codec, SQUASH_LZ4F_OPT_LEVEL)
     };
   } else {
     ec = LZ4F_createDecompressionContext(&(stream->data.decomp.ctx), LZ4F_VERSION);
@@ -240,7 +240,7 @@ squash_lz4f_block_size_id_to_size (LZ4F_blockSizeID_t blkid) {
 
 static size_t
 squash_lz4f_get_input_buffer_size (SquashStream* stream) {
-  return squash_lz4f_block_size_id_to_size ((LZ4F_blockSizeID_t) squash_codec_get_option_int_index (stream->codec, stream->options, SQUASH_LZ4F_OPT_BLOCK_SIZE));
+  return squash_lz4f_block_size_id_to_size ((LZ4F_blockSizeID_t) squash_options_get_int_at (stream->options, stream->codec, SQUASH_LZ4F_OPT_BLOCK_SIZE));
 }
 
 static size_t

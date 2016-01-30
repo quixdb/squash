@@ -272,6 +272,23 @@ squash_options_get_size (SquashOptions* options, SquashCodec* codec, const char*
   return squash_options_get_size_at (options, codec, option_n);
 }
 
+static const SquashOptionValue*
+squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const SquashOptionInfo** info, SquashOptionType* type, size_t index) {
+  const SquashOptionInfo* ci = squash_codec_get_option_info (codec);
+  if (SQUASH_UNLIKELY(ci == NULL))
+    return NULL;
+  ci = &(ci[index]);
+
+  if (info != NULL)
+    *info = ci;
+  if (type != NULL)
+    *type = ci->type;
+
+  return (options == NULL) ?
+    &((*info)->default_value) :
+    &(options->values[index]);
+}
+
 /**
  * Retrieve the value of a string option
  *
@@ -293,14 +310,13 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
     codec = options->codec;
   }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  if (info == NULL)
+  const SquashOptionInfo* info;
+  SquashOptionType type;
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, index);
+  if (SQUASH_UNLIKELY(val == NULL))
     return NULL;
-  info += index;
-  assert (options->values != NULL);
-  const SquashOptionValue* val = options->values + index;
 
-  switch ((int) info->type) {
+  switch ((int) type) {
     case SQUASH_OPTION_TYPE_ENUM_STRING:
       return info->info.enum_string.values[val->int_value].name;
     case SQUASH_OPTION_TYPE_STRING:
@@ -309,7 +325,8 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
       return NULL;
   }
 
-  squash_assert_unreachable ();
+ /*  squash_assert_unreachable (); */
+  return NULL;
 }
 
 /**
@@ -330,14 +347,12 @@ squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t i
     codec = options->codec;
   }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  if (info == NULL)
+  SquashOptionType type;
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
+  if (SQUASH_UNLIKELY(val == NULL))
     return false;
-  info += index;
-  assert (options->values != NULL);
-  const SquashOptionValue* val = options->values + index;
 
-  switch ((int) info->type) {
+  switch ((int) type) {
     case SQUASH_OPTION_TYPE_BOOL:
       return val->bool_value;
     default:
@@ -365,18 +380,20 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t in
     codec = options->codec;
   }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  if (info == NULL)
+  const SquashOptionInfo* info;
+  SquashOptionType type;
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, index);
+  if (SQUASH_UNLIKELY(val == NULL))
     return -1;
-  info += index;
-  assert (options->values != NULL);
-  const SquashOptionValue* val = options->values + index;
 
-  switch ((int) info->type) {
+  switch ((int) type) {
     case SQUASH_OPTION_TYPE_INT:
     case SQUASH_OPTION_TYPE_ENUM_INT:
     case SQUASH_OPTION_TYPE_RANGE_INT:
+    case SQUASH_OPTION_TYPE_ENUM_STRING:
       return val->int_value;
+    case SQUASH_OPTION_TYPE_BOOL:
+      return (int) val->bool_value;
     default:
       return -1;
   }
@@ -402,14 +419,12 @@ squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t i
     codec = options->codec;
   }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  if (info == NULL)
+  SquashOptionType type;
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
+  if (SQUASH_UNLIKELY(val == NULL))
     return 0;
-  info += index;
-  assert (options->values != NULL);
-  const SquashOptionValue* val = options->values + index;
 
-  switch ((int) info->type) {
+  switch ((int) type) {
     case SQUASH_OPTION_TYPE_SIZE:
     case SQUASH_OPTION_TYPE_RANGE_SIZE:
       return val->size_value;

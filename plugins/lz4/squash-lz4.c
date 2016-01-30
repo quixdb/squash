@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -137,7 +137,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                             size_t uncompressed_size,
                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
-  int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
+  int level = squash_options_get_int_at (options, codec, SQUASH_LZ4_OPT_LEVEL);
 
 #if INT_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size) ||
@@ -185,7 +185,7 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                    size_t uncompressed_size,
                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                    SquashOptions* options) {
-  int level = squash_codec_get_option_int_index (codec, options, SQUASH_LZ4_OPT_LEVEL);
+  int level = squash_options_get_int_at (options, codec, SQUASH_LZ4_OPT_LEVEL);
 
 #if INT_MAX < SIZE_MAX
   if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size) ||

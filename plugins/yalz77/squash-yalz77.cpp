@@ -64,8 +64,8 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
 
-  const size_t searchlen = squash_codec_get_option_size_index (codec, options, SQUASH_YALZ77_OPT_SEARCH_LENGTH);
-  const size_t blocksize = squash_codec_get_option_size_index (codec, options, SQUASH_YALZ77_OPT_BLOCK_SIZE);
+  const size_t searchlen = squash_options_get_size_at (options, codec, SQUASH_YALZ77_OPT_SEARCH_LENGTH);
+  const size_t blocksize = squash_options_get_size_at (options, codec, SQUASH_YALZ77_OPT_BLOCK_SIZE);
 
   try {
     lz77::compress_t compress(searchlen, blocksize);

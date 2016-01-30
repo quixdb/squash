@@ -137,10 +137,10 @@ static int
 squash_bsc_options_get_features (SquashCodec* codec,
                                  SquashOptions* options) {
   return
-    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_FAST_MODE) ? LIBBSC_FEATURE_FASTMODE : 0) |
-    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_MULTI_THREADING) ? LIBBSC_FEATURE_MULTITHREADING : 0) |
-    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_LARGE_PAGES) ? LIBBSC_FEATURE_LARGEPAGES : 0) |
-    (squash_codec_get_option_bool_index (codec, options, SQUASH_BSC_OPT_CUDA) ? LIBBSC_FEATURE_CUDA : 0);
+    (squash_options_get_bool_at (options, codec, SQUASH_BSC_OPT_FAST_MODE) ? LIBBSC_FEATURE_FASTMODE : 0) |
+    (squash_options_get_bool_at (options, codec, SQUASH_BSC_OPT_MULTI_THREADING) ? LIBBSC_FEATURE_MULTITHREADING : 0) |
+    (squash_options_get_bool_at (options, codec, SQUASH_BSC_OPT_LARGE_PAGES) ? LIBBSC_FEATURE_LARGEPAGES : 0) |
+    (squash_options_get_bool_at (options, codec, SQUASH_BSC_OPT_CUDA) ? LIBBSC_FEATURE_CUDA : 0);
 }
 
 static SquashStatus
@@ -150,10 +150,10 @@ squash_bsc_compress_buffer_unsafe (SquashCodec* codec,
                                    size_t uncompressed_size,
                                    const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                                    SquashOptions* options) {
-  const int lzp_hash_size = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_HASH_SIZE);
-  const int lzp_min_len = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_LZP_MIN_LEN);
-  const int block_sorter = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_BLOCK_SORTER);
-  const int coder = squash_codec_get_option_int_index (codec, options, SQUASH_BSC_OPT_CODER);
+  const int lzp_hash_size = squash_options_get_int_at (options, codec, SQUASH_BSC_OPT_LZP_HASH_SIZE);
+  const int lzp_min_len = squash_options_get_int_at (options, codec, SQUASH_BSC_OPT_LZP_MIN_LEN);
+  const int block_sorter = squash_options_get_int_at (options, codec, SQUASH_BSC_OPT_BLOCK_SORTER);
+  const int coder = squash_options_get_int_at (options, codec, SQUASH_BSC_OPT_CODER);
   const int features = squash_bsc_options_get_features (codec, options);
 
 #if INT_MAX < SIZE_MAX
