@@ -19,7 +19,7 @@ install:
 before_build:
   - mkdir build
   - cd build
-  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
+  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DENABLE_LIBDEFLATE=no ..
 
 build_script: cmake --build . --config %CONFIGURATION%
 
