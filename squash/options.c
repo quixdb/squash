@@ -157,11 +157,11 @@
  */
 
 static ptrdiff_t
-squash_options_find (SquashOptions* options, const char* key) {
+squash_options_find (SquashOptions* options, SquashCodec* codec, const char* key) {
   assert (options != NULL);
   assert (key != NULL);
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
     return -1;
 
@@ -187,19 +187,23 @@ squash_options_find (SquashOptions* options, const char* key) {
  * integer, size, or boolean), it will not be serialized to one.
  *
  * @param options the options to retrieve the value from
+ * @param codec the codec to use
  * @param key name of the option to retrieve the value from
  * @returns the value, or *NULL* on failure
  */
 const char*
-squash_options_get_string (SquashOptions* options, const char* key) {
-  if (options == NULL)
-    return NULL;
+squash_options_get_string (SquashOptions* options, SquashCodec* codec, const char* key) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return NULL;
+    codec = options->codec;
+  }
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, codec, key);
   if (option_n < 0)
     return NULL;
 
-  return squash_options_get_string_at (options, option_n);
+  return squash_options_get_string_at (options, codec, option_n);
 }
 
 /**
@@ -210,15 +214,18 @@ squash_options_get_string (SquashOptions* options, const char* key) {
  * @returns the value
  */
 bool
-squash_options_get_bool (SquashOptions* options, const char* key) {
-  if (options == NULL)
-    return false;
+squash_options_get_bool (SquashOptions* options, SquashCodec* codec, const char* key) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return false;
+    codec = options->codec;
+  }
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, codec, key);
   if (option_n < 0)
     return false;
 
-  return squash_options_get_bool_at (options, option_n);
+  return squash_options_get_bool_at (options, codec, option_n);
 }
 
 /**
@@ -229,15 +236,18 @@ squash_options_get_bool (SquashOptions* options, const char* key) {
  * @returns the value
  */
 int
-squash_options_get_int (SquashOptions* options, const char* key) {
-  if (options == NULL)
-    return -1;
+squash_options_get_int (SquashOptions* options, SquashCodec* codec, const char* key) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return -1;
+    codec = options->codec;
+  }
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, codec, key);
   if (option_n < 0)
     return -1;
 
-  return squash_options_get_int_at (options, option_n);
+  return squash_options_get_int_at (options, codec, option_n);
 }
 
 /**
@@ -248,15 +258,18 @@ squash_options_get_int (SquashOptions* options, const char* key) {
  * @returns the value
  */
 size_t
-squash_options_get_size (SquashOptions* options, const char* key) {
-  if (options == NULL)
-    return 0;
+squash_options_get_size (SquashOptions* options, SquashCodec* codec, const char* key) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return 0;
+    codec = options->codec;
+  }
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, codec, key);
   if (option_n < 0)
     return 0;
 
-  return squash_options_get_size_at (options, option_n);
+  return squash_options_get_size_at (options, codec, option_n);
 }
 
 /**
@@ -273,11 +286,14 @@ squash_options_get_size (SquashOptions* options, const char* key) {
  * @returns the value, or *NULL* on failure
  */
 const char*
-squash_options_get_string_at (SquashOptions* options, size_t index) {
-  if (options == NULL)
-    return NULL;
+squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return NULL;
+    codec = options->codec;
+  }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
     return NULL;
   info += index;
@@ -307,11 +323,14 @@ squash_options_get_string_at (SquashOptions* options, size_t index) {
  * @returns the value
  */
 bool
-squash_options_get_bool_at (SquashOptions* options, size_t index) {
-  if (options == NULL)
-    return false;
+squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return false;
+    codec = options->codec;
+  }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
     return false;
   info += index;
@@ -339,11 +358,14 @@ squash_options_get_bool_at (SquashOptions* options, size_t index) {
  * @returns the value
  */
 int
-squash_options_get_int_at (SquashOptions* options, size_t index) {
-  if (options == NULL)
-    return -1;
+squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return -1;
+    codec = options->codec;
+  }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
     return -1;
   info += index;
@@ -373,11 +395,14 @@ squash_options_get_int_at (SquashOptions* options, size_t index) {
  * @returns the value
  */
 size_t
-squash_options_get_size_at (SquashOptions* options, size_t index) {
-  if (options == NULL)
-    return 0;
+squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+  if (codec == NULL) {
+    if (SQUASH_UNLIKELY(options == NULL))
+      return 0;
+    codec = options->codec;
+  }
 
-  const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
     return 0;
   info += index;
@@ -412,7 +437,7 @@ squash_options_set_string (SquashOptions* options, const char* key, const char* 
   assert (key != NULL);
   assert (value != NULL);
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, options->codec, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -434,10 +459,10 @@ squash_options_set_bool (SquashOptions* options, const char* key, bool value) {
   assert (options != NULL);
   assert (key != NULL);
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, options->codec, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
-  
+
   return squash_options_set_bool_at (options, option_n, value);
 }
 
@@ -457,7 +482,7 @@ squash_options_set_int (SquashOptions* options, const char* key, int value) {
   assert (options != NULL);
   assert (key != NULL);
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, options->codec, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -480,7 +505,7 @@ squash_options_set_size (SquashOptions* options, const char* key, size_t value) 
   assert (options != NULL);
   assert (key != NULL);
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, options->codec, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 
@@ -668,7 +693,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
   assert (value != NULL);
   assert (options->codec != NULL);
 
-  const ptrdiff_t option_n = squash_options_find (options, key);
+  const ptrdiff_t option_n = squash_options_find (options, options->codec, key);
   if (option_n < 0)
     return squash_error (SQUASH_BAD_PARAM);
 

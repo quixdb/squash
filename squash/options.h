@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -125,18 +125,18 @@ SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_newa          (SquashCodec* codec, const char* const* keys, const char* const* values);
 
 SQUASH_NONNULL(2)
-SQUASH_API const char*    squash_options_get_string    (SquashOptions* options, const char* key);
+SQUASH_API const char*    squash_options_get_string    (SquashOptions* options, SquashCodec* codec, const char* key);
 SQUASH_NONNULL(2)
-SQUASH_API bool           squash_options_get_bool      (SquashOptions* options, const char* key);
+SQUASH_API bool           squash_options_get_bool      (SquashOptions* options, SquashCodec* codec, const char* key);
 SQUASH_NONNULL(2)
-SQUASH_API int            squash_options_get_int       (SquashOptions* options, const char* key);
+SQUASH_API int            squash_options_get_int       (SquashOptions* options, SquashCodec* codec, const char* key);
 SQUASH_NONNULL(2)
-SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, const char* key);
+SQUASH_API size_t         squash_options_get_size      (SquashOptions* options, SquashCodec* codec, const char* key);
 
-SQUASH_API const char*    squash_options_get_string_at (SquashOptions* options, size_t index);
-SQUASH_API bool           squash_options_get_bool_at   (SquashOptions* options, size_t index);
-SQUASH_API int            squash_options_get_int_at    (SquashOptions* options, size_t index);
-SQUASH_API size_t         squash_options_get_size_at   (SquashOptions* options, size_t index);
+SQUASH_API const char*    squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t index);
+SQUASH_API bool           squash_options_get_bool_at   (SquashOptions* options, SquashCodec* codec, size_t index);
+SQUASH_API int            squash_options_get_int_at    (SquashOptions* options, SquashCodec* codec, size_t index);
+SQUASH_API size_t         squash_options_get_size_at   (SquashOptions* options, SquashCodec* codec, size_t index);
 
 SQUASH_NONNULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_set_string    (SquashOptions* options, const char* key, const char* value);
@@ -181,14 +181,14 @@ SQUASH_API SquashOptions* squash_options_newvw         (SquashCodec* codec, va_l
 SQUASH_NONNULL(1)
 SQUASH_API SquashOptions* squash_options_newaw         (SquashCodec* codec, const wchar_t* const* keys, const wchar_t* const* values);
 
-SQUASH_NONNULL(2)
-SQUASH_API const char*    squash_options_get_stringw   (SquashOptions* options, const char* key);
-SQUASH_NONNULL(2)
-SQUASH_API bool           squash_options_get_boolw     (SquashOptions* options, const char* key);
-SQUASH_NONNULL(2)
-SQUASH_API int            squash_options_get_intw      (SquashOptions* options, const char* key);
-SQUASH_NONNULL(2)
-SQUASH_API size_t         squash_options_get_sizew     (SquashOptions* options, const char* key);
+SQUASH_NONNULL(2, 3)
+SQUASH_API const char*    squash_options_get_stringw   (SquashOptions* options, SquashCodec* codec, const char* key);
+SQUASH_NONNULL(2, 3)
+SQUASH_API bool           squash_options_get_boolw     (SquashOptions* options, SquashCodec* codec, const char* key);
+SQUASH_NONNULL(2, 3)
+SQUASH_API int            squash_options_get_intw      (SquashOptions* options, SquashCodec* codec, const char* key);
+SQUASH_NONNULL(2, 3)
+SQUASH_API size_t         squash_options_get_sizew     (SquashOptions* options, SquashCodec* codec, const char* key);
 
 SQUASH_SENTINEL
 SQUASH_NONNULL(1)
