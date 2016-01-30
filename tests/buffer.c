@@ -5,14 +5,14 @@ squash_test_basic(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   munit_assert_non_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
+  if (strcmp ("lz4-raw", squash_codec_get_name (codec)) == 0)
+    return MUNIT_SKIP;
+
   size_t compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
   size_t uncompressed_length = LOREM_IPSUM_LENGTH;
   uint8_t* compressed = (uint8_t*) malloc (compressed_length);
   uint8_t* uncompressed = (uint8_t*) malloc (LOREM_IPSUM_LENGTH);
   SquashStatus res;
-
-  if (strcmp ("lz4-raw", squash_codec_get_name (codec)) == 0)
-    return MUNIT_SKIP;
 
   munit_assert_cmp_size(compressed_length, >=, LOREM_IPSUM_LENGTH);
   munit_assert_non_null(compressed);
@@ -58,6 +58,8 @@ squash_test_single_byte(MUNIT_UNUSED const MunitParameter params[], void* user_d
   SQUASH_ASSERT_OK(res);
 
   munit_assert_memory_equal(1, &uncompressed, &decompressed);
+
+  free (compressed);
 
   return MUNIT_OK;
 }

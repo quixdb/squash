@@ -48,6 +48,8 @@ squash_test_bounds_decode_exact(MUNIT_UNUSED const MunitParameter params[], void
 
   munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
+  free (decompressed);
+
   return MUNIT_OK;
 }
 
