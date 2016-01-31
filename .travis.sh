@@ -189,18 +189,37 @@ case "${1}" in
             "osx")
                 brew update
                 brew install \
+                     binutils \
                      ragel \
                      glib
 
                 case "${COMPILER}" in
+                    "gcc-4.3")
+                        which gcc-4.3 || brew install homebrew/versions/gcc43
+                        ;;
+                    "gcc-4.4")
+                        which gcc-4.4 || brew install homebrew/versions/gcc44
+                        ;;
+                    "gcc-4.5")
+                        which gcc-4.5 || brew install homebrew/versions/gcc45
+                        ;;
                     "gcc-4.6")
                         which gcc-4.6 || brew install homebrew/versions/gcc46
+                        ;;
+                    "gcc-4.7")
+                        which gcc-4.6 || brew install homebrew/versions/gcc47
                         ;;
                     "gcc-4.8")
                         which gcc-4.8 || brew install homebrew/versions/gcc48
                         ;;
+                    "gcc-4.9")
+                        which gcc-4.7 || brew install homebrew/versions/gcc49
+                        ;;
                     "gcc-5")
                         which gcc-5 || brew install homebrew/versions/gcc5
+                        ;;
+                    "gcc-6")
+                        which gcc-6 || brew install homebrew/versions/gcc6
                         ;;
                 esac
                 ;;
@@ -257,6 +276,12 @@ case "${1}" in
         case "${TRAVIS_OS_NAME}" in
             "osx")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_MS_COMPRESS=no -DENABLE_NCOMPRESS=no -DENABLE_LZHAM=no"
+                # See https://github.com/ebiggers/libdeflate/issues/5#issuecomment-177718351
+                case "${COMPILER}" in
+                    "gcc-"*)
+                        COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -Wa,-q"
+                        ;;
+                esac
                 ;;
         esac
 
