@@ -91,7 +91,7 @@ squash_suite_set_params (MunitSuite* suite) {
 }
 
 int
-main(int argc, const char* argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
+main(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   MunitSuite test_suites[] = {
     squash_test_suite_buffer,
     squash_test_suite_bounds,
