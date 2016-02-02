@@ -50,4 +50,6 @@ squash_plugin (
     ${embed_compiler_flags}
   INCLUDE_DIRS brotli
   EMBED_DEFINES
-    ${BROTLI_PLATFORM_DEFINES})
+    ${BROTLI_PLATFORM_DEFINES}
+  NO_UNDEFINED_DEFINES
+    BROTLI_BUILD_PORTABLE)

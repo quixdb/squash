@@ -22,4 +22,6 @@ squash_plugin (
   INCLUDE_DIRS
     liblzf
   COMPILER_FLAGS
-    ${compiler_flags})
+    ${compiler_flags}
+  NO_UNDEFINED_DEFINES
+    STRICT_ALIGN)

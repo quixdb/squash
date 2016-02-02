@@ -39,8 +39,9 @@ for plugin in \
   eval "DISABLE_ENABLE_${NAME_UC}_DOC=\"disable the ${plugin} plugin\""
 done
 
-ENABLE_VARS="coverage|yes|ENABLE_COVERAGE"
+ENABLE_VARS="coverage|yes|ENABLE_COVERAGE undefined|yes|ALLOW_UNDEFINED"
 ENABLE_ENABLE_COVERAGE_DOC="enable coverage analysis"
+ENABLE_ALLOW_UNDEFINED_DOC="allow plugins to leverage undefined behavior"
 
 for plugin in \
     csc \
