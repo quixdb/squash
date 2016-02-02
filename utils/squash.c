@@ -133,9 +133,14 @@ list_plugins_foreach_cb (SquashPlugin* plugin, void* data) {
 
 static void
 list_plugins_and_codecs_foreach_cb (SquashPlugin* plugin, void* data) {
-  const char* indent = "\t";
-  list_plugins_foreach_cb (plugin, data);
-  squash_plugin_foreach_codec (plugin, list_codecs_foreach_cb, (void*) indent);
+  const char* plugin_name = squash_plugin_get_name (plugin);
+  const size_t plugin_name_l = strlen (plugin_name);
+  char* prefix = malloc (plugin_name_l + 3);
+  memcpy (prefix, plugin_name, plugin_name_l);
+  prefix[plugin_name_l] = ':';
+  prefix[plugin_name_l + 1] = '\0';
+  squash_plugin_foreach_codec (plugin, list_codecs_foreach_cb, prefix);
+  free (prefix);
 }
 
 #if !defined(_WIN32)
