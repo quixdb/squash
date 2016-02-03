@@ -23,6 +23,7 @@ for plugin in \
     lzjb \
     lzma \
     lzo \
+    miniz \
     ms-compress \
     ncompress \
     quicklz \
