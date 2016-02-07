@@ -42,8 +42,14 @@
 #  include <stdlib.h>
 #elif defined(HAVE__ALIGNED_MALLOC)
 #  include <malloc.h>
+#elif defined(HAVE___MINGW_ALIGNED_MALLOC)
+#  include <malloc.h>
+#  define _aligned_malloc __mingw_aligned_malloc
+#  define _aligned_realloc __mingw_aligned_realloc
+#  define _aligned_free __mingw_aligned_free
+#  define HAVE__ALIGNED_MALLOC
 #else
-#  error No alignmed memory allocation function
+#  error No alignned memory allocation function
 #endif
 
 #include <string.h>

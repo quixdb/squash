@@ -44,6 +44,7 @@
 #cmakedefine HAVE_ALIGNED_ALLOC
 #cmakedefine HAVE_POSIX_MEMALIGN
 #cmakedefine HAVE__ALIGNED_MALLOC
+#cmakedefine HAVE___MINGW_ALIGNED_MALLOC
 
 #cmakedefine HAVE__VSCWPRINTF
 

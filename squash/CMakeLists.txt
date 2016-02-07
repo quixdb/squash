@@ -103,6 +103,7 @@ list (APPEND CMAKE_REQUIRED_DEFINITIONS -D_ISOC11_SOURCE -D_POSIX_C_SOURCE=20011
 check_prototype_exists ("aligned_alloc" "stdlib.h" "HAVE_ALIGNED_ALLOC")
 check_prototype_exists ("posix_memalign" "stdlib.h" "HAVE_POSIX_MEMALIGN")
 check_prototype_exists ("_aligned_malloc" "malloc.h" "HAVE__ALIGNED_MALLOC")
+check_prototype_exists ("__mingw_aligned_malloc" "malloc.h" "HAVE___MINGW_ALIGNED_MALLOC")
 set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
 
 list (APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
