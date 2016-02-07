@@ -603,7 +603,11 @@ squash_file_vwprintf (SquashFile* file,
   if (SQUASH_UNLIKELY(buf == NULL))
     return squash_error (SQUASH_MEMORY);
 
+#if !defined(_WIN32)
   const int written = vswprintf (buf, size + 1, format, ap);
+#else
+  const int written = _vsnwprintf (buf, size + 1, format, ap);
+#endif
   if (SQUASH_UNLIKELY(written != size)) {
     res = squash_error (SQUASH_FAILED);
   } else {
