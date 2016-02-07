@@ -6,10 +6,11 @@ environment:
   - GENERATOR: Visual Studio 14 2015 Win64
   - GENERATOR: Visual Studio 12 2013
   - GENERATOR: Visual Studio 12 2013 Win64
+  # - GENERATOR: MinGW Makefiles
 
 branches:
   except:
-    - /^(wip\/)?(travis|osx|mingw|ipp)(\-.+)?$/
+    - /^(wip\/)?(travis|osx|ipp)(\-.+)?$/
 
 configuration: Debug
 
@@ -17,10 +18,19 @@ install:
   - git submodule update --init --recursive
 
 before_build:
-  - mkdir build
-  - cd build
-  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
+  - cmd: |
+      set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+      set PATH=C:\MinGW\bin;%PATH%
+      mkdir build
+      cd build
+  - ps: |
+      If ($env:GENERATOR -eq "MinGW Makefiles") {
+        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+      } Else {
+        cmake -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -G "$env:GENERATOR" ..
+      }
 
-build_script: cmake --build . --config %CONFIGURATION%
+build_script:
+  - cmake --build . --config %CONFIGURATION%
 
 test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION% .

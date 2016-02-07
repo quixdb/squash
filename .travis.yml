@@ -6,7 +6,7 @@ os:
   - osx
 branches:
   except:
-    - /^(wip\/)?(msvc)(\-.+)?$/
+    - /^(wip\/)?(appveyor|msvc|mingw|windows)(\-.+)?$/
 env:
   matrix:
     - COMPILER=gcc-5 BUILD_TYPE=debug
