@@ -45,6 +45,8 @@
 #cmakedefine HAVE_POSIX_MEMALIGN
 #cmakedefine HAVE__ALIGNED_MALLOC
 
+#cmakedefine HAVE__VSCWPRINTF
+
 #cmakedefine CFLAG_Wsuggest_attribute_format
 #cmakedefine CFLAG_Wformat_nonliteral
 

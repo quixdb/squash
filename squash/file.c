@@ -36,10 +36,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
 
 #include "internal.h"
 #include "squash/tinycthread/source/tinycthread.h"
@@ -526,7 +526,7 @@ squash_file_write (SquashFile* file,
   return res;
 }
 
-#if !defined(_WIN32)
+#if !defined(HAVE__VSCWPRINTF)
 static FILE* squash_dev_null = NULL;
 static once_flag squash_dev_null_once = ONCE_FLAG_INIT;
 
