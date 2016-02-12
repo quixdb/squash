@@ -226,6 +226,11 @@ squash_file_wopen_with_options (SquashCodec* codec, const wchar_t* filename, con
  * this function and will not release it until the @ref SquashFile
  * instance is destroyed.
  *
+ * @warning On Windows you should not use this function unless the
+ * code which opened the file descriptor is using the same runtime;
+ * see http://siomsystems.com/mixing-visual-studio-versions/ for more
+ * information.
+ *
  * @param fp the stdio file to use
  * @param codec codec to use
  * @param ... options
@@ -249,6 +254,11 @@ squash_file_steal (SquashCodec* codec, FILE* fp, ...) {
 
 /**
  * @brief Open an existing stdio file with the specified options
+ *
+ * @warning On Windows you should not use this function unless the
+ * code which opened the file descriptor is using the same runtime;
+ * see http://siomsystems.com/mixing-visual-studio-versions/ for more
+ * information.
  *
  * @param fp the stdio file to use
  * @param codec codec to use
@@ -832,9 +842,14 @@ squash_file_close (SquashFile* file) {
  *
  * This function will free the @ref SquashFile, but unlike @ref
  * squash_file_close it will not actually close the underlying *FILE*
-
  * pointer.  Instead, it will return the value in the @a fp argument,
  * allowing you to further manipulate it.
+ *
+ * @warning On Windows you should not use this function unless Squash
+ * is linked against the same runtime as the code you want to continue
+ * using the file pointer from; see
+ * http://siomsystems.com/mixing-visual-studio-versions/ for more
+ * information.
  *
  * @param file file to free
  * @param[out] fp location to store the underlying *FILE* pointer
