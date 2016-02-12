@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -35,6 +35,7 @@
 
 SQUASH_BEGIN_DECLS
 
+SQUASH_API void           squash_set_default_search_path          (const char* search_path);
 SQUASH_API SquashContext* squash_context_get_default              (void);
 SQUASH_NONNULL(1, 2)
 SQUASH_API SquashPlugin*  squash_context_get_plugin               (SquashContext* context, const char* plugin);

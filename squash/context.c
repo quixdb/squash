@@ -485,6 +485,31 @@ squash_context_find_plugins_in_directory (SquashContext* context, const char* di
 #endif /* defined(_WIN32) */
 }
 
+static char* squash_default_search_path = NULL;
+
+/**
+ * @brief Set the default search path for plugins
+ *
+ * This will change the default plugin search path to the value
+ * provided, overriding the value set at compile-time.  Keep in mind
+ * that the SQUASH_PLUGINS environment variable has priority over the
+ * value set by this function.
+ *
+ * If called, this function must be called before any other function
+ * in Squash (except for @ref squash_set_memory_functions).
+ *
+ * @param default_search_path: the new default search path
+ */
+void
+squash_set_default_search_path (const char* default_search_path) {
+  char* val = strdup (default_search_path);
+  /* I don't think this is worth making thread-safe, but it would be
+   * pretty easy to do so… */
+  char* old_val = squash_default_search_path;
+  squash_default_search_path = val;
+  free (old_val);
+}
+
 #if !defined(SQUASH_SEARCH_PATH_SEPARATOR)
 #  if !defined(_WIN32)
 #    define SQUASH_SEARCH_PATH_SEPARATOR ':'
@@ -504,8 +529,12 @@ squash_context_find_plugins (SquashContext* context) {
 #else
   directories = getenv ("SQUASH_PLUGINS");
 #endif
-  if (directories == NULL)
-    directories = SQUASH_SEARCH_PATH;
+  if (directories == NULL) {
+    directories = squash_default_search_path;
+    if (directories == NULL) {
+      directories = SQUASH_SEARCH_PATH;
+    }
+  }
 
   SquashBuffer* sb = squash_buffer_new (32);
   bool quoted = false;
