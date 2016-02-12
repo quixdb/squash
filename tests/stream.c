@@ -45,7 +45,7 @@ buffer_to_buffer_compress_with_stream (SquashCodec* codec,
 
 static MunitResult
 squash_test_stream_compress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
-  munit_assert_non_null(user_data);
+  munit_assert_not_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
   size_t compressed_length = squash_codec_get_max_compressed_size (codec, LOREM_IPSUM_LENGTH);
@@ -59,7 +59,7 @@ squash_test_stream_compress(MUNIT_UNUSED const MunitParameter params[], void* us
 
   res = squash_codec_decompress (codec, &uncompressed_length, uncompressed, compressed_length, compressed, NULL);
   SQUASH_ASSERT_OK(res);
-  munit_assert_cmp_size (uncompressed_length, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_size (uncompressed_length, ==, LOREM_IPSUM_LENGTH);
 
   munit_assert_memory_equal (uncompressed_length, uncompressed, LOREM_IPSUM);
 
@@ -116,7 +116,7 @@ buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
 
 static MunitResult
 squash_test_stream_decompress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
-  munit_assert_non_null(user_data);
+  munit_assert_not_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
   uint8_t* decompressed;
@@ -130,7 +130,7 @@ squash_test_stream_decompress(MUNIT_UNUSED const MunitParameter params[], void* 
 
   if ((squash_codec_get_info (codec) & SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) == SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE) {
     decompressed_length = squash_codec_get_uncompressed_size (codec, compressed_length, compressed);
-    munit_assert_cmp_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
+    munit_assert_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
   } else {
     decompressed_length = LOREM_IPSUM_LENGTH;
   }
@@ -139,7 +139,7 @@ squash_test_stream_decompress(MUNIT_UNUSED const MunitParameter params[], void* 
   res = buffer_to_buffer_decompress_with_stream (codec, &decompressed_length, decompressed, compressed_length, compressed);
   SQUASH_ASSERT_OK(res);
 
-  munit_assert_cmp_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
   munit_assert_memory_equal(decompressed_length, decompressed, LOREM_IPSUM);
 
   free (compressed);
@@ -150,7 +150,7 @@ squash_test_stream_decompress(MUNIT_UNUSED const MunitParameter params[], void* 
 
 static MunitResult
 squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
-  munit_assert_non_null(user_data);
+  munit_assert_not_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
   uint8_t compressed[8192];
@@ -168,7 +168,7 @@ squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void*
       stream->avail_in = 1;
 
       do {
-        munit_assert_cmp_size (stream->avail_out, !=, 0);
+        munit_assert_size (stream->avail_out, !=, 0);
         res = squash_stream_process (stream);
       } while (res == SQUASH_PROCESSING);
 
@@ -182,7 +182,7 @@ squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void*
     decompressed_length = sizeof(decompressed);
     res = squash_codec_decompress (codec, &decompressed_length, decompressed, stream->total_out, compressed, NULL);
     SQUASH_ASSERT_OK(res);
-    munit_assert_cmp_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
+    munit_assert_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
     munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
     squash_object_unref (stream);
@@ -195,7 +195,7 @@ squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void*
     stream->next_in = (uint8_t*) LOREM_IPSUM;
     while (stream->total_in < LOREM_IPSUM_LENGTH) {
       do {
-        munit_assert_cmp_size (stream->total_out, <, sizeof(compressed));
+        munit_assert_size (stream->total_out, <, sizeof(compressed));
         stream->avail_out = 1;
         res = squash_stream_process (stream);
       } while (res == SQUASH_PROCESSING);
@@ -204,7 +204,7 @@ squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void*
     }
 
     do {
-      munit_assert_cmp_size (stream->total_out, <, sizeof(compressed));
+      munit_assert_size (stream->total_out, <, sizeof(compressed));
       stream->avail_out = 1;
       res = squash_stream_finish (stream);
     } while (res == SQUASH_PROCESSING);
@@ -212,7 +212,7 @@ squash_test_stream_single_byte(MUNIT_UNUSED const MunitParameter params[], void*
     decompressed_length = LOREM_IPSUM_LENGTH;
     res = squash_codec_decompress (codec, &decompressed_length, decompressed, stream->total_out, compressed, NULL);
     SQUASH_ASSERT_OK(res);
-    munit_assert_cmp_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
+    munit_assert_size (decompressed_length, ==, LOREM_IPSUM_LENGTH);
     munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
     squash_object_unref (stream);

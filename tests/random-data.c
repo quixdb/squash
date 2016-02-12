@@ -20,8 +20,8 @@ squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* us
        uncompressed_length += munit_rand_int_range (256, 1024) * (2 + (uncompressed_length / 512))) {
     const size_t req_max = squash_codec_get_max_compressed_size (codec, uncompressed_length);
     compressed_length = req_max;
-    munit_assert_cmp_size (compressed_length, <=, max_compressed_size);
-    munit_assert_cmp_size (compressed_length, >, 0);
+    munit_assert_size (compressed_length, <=, max_compressed_size);
+    munit_assert_size (compressed_length, >, 0);
 
     SquashStatus res = squash_codec_compress (codec, &compressed_length, compressed_data, uncompressed_length, uncompressed_data, NULL);
     /* Helpful when adding new codecs which don't document this… */
@@ -34,7 +34,7 @@ squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* us
     decompressed_length = uncompressed_length;
     res = squash_codec_decompress (codec, &decompressed_length, decompressed_data, compressed_length, compressed_data, NULL);
     SQUASH_ASSERT_OK (res);
-    munit_assert_cmp_size (decompressed_length, ==, uncompressed_length);
+    munit_assert_size (decompressed_length, ==, uncompressed_length);
 
     munit_assert_memory_equal (decompressed_length, decompressed_data, uncompressed_data);
   }

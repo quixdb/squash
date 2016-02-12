@@ -21,11 +21,11 @@ write_cb (size_t* length, const uint8_t* buffer, void* user_data) {
   assert (*length < 1024 * 1024);
 
   if (data->stream_type == SQUASH_STREAM_DECOMPRESS) {
-    munit_assert_cmp_size (*length, <=, remaining);
+    munit_assert_size (*length, <=, remaining);
   } else {
     if (*length > remaining)
       *length = remaining;
-    munit_assert_cmp_size (remaining, !=, 0);
+    munit_assert_size (remaining, !=, 0);
   }
 
   memcpy (data->output + data->output_pos, buffer, *length);
@@ -41,7 +41,7 @@ read_cb (size_t* length, uint8_t* buffer, void* user_data) {
   const size_t remaining = data->input_length - data->input_pos;
 
   if (data->stream_type == SQUASH_STREAM_COMPRESS)
-    munit_assert_cmp_size (*length, <=, remaining);
+    munit_assert_size (*length, <=, remaining);
   else if (*length > remaining)
     *length = remaining;
 
@@ -56,7 +56,7 @@ read_cb (size_t* length, uint8_t* buffer, void* user_data) {
 
 static MunitResult
 squash_test_custom(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
-  munit_assert_non_null(user_data);
+  munit_assert_not_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
   if (strcmp (squash_codec_get_name (codec), "density") == 0)
@@ -73,7 +73,7 @@ squash_test_custom(MUNIT_UNUSED const MunitParameter params[], void* user_data) 
     0
   };
 
-  munit_assert_non_null (data.output);
+  munit_assert_not_null (data.output);
 
   const size_t slen1 = (size_t) munit_rand_int_range (1024, 2048);
   const size_t slen2 = (size_t) munit_rand_int_range ( 512, 1024);
@@ -87,7 +87,7 @@ squash_test_custom(MUNIT_UNUSED const MunitParameter params[], void* user_data) 
     res = squash_codec_decompress (codec, &decompressed_length, decompressed, data.output_pos, data.output, NULL);
     SQUASH_ASSERT_OK (res);
 
-    munit_assert_cmp_size (decompressed_length, ==, slen1);
+    munit_assert_size (decompressed_length, ==, slen1);
     munit_assert_memory_equal (slen1, decompressed, LOREM_IPSUM);
 
     free (decompressed);
@@ -103,7 +103,7 @@ squash_test_custom(MUNIT_UNUSED const MunitParameter params[], void* user_data) 
 
   res = squash_splice_custom (codec, SQUASH_STREAM_DECOMPRESS, write_cb, read_cb, &data, slen2, NULL);
   SQUASH_ASSERT_OK (res);
-  munit_assert_cmp_size (data.output_pos, ==, slen2);
+  munit_assert_size (data.output_pos, ==, slen2);
 
   munit_assert_memory_equal(slen2, data.output, LOREM_IPSUM);
 

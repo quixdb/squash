@@ -10,9 +10,9 @@ static void*
 squash_test_bounds_setup(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = munit_new (struct BoundsInfo);
   info->codec = squash_get_codec (munit_parameters_get(params, "codec"));
-  munit_assert_non_null (info->codec);
+  munit_assert_not_null (info->codec);
   info->compressed_length = squash_codec_get_max_compressed_size (info->codec, LOREM_IPSUM_LENGTH);
-  munit_assert_cmp_size (info->compressed_length, >=, LOREM_IPSUM_LENGTH);
+  munit_assert_size (info->compressed_length, >=, LOREM_IPSUM_LENGTH);
   info->compressed = munit_malloc(info->compressed_length);
 
   SquashStatus res =
@@ -27,7 +27,7 @@ squash_test_bounds_setup(MUNIT_UNUSED const MunitParameter params[], void* user_
 static void
 squash_test_bounds_tear_down(void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
   free (info->compressed);
   free (info);
 }
@@ -35,7 +35,7 @@ squash_test_bounds_tear_down(void* user_data) {
 static MunitResult
 squash_test_bounds_decode_exact(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   size_t decompressed_length = LOREM_IPSUM_LENGTH;
   uint8_t* decompressed = munit_malloc(decompressed_length);
@@ -44,7 +44,7 @@ squash_test_bounds_decode_exact(MUNIT_UNUSED const MunitParameter params[], void
                              &decompressed_length, decompressed,
                              info->compressed_length, info->compressed, NULL);
   SQUASH_ASSERT_OK(res);
-  munit_assert_cmp_size(LOREM_IPSUM_LENGTH, ==, decompressed_length);
+  munit_assert_size(LOREM_IPSUM_LENGTH, ==, decompressed_length);
 
   munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
@@ -56,7 +56,7 @@ squash_test_bounds_decode_exact(MUNIT_UNUSED const MunitParameter params[], void
 static MunitResult
 squash_test_bounds_decode_small(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   /* Between 1 and length - 1 bytes (usually way too small) */
   size_t decompressed_length = (size_t) munit_rand_int_range(1, LOREM_IPSUM_LENGTH - 1);
@@ -65,7 +65,7 @@ squash_test_bounds_decode_small(MUNIT_UNUSED const MunitParameter params[], void
     squash_codec_decompress (info->codec,
                              &decompressed_length, decompressed,
                              info->compressed_length, info->compressed, NULL);
-  munit_assert_cmp_int(res, <, 0);
+  munit_assert_int(res, <, 0);
   free (decompressed);
 
   return MUNIT_OK;
@@ -74,7 +74,7 @@ squash_test_bounds_decode_small(MUNIT_UNUSED const MunitParameter params[], void
 static MunitResult
 squash_test_bounds_decode_tiny(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   /* Between 1 and length - 1 bytes (usually way too small) */
   size_t decompressed_length = (size_t) munit_rand_int_range(1, LOREM_IPSUM_LENGTH - 1);
@@ -83,7 +83,7 @@ squash_test_bounds_decode_tiny(MUNIT_UNUSED const MunitParameter params[], void*
     squash_codec_decompress (info->codec,
                              &decompressed_length, decompressed,
                              info->compressed_length, info->compressed, NULL);
-  munit_assert_cmp_int(res, <, 0);
+  munit_assert_int(res, <, 0);
   free (decompressed);
 
   return MUNIT_OK;
@@ -92,7 +92,7 @@ squash_test_bounds_decode_tiny(MUNIT_UNUSED const MunitParameter params[], void*
 static MunitResult
 squash_test_bounds_encode_exact(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   size_t compressed_length = info->compressed_length;
   uint8_t* compressed = munit_malloc(compressed_length);
@@ -111,7 +111,7 @@ squash_test_bounds_encode_exact(MUNIT_UNUSED const MunitParameter params[], void
 static MunitResult
 squash_test_bounds_encode_small(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   size_t compressed_length = info->compressed_length - 1;
   uint8_t* compressed = munit_malloc(compressed_length);
@@ -119,7 +119,7 @@ squash_test_bounds_encode_small(MUNIT_UNUSED const MunitParameter params[], void
     squash_codec_compress (info->codec,
                            &compressed_length, compressed,
                            LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
-  munit_assert_cmp_int(res, <, 0);
+  munit_assert_int(res, <, 0);
 
   free(compressed);
 
@@ -129,7 +129,7 @@ squash_test_bounds_encode_small(MUNIT_UNUSED const MunitParameter params[], void
 static MunitResult
 squash_test_bounds_encode_tiny(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
-  munit_assert_non_null (info);
+  munit_assert_not_null (info);
 
   size_t compressed_length = munit_rand_int_range (1, info->compressed_length - 1);
   uint8_t* compressed = munit_malloc(compressed_length);
@@ -137,7 +137,7 @@ squash_test_bounds_encode_tiny(MUNIT_UNUSED const MunitParameter params[], void*
     squash_codec_compress (info->codec,
                            &compressed_length, compressed,
                            LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
-  munit_assert_cmp_int(res, <, 0);
+  munit_assert_int(res, <, 0);
 
   free(compressed);
 

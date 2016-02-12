@@ -29,7 +29,7 @@ static void* squash_test_realloc (void* ptr, size_t size) {
     return squash_test_malloc (size);
   } else {
     uint64_t* rptr = ((uint64_t*) ptr) - 1;
-    munit_assert_cmp_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
+    munit_assert_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
     rptr = realloc (rptr, size + sizeof(uint64_t));
     return (void*) (rptr + 1);
   }
@@ -40,7 +40,7 @@ static void squash_test_free (void* ptr) {
     return;
 
   uint64_t* rptr = ((uint64_t*) ptr) - 1;
-  munit_assert_cmp_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
+  munit_assert_uint64 (*rptr, ==, SQUASH_PTR_TEST_INT);
   free (rptr);
 }
 
@@ -119,14 +119,7 @@ main(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   };
 
   squash_set_memory_functions (memfns);
-
-  if (getenv ("SQUASH_PLUGINS") == NULL) {
-#if !defined(_WIN32)
-    setenv("SQUASH_PLUGINS", SQUASH_TEST_PLUGIN_DIR, 1);
-#else
-    _putenv_s("SQUASH_PLUGINS", SQUASH_TEST_PLUGIN_DIR);
-#endif
-  }
+  squash_set_default_search_path (SQUASH_TEST_PLUGIN_DIR);
 
   squash_foreach_codec (squash_codec_generate_list, NULL);
   if (codec_list_l == 0) {

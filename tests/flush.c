@@ -37,7 +37,7 @@ squash_test_flush(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   } while (status == SQUASH_PROCESSING);
 
   SQUASH_ASSERT_OK(status);
-  munit_assert_cmp_size (decompress->total_out, ==, uncompressed_bp);
+  munit_assert_size (decompress->total_out, ==, uncompressed_bp);
   munit_assert_memory_equal(decompress->total_out, decompressed, LOREM_IPSUM);
 
   compress->avail_in = LOREM_IPSUM_LENGTH - compress->total_in;
@@ -64,7 +64,7 @@ squash_test_flush(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   }
 
   SQUASH_ASSERT_OK(status);
-  munit_assert_cmp_size (decompress->total_out, ==, LOREM_IPSUM_LENGTH);
+  munit_assert_size (decompress->total_out, ==, LOREM_IPSUM_LENGTH);
   munit_assert_memory_equal(LOREM_IPSUM_LENGTH, decompressed, LOREM_IPSUM);
 
   squash_object_unref (decompress);

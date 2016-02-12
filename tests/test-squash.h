@@ -23,7 +23,7 @@ MunitSuite squash_test_suite_threads;
 #endif
 
 #define SQUASH_ASSERT_STATUS(expr, status) \
-  munit_assert_cmp_int(expr, ==, status)
+  munit_assert_int(expr, ==, status)
 
 #define SQUASH_ASSERT_OK(expr) \
   SQUASH_ASSERT_STATUS(expr, SQUASH_OK)
