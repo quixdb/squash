@@ -45,6 +45,26 @@ namespace Squash {
     public Squash.Status parse_array ([CCode (array_length = false, array_null_terminated = true)] string[] keys, [CCode (array_length = false, array_null_terminated = true)] string[] values);
     public Squash.Status parse_option (string key, string value);
 
+    public unowned string get_string (Squash.Codec? codec, string key);
+    public bool get_bool (Squash.Codec? codec, string key);
+    public int get_int (Squash.Codec? codec, string key);
+    public size_t get_size (Squash.Codec? codec, string key);
+
+    public unowned string get_string_at (Squash.Codec? codec, size_t index);
+    public bool get_bool_at (Squash.Codec? codec, size_t index);
+    public int get_int_at (Squash.Codec? codec, size_t index);
+    public size_t get_size_at (Squash.Codec? codec, size_t index);
+
+    public void set_string (Squash.Codec? codec, string key, string? value);
+    public void set_bool (Squash.Codec? codec, string key, bool value);
+    public void set_int (Squash.Codec? codec, string key, int value);
+    public void set_size (Squash.Codec? codec, string key, size_t value);
+
+    public void set_string_at (Squash.Codec? codec, size_t index, string? value);
+    public void set_bool_at (Squash.Codec? codec, size_t index, bool value);
+    public void set_int_at (Squash.Codec? codec, size_t index, int value);
+    public void set_size_at (Squash.Codec? codec, size_t index, size_t value);
+
     public new void init (Squash.Codec codec, Squash.DestroyNotify? destroy_notify);
     public new void destroy (Squash.Options options);
 
@@ -183,7 +203,7 @@ namespace Squash {
     PERMISSIVE,
     STRONG_COPYLEFT,
     WEAK_COPYLEFT,
-    PREPRIETARY,
+    PROPRIETARY,
     TYPE_MASK,
 
     COPYLEFT_INCOMPATIBLE,
