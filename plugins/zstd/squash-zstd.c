@@ -33,7 +33,7 @@
 
 #include "zstd/lib/zstd.h"
 #include "zstd/lib/zstd_static.h"
-#include "zstd/lib/error.h"
+#include "zstd/lib/error_public.h"
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -62,26 +62,26 @@ squash_zstd_status_from_zstd_error (size_t res) {
   if (!ZSTD_isError (res))
     return SQUASH_OK;
 
-  switch ((ERR_codes) (-(int)(res))) {
-    case ZSTD_error_No_Error:
+  switch ((ZSTD_ErrorCode) (-(int)(res))) {
+    case ZSTD_error_no_error:
       return SQUASH_OK;
     case ZSTD_error_memory_allocation:
       return squash_error (SQUASH_MEMORY);
     case ZSTD_error_dstSize_tooSmall:
       return squash_error (SQUASH_BUFFER_FULL);
+    case ZSTD_error_GENERIC:
     case ZSTD_error_prefix_unknown:
     case ZSTD_error_frameParameter_unsupported:
-    case ZSTD_error_frameParameter_unsupportedBy32bitsImplementation:
-      return squash_error (SQUASH_INVALID_BUFFER);
-    case ZSTD_error_tableLog_tooLarge:
-    case ZSTD_error_maxCode:
-    case ZSTD_error_GENERIC:
-    case ZSTD_error_srcSize_wrong:
-    case ZSTD_error_corruption_detected:
-    case ZSTD_error_maxSymbolValue_tooSmall:
-    case ZSTD_error_maxSymbolValue_tooLarge:
+    case ZSTD_error_frameParameter_unsupportedBy32bits:
     case ZSTD_error_init_missing:
     case ZSTD_error_stage_wrong:
+    case ZSTD_error_srcSize_wrong:
+    case ZSTD_error_corruption_detected:
+    case ZSTD_error_tableLog_tooLarge:
+    case ZSTD_error_maxSymbolValue_tooLarge:
+    case ZSTD_error_maxSymbolValue_tooSmall:
+    case ZSTD_error_dictionary_corrupted:
+    case ZSTD_error_maxCode:
     default:
       return squash_error (SQUASH_FAILED);
   }

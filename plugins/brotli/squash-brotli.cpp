@@ -49,8 +49,6 @@ static SquashOptionInfo squash_brotli_options[] = {
 typedef struct SquashBrotliStream_s {
   SquashStream base_object;
 
-  BrotliInput in;
-  BrotliOutput out;
   BrotliState* decompressor;
   bool finished;
   brotli::BrotliCompressor* compressor;
