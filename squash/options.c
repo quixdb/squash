@@ -285,7 +285,7 @@ squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const S
     *type = ci->type;
 
   return (options == NULL) ?
-    &((*info)->default_value) :
+    &(ci->default_value) :
     &(options->values[index]);
 }
 
@@ -380,9 +380,8 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t in
     codec = options->codec;
   }
 
-  const SquashOptionInfo* info;
   SquashOptionType type;
-  const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, index);
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
   if (SQUASH_UNLIKELY(val == NULL))
     return -1;
 
