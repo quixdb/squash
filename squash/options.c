@@ -158,8 +158,12 @@
 
 static ptrdiff_t
 squash_options_find (SquashOptions* options, SquashCodec* codec, const char* key) {
-  assert (options != NULL);
   assert (key != NULL);
+
+  if (codec == NULL) {
+    assert (options != NULL);
+    codec = options->codec;
+  }
 
   const SquashOptionInfo* info = squash_codec_get_option_info (codec);
   if (info == NULL)
