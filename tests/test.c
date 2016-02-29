@@ -119,7 +119,9 @@ main(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   };
 
   squash_set_memory_functions (memfns);
+#if defined(SQUASH_TEST_PLUGIN_DIR)
   squash_set_default_search_path (SQUASH_TEST_PLUGIN_DIR);
+#endif
 
   squash_foreach_codec (squash_codec_generate_list, NULL);
   if (codec_list_l == 0) {

@@ -40,9 +40,10 @@ for plugin in \
   eval "DISABLE_ENABLE_${NAME_UC}_DOC=\"disable the ${plugin} plugin\""
 done
 
-ENABLE_VARS="coverage|yes|ENABLE_COVERAGE undefined|yes|ALLOW_UNDEFINED"
+ENABLE_VARS="coverage|yes|ENABLE_COVERAGE undefined|yes|ALLOW_UNDEFINED installed-tests|yes|ENABLE_INSTALLED_TESTS"
 ENABLE_ENABLE_COVERAGE_DOC="enable coverage analysis"
 ENABLE_ALLOW_UNDEFINED_DOC="allow plugins to leverage undefined behavior"
+ENABLE_ENABLE_INSTALLED_TESTS_DOC="install unit tests"
 
 for plugin in \
     csc \

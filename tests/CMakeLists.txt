@@ -3,7 +3,7 @@ enable_testing()
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package (Threads REQUIRED)
 
-add_executable (test-squash
+set(SQUASH_TEST_SOURCES
   munit/munit.c
   test.c
   bounds.c
@@ -38,17 +38,29 @@ set (SQUASH_TESTS
   /stream/single-byte
   /threads/buffer)
 
-add_definitions(-DSQUASH_TEST_PLUGIN_DIR="${CMAKE_BINARY_DIR}/plugins")
-
 set_compiler_specific_flags(
   VARIABLE extra_compiler_flags
   INTEL -wd3179)
 
+add_executable (test-squash ${SQUASH_TEST_SOURCES})
+set_property(TARGET test-squash
+  APPEND PROPERTY COMPILE_DEFINITIONS "SQUASH_TEST_PLUGIN_DIR=\"${CMAKE_BINARY_DIR}/plugins\"")
 target_add_extra_warning_flags (test-squash)
-target_link_libraries (test-squash squash${SQUASH_VERSION_API})
-target_link_libraries(test-squash ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries (test-squash squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 target_require_c_standard (test-squash "c99")
 target_add_compiler_flags (test-squash ${extra_compiler_flags})
+
+if (ENABLE_INSTALLED_TESTS)
+  add_executable (squash-all ${SQUASH_TEST_SOURCES})
+  target_add_extra_warning_flags (squash-all)
+  target_link_libraries (squash-all squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
+  target_require_c_standard (squash-all "c99")
+  target_add_compiler_flags (squash-all ${extra_compiler_flags})
+
+  install (TARGETS squash-all
+    EXPORT "squash-all"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/installed-tests/squash")
+endif()
 
 if (WIN32)
   add_custom_command(TARGET test-squash POST_BUILD
