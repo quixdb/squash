@@ -2,16 +2,13 @@
 
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
-find_program (SED sed DOC "sed executable")
+function(generate_cmakein input output)
+  file(READ "${input}" input_data)
+  string(REPLACE "#define ZCONF_H" "#define ZCONF_H\n#cmakedefine Z_HAVE_UNISTD_H" output_data "${input_data}")
+  file(WRITE "${output}" "${output_data}")
+endfunction(generate_cmakein)
 
-macro(generate_cmakein input output)
-    execute_process(COMMAND ${SED} "/#define ZCONF_H/ a\\\n#cmakedefine Z_HAVE_UNISTD_H\n" ${input}
-                    OUTPUT_FILE ${output}
-)
-
-endmacro(generate_cmakein)
-
-generate_cmakein( ${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng/zconf.h.in ${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein )
+generate_cmakein("${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng/zconf.h.in" "${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein")
 
 configure_file(	${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein
 		${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)

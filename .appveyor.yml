@@ -27,7 +27,7 @@ before_build:
       If ($env:GENERATOR -eq "MinGW Makefiles") {
         cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
       } Else {
-        cmake -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DENABLE_ZLIB_NG=no -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -G "$env:GENERATOR" ..
+        cmake -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -G "$env:GENERATOR" ..
       }
 
 build_script:
