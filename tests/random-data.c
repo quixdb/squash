@@ -49,6 +49,9 @@ squash_test_random_compress(MUNIT_UNUSED const MunitParameter params[], void* us
 static MunitResult
 squash_test_random_decompress(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   SquashCodec* codec = (SquashCodec*) user_data;
+  if ((squash_codec_get_info (codec) & SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE) != 0)
+    return MUNIT_OK;
+
   size_t compressed_length;
   uint8_t* compressed_data = munit_newa (uint8_t, INPUT_BUF_SIZE);
   size_t decompressed_length;
