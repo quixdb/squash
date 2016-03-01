@@ -58,8 +58,8 @@ squash_test_bounds_decode_small(MUNIT_UNUSED const MunitParameter params[], void
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
   munit_assert_not_null (info);
 
-  /* Between 1 and length - 1 bytes (usually way too small) */
-  size_t decompressed_length = (size_t) munit_rand_int_range(1, LOREM_IPSUM_LENGTH - 1);
+  /* *Almost* enough */
+  size_t decompressed_length = (size_t) LOREM_IPSUM_LENGTH - 1;
   uint8_t* decompressed = munit_malloc(decompressed_length);
   SquashStatus res =
     squash_codec_decompress (info->codec,
