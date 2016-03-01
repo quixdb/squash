@@ -134,5 +134,11 @@ install (TARGETS squash${SQUASH_VERSION_API}
 install(FILES ${squash_PUBLIC_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/version.h
   DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash)
 
+configure_file (
+  "${CMAKE_CURRENT_SOURCE_DIR}/SquashConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/SquashConfig.cmake")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SquashConfig.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Squash-${SQUASH_VERSION_MAJOR}.${SQUASH_VERSION_MINOR}.${SQUASH_VERSION_REVISION}")
+
 configure_file (version.h.in version.h)
 configure_file (config.h.in config.h)
