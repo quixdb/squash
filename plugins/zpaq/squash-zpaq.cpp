@@ -163,6 +163,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (strcmp ("zpaq", name) == 0) {
+    impl->info = SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE;
     impl->options = squash_zpaq_options;
     impl->splice = squash_zpaq_splice;
     impl->get_max_compressed_size = squash_zpaq_get_max_compressed_size;
