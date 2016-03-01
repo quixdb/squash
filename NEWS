@@ -2,10 +2,12 @@ Squash 0.8.0
 ============
 
  * Preliminary support for Apple OS X
+ * Preliminary support for Microsoft Windows
  * File API is now thread safe, with *_unlocked variants
  * New 'splice' interface for plugins
  * Enable zling plugin
- * Disable csc and pithy plugins
+ * Disable csc plugin
+ * Move pithy plugin to squash-plugins-extra
  * Add nonnull and sentinel attributes
  * Add support for multiple levels in lzf
  * New plugins:

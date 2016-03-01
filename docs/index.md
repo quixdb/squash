@@ -56,7 +56,6 @@ Squash currently contains plugins for the following libraries:
 - [miniz](@ref md_plugins_miniz_miniz)
 - [ms-compress](@ref md_plugins_ms-compress_ms-compress)
 - [ncompress](@ref md_plugins_ncompress_ncompress)
-- [Pithy](@ref md_plugins_pithy_pithy)
 - [QuickLZ](@ref md_plugins_quicklz_quicklz)
 - [Snappy](@ref md_plugins_snappy_snappy)
 - [wfLZ](@ref md_plugins_wflz_wflz)
@@ -66,6 +65,11 @@ Squash currently contains plugins for the following libraries:
 - [zling](@ref md_plugins_zling_zling)
 - [ZPAQ](@ref md_plugins_zpaq_zpaq)
 - [Zstandard](@ref md_plugins_zstd_zstd)
+
+There is also a separate repository,
+[squash-plugins-extra](https://github.com/quixdb/squash-plugins-extra),
+for plugins which don't yet meet the requirements for inclusion with
+Squash.
 
 We hope to add more soon.  If you're interested in helping, please
 contact us!

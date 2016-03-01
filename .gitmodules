@@ -40,9 +40,6 @@
 [submodule "plugins/bsc/libbsc"]
 	path = plugins/bsc/libbsc
 	url = https://github.com/IlyaGrebnov/libbsc.git
-[submodule "plugins/pithy/pithy"]
-	path = plugins/pithy/pithy
-	url = https://github.com/johnezang/pithy.git
 [submodule "plugins/density/density"]
 	path = plugins/density/density
 	url = https://github.com/centaurean/density.git

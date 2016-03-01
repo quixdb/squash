@@ -23,7 +23,6 @@ set (plugins_available
   miniz
   ms-compress
   ncompress
-  pithy
   quicklz
   snappy
   wflz
