@@ -414,6 +414,89 @@ squash_codec_get_impl (SquashCodec* codec) {
   return &(codec->impl);
 }
 
+static size_t
+squash_read_varuint64 (const uint8_t *p, size_t p_size, uint64_t *v) {
+  uint64_t n = 0;
+  size_t i;
+
+  for (i = 0; i < 8 && i < p_size && *p > 0x7F; ++i) {
+    n = (n << 7) | (*p++ & 0x7F);
+  }
+
+  if (i == p_size) {
+    return 0;
+  }
+  else if (i == 8) {
+    n = (n << 8) | *p;
+  }
+  else {
+    n = (n << 7) | *p;
+  }
+
+  *v = n;
+
+  return i + 1;
+}
+
+static size_t
+squash_write_varuint64 (uint8_t *p, size_t p_size, uint64_t v) {
+  uint8_t buf[10];
+  size_t i;
+  size_t j;
+
+  if (v & 0xFF00000000000000ULL) {
+    if (p_size < 9) {
+      return 0;
+    }
+
+    p[8] = (uint8_t) v;
+    v >>= 8;
+
+    i = 7;
+
+    for (j = 0; j < 8; ++j) {
+      p[i--] = (uint8_t) ((v & 0x7F) | 0x80);
+      v >>= 7;
+    }
+
+    return 9;
+  }
+
+  i = 0;
+
+  buf[i++] = (uint8_t) (v & 0x7F);
+  v >>= 7;
+
+  while (v > 0) {
+    buf[i++] = (uint8_t) ((v & 0x7F) | 0x80);
+    v >>= 7;
+  }
+
+  if (i > p_size) {
+    return 0;
+  }
+
+  for (j = 0; j < i; ++j) {
+    p[j] = buf[i - j - 1];
+  }
+
+  return i;
+}
+
+static size_t
+squash_size_varuint64 (const uint64_t value) {
+  if (value & 0xFF00000000000000ULL)
+    return 9;
+
+  size_t required = 1;
+
+  for (size_t s = 7 ; s < 64 ; s += 7, required++)
+    if (value < (UINT64_C(1) << s))
+      break;
+
+  return required;
+}
+
 /**
  * @brief Get the uncompressed size of the compressed buffer
  *
@@ -438,8 +521,18 @@ squash_codec_get_uncompressed_size (SquashCodec* codec,
   assert (compressed != NULL);
 
   impl = squash_codec_get_impl (codec);
-  if (impl != NULL && impl->get_uncompressed_size != NULL) {
+  assert (impl != NULL);
+
+  if (impl->get_uncompressed_size != NULL) {
     return impl->get_uncompressed_size (codec, compressed_size, compressed);
+  } else if (impl->info & SQUASH_CODEC_INFO_WRAP_SIZE) {
+    uint64_t v = 0;
+    squash_read_varuint64 (compressed, compressed_size, &v);
+#if SIZE_MAX < UINT64_MAX
+    if (SQUASH_UNLIKELY(SIZE_MAX < v))
+      return (squash_error (SQUASH_RANGE), 0);
+#endif
+    return (size_t) v;
   } else {
     return 0;
   }
@@ -469,11 +562,13 @@ squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
   assert (codec != NULL);
 
   impl = squash_codec_get_impl (codec);
-  if (impl != NULL && impl->get_max_compressed_size != NULL) {
+  assert (impl != NULL);
+  assert (impl->get_max_compressed_size != NULL);
+
+  if (impl->info & SQUASH_CODEC_INFO_WRAP_SIZE)
+    return squash_size_varuint64(uncompressed_size) + impl->get_max_compressed_size (codec, uncompressed_size);
+  else
     return impl->get_max_compressed_size (codec, uncompressed_size);
-  } else {
-    return 0;
-  }
 }
 
 /**
@@ -660,57 +755,68 @@ squash_codec_compress_with_options (SquashCodec* codec,
 
   if (impl->compress_buffer ||
       impl->compress_buffer_unsafe) {
-    size_t max_compressed_size = squash_codec_get_max_compressed_size (codec, uncompressed_size);
+    const size_t internal_max_compressed_size = impl->get_max_compressed_size (codec, uncompressed_size);
+    uint8_t* internal_compressed;
+    size_t internal_compressed_size;
 
-    if (*compressed_size >= max_compressed_size) {
+    if (impl->info & SQUASH_CODEC_INFO_WRAP_SIZE) {
+      const size_t encoded_size_length = squash_write_varuint64 (compressed, *compressed_size, uncompressed_size);
+      if (SQUASH_UNLIKELY(encoded_size_length == 0)) {
+        res = squash_error (SQUASH_BUFFER_FULL);
+        goto cleanup;
+      }
+
+      internal_compressed = compressed + encoded_size_length;
+      internal_compressed_size = *compressed_size - encoded_size_length;
+    } else {
+      internal_compressed = compressed;
+      internal_compressed_size = *compressed_size;
+    }
+
+    if (internal_compressed_size >= internal_max_compressed_size) {
       if (impl->compress_buffer_unsafe != NULL) {
         res = impl->compress_buffer_unsafe (codec,
-                                            compressed_size, compressed,
+                                            &internal_compressed_size, internal_compressed,
                                             uncompressed_size, uncompressed,
                                             options);
-        goto cleanup;
       } else {
         res = impl->compress_buffer (codec,
-                                     compressed_size, compressed,
+                                     &internal_compressed_size, internal_compressed,
                                      uncompressed_size, uncompressed,
                                      options);
-        goto cleanup;
       }
     } else if (impl->compress_buffer != NULL) {
       res = impl->compress_buffer (codec,
-                                   compressed_size, compressed,
+                                   &internal_compressed_size, internal_compressed,
                                    uncompressed_size, uncompressed,
                                    options);
-      goto cleanup;
     } else {
-      uint8_t* tmp_buf = squash_malloc (max_compressed_size);
+      uint8_t* tmp_buf = squash_malloc (internal_max_compressed_size);
       if (SQUASH_UNLIKELY(tmp_buf == NULL)) {
         res = squash_error (SQUASH_MEMORY);
-        goto cleanup;
-      }
-
-      res = impl->compress_buffer_unsafe (codec,
-                                          &max_compressed_size, tmp_buf,
-                                          uncompressed_size, uncompressed,
-                                          options);
-      if (res == SQUASH_OK) {
-        if (SQUASH_UNLIKELY(*compressed_size < max_compressed_size)) {
-          *compressed_size = max_compressed_size;
-          squash_free (tmp_buf);
-          res = squash_error (SQUASH_BUFFER_FULL);
-          goto cleanup;
-        } else {
-          *compressed_size = max_compressed_size;
-          memcpy (compressed, tmp_buf, max_compressed_size);
-          squash_free (tmp_buf);
-          res = SQUASH_OK;
-          goto cleanup;
-        }
       } else {
+        size_t tmp_buf_size = internal_max_compressed_size;
+
+        res = impl->compress_buffer_unsafe (codec,
+                                            &tmp_buf_size, tmp_buf,
+                                            uncompressed_size, uncompressed,
+                                            options);
+
+        if (SQUASH_LIKELY(res == SQUASH_OK)) {
+          if (tmp_buf_size <= internal_compressed_size) {
+            memcpy (internal_compressed, tmp_buf, tmp_buf_size);
+            internal_compressed_size = tmp_buf_size;
+          } else {
+            res = squash_error (SQUASH_BUFFER_FULL);
+          }
+        }
+
         squash_free (tmp_buf);
-        goto cleanup;
       }
     }
+
+    if (res == SQUASH_OK)
+      *compressed_size = internal_compressed_size + (internal_compressed - compressed);
   } else if (impl->splice != NULL) {
     res = squash_buffer_splice (codec, SQUASH_STREAM_COMPRESS, compressed_size, compressed, uncompressed_size, uncompressed, options);
     goto cleanup;
@@ -828,11 +934,45 @@ squash_codec_decompress_with_options (SquashCodec* codec,
 
   if (impl->decompress_buffer != NULL) {
     SquashStatus res;
-    res = impl->decompress_buffer (codec,
-                                   decompressed_size, decompressed,
-                                   compressed_size, compressed,
-                                   squash_object_ref (options));
-    squash_object_unref (options);
+
+    if (impl->info & SQUASH_CODEC_INFO_WRAP_SIZE) {
+      const uint8_t* internal_compressed;
+      size_t internal_compressed_size;
+      size_t internal_decompressed_size;
+
+      uint64_t encoded_decompressed_size = 0;
+      const size_t encoded_decompressed_size_length = squash_read_varuint64(compressed, compressed_size, &encoded_decompressed_size);
+#if SIZE_MAX < UINT64_MAX
+      if (SQUASH_UNLIKELY(encoded_decompressed_size < SIZE_MAX))
+        return squash_error (SQUASH_RANGE);
+#endif
+
+      if (*decompressed_size < encoded_decompressed_size)
+        return squash_error (SQUASH_BUFFER_FULL);
+
+      internal_decompressed_size = (size_t) encoded_decompressed_size;
+      internal_compressed = compressed + encoded_decompressed_size_length;
+      internal_compressed_size = compressed_size - encoded_decompressed_size_length;
+      *decompressed_size = encoded_decompressed_size;
+
+      res = impl->decompress_buffer (codec,
+                                     &internal_decompressed_size, decompressed,
+                                     internal_compressed_size, internal_compressed,
+                                     squash_object_ref (options));
+      squash_object_unref (options);
+
+      if (SQUASH_LIKELY(res == SQUASH_OK) &&
+          SQUASH_UNLIKELY(internal_decompressed_size != encoded_decompressed_size)) {
+        res = squash_error (SQUASH_INVALID_BUFFER);
+      }
+    } else {
+      res = impl->decompress_buffer (codec,
+                                     decompressed_size, decompressed,
+                                     compressed_size, compressed,
+                                     squash_object_ref (options));
+      squash_object_unref (options);
+    }
+
     return res;
   } else {
     SquashStatus status;
