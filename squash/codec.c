@@ -943,7 +943,7 @@ squash_codec_decompress_with_options (SquashCodec* codec,
       uint64_t encoded_decompressed_size = 0;
       const size_t encoded_decompressed_size_length = squash_read_varuint64(compressed, compressed_size, &encoded_decompressed_size);
 #if SIZE_MAX < UINT64_MAX
-      if (SQUASH_UNLIKELY(encoded_decompressed_size < SIZE_MAX))
+      if (SQUASH_UNLIKELY(SIZE_MAX < encoded_decompressed_size))
         return squash_error (SQUASH_RANGE);
 #endif
 
@@ -953,7 +953,7 @@ squash_codec_decompress_with_options (SquashCodec* codec,
       internal_decompressed_size = (size_t) encoded_decompressed_size;
       internal_compressed = compressed + encoded_decompressed_size_length;
       internal_compressed_size = compressed_size - encoded_decompressed_size_length;
-      *decompressed_size = encoded_decompressed_size;
+      *decompressed_size = (size_t) encoded_decompressed_size;
 
       res = impl->decompress_buffer (codec,
                                      &internal_decompressed_size, decompressed,
