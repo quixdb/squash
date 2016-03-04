@@ -229,7 +229,7 @@ squash_aligned_alloc (size_t alignment, size_t size) {
       padding += alignment;
     assert ((padding + size) <= ms);
 
-    memcpy ((void*) (addr + padding - sizeof(void*)), ptr, sizeof(void*));
+    memcpy ((void*) (addr + padding - sizeof(void*)), &ptr, sizeof(void*));
     return (void*) (addr + padding);
   }
 
