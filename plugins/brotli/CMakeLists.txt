@@ -24,16 +24,15 @@ squash_plugin (
   EMBED_SOURCES
     brotli/dec/bit_reader.c
     brotli/dec/decode.c
-    # brotli/dec/dictionary.c
+    brotli/dec/dictionary.c
     brotli/dec/huffman.c
     brotli/dec/state.c
-    brotli/dec/streams.c
     brotli/enc/backward_references.cc
     brotli/enc/block_splitter.cc
     brotli/enc/brotli_bit_stream.cc
     brotli/enc/compress_fragment.cc
     brotli/enc/compress_fragment_two_pass.cc
-    brotli/enc/dictionary.cc
+    # brotli/enc/dictionary.cc
     brotli/enc/encode.cc
     brotli/enc/encode_parallel.cc
     brotli/enc/entropy_encode.cc
