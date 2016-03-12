@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "crush.h"
 
@@ -52,6 +53,87 @@
 #define HASH2_MASK (HASH2_SIZE-1)
 #define HASH1_SHIFT ((HASH1_BITS+(HASH1_LEN-1))/HASH1_LEN)
 #define HASH2_SHIFT ((HASH2_BITS+(HASH2_LEN-1))/HASH2_LEN)
+
+#if defined(_WIN32)
+#elif defined(__APPLE__)
+#  include <libkern/OSByteOrder.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
+#  include <sys/endian.h>
+#else
+#  include <endian.h>
+#endif
+
+#if defined(__GNUC__)
+#  define ENDIAN_BSWAP16(v) __builtin_bswap16(v)
+#  define ENDIAN_BSWAP32(v) __builtin_bswap32(v)
+#  define ENDIAN_BSWAP64(v) __builtin_bswap64(v)
+#elif defined(_MSC_VER)
+#  include <intrin.h>
+#  define ENDIAN_BSWAP16(v) ((uint16_t) _byteswap_ushort ((unsigned short) v))
+#  define ENDIAN_BSWAP32(v) ((uint32_t) _byteswap_ulong ((unsigned long) v))
+#  define ENDIAN_BSWAP64(v) ((uint64_t) _byteswap_uint64 ((unsigned __int64) v))
+#else
+#  define ENDIAN_BSWAP16(v) ((((v) & 0xff00) >>  8) | \
+			     (((v) & 0x00ff) <<  8))
+#  define ENDIAN_BSWAP32(v) ((((v) & 0xff000000) >> 24) | \
+			     (((v) & 0x00ff0000) >>  8) | \
+			     (((v) & 0x0000ff00) <<  8) | \
+			     (((v) & 0x000000ff) << 24))
+#  define ENDIAN_BSWAP64(v) ((((v) & 0xff00000000000000ULL) >> 56) | \
+			     (((v) & 0x00ff000000000000ULL) >> 40) | \
+			     (((v) & 0x0000ff0000000000ULL) >> 24) | \
+			     (((v) & 0x000000ff00000000ULL) >>  8) | \
+			     (((v) & 0x00000000ff000000ULL) <<  8) | \
+			     (((v) & 0x0000000000ff0000ULL) << 24) | \
+			     (((v) & 0x000000000000ff00ULL) << 40) | \
+			     (((v) & 0x00000000000000ffULL) << 56));
+#endif
+
+#if defined(_WIN32) || (defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && (BYTE_ORDER == LITTLE_ENDIAN))
+#  define ENDIAN_FROM_LE16(x) (x)
+#  define ENDIAN_FROM_LE32(x) (x)
+#  define ENDIAN_FROM_LE64(x) (x)
+#  define ENDIAN_FROM_BE16(x) ENDIAN_BSWAP16(x)
+#  define ENDIAN_FROM_BE32(x) ENDIAN_BSWAP32(x)
+#  define ENDIAN_FROM_BE64(x) ENDIAN_BSWAP64(x)
+#elif defined(BYTE_ORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)
+#  define ENDIAN_FROM_LE16(x) ENDIAN_BSWAP16(x)
+#  define ENDIAN_FROM_LE32(x) ENDIAN_BSWAP32(x)
+#  define ENDIAN_FROM_LE64(x) ENDIAN_BSWAP64(x)
+#  define ENDIAN_FROM_BE16(x) (x)
+#  define ENDIAN_FROM_BE32(x) (x)
+#  define ENDIAN_FROM_BE64(x) (x)
+#else /* Can't determine endianness at compile time */
+#  include <stdint.h>
+#  if defined(__cplusplus)
+extern "C"
+#  endif
+
+enum {
+  ENDIAN_RT_LITTLE_ENDIAN = UINT32_C(0x03020100),
+  ENDIAN_RT_BIG_ENDIAN    = UINT32_C(0x00010203)
+};
+
+#define ENDIAN_RT_BYTE_ORDER (((union { unsigned char bytes[4]; uint32_t value; }) { { 0, 1, 2, 3 } }).value)
+
+#  if defined(__cplusplus)
+}
+#  endif
+
+#  define ENDIAN_FROM_LE16(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_LITTLE_ENDIAN) ? (v) : ENDIAN_BSWAP16(v))
+#  define ENDIAN_FROM_BE16(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_BIG_ENDIAN)    ? (v) : ENDIAN_BSWAP16(v))
+#  define ENDIAN_FROM_LE32(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_LITTLE_ENDIAN) ? (v) : ENDIAN_BSWAP32(v))
+#  define ENDIAN_FROM_BE32(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_BIG_ENDIAN)    ? (v) : ENDIAN_BSWAP32(v))
+#  define ENDIAN_FROM_LE64(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_LITTLE_ENDIAN) ? (v) : ENDIAN_BSWAP64(v))
+#  define ENDIAN_FROM_BE64(v) ((ENDIAN_RT_BYTE_ORDER == ENDIAN_RT_BIG_ENDIAN)    ? (v) : ENDIAN_BSWAP64(v))
+#endif
+
+#define ENDIAN_TO_LE16(x) ENDIAN_FROM_LE16(x)
+#define ENDIAN_TO_LE32(x) ENDIAN_FROM_LE32(x)
+#define ENDIAN_TO_LE64(x) ENDIAN_FROM_LE64(x)
+#define ENDIAN_TO_BE16(x) ENDIAN_FROM_BE16(x)
+#define ENDIAN_TO_BE32(x) ENDIAN_FROM_BE32(x)
+#define ENDIAN_TO_BE64(x) ENDIAN_FROM_BE64(x)
 
 static void*
 crush_malloc (size_t size, void* user_data) {
@@ -218,7 +300,7 @@ int crush_compress(CrushContext* ctx, int level)
 
 	const int max_chain[]={4, 256, 1<<12};
 
-	int size;
+	int32_t size;
 	while ((size=ctx->reader(ctx->buf, BUF_SIZE, ctx->user_data))>0)
 	{
 		int i;
@@ -226,7 +308,8 @@ int crush_compress(CrushContext* ctx, int level)
 		int h2=0;
 		int p=0;
 
-		ctx->writer(&size, sizeof(size), ctx->user_data); /* Little-endian */
+    const int32_t size_le = ENDIAN_TO_LE32(size);
+		ctx->writer(&size_le, sizeof(size_le), ctx->user_data); /* Little-endian */
 
 		for (i=0; i<HASH1_SIZE+HASH2_SIZE; ++i)
 			head[i]=-1;
@@ -390,9 +473,10 @@ int crush_compress(CrushContext* ctx, int level)
 
 int crush_decompress(CrushContext* ctx)
 {
-	int size;
+	int32_t size;
 	while (ctx->reader(&size, sizeof(size), ctx->user_data)>0) /* Little-endian */
 	{
+    size = ENDIAN_FROM_LE32(size);
 		int p=0;
 
 		if ((size<1)||(size>BUF_SIZE))
