@@ -11,6 +11,7 @@ environment:
 branches:
   except:
     - /^(wip\/)?(travis|osx|ipp)(\-.+)?$/
+    - /^master$/
 
 configuration: Debug
 
