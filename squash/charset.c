@@ -27,6 +27,7 @@
 #include "internal.h"
 
 #include <string.h>
+#include <strings.h>
 #include <iconv.h>
 #include <errno.h>
 #include <wchar.h>

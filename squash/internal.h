@@ -35,6 +35,11 @@
 #  error "You must include internal.h instead of squash.h"
 #endif
 
+/* Solaris freaks out if you try to use older standards with C99. */
+#if defined(__sun) && defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#  define _XOPEN_SOURCE 600
+#endif
+
 #ifndef SQUASH_FILE_BUF_SIZE
 #  define SQUASH_FILE_BUF_SIZE ((size_t) (1024 * 1024))
 #endif

@@ -58,7 +58,13 @@
 #define SNAPPY_VERSION \
     ((SNAPPY_MAJOR << 16) | (SNAPPY_MINOR << 8) | SNAPPY_PATCHLEVEL)
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#elif defined(sun) || defined(__sun)
+#  include <sys/byteorder.h>
+#  if defined(_BIG_ENDIAN)
+#    define WORDS_BIGENDIAN
+#  endif
+#else
 #  if defined(__APPLE__)
 #    include <libkern/OSByteOrder.h>
 #  elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
@@ -66,7 +72,7 @@
 #  else
 #    include <endian.h>
 #  endif
-#  if defined(BYTE_ORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)
+#  if (BYTE_ORDER == BIG_ENDIAN)
 #    define WORDS_BIGENDIAN
 #  endif
 #endif

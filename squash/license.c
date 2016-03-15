@@ -26,6 +26,7 @@
 
 #include <squash/internal.h>
 #include <string.h>
+#include <strings.h>
 
 /**
  * @def SQUASH_LICENSE_UNKNOWN

@@ -50,7 +50,7 @@
 #  define SQUASH_END_DECLS
 #endif
 
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && !defined(__cplusplus)
 #  define SQUASH_ARRAY_PARAM(name) name
 #else
 #  define SQUASH_ARRAY_PARAM(name)

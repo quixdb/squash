@@ -39,34 +39,28 @@
 
 #define INIT_BITS 9			/* initial number of bits/code */
 
-#if !defined(BYTEORDER) && defined(_WIN32)
+#if defined(_WIN32)
 #  define BYTEORDER 4321
-#endif
-
-#ifndef	BYTEORDER
-# if !defined(BYTE_ORDER)
+#elif defined(sun) || defined(__sun)
+#  include <sys/byteorder.h>
+#  if defined(_BIG_ENDIAN)
+#    define BYTEORDER 1234
+#  else
+#    define BYTEORDER 4321
+#  endif
+#else
 #  if defined(__APPLE__)
-#   include <libkern/OSByteOrder.h>
-#  elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragoFly__)
-#   include <sys/endian.h>
+#    include <libkern/OSByteOrder.h>
+#  elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__DragonFly__)
+#    include <sys/endian.h>
 #  else
-#   include <endian.h>
+#    include <endian.h>
 #  endif
-# endif
-# if defined(BYTE_ORDER)
-#  if BYTE_ORDER == LITTLE_ENDIAN
-#   define BYTEORDER 4321
+#  if (BYTE_ORDER == BIG_ENDIAN)
+#    define BYTEORDER 1234
 #  else
-#   define BYTEORDER 1234
+#    define BYTEORDER 4321
 #  endif
-# else
-#  ifdef _MSC_VER
-#   pragma message("Unable to figure out byteorder, defaulting to slow byte swapping")
-#  else
-#   warning Unable to figure out byteorder, defaulting to slow byte swapping
-#  endif
-#  define BYTEORDER 0000
-# endif
 #endif
 
 #ifndef	NOALLIGN
