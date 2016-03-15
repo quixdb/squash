@@ -423,6 +423,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (SQUASH_LIKELY(strcmp ("density", name) == 0)) {
+    impl->info = SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE;
     impl->options = squash_density_options;
     impl->create_stream = squash_density_create_stream;
     impl->process_stream = squash_density_process_stream;
