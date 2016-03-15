@@ -72,7 +72,7 @@
 #  define BIG_ENDIAN 1234
 #endif
 #if !defined(BYTE_ORDER)
-#  if defined(_BIG_ENDIAN)
+#  if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
 #    define BYTE_ORDER BIG_ENDIAN
 #  else
 #    define BYTE_ORDER LITTLE_ENDIAN
