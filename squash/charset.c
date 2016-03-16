@@ -27,7 +27,9 @@
 #include "internal.h"
 
 #include <string.h>
+#if !defined(_WIN32)
 #include <strings.h>
+#endif
 #include <iconv.h>
 #include <errno.h>
 #include <wchar.h>

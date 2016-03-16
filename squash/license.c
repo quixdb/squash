@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,7 +26,9 @@
 
 #include <squash/internal.h>
 #include <string.h>
+#if !defined(_WIN32)
 #include <strings.h>
+#endif
 
 /**
  * @def SQUASH_LICENSE_UNKNOWN
