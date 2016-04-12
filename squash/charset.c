@@ -168,8 +168,10 @@ squash_charset_convert (size_t* output_size, char** output, const char* output_c
   do {
     out_size *= 2;
     out_start = squash_realloc (out_start, out_size);
-    if (out_start == NULL)
+    if (out_start == NULL) {
+      iconv_close (ctx);
       return false;
+    }
 
     char* out_p = out_start + out_off;
     size_t in_rem = input + input_size - in_p;
