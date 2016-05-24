@@ -31,9 +31,9 @@
 
 #include <squash/squash.h>
 
-#include "zstd/lib/zstd.h"
-#include "zstd/lib/zstd_static.h"
-#include "zstd/lib/error_public.h"
+#include "zstd.h"
+#include "zstd_static.h"
+#include "error_public.h"
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -82,6 +82,7 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_maxSymbolValue_tooSmall:
     case ZSTD_error_dictionary_corrupted:
     case ZSTD_error_maxCode:
+    case ZSTD_error_compressionParameter_unsupported:
     default:
       return squash_error (SQUASH_FAILED);
   }

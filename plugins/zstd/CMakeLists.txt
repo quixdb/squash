@@ -4,17 +4,25 @@ squash_plugin (
   NAME zstd
   SOURCES squash-zstd.c
   EMBED_SOURCES
+    zstd/lib/common/entropy_common.c
+    zstd/lib/common/fse_decompress.c
+    zstd/lib/common/zstd_common.c
+    zstd/lib/compress/fse_compress.c
+    zstd/lib/compress/huf_compress.c
+    zstd/lib/compress/zbuff_compress.c
+    zstd/lib/compress/zstd_compress.c
+    zstd/lib/decompress/huf_decompress.c
+    zstd/lib/decompress/zbuff_decompress.c
+    zstd/lib/decompress/zstd_decompress.c
+    zstd/lib/dictBuilder/divsufsort.c
+    zstd/lib/dictBuilder/zdict.c
     zstd/lib/legacy/zstd_v01.c
     zstd/lib/legacy/zstd_v02.c
     zstd/lib/legacy/zstd_v03.c
     zstd/lib/legacy/zstd_v04.c
-    zstd/lib/fse.c
-    zstd/lib/huff0.c
-    zstd/lib/divsufsort.c
-    zstd/lib/zbuff.c
-    zstd/lib/zdict.c
-    zstd/lib/zstd_compress.c
-    zstd/lib/zstd_decompress.c
+    zstd/lib/legacy/zstd_v05.c
   EMBED_INCLUDE_DIRS
     zstd/lib
+    zstd/lib/common
+    zstd/lib/compress
     zstd/lib/legacy)
