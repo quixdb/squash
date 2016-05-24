@@ -33,4 +33,6 @@ squash_plugin(
   INCLUDE_DIRS
     lzham/include
     lzham/lzhamdecomp
-    lzham/lzhamcomp)
+    lzham/lzhamcomp
+  COMPILER_FLAGS
+    -Wno-pedantic)

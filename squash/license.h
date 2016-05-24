@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Squash Authors
+/* Copyright (c) 2015-2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -74,7 +74,7 @@ typedef enum {
   SQUASH_LICENSE_GPL2            = SQUASH_LICENSE_STRONG_COPYLEFT | 0x02,
   SQUASH_LICENSE_GPL2_PLUS       = SQUASH_LICENSE_GPL2 | SQUASH_LICENSE_OR_GREATER,
   SQUASH_LICENSE_GPL3            = SQUASH_LICENSE_STRONG_COPYLEFT | 0x03,
-  SQUASH_LICENSE_GPL3_PLUS       = SQUASH_LICENSE_GPL3 | SQUASH_LICENSE_OR_GREATER,
+  SQUASH_LICENSE_GPL3_PLUS       = SQUASH_LICENSE_GPL3 | SQUASH_LICENSE_OR_GREATER
 } SquashLicense;
 
 SQUASH_API SquashLicense squash_license_from_string (const char* license);

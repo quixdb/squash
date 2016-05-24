@@ -2,7 +2,7 @@ include (SquashPlugin)
 
 set_compiler_specific_flags(
   VARIABLE compiler_flags
-  GCCISH -Wno-cast-align
+  GCCISH -Wno-cast-align -Wno-variadic-macros
   MSVC /wd4244
   INTEL -wd69)
 

@@ -3,6 +3,7 @@ include (SquashPlugin)
 squash_plugin (
   NAME gipfeli
   SOURCES squash-gipfeli.cpp
+  CXX_STANDARD c++11
   EMBED_SOURCES
     gipfeli/decompress.cc
     gipfeli/entropy.cc

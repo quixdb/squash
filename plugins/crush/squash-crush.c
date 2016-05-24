@@ -64,7 +64,7 @@ squash_crush_malloc (size_t size, void* user_data) {
 
 static void
 squash_crush_free (void* ptr, void* user_data) {
-  return squash_free (ptr);
+  squash_free (ptr);
 }
 
 static size_t

@@ -244,7 +244,7 @@ squash_aligned_alloc (size_t alignment, size_t size) {
  */
 void squash_aligned_free (void* ptr) {
   if (squash_memfns.aligned_free != NULL) {
-    return squash_memfns.aligned_free (ptr);
+    squash_memfns.aligned_free (ptr);
   } else if (ptr != NULL) {
     squash_memfns.free ((void*) (((uintptr_t) ptr) - sizeof(void*)));
   }

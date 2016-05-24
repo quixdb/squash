@@ -10,4 +10,5 @@ squash_plugin (
     libzling/src/libzling_utils.cpp
   INCLUDE_DIRS libzling/src
   COMPILER_FLAGS
-    -Wno-undef)
+    -Wno-undef
+    -Wno-variadic-macros)

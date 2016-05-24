@@ -5,4 +5,5 @@ squash_plugin (
   SOURCES squash-yalz77.cpp
   INCLUDE_DIRS yalz77
   COMPILER_FLAGS
-    -Wno-aggregate-return)
+    -Wno-aggregate-return
+    -Wno-variadic-macros)

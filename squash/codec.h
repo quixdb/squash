@@ -48,7 +48,7 @@ typedef enum {
   SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE = 1 << 17,
   SQUASH_CODEC_INFO_NATIVE_STREAMING        = 1 << 18,
 
-  SQUASH_CODEC_INFO_MASK                    = 0xffffffff
+  SQUASH_CODEC_INFO_MASK                    = 0x00ffffff
 } SquashCodecInfo;
 
 #define SQUASH_CODEC_INFO_INVALID ((SquashCodecInfo) 0)
