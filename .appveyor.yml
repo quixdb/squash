@@ -2,11 +2,29 @@ version: "{build}"
 
 environment:
   matrix:
+  # MSVC
   - GENERATOR: Visual Studio 14 2015
   - GENERATOR: Visual Studio 14 2015 Win64
   - GENERATOR: Visual Studio 12 2013
   - GENERATOR: Visual Studio 12 2013 Win64
+
+  # Mingw-w64
   - GENERATOR: MinGW Makefiles
+
+  # Clang/C2
+  # Has issues: https://github.com/quixdb/squash/issues/185
+  # Also, waiting on CMake 3.6.0 for toolset support
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  #   TOOLSET: v140_clang_3_7
+
+  # Clang targeting MSVC
+  - GENERATOR: Visual Studio 14 2015 Win64
+    TOOLSET: LLVM-vs2014
+
+  # Clang targeting mingw-w64
+  - GENERATOR: MinGW Makefiles
+    CC: clang --target=x86_64-w64-mingw32
+    CXX: clang++ --target=x86_64-w64-mingw32
 
 branches:
   except:
@@ -17,22 +35,52 @@ configuration: Debug
 
 install:
   - git submodule -q update --init --recursive
-  - ps: If ($env:GENERATOR -eq "MinGW Makefiles") { cinst mingw | Out-Null }
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        cinst mingw | Out-Null
+
+        # Chocolatey sometimes fails to download
+        if (!$?) {
+          throw 'cinst mingw failed'
+        }
+
+        $env:Path = 'C:\Tools\mingw64\bin;' + $env:Path
+        gcc --version
+
+        # Workaround for CMake not wanting sh.exe on PATH for MinGW Makefiles
+        $env:Path = $env:Path -replace 'C:\\Program Files\\Git\\usr\\bin;',$null
+
+        if ($env:CC -like 'clang*') {
+          # Workaround for http://llvm.org/bugs/show_bug.cgi?id=28089
+          Copy-Item 'C:\Program Files\LLVM' -destination C:\LLVM -recurse
+
+          $env:Path = 'C:\LLVM\bin;' + $env:Path
+          clang --version
+        }
+      }
+  - cmake --version
 
 before_build:
-  - cmd: |
-      set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      set PATH=C:\tools\mingw64\bin;%PATH%
+  - ps: |
       mkdir build
       cd build
-  - ps: |
-      If ($env:GENERATOR -like "Visual Studio*") {
-        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_GIPFELI=no -DENABLE_LZFSE=no ..
-      } Else {
-        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+
+      if ($env:GENERATOR -like 'Visual Studio*') {
+        if ($env:TOOLSET -like 'LLVM*') {
+          cmake -T "$env:TOOLSET" -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LIBDEFLATE=no -DENABLE_LZMA=no -DENABLE_ZLIB_NG=no -DENABLE_ZSTD=no -DENABLE_LZFSE=no ..
+        } else {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DENABLE_LZFSE=no ..
+        }
+      } else {
+        if ($env:CC -like 'clang*') {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LZHAM=no -DENABLE_LZO=no ..
+        } else {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+        }
       }
 
 build_script:
-  - cmake --build . --config %CONFIGURATION%
+  # Workaround for https://github.com/appveyor/ci/issues/868
+  - if "%GENERATOR%" == "MinGW Makefiles" ( mingw32-make VERBOSE=1 ) else ( cmake --build . --config %CONFIGURATION% )
 
 test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION%
