@@ -2,11 +2,16 @@ version: "{build}"
 
 environment:
   matrix:
-  - GENERATOR: Visual Studio 14 2015
-  - GENERATOR: Visual Studio 14 2015 Win64
-  - GENERATOR: Visual Studio 12 2013
-  - GENERATOR: Visual Studio 12 2013 Win64
+  # - GENERATOR: Visual Studio 14 2015
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  #   TOOLSET: LLVM-vs2014
+  # - GENERATOR: Visual Studio 12 2013
+  # - GENERATOR: Visual Studio 12 2013 Win64
+  # - GENERATOR: MinGW Makefiles
   - GENERATOR: MinGW Makefiles
+    CC: clang --target=x86_64-w64-mingw32
+    CXX: clang++ --target=x86_64-w64-mingw32
 
 branches:
   except:
@@ -17,22 +22,39 @@ configuration: Debug
 
 install:
   - git submodule -q update --init --recursive
-  - ps: If ($env:GENERATOR -eq "MinGW Makefiles") { cinst mingw | Out-Null }
+  - ps: |
+      If ($env:GENERATOR -eq "MinGW Makefiles") {
+        cinst mingw | Out-Null
+        # Workaround for http://llvm.org/bugs/show_bug.cgi?id=28089
+        Copy-Item 'C:\Program Files\LLVM' -destination C:\LLVM -recurse
+      }
 
 before_build:
-  - cmd: |
-      set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      set PATH=C:\tools\mingw64\bin;%PATH%
+  - ps: |
       mkdir build
       cd build
-  - ps: |
-      If ($env:GENERATOR -like "Visual Studio*") {
-        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_GIPFELI=no -DENABLE_LZFSE=no ..
+      If ($env:GENERATOR -like 'Visual Studio*') {
+        If ($env:TOOLSET -like 'LLVM*') {
+          cmake -T "$env:TOOLSET" -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LIBDEFLATE=no -DENABLE_LZMA=no -DENABLE_ZLIB_NG=no -DENABLE_ZSTD=no ..
+        } Else {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
+        }
       } Else {
-        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+        $env:Path = $env:Path -replace 'C:\\Program Files\\Git\\usr\\bin;',$null
+        $env:Path = 'C:\LLVM\bin;C:\tools\mingw64\bin;' + $env:Path
+        If ($env:CC -like 'clang*') {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LZHAM=no -DENABLE_LZO=no ..
+        } Else {
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+        }
       }
 
 build_script:
-  - cmake --build . --config %CONFIGURATION%
+  - ps: |
+      If ($env:GENERATOR -eq "MinGW Makefiles") {
+        mingw32-make VERBOSE=1
+      } Else {
+        cmake --build . --config %CONFIGURATION%
+      }
 
 test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION%
