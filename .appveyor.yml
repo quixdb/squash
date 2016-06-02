@@ -6,7 +6,7 @@ environment:
   - GENERATOR: Visual Studio 14 2015 Win64
   - GENERATOR: Visual Studio 12 2013
   - GENERATOR: Visual Studio 12 2013 Win64
-  # - GENERATOR: MinGW Makefiles
+  - GENERATOR: MinGW Makefiles
 
 branches:
   except:
@@ -16,22 +16,23 @@ branches:
 configuration: Debug
 
 install:
-  - git submodule update --init --recursive
+  - git submodule -q update --init --recursive
+  - ps: If ($env:GENERATOR -eq "MinGW Makefiles") { cinst mingw | Out-Null }
 
 before_build:
   - cmd: |
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      set PATH=C:\MinGW\bin;%PATH%
+      set PATH=C:\tools\mingw64\bin;%PATH%
       mkdir build
       cd build
   - ps: |
-      If ($env:GENERATOR -eq "MinGW Makefiles") {
-        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
+      If ($env:GENERATOR -like "Visual Studio*") {
+        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_GIPFELI=no -DENABLE_LZFSE=no ..
       } Else {
-        cmake -DCMAKE_INSTALL_PREFIX=./out -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DENABLE_LZFSE=no -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -G "$env:GENERATOR" ..
+        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" ..
       }
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
 
-test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION% .
+test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION%
