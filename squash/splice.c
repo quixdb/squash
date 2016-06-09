@@ -48,6 +48,8 @@
 #include "internal.h"
 #include "squash/tinycthread/source/tinycthread.h"
 
+#define SQUASH_MMAP_FAILED ((SquashStatus)(-127))
+
 /**
  * @defgroup Splicing
  * @brief Splicing functions
@@ -95,7 +97,7 @@ squash_splice (SquashCodec* codec, SquashStreamType stream_type, FILE* fp_out, F
 #if !defined(_WIN32)
 static SquashStatus
 squash_splice_map (FILE* fp_in, FILE* fp_out, size_t size, SquashStreamType stream_type, SquashCodec* codec, SquashOptions* options) {
-  SquashStatus res = SQUASH_FAILED;
+  SquashStatus res = SQUASH_MMAP_FAILED;
   SquashMappedFile mapped_in = squash_mapped_file_empty;
   SquashMappedFile mapped_out = squash_mapped_file_empty;
 
@@ -125,8 +127,10 @@ squash_splice_map (FILE* fp_in, FILE* fp_out, size_t size, SquashStreamType stre
       squash_npot (mapped_in.size) << 3;
 
     do {
-      if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_size, true))
+      if (!squash_mapped_file_init (&mapped_out, fp_out, max_output_size, true)) {
+        res = SQUASH_MMAP_FAILED;
         goto cleanup;
+      }
 
       res = squash_codec_decompress_with_options (codec, &mapped_out.size, mapped_out.data, mapped_in.size, mapped_in.data, options);
       if (res == SQUASH_OK) {
@@ -406,7 +410,7 @@ squash_splice_with_options (SquashCodec* codec,
                             FILE* fp_in,
                             size_t size,
                             SquashOptions* options) {
-  SquashStatus res = SQUASH_FAILED;
+  SquashStatus res = SQUASH_MMAP_FAILED;
 
   assert (fp_in != NULL);
   assert (fp_out != NULL);
@@ -429,7 +433,7 @@ squash_splice_with_options (SquashCodec* codec,
     }
 #endif
 
-    if (res != SQUASH_OK)
+    if (res == SQUASH_MMAP_FAILED)
       res = squash_splice_stream (fp_in, fp_out, size, stream_type, codec, options);
   }
 
