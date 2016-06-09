@@ -12,36 +12,14 @@ case "${COMPILER}" in
         export CC=clang
         export CXX=clang++
         ;;
-    "clang-3.4")
-        export CC=clang
-        export CXX=clang++
+    "clang-"*)
+        export CC=clang-${COMPILER#*-}
+        export CXX=clang++-${COMPILER#*-}
         ;;
-    "clang-3.5")
-        export CC=clang-3.5
-        export CXX=clang++-3.5
-        ;;
-    "clang-3.6")
-        export CC=clang-3.6
-        export CXX=clang++-3.6
-        ;;
-    "clang-3.7")
-        export CC=clang-3.7
-        export CXX=clang++-3.7
-        ;;
-    "gcc-4.6")
-        export CC=gcc-4.6
-        export CXX=g++-4.6
-        export GCOV=gcov-4.6
-        ;;
-    "gcc-4.8")
-        export CC=gcc-4.8
-        export CXX=g++-4.8
-        export GCOV=gcov-4.8
-        ;;
-    "gcc-5")
-        export CC=gcc-5
-        export CXX=g++-5
-        export GCOV=gcov-5
+    "gcc-"*)
+        export CC=gcc-${COMPILER#*-}
+        export CXX=g++-${COMPILER#*-}
+        export GCOV=gcov-${COMPILER#*-}
         ;;
     "x86_64-w64-mingw32-gcc")
         export CC=x86_64-w64-mingw32-gcc
@@ -69,10 +47,10 @@ case "${COMPILER}" in
         fi
         ;;
     *)
-        COMPILER="gcc-5"
-        export CC=gcc-5
-        export CXX=g++-5
-        export GCOV=gcov-5
+        COMPILER="gcc"
+        export CC=gcc
+        export CXX=g++
+        export GCOV=gcov
         ;;
 esac
 
@@ -92,12 +70,6 @@ case "${1}" in
                 sudo apt-get install -qq python-software-properties
                 sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
 
-                sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AF4F7421
-                for CLANG_VERSION in 3.4 3.5 3.6 3.7; do
-                    sudo apt-add-repository -y \
-                         "deb http://llvm.org/apt/${DISTRIB_CODENAME}/ llvm-toolchain-${DISTRIB_CODENAME}-${CLANG_VERSION} main"
-                done
-
                 sudo apt-get update -qq
                 sudo apt-get install -qq \
                      cmake \
@@ -107,23 +79,14 @@ case "${1}" in
                      ragel
 
                 case "${COMPILER}" in
-                    "gcc-5")
-                        sudo apt-get install -qq gcc-5 g++-5
+                    "gcc-"*)
+                        sudo apt-get install -qq gcc-${COMPILER#*-} g++-${COMPILER#*-}
                         ;;
-                    "gcc-4.8")
-                        sudo apt-get install -qq gcc-4.8 g++-4.8
-                        ;;
-                    "clang-3.4")
-                        sudo apt-get install -qq clang-3.4
-                        ;;
-                    "clang-3.5")
-                        sudo apt-get install -qq clang-3.5
-                        ;;
-                    "clang-3.6")
-                        sudo apt-get install -qq clang-3.6
-                        ;;
-                    "clang-3.7")
-                        sudo apt-get install -qq clang-3.7
+                    "clang-"*)
+                        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AF4F7421
+                        sudo apt-add-repository -y \
+                             "deb http://llvm.org/apt/${DISTRIB_CODENAME}/ llvm-toolchain-${DISTRIB_CODENAME}-${COMPILER#*-} main"
+                        sudo apt-get install -qq "${COMPILER}"
                         ;;
                     "x86_64-w64-mingw32-gcc")
                         sudo apt-get install -qq mingw-w64
@@ -194,32 +157,8 @@ case "${1}" in
                      glib
 
                 case "${COMPILER}" in
-                    "gcc-4.3")
-                        which gcc-4.3 || brew install homebrew/versions/gcc43
-                        ;;
-                    "gcc-4.4")
-                        which gcc-4.4 || brew install homebrew/versions/gcc44
-                        ;;
-                    "gcc-4.5")
-                        which gcc-4.5 || brew install homebrew/versions/gcc45
-                        ;;
-                    "gcc-4.6")
-                        which gcc-4.6 || brew install homebrew/versions/gcc46
-                        ;;
-                    "gcc-4.7")
-                        which gcc-4.6 || brew install homebrew/versions/gcc47
-                        ;;
-                    "gcc-4.8")
-                        which gcc-4.8 || brew install homebrew/versions/gcc48
-                        ;;
-                    "gcc-4.9")
-                        which gcc-4.7 || brew install homebrew/versions/gcc49
-                        ;;
-                    "gcc-5")
-                        which gcc-5 || brew install homebrew/versions/gcc5
-                        ;;
-                    "gcc-6")
-                        which gcc-6 || brew install homebrew/versions/gcc6
+                    "gcc-"*)
+                        which ${COMPILER} || brew install homebrew/versions/gcc$(echo "${COMPILER#*-}" | sed 's/\.//')
                         ;;
                 esac
                 ;;
