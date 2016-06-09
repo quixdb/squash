@@ -117,11 +117,6 @@ endif ()
 set (SQUASH_PLUGIN_DIRECTORY "${PLUGIN_DIRECTORY}")
 set (SQUASH_SEARCH_PATH "${SEARCH_PATH}")
 
-configure_file (
-  "${CMAKE_CURRENT_SOURCE_DIR}/squash.pc.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"
-  @ONLY)
-
 set (squash_enabled_plugins "" CACHE INTERNAL "enabled plugins" FORCE)
 
 # This only works with gcc/clang at the moment.
@@ -186,7 +181,15 @@ add_subdirectory (examples)
 add_subdirectory (bindings)
 add_subdirectory (tests)
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"
+include (GenPkgConfig)
+generate_pkg_config ("${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"
+  NAME Squash
+  DESCRIPTION "Compression abstraction library"
+  VERSION "${SQUASH_VERSION_MAJOR}.${SQUASH_VERSION_MINOR}.${SQUASH_VERSION_REVISION}"
+  LIBRARIES "squash-${SQUASH_VERSION_API}"
+  CFLAGS "-I\${includedir}/squash-${SQUASH_VERSION_API}")
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/squash${SQUASH_VERSION_API}.pc"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 if (ENABLE_COVERAGE STREQUAL "yes")
