@@ -11,17 +11,17 @@ branches:
 env:
   matrix:
     - COMPILER=gcc-5 BUILD_TYPE=debug
-#   - COMPILER=gcc-5 BUILD_TYPE=asan
-#   - COMPILER=gcc-5 BUILD_TYPE=ubsan
-#   - COMPILER=gcc-5 BUILD_TYPE=tsan
+    # - COMPILER=gcc-5 BUILD_TYPE=asan
+    # - COMPILER=gcc-5 BUILD_TYPE=ubsan
+    # - COMPILER=gcc-5 BUILD_TYPE=tsan
     - COMPILER=gcc-5 BUILD_TYPE=release
     - COMPILER=gcc-5 BUILD_TYPE=coverage
     - COMPILER=clang BUILD_TYPE=debug
-    - COMPILER=clang-3.4 BUILD_TYPE=debug
-    - COMPILER=clang-3.5 BUILD_TYPE=debug
-    - COMPILER=clang-3.6 BUILD_TYPE=debug
-    - COMPILER=clang-3.7 BUILD_TYPE=debug
-    - COMPILER=clang-3.7 BUILD_TYPE=release
+    # - COMPILER=clang-3.4 BUILD_TYPE=debug
+    # - COMPILER=clang-3.5 BUILD_TYPE=debug
+    # - COMPILER=clang-3.6 BUILD_TYPE=debug
+    # - COMPILER=clang-3.7 BUILD_TYPE=debug
+    # - COMPILER=clang-3.7 BUILD_TYPE=release
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
     - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
