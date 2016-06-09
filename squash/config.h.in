@@ -49,6 +49,7 @@
 #cmakedefine HAVE__VSCWPRINTF
 
 #cmakedefine CFLAG_Wsuggest_attribute_format
+#cmakedefine CFLAG_Wmissing_format_attribute
 #cmakedefine CFLAG_Wformat_nonliteral
 
 #endif /* SQUASH_CONFIG_H */

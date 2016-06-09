@@ -277,11 +277,11 @@ squash_options_get_size (SquashOptions* options, SquashCodec* codec, const char*
 }
 
 static const SquashOptionValue*
-squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const SquashOptionInfo** info, SquashOptionType* type, size_t index) {
+squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const SquashOptionInfo** info, SquashOptionType* type, size_t idx) {
   const SquashOptionInfo* ci = squash_codec_get_option_info (codec);
   if (SQUASH_UNLIKELY(ci == NULL))
     return NULL;
-  ci = &(ci[index]);
+  ci = &(ci[idx]);
 
   if (info != NULL)
     *info = ci;
@@ -290,7 +290,7 @@ squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const S
 
   return (options == NULL) ?
     &(ci->default_value) :
-    &(options->values[index]);
+    &(options->values[idx]);
 }
 
 /**
@@ -303,11 +303,11 @@ squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const S
  * the number of options.
  *
  * @param options the options to retrieve the value from
- * @param index the index of the desired option
+ * @param idx the index of the desired option
  * @returns the value, or *NULL* on failure
  */
 const char*
-squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
     if (SQUASH_UNLIKELY(options == NULL))
       return NULL;
@@ -316,7 +316,7 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
 
   const SquashOptionInfo* info;
   SquashOptionType type;
-  const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, index);
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, idx);
   if (SQUASH_UNLIKELY(val == NULL))
     return NULL;
 
@@ -340,11 +340,11 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
  * the number of options.
  *
  * @param options the options to retrieve the value from
- * @param index the index of the desired option
+ * @param idx the index of the desired option
  * @returns the value
  */
 bool
-squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
     if (SQUASH_UNLIKELY(options == NULL))
       return false;
@@ -352,7 +352,7 @@ squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t i
   }
 
   SquashOptionType type;
-  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
   if (SQUASH_UNLIKELY(val == NULL))
     return false;
 
@@ -373,11 +373,11 @@ squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t i
  * the number of options.
  *
  * @param options the options to retrieve the value from
- * @param index the index of the desired option
+ * @param idx the index of the desired option
  * @returns the value
  */
 int
-squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
     if (SQUASH_UNLIKELY(options == NULL))
       return -1;
@@ -385,7 +385,7 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t in
   }
 
   SquashOptionType type;
-  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
   if (SQUASH_UNLIKELY(val == NULL))
     return -1;
 
@@ -411,11 +411,11 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t in
  * the number of options.
  *
  * @param options the options to retrieve the value from
- * @param index the index of the desired option
+ * @param idx the index of the desired option
  * @returns the value
  */
 size_t
-squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t index) {
+squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
     if (SQUASH_UNLIKELY(options == NULL))
       return 0;
@@ -423,7 +423,7 @@ squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t i
   }
 
   SquashOptionType type;
-  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, index);
+  const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
   if (SQUASH_UNLIKELY(val == NULL))
     return 0;
 
@@ -534,7 +534,7 @@ squash_options_set_size (SquashOptions* options, const char* key, size_t value) 
  * @brief Set the value of a string option at the given index
  *
  * @param options the options on which to set the value
- * @param index the index of the option to change
+ * @param idx the index of the option to change
  * @param value new value to be set
  * @return A status code.
  * @retval SQUASH_OK Option set successfully.
@@ -542,7 +542,7 @@ squash_options_set_size (SquashOptions* options, const char* key, size_t value) 
  * @retval SQUASH_BAD_VALUE Invalid @a value
  */
 SquashStatus
-squash_options_set_string_at (SquashOptions* options, size_t index, const char* value) {
+squash_options_set_string_at (SquashOptions* options, size_t idx, const char* value) {
   assert (options != NULL);
   assert (value != NULL);
 
@@ -550,9 +550,9 @@ squash_options_set_string_at (SquashOptions* options, size_t index, const char* 
   if (info == NULL)
     return squash_error (SQUASH_BAD_PARAM);
 
-  info += index;
+  info += idx;
   assert (options->values != NULL);
-  SquashOptionValue* val = options->values + index;
+  SquashOptionValue* val = options->values + idx;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_STRING:
@@ -577,7 +577,7 @@ squash_options_set_string_at (SquashOptions* options, size_t index, const char* 
  * @brief Set the value of a bool option at the given index
  *
  * @param options the options on which to set the value
- * @param index the index of the option to change
+ * @param idx the index of the option to change
  * @param value new value to be set
  * @return A status code.
  * @retval SQUASH_OK Option set successfully.
@@ -585,16 +585,16 @@ squash_options_set_string_at (SquashOptions* options, size_t index, const char* 
  * @retval SQUASH_BAD_VALUE Invalid @a value
  */
 SquashStatus
-squash_options_set_bool_at (SquashOptions* options, size_t index, bool value) {
+squash_options_set_bool_at (SquashOptions* options, size_t idx, bool value) {
   assert (options != NULL);
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
   if (info == NULL)
     return squash_error (SQUASH_BAD_PARAM);
 
-  info += index;
+  info += idx;
   assert (options->values != NULL);
-  SquashOptionValue* val = options->values + index;
+  SquashOptionValue* val = options->values + idx;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_BOOL:
@@ -611,7 +611,7 @@ squash_options_set_bool_at (SquashOptions* options, size_t index, bool value) {
  * @brief Set the value of a int option at the given index
  *
  * @param options the options on which to set the value
- * @param index the index of the option to change
+ * @param idx the index of the option to change
  * @param value new value to be set
  * @return A status code.
  * @retval SQUASH_OK Option set successfully.
@@ -619,16 +619,16 @@ squash_options_set_bool_at (SquashOptions* options, size_t index, bool value) {
  * @retval SQUASH_BAD_VALUE Invalid @a value
  */
 SquashStatus
-squash_options_set_int_at (SquashOptions* options, size_t index, int value) {
+squash_options_set_int_at (SquashOptions* options, size_t idx, int value) {
   assert (options != NULL);
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
   if (info == NULL)
     return squash_error (SQUASH_BAD_PARAM);
 
-  info += index;
+  info += idx;
   assert (options->values != NULL);
-  SquashOptionValue* val = options->values + index;
+  SquashOptionValue* val = options->values + idx;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_RANGE_INT:
@@ -651,7 +651,7 @@ squash_options_set_int_at (SquashOptions* options, size_t index, int value) {
  * @brief Set the value of a size option at the given index
  *
  * @param options the options on which to set the value
- * @param index the index of the option to change
+ * @param idx the index of the option to change
  * @param value new value to be set
  * @return A status code.
  * @retval SQUASH_OK Option set successfully.
@@ -659,16 +659,16 @@ squash_options_set_int_at (SquashOptions* options, size_t index, int value) {
  * @retval SQUASH_BAD_VALUE Invalid @a value
  */
 SquashStatus
-squash_options_set_size_at (SquashOptions* options, size_t index, size_t value) {
+squash_options_set_size_at (SquashOptions* options, size_t idx, size_t value) {
   assert (options != NULL);
 
   const SquashOptionInfo* info = squash_codec_get_option_info (options->codec);
   if (info == NULL)
     return squash_error (SQUASH_BAD_PARAM);
 
-  info += index;
+  info += idx;
   assert (options->values != NULL);
-  SquashOptionValue* val = options->values + index;
+  SquashOptionValue* val = options->values + idx;
 
   switch ((int) info->type) {
     case SQUASH_OPTION_TYPE_RANGE_SIZE:

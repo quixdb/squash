@@ -643,6 +643,9 @@ squash_file_vwprintf (SquashFile* file,
 #  if defined(CFLAG_Wsuggest_attribute_format)
 #    pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
 #  endif
+#  if defined(CFLAG_Wmissing_format_attribute)
+#    pragma GCC diagnostic ignored "-Wmissing-format-attribute"
+#  endif
 #  if defined(CFLAG_Wformat_nonliteral)
 #    pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #  endif

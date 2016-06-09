@@ -37,6 +37,9 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#if __GNUC__ >= 6
+#pragma GCC diagnostic ignored "-Wunused-const-variable"
+#endif
 #endif /* defined(__GNUC__) */
 
 %%{

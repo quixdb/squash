@@ -9,4 +9,5 @@ squash_plugin (
   COMPILER_FLAGS
     -Wno-unused-function
     -Wno-cast-align
-    -Wno-undef)
+    -Wno-undef
+    -Wno-misleading-indentation)

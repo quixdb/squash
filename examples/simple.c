@@ -61,7 +61,7 @@ int main (int argc, char** argv) {
 
   if (strcmp (decompressed, uncompressed) != 0) {
     fprintf (stderr, "Bad decompressed data.\n");
-    EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
 
   fprintf (stdout, "Successfully decompressed.\n");

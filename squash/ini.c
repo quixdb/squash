@@ -39,10 +39,13 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#if __GNUC__ >= 6
+#pragma GCC diagnostic ignored "-Wunused-const-variable"
+#endif
 #endif /* defined(__GNUC__) */
 
 
-/* #line 166 "ini.rl" */
+/* #line 169 "ini.rl" */
 
 
 bool
@@ -72,7 +75,7 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   }
 
 
-/* #line 76 "ini.c" */
+/* #line 79 "ini.c" */
 static const char _SquashIniParser_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1,
 	3, 1, 4, 1, 5, 1, 7, 1,
@@ -147,14 +150,14 @@ static const int SquashIniParser_error = 0;
 static const int SquashIniParser_en_main = 11;
 
 
-/* #line 195 "ini.rl" */
+/* #line 198 "ini.rl" */
 
-/* #line 153 "ini.c" */
+/* #line 156 "ini.c" */
 	{
 	cs = SquashIniParser_start;
 	}
 
-/* #line 196 "ini.rl" */
+/* #line 199 "ini.rl" */
 
   do {
     size_t bytes_read = fread (cur_block, 1, sizeof (cur_block), input);
@@ -171,7 +174,7 @@ static const int SquashIniParser_en_main = 11;
     pe = cur_block + bytes_read;
 
 
-/* #line 175 "ini.c" */
+/* #line 178 "ini.c" */
 	{
 	int _klen;
 	unsigned int _trans;
@@ -246,14 +249,14 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-/* #line 46 "ini.rl" */
+/* #line 49 "ini.rl" */
 	{
     result = false;
     goto cleanup;
   }
 	break;
 	case 1:
-/* #line 51 "ini.rl" */
+/* #line 54 "ini.rl" */
 	{
     if (section_length < (SQUASH_INI_PARSER_MAX_SECTION_LENGTH) - 1) {
       section[section_length++] = (*p);
@@ -265,7 +268,7 @@ _match:
   }
 	break;
 	case 2:
-/* #line 61 "ini.rl" */
+/* #line 64 "ini.rl" */
 	{
     if (key_length < (SQUASH_INI_PARSER_MAX_KEY_LENGTH) - 1) {
       key[key_length++] = (*p);
@@ -277,7 +280,7 @@ _match:
   }
 	break;
 	case 3:
-/* #line 71 "ini.rl" */
+/* #line 74 "ini.rl" */
 	{
     if (value_length != 0 || isgraph((*p))) {
       if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
@@ -291,7 +294,7 @@ _match:
   }
 	break;
 	case 4:
-/* #line 83 "ini.rl" */
+/* #line 86 "ini.rl" */
 	{
     if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
       value[value_length++] = (*p);
@@ -303,7 +306,7 @@ _match:
   }
 	break;
 	case 5:
-/* #line 93 "ini.rl" */
+/* #line 96 "ini.rl" */
 	{
     if (value_length < (SQUASH_INI_PARSER_MAX_VALUE_LENGTH) - 1) {
       char c = (*p);
@@ -329,13 +332,13 @@ _match:
   }
 	break;
 	case 6:
-/* #line 117 "ini.rl" */
+/* #line 120 "ini.rl" */
 	{
     section_length = 0;
   }
 	break;
 	case 7:
-/* #line 121 "ini.rl" */
+/* #line 124 "ini.rl" */
 	{
     if (!callback (section, NULL, NULL, 0, user_data)) {
       result = false;
@@ -344,7 +347,7 @@ _match:
   }
 	break;
 	case 8:
-/* #line 128 "ini.rl" */
+/* #line 131 "ini.rl" */
 	{
     key[key_length] = '\0';
     value[value_length] = '\0';
@@ -364,10 +367,10 @@ _match:
   }
 	break;
 	case 9:
-/* #line 156 "ini.rl" */
+/* #line 159 "ini.rl" */
 	{value_escaped = true;}
 	break;
-/* #line 371 "ini.c" */
+/* #line 374 "ini.c" */
 		}
 	}
 
@@ -384,13 +387,13 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 0:
-/* #line 46 "ini.rl" */
+/* #line 49 "ini.rl" */
 	{
     result = false;
     goto cleanup;
   }
 	break;
-/* #line 394 "ini.c" */
+/* #line 397 "ini.c" */
 		}
 	}
 	}
@@ -398,7 +401,7 @@ _again:
 	_out: {}
 	}
 
-/* #line 212 "ini.rl" */
+/* #line 215 "ini.rl" */
   } while (eof == NULL);
 
   cleanup:
