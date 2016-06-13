@@ -7,6 +7,7 @@ set_compiler_specific_flags(
 squash_plugin (
   NAME density
   SOURCES squash-density
+  DEFAULT_DISABLED
   C_STANDARD c99
   EMBED_SOURCES
     density/src/block_decode.c
