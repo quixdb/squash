@@ -86,7 +86,7 @@ function (SQUASH_PLUGIN)
         set_property (TARGET ${PLUGIN_TARGET} APPEND_STRING PROPERTY LINK_FLAGS " ${ldflag}")
       endforeach ()
     else ()
-      set_property (TARGET ${PLUGIN_TARGET} APPEND PROPERTY LINK_LIBRARIES ${${SQUASH_PLUGIN_EXTERNAL_PKG_PREFIX}_LIBRARIES})
+      target_link_libraries (${PLUGIN_TARGET} ${${SQUASH_PLUGIN_EXTERNAL_PKG_PREFIX}_LIBRARIES})
     endif ()
 
     if (NOT "${${SQUASH_PLUGIN_EXTERNAL_PKG_PREFIX}_CFLAGS}" STREQUAL "")
