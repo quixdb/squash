@@ -63,6 +63,9 @@ include (CheckFunctionExists)
 include (CheckIncludeFile)
 include (AddCompilerFlags)
 
+set(THREADS_PREFER_PTHREAD_FLAG)
+find_package (Threads REQUIRED)
+
 enable_testing ()
 
 if (ENABLE_COVERAGE STREQUAL "yes")
@@ -169,6 +172,11 @@ if (ENABLE_COVERAGE STREQUAL "yes")
   if (CMAKE_BUILD_TYPE MATCHES "Release")
     message (WARNING "Coverage anaysis requires a debugging build")
   endif ()
+endif ()
+
+if (ENABLE_SANITIZER)
+  set(CMAKE_C_FLAGS " ${CMAKE_C_FLAGS} -fsanitize=${ENABLE_SANITIZER}")
+  set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fsanitize=${ENABLE_SANITIZER}")
 endif ()
 
 function (squash_target_add_coverage target)

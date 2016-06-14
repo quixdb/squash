@@ -173,13 +173,13 @@ case "${1}" in
         COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
         case "${BUILD_TYPE}" in
             "asan")
-                COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -fsanitize=address"
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=address"
                 ;;
             "tsan")
-                COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -fsanitize=thread"
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=thread"
                 ;;
             "ubsan")
-                COMMON_COMPILER_FLAGS="${COMMON_COMPILER_FLAGS} -fsanitize=undefined"
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=undefined"
                 ;;
         esac
 

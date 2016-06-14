@@ -84,8 +84,11 @@ if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   endif ()
 endif ()
 
-find_package (Threads)
-target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
+if ($CMAKE_VERSION VERSION_LESS 3.1)
+  target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
+else()
+  target_link_libraries (squash${SQUASH_VERSION_API} Threads::Threads)
+endif()
 
 squash_target_add_coverage (squash${SQUASH_VERSION_API})
 

@@ -1,7 +1,6 @@
 enable_testing()
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package (Threads REQUIRED)
 
 set(SQUASH_TEST_SOURCES
   munit/munit.c
@@ -46,9 +45,14 @@ add_executable (test-squash ${SQUASH_TEST_SOURCES})
 set_property(TARGET test-squash
   APPEND PROPERTY COMPILE_DEFINITIONS "SQUASH_TEST_PLUGIN_DIR=\"${CMAKE_BINARY_DIR}/plugins\"")
 target_add_extra_warning_flags (test-squash)
-target_link_libraries (test-squash squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
 target_require_c_standard (test-squash "c99")
 target_add_compiler_flags (test-squash ${extra_compiler_flags})
+
+if ($CMAKE_VERSION VERSION_LESS 3.1)
+  target_link_libraries (test-squash squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
+else()
+  target_link_libraries (test-squash squash${SQUASH_VERSION_API} Threads::Threads)
+endif()
 
 if (ENABLE_INSTALLED_TESTS)
   add_executable (squash-all ${SQUASH_TEST_SOURCES})
