@@ -136,11 +136,18 @@ function (squash_set_target_visibility target visibility)
   unset (abbrev_test_name)
 endfunction (squash_set_target_visibility)
 
-if (CMAKE_BUILD_TYPE MATCHES "Release")
-  global_add_compiler_flags (-O3 -flto -DNDEBUG)
-elseif (NOT ENABLE_COVERAGE STREQUAL "yes")
-  global_add_compiler_flags (-g -O2)
-endif ()
+if (ENABLE_COVERAGE)
+  if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(FATAL_ERROR "Coverage analysis requires a debug build.")
+  endif()
+else()
+  if (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2")
+  endif()
+endif()
+
+set_directory_properties(PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 ####
 ## Compatibility with older CMake
@@ -165,7 +172,7 @@ if (ENABLE_COVERAGE STREQUAL "yes")
 endif ()
 
 function (squash_target_add_coverage target)
-  if (ENABLE_COVERAGE STREQUAL "yes")
+  if (ENABLE_COVERAGE)
     set_property (TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " -fprofile-arcs")
     set_property (TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " -ftest-coverage")
     set_property (TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " -fprofile-arcs")
