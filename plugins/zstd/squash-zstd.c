@@ -47,7 +47,7 @@ static SquashOptionInfo squash_zstd_options[] = {
     SQUASH_OPTION_TYPE_RANGE_INT,
     .info.range_int = {
       .min = 1,
-      .max = 21 },
+      .max = 22 },
     .default_value.int_value = 9 },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
