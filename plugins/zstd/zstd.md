@@ -13,7 +13,7 @@ https://github.com/Cyan4973/zstd
 
 ### Compression-only ###
 
-- **level** — (integer, 1-20, default 9): compression level.  Higher
+- **level** — (integer, 1-22, default 9): compression level.  Higher
   levels compress slower, but yield a better compression ratio.
 
 ## License ##
