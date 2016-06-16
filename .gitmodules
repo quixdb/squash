@@ -98,3 +98,6 @@
 [submodule "tests/munit"]
 	path = tests/munit
 	url = https://github.com/nemequ/munit.git
+[submodule "plugins/lzfse/lzfse"]
+	path = plugins/lzfse/lzfse
+	url = https://github.com/lzfse/lzfse.git
