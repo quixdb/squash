@@ -15,6 +15,7 @@ set (plugins_available
   libdeflate
   lz4
   lzf
+  lzfse
   lzg
   lzham
   lzjb

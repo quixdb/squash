@@ -18,6 +18,7 @@ for plugin in \
     libdeflate \
     lz4 \
     lzf \
+    lzfse \
     lzg \
     lzham \
     lzjb \

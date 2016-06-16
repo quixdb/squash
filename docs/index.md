@@ -47,6 +47,7 @@ Squash currently contains plugins for the following libraries:
 - [heatshrink](@ref md_plugins_heatshrink_heatshrink)
 - [LZ4](@ref md_plugins_lz4_lz4)
 - [LZF](@ref md_plugins_lzf_lzf)
+- [LZFSE](@ref md_plugins_lzf_lzfse)
 - [libdeflate](@ref md_plugins_libdeflate_libdeflate)
 - [liblzg](@ref md_plugins_lzg_lzg)
 - [LZHAM](@ref md_plugins_lzham_lzham)
