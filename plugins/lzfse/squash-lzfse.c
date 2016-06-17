@@ -34,6 +34,8 @@
 
 #include "lzfse/src/lzfse.h"
 #include "lzfse/src/lzfse_internal.h"
+#include "lzfse/src/lzvn_encode_base.h"
+#include "lzfse/src/lzvn_decode_base.h"
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -101,14 +103,101 @@ squash_lzfse_compress_buffer (SquashCodec* codec,
   return SQUASH_OK;
 }
 
+static size_t
+squash_lzvn_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
+  return (uncompressed_size) + (uncompressed_size / 80) + 24;
+}
+
+static SquashStatus
+squash_lzvn_decompress_buffer (SquashCodec* codec,
+                               size_t* decompressed_size,
+                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               size_t compressed_size,
+                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               SquashOptions* options) {
+  lzvn_decoder_state decoder = { 0, };
+
+  decoder.src = compressed;
+  decoder.src_end = compressed + compressed_size;
+
+  decoder.dst = decompressed;
+  decoder.dst_begin = decompressed;
+  decoder.dst_end = decompressed + *decompressed_size;
+  decoder.dst_current = decompressed;
+
+  lzvn_decode (&decoder);
+
+  const size_t bytes_read = decoder.src - compressed;
+  const size_t bytes_written = decoder.dst - decoder.dst_begin;
+
+  if (SQUASH_UNLIKELY(bytes_read != compressed_size)) {
+    if (bytes_written == *decompressed_size)
+      return SQUASH_BUFFER_FULL;
+    else
+      return SQUASH_FAILED;
+  }
+
+  *decompressed_size = bytes_written;
+
+  return SQUASH_OK;
+}
+
+static SquashStatus
+squash_lzvn_compress_buffer (SquashCodec* codec,
+                             size_t* compressed_size,
+                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             size_t uncompressed_size,
+                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             SquashOptions* options) {
+  uint8_t outbuf[LZVN_ENCODE_MIN_DST_SIZE];
+  uint8_t* dest;
+  size_t dest_l;
+
+  if (SQUASH_UNLIKELY(*compressed_size < sizeof(outbuf))) {
+    dest = outbuf;
+    dest_l = sizeof(outbuf);
+  } else {
+    dest = compressed;
+    dest_l = *compressed_size;
+  }
+
+  void* workmem = squash_malloc (LZVN_ENCODE_WORK_SIZE);
+  if (SQUASH_UNLIKELY(workmem == NULL))
+    return squash_error (SQUASH_MEMORY);
+
+  dest_l =
+    lzvn_encode_buffer(dest, dest_l,
+                       uncompressed, uncompressed_size,
+                       workmem);
+
+  squash_free (workmem);
+
+  if (SQUASH_UNLIKELY(dest_l == 0))
+    return squash_error (SQUASH_BUFFER_FULL);
+
+  if (SQUASH_UNLIKELY(dest == outbuf)) {
+    if (*compressed_size < dest_l)
+      return squash_error (SQUASH_BUFFER_FULL);
+
+    memcpy (compressed, dest, dest_l);
+  }
+
+  *compressed_size = dest_l;
+  return SQUASH_OK;
+}
+
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("lzfse", name) == 0)) {
+  if (strcmp ("lzfse", name) == 0) {
     impl->get_max_compressed_size = squash_lzfse_get_max_compressed_size;
     impl->decompress_buffer = squash_lzfse_decompress_buffer;
     impl->compress_buffer = squash_lzfse_compress_buffer;
+  } else if (strcmp ("lzvn", name) == 0) {
+    impl->get_max_compressed_size = squash_lzvn_get_max_compressed_size;
+    impl->decompress_buffer = squash_lzvn_decompress_buffer;
+    impl->compress_buffer = squash_lzvn_compress_buffer;
   } else {
     return SQUASH_UNABLE_TO_LOAD;
   }
