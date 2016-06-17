@@ -10,7 +10,6 @@ for plugin in \
     bzip2 \
     copy \
     crush \
-    density \
     fari \
     fastlz \
     gipfeli \
@@ -48,8 +47,8 @@ ENABLE_ENABLE_INSTALLED_TESTS_DOC="install unit tests"
 
 for plugin in \
     csc \
-    doboz \
-    pithy; do
+    density \
+    doboz; do
   NAME_UC=$(echo $plugin | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]/_/g')
   ENABLE_VARS="${ENABLE_VARS} ${plugin}|yes|ENABLE_${NAME_UC}"
   eval "ENABLE_ENABLE_${NAME_UC}_DOC=\"enable the ${plugin} plugin (disabled due to bugs)\""
