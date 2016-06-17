@@ -32,7 +32,6 @@
 #include <squash/squash.h>
 
 #include "zstd.h"
-#include "zstd_static.h"
 #include "error_public.h"
 
 SQUASH_PLUGIN_EXPORT
@@ -83,6 +82,8 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_dictionary_corrupted:
     case ZSTD_error_maxCode:
     case ZSTD_error_compressionParameter_unsupported:
+    case ZSTD_error_checksum_wrong:
+    case ZSTD_error_dictionary_wrong:
     default:
       return squash_error (SQUASH_FAILED);
   }
