@@ -23,7 +23,6 @@
  * Authors:
  *   Evan Nemerson <evan@nemerson.com>
  */
-/* IWYU pragma: private, include <squash/squash.h> */
 
 #ifndef SQUASH_H
 #define SQUASH_H
@@ -133,20 +132,19 @@
 #  define SQUASH_API SQUASH_IMPORT
 #endif
 
-#include <squash/version.h>
-
-#include "status.h"
-#include "types.h"
-#include "object.h"
-#include "options.h"
-#include "stream.h"
-#include "file.h"
-#include "license.h"
-#include "codec.h"
-#include "splice.h"
-#include "plugin.h"
-#include "memory.h"
-#include "context.h"
+#include <squash/squash-version.h>
+#include <squash/squash-status.h>
+#include <squash/squash-types.h>
+#include <squash/squash-object.h>
+#include <squash/squash-options.h>
+#include <squash/squash-stream.h>
+#include <squash/squash-file.h>
+#include <squash/squash-license.h>
+#include <squash/squash-codec.h>
+#include <squash/squash-splice.h>
+#include <squash/squash-plugin.h>
+#include <squash/squash-memory.h>
+#include <squash/squash-context.h>
 
 #undef SQUASH_H_INSIDE
 

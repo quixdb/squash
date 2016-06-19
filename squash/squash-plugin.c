@@ -1,0 +1,358 @@
+/* Copyright (c) 2013-2016 The Squash Authors
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Authors:
+ *   Evan Nemerson <evan@nemerson.com>
+ */
+
+#include <assert.h>
+#include "squash-internal.h"
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#if !defined(_WIN32)
+#include <dlfcn.h>
+#else
+#include <windows.h>
+#endif
+
+/**
+ * @defgroup SquashPlugin SquashPlugin
+ * @brief A plugin.
+ *
+ * @{
+ */
+
+/**
+ * @struct SquashPlugin_
+ * @brief A plugin.
+ */
+
+/**
+ * @typedef SquashPluginForeachFunc
+ * @brief Callback to be invoked on each @ref SquashPlugin in a set.
+ *
+ * @param plugin A plugin
+ * @param data User-supplied data
+ */
+
+/**
+ * @brief Add a new %SquashCodec
+ * @private
+ *
+ * @param plugin The plugin to add the codec to.
+ * @param name The codec name (transfer full).
+ * @param priority The codec priority.
+ */
+void
+squash_plugin_add_codec (SquashPlugin* plugin, SquashCodec* codec) {
+  SquashContext* context;
+
+  assert (plugin != NULL);
+  assert (codec != NULL);
+
+  context = plugin->context;
+
+  /* Insert a new entry into plugin->codecs */
+  SQUASH_TREE_INSERT(&(plugin->codecs), SquashCodec_, tree, codec);
+
+  squash_context_add_codec (context, codec);
+}
+
+SQUASH_MTX_DEFINE(plugin_init)
+
+#if defined(__GNUC__)
+__attribute__((__format__ (__printf__, 1, 2)))
+#endif
+static char*
+squash_strdup_printf (const char* fmt, ...) {
+  va_list ap;
+  char* buf = NULL;
+  size_t l = 0;
+
+  va_start (ap, fmt);
+#if !defined(_WIN32)
+  l = vsnprintf (buf, l, fmt, ap);
+#else
+  l = _vscprintf (fmt, ap);
+#endif
+  va_end (ap);
+
+  l++;
+  buf = squash_malloc (l);
+  if (buf != NULL) {
+    va_start (ap, fmt);
+    vsnprintf(buf, l, fmt, ap);
+    va_end (ap);
+  }
+
+  return buf;
+}
+
+/**
+ * @brief load a %SquashPlugin
+ *
+ * @note This function is generally only useful inside of a callback
+ * passed to ::squash_foreach_plugin.  Every other way to get a plugin
+ * (such as ::squash_get_plugin) will initialize the plugin as well
+ * (and return *NULL* instead of the plugin if initialization fails).
+ * The foreach functions, however, do not initialize the plugin since
+ * doing so requires actually loading the plugin.
+ *
+ * @param plugin The plugin to load.
+ * @return A status code.
+ * @retval SQUASH_OK The plugin has been loaded.
+ * @retval SQUASH_UNABLE_TO_LOAD Unable to load plugin.
+ */
+SquashStatus
+squash_plugin_init (SquashPlugin* plugin) {
+  if (plugin->plugin == NULL) {
+#if !defined(_WIN32)
+    void* handle;
+#else
+    HMODULE handle;
+#endif
+    char* plugin_file_name;
+
+    plugin_file_name = squash_strdup_printf ("%s/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+    if (plugin_file_name == NULL)
+      return squash_error (SQUASH_MEMORY);
+
+#if !defined(_WIN32)
+    handle = dlopen (plugin_file_name, RTLD_LAZY);
+#else
+    handle = LoadLibrary (TEXT(plugin_file_name));
+    if (handle == NULL) {
+      squash_free (plugin_file_name);
+#if defined(_DEBUG)
+      plugin_file_name = squash_strdup_printf ("%s/Debug/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#else
+      plugin_file_name = squash_strdup_printf ("%s/Release/%ssquash%s-plugin-%s%s", plugin->directory, SQUASH_SHARED_LIBRARY_PREFIX, SQUASH_VERSION_API, plugin->name, SQUASH_SHARED_LIBRARY_SUFFIX);
+#endif
+      handle = LoadLibrary (TEXT(plugin_file_name));
+    }
+#endif
+
+    squash_free (plugin_file_name);
+
+    if (SQUASH_LIKELY(handle != NULL)) {
+      SQUASH_MTX_LOCK(plugin_init);
+      if (plugin->plugin == NULL) {
+        plugin->plugin = handle;
+        handle = NULL;
+      }
+      SQUASH_MTX_UNLOCK(plugin_init);
+    } else {
+      return squash_error (SQUASH_UNABLE_TO_LOAD);
+    }
+
+    if (handle != NULL) {
+#if !defined(_WIN32)
+      dlclose (handle);
+#else
+      FreeLibrary (handle);
+#endif
+    } else {
+      SquashStatus (*init_func) (SquashPlugin*);
+#if !defined(_WIN32)
+      *(void **) (&init_func) = dlsym (plugin->plugin, "squash_plugin_init_plugin");
+#else
+      *(void **) (&init_func) = GetProcAddress (plugin->plugin, "squash_plugin_init_plugin");
+#endif
+      if (init_func != NULL) {
+        init_func (plugin);
+      }
+    }
+  }
+
+  return SQUASH_LIKELY(plugin->plugin != NULL) ? SQUASH_OK : squash_error (SQUASH_UNABLE_TO_LOAD);
+}
+
+/**
+ * @brief Get the name of a plugin.
+ *
+ * @param plugin The plugin.
+ * @return The name.
+ */
+const char*
+squash_plugin_get_name (SquashPlugin* plugin) {
+  assert (plugin != NULL);
+
+  return plugin->name;
+}
+
+/**
+ * @brief Get the licenses of the plugin.
+ *
+ * @param plugin The plugin.
+ * @return An array of the plugin's licenses terminated with
+ *   SQUASH_LICENSE_UNKNOWN, or *NULL* if no licenses were specified.
+ */
+SquashLicense*
+squash_plugin_get_licenses (SquashPlugin* plugin) {
+  assert (plugin != NULL);
+
+  return plugin->license;
+}
+
+/**
+ * @brief Get a codec from a plugin by name.
+ *
+ * @param plugin The plugin.
+ * @param codec The codec name.
+ * @return The codec, or *NULL* if it could not be found.
+ */
+SquashCodec*
+squash_plugin_get_codec (SquashPlugin* plugin, const char* codec) {
+  SquashCodec key = { 0, };
+  SquashCodec* codec_real;
+
+  assert (plugin != NULL);
+  assert (codec != NULL);
+
+  key.name = (char*) codec;
+
+  codec_real = SQUASH_TREE_FIND (&(plugin->codecs), SquashCodec_, tree, &key);
+  return (squash_codec_init (codec_real) == SQUASH_OK) ? codec_real : NULL;
+}
+
+/**
+ * @brief Compare two plugins.
+ * @private
+ *
+ * This is used for sorting the plugin tree.
+ *
+ * @param a A plugin.
+ * @param b Another plugin.
+ * @returns The comparison result.
+ */
+int
+squash_plugin_compare (SquashPlugin* a, SquashPlugin* b) {
+  assert (a != NULL);
+  assert (b != NULL);
+
+  return strcmp (a->name, b->name);
+}
+
+SQUASH_MTX_DEFINE(codec_init)
+
+/**
+ * @brief Initialize a codec
+ * @private
+ *
+ * @param plugin The plugin.
+ * @param codec The codec to initialize.
+ * @param impl The function table to fill.
+ * @returns A status code.
+ */
+SquashStatus
+squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecImpl* impl) {
+  SquashStatus res = SQUASH_OK;
+
+  assert (plugin != NULL);
+
+  if (plugin->plugin == NULL) {
+    res = squash_plugin_init (plugin);
+    if (res != SQUASH_OK) {
+      return res;
+    }
+  }
+
+  if (codec->initialized == 0) {
+    SquashStatus (*init_codec_func) (SquashCodec*, SquashCodecImpl*);
+
+#if !defined(_WIN32)
+    *(void **) (&init_codec_func) = dlsym (plugin->plugin, "squash_plugin_init_codec");
+#else
+    *(void **) (&init_codec_func) = GetProcAddress (plugin->plugin, "squash_plugin_init_codec");
+#endif
+
+    if (SQUASH_UNLIKELY(init_codec_func == NULL)) {
+      return squash_error (SQUASH_UNABLE_TO_LOAD);
+    }
+
+    SQUASH_MTX_LOCK(codec_init);
+    if (SQUASH_LIKELY(codec->initialized == 0)) {
+      res = init_codec_func (codec, impl);
+      codec->initialized = (res == SQUASH_OK);
+
+      assert ((codec->impl.info & SQUASH_CODEC_INFO_AUTO_MASK) == 0);
+      if (codec->impl.process_stream != NULL)
+        codec->impl.info |= (SquashCodecInfo) SQUASH_CODEC_INFO_NATIVE_STREAMING;
+      if (codec->impl.get_uncompressed_size != NULL || (codec->impl.info & SQUASH_CODEC_INFO_WRAP_SIZE))
+        codec->impl.info |= (SquashCodecInfo) SQUASH_CODEC_INFO_KNOWS_UNCOMPRESSED_SIZE;
+    }
+    SQUASH_MTX_UNLOCK(codec_init);
+  }
+
+  return res;
+}
+
+/**
+ * @brief Execute a callback for every codec in the plugin.
+ *
+ * @note @a func will be invoked for all codecs supplied by this
+ * plugin, even if a higher-priority implementation exists in another
+ * plugin.  If you only want to list the codecs which supply the
+ * highest-priority implementations available, you can use
+ * ::squash_foreach_codec.  If not jumping around the hierarchy is
+ * important, you can test to see if a codec provides the highest
+ * priority implementation by comparing the codec to the return value
+ * of ::squash_get_codec.
+ *
+ * @param plugin The plugin
+ * @param func The callback to execute
+ * @param data Data to pass to the callback
+ */
+void
+squash_plugin_foreach_codec (SquashPlugin* plugin, SquashCodecForeachFunc func, void* data) {
+  SQUASH_TREE_FORWARD_APPLY(&(plugin->codecs), SquashCodec_, tree, func, data);
+}
+
+/**
+ * @brief Create a new plugin
+ * @private
+ *
+ * @param name Plugin name.
+ * @param directory Directory where the plugin is located.
+ * @param context Context for the plugin.
+ */
+SquashPlugin*
+squash_plugin_new (char* name, char* directory, SquashContext* context) {
+  SquashPlugin* plugin = (SquashPlugin*) squash_malloc (sizeof (SquashPlugin));
+
+  plugin->name = name;
+  plugin->license = NULL;
+  plugin->context = context;
+  plugin->directory = directory;
+  plugin->plugin = NULL;
+  SQUASH_TREE_ENTRY_INIT(plugin->tree);
+  SQUASH_TREE_INIT(&(plugin->codecs), squash_codec_compare);
+
+  return plugin;
+}
+
+/**
+ * @}
+ */

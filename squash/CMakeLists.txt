@@ -7,59 +7,45 @@ find_package(RAGEL 6.6)
 # To make lcov happy
 if (NOT "${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ini.rl
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.rl
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ini.rl)
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/squash-ini.rl
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/squash-ini.rl ${CMAKE_CURRENT_BINARY_DIR}/squash-ini.rl
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/squash-ini.rl)
 endif ()
 
 if (RAGEL_FOUND)
-  RAGEL_TARGET(ini ${CMAKE_CURRENT_BINARY_DIR}/ini.rl ${CMAKE_CURRENT_BINARY_DIR}/ini.c COMPILE_FLAGS -L)
+  RAGEL_TARGET(squash_ini ${CMAKE_CURRENT_BINARY_DIR}/squash-ini.rl ${CMAKE_CURRENT_BINARY_DIR}/squash-ini.c COMPILE_FLAGS -L)
+  set (SQUASH_INI "${CMAKE_CURRENT_BINARY_DIR}/squash-ini.c")
 else ()
-  set (RAGEL_ini_OUTPUTS ini.c)
+  set (SQUASH_INI squash-ini.c)
 endif ()
 
 set (squash_SOURCES
-  ${RAGEL_ini_OUTPUTS}
-  buffer.c
-  charset.c
-  codec.c
-  file.c
-  license.c
-  memory.c
-  options.c
-  status.c
-  buffer-stream.c
-  context.c
-  object.c
-  plugin.c
-  splice.c
-  stream.c
-  util.c
-  version.c
+  ${SQUASH_INI}
+  squash-buffer.c
+  squash-charset.c
+  squash-codec.c
+  squash-file.c
+  squash-license.c
+  squash-memory.c
+  squash-options.c
+  squash-status.c
+  squash-buffer-stream.c
+  squash-context.c
+  squash-object.c
+  squash-plugin.c
+  squash-splice.c
+  squash-stream.c
+  squash-util.c
+  squash-version.c
   tinycthread/source/tinycthread.c)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   list (APPEND squash_SOURCES
-    mapped-file.c)
+    squash-mapped-file.c)
 else ()
   list (APPEND squash_SOURCES
     win-iconv/win_iconv.c)
 endif ()
-
-set (squash_PUBLIC_HEADERS
-  context.h
-  codec.h
-  file.h
-  license.h
-  memory.h
-  object.h
-  options.h
-  plugin.h
-  squash.h
-  splice.h
-  status.h
-  stream.h
-  types.h)
 
 add_library (squash${SQUASH_VERSION_API} SHARED ${squash_SOURCES})
 target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
@@ -89,6 +75,10 @@ if ($CMAKE_VERSION VERSION_LESS 3.1)
 else()
   target_link_libraries (squash${SQUASH_VERSION_API} Threads::Threads)
 endif()
+
+include_directories("${CMAKE_SOURCE_DIR}")
+include_directories("${CMAKE_BINARY_DIR}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
 squash_target_add_coverage (squash${SQUASH_VERSION_API})
 
@@ -134,7 +124,22 @@ install (TARGETS squash${SQUASH_VERSION_API}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${squash_PUBLIC_HEADERS} ${CMAKE_CURRENT_BINARY_DIR}/version.h
+install(FILES squash.h
+  DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API})
+install(FILES
+    squash-context.h
+    squash-codec.h
+    squash-file.h
+    squash-license.h
+    squash-memory.h
+    squash-object.h
+    squash-options.h
+    squash-plugin.h
+    squash-splice.h
+    squash-status.h
+    squash-stream.h
+    squash-types.h
+    "${CMAKE_CURRENT_BINARY_DIR}/squash-version.h"
   DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash)
 
 configure_file (
@@ -143,5 +148,5 @@ configure_file (
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SquashConfig.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Squash-${SQUASH_VERSION_MAJOR}.${SQUASH_VERSION_MINOR}.${SQUASH_VERSION_REVISION}")
 
-configure_file (version.h.in version.h)
-configure_file (config.h.in config.h)
+configure_file (squash-version.h.in squash-version.h)
+configure_file (squash-config.h.in squash-config.h)
