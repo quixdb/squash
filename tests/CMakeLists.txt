@@ -44,7 +44,7 @@ set_compiler_specific_flags(
 find_package(ClockGettime)
 if(ClockGettime_FOUND)
   add_definitions(-DMUNIT_ALLOW_CLOCK_GETTIME)
-  link_libraries(test-squash ${ClockGettime_LIBRARIES})
+  link_libraries(${ClockGettime_LIBRARIES})
 endif()
 
 add_executable (test-squash ${SQUASH_TEST_SOURCES})
