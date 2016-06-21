@@ -102,7 +102,6 @@ squash_test_bounds_decode_truncated(MUNIT_UNUSED const MunitParameter params[], 
   /* These codecs fail, we're working on getting the fixed. */
   const char* codec_name = squash_codec_get_name (info->codec);
   if (strcmp (codec_name, "fastlz") == 0 ||
-      strcmp (codec_name, "quicklz") == 0 ||
       strcmp (codec_name, "wflz") == 0 ||
       strcmp (codec_name, "wflz-chunked") == 0)
     return MUNIT_SKIP;
