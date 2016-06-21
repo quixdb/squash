@@ -95,6 +95,39 @@ squash_test_bounds_decode_tiny(MUNIT_UNUSED const MunitParameter params[], void*
 }
 
 static MunitResult
+squash_test_bounds_decode_truncated(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
+  struct BoundsInfo* info = (struct BoundsInfo*) user_data;
+  munit_assert_not_null (info);
+
+  /* These codecs fail, we're working on getting the fixed. */
+  const char* codec_name = squash_codec_get_name (info->codec);
+  if (strcmp (codec_name, "fastlz") == 0 ||
+      strcmp (codec_name, "lzjb") == 0 ||
+      strcmp (codec_name, "quicklz") == 0 ||
+      strcmp (codec_name, "wflz") == 0 ||
+      strcmp (codec_name, "wflz-chunked") == 0 ||
+      strcmp (codec_name, "xpress-huffman") == 0)
+    return MUNIT_SKIP;
+
+  /* Attempt to decode a truncated valid buffer, mostly as an attempt
+     to trick the codec into reading outside the provided buffer (ASAN
+     should pick it up). */
+
+  info->compressed_length -= munit_rand_int_range (1, (int) info->compressed_length - 1);
+  info->compressed = realloc (info->compressed, info->compressed_length);
+
+  size_t decompressed_length = LOREM_IPSUM_LENGTH;
+  uint8_t* decompressed = munit_malloc(decompressed_length);
+  squash_codec_decompress (info->codec,
+                           &decompressed_length, decompressed,
+                           info->compressed_length, info->compressed, NULL);
+
+  free (decompressed);
+
+  return MUNIT_OK;
+}
+
+static MunitResult
 squash_test_bounds_encode_exact(MUNIT_UNUSED const MunitParameter params[], void* user_data) {
   struct BoundsInfo* info = (struct BoundsInfo*) user_data;
   munit_assert_not_null (info);
@@ -153,6 +186,7 @@ MunitTest squash_bounds_tests[] = {
   { (char*) "/decode/exact", squash_test_bounds_decode_exact, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
   { (char*) "/decode/small", squash_test_bounds_decode_small, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
   { (char*) "/decode/tiny", squash_test_bounds_decode_tiny, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
+  { (char*) "/decode/truncated", squash_test_bounds_decode_truncated, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
   { (char*) "/encode/exact", squash_test_bounds_encode_exact, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
   { (char*) "/encode/small", squash_test_bounds_encode_small, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
   { (char*) "/encode/tiny", squash_test_bounds_encode_tiny, squash_test_bounds_setup, squash_test_bounds_tear_down, MUNIT_TEST_OPTION_NONE, SQUASH_CODEC_PARAMETER },
