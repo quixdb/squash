@@ -104,8 +104,7 @@ squash_test_bounds_decode_truncated(MUNIT_UNUSED const MunitParameter params[], 
   if (strcmp (codec_name, "fastlz") == 0 ||
       strcmp (codec_name, "quicklz") == 0 ||
       strcmp (codec_name, "wflz") == 0 ||
-      strcmp (codec_name, "wflz-chunked") == 0 ||
-      strcmp (codec_name, "xpress-huffman") == 0)
+      strcmp (codec_name, "wflz-chunked") == 0)
     return MUNIT_SKIP;
 
   /* Attempt to decode a truncated valid buffer, mostly as an attempt
