@@ -41,6 +41,12 @@ set_compiler_specific_flags(
   VARIABLE extra_compiler_flags
   INTEL -wd3179)
 
+find_package(ClockGettime)
+if(ClockGettime_FOUND)
+  add_definitions(-DMUNIT_ALLOW_CLOCK_GETTIME)
+  link_libraries(test-squash ${ClockGettime_LIBRARIES})
+endif()
+
 add_executable (test-squash ${SQUASH_TEST_SOURCES})
 set_property(TARGET test-squash
   APPEND PROPERTY COMPILE_DEFINITIONS "SQUASH_TEST_PLUGIN_DIR=\"${CMAKE_BINARY_DIR}/plugins\"")

@@ -76,6 +76,12 @@ else()
   target_link_libraries (squash${SQUASH_VERSION_API} Threads::Threads)
 endif()
 
+# For TinyCThread
+find_package(ClockGettime)
+if(ClockGettime_FOUND)
+  target_link_libraries(squash${SQUASH_VERSION_API} ${ClockGettime_LIBRARIES})
+endif()
+
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
@@ -105,13 +111,7 @@ set (CMAKE_REQUIRED_DEFINITIONS ${orig_required_definitions})
 
 check_prototype_exists ("_vscwprintf" "wchar.h;stdio.h" "HAVE__VSCWPRINTF")
 
-if (WIN32)
-else ()
-  include (FindClockGettime)
-  if (${CLOCK_GETTIME_REQUIRES_RT})
-    target_link_libraries (squash${SQUASH_VERSION_API} rt)
-  endif ()
-
+if (NOT WIN32)
   target_link_libraries (squash${SQUASH_VERSION_API} ${CMAKE_DL_LIBS})
 
   include (FindIconv)
