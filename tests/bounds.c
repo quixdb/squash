@@ -21,6 +21,11 @@ squash_test_bounds_setup(MUNIT_UNUSED const MunitParameter params[], void* user_
                            LOREM_IPSUM_LENGTH, LOREM_IPSUM, NULL);
   SQUASH_ASSERT_OK (res);
 
+  uint8_t* p = realloc (info->compressed, info->compressed_length);
+  if (p != NULL) {
+    info->compressed = p;
+  }
+
   return info;
 }
 
