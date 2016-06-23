@@ -12,7 +12,7 @@ env:
   matrix:
     # Latest versions of each compiler
     - COMPILER=gcc-6 BUILD_TYPE=debug
-    - COMPILER=clang BUILD_TYPE=debug
+    - COMPILER=clang-3.8 BUILD_TYPE=debug
     - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=icc BUILD_TYPE=debug
@@ -32,12 +32,10 @@ env:
     - COMPILER=gcc-4.8 BUILD_TYPE=debug
     - COMPILER=gcc-4.9 BUILD_TYPE=debug
     - COMPILER=gcc-5 BUILD_TYPE=debug
-    # Offline until http://llvm.org/apt/ comes back :(
-    # - COMPILER=clang-3.4 BUILD_TYPE=debug
-    # - COMPILER=clang-3.5 BUILD_TYPE=debug
-    # - COMPILER=clang-3.6 BUILD_TYPE=debug
-    # - COMPILER=clang-3.7 BUILD_TYPE=debug
-    # - COMPILER=clang-3.8 BUILD_TYPE=debug
+    - COMPILER=clang-3.4 BUILD_TYPE=debug
+    - COMPILER=clang-3.5 BUILD_TYPE=debug
+    - COMPILER=clang-3.6 BUILD_TYPE=debug
+    - COMPILER=clang-3.7 BUILD_TYPE=debug
 
     # Coverage analysis
     - COMPILER=gcc-6 BUILD_TYPE=coverage
@@ -51,8 +49,6 @@ env:
 matrix:
   exclude:
     # Limit OS X to 1 debug and 1 release build.
-    - os: osx
-      env: COMPILER=clang BUILD_TYPE=debug
     - os: osx
       env: COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - os: osx
@@ -68,6 +64,8 @@ matrix:
     - os: osx
       env: COMPILER=clang BUILD_TYPE=release
     - os: osx
+      env: COMPILER=clang BUILD_TYPE=release
+    - os: osx
       env: COMPILER=gcc-4.6 BUILD_TYPE=debug
     - os: osx
       env: COMPILER=gcc-4.7 BUILD_TYPE=debug
@@ -75,6 +73,8 @@ matrix:
       env: COMPILER=gcc-4.8 BUILD_TYPE=debug
     - os: osx
       env: COMPILER=gcc-4.9 BUILD_TYPE=debug
+    - os: osx
+      env: COMPILER=gcc-5 BUILD_TYPE=debug
     - os: osx
       env: COMPILER=clang-3.4 BUILD_TYPE=debug
     - os: osx

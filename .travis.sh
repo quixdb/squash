@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # This script only exists to support Travis CI, since (AFAICT) it is
 # not possible to perform different before_install steps depending on
@@ -67,25 +67,24 @@ case "${1}" in
                 . /etc/lsb-release
 
                 sudo apt-get update -qq
-                sudo apt-get install -qq python-software-properties
-                sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-
-                sudo apt-get update -qq
                 sudo apt-get install -qq \
                      cmake \
                      build-essential \
-                     libglib2.0-dev \
                      gdb \
-                     ragel
+                     ragel \
+                     python-software-properties
 
                 case "${COMPILER}" in
                     "gcc-"*)
+                        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+                        sudo apt-get update -qq
                         sudo apt-get install -qq gcc-${COMPILER#*-} g++-${COMPILER#*-}
                         ;;
                     "clang-"*)
                         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AF4F7421
                         sudo apt-add-repository -y \
                              "deb http://llvm.org/apt/${DISTRIB_CODENAME}/ llvm-toolchain-${DISTRIB_CODENAME}-${COMPILER#*-} main"
+                        sudo apt-get update -qq
                         sudo apt-get install -qq "${COMPILER}"
                         ;;
                     "x86_64-w64-mingw32-gcc")
