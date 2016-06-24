@@ -49,7 +49,7 @@
 #  define _aligned_free __mingw_aligned_free
 #  define HAVE__ALIGNED_MALLOC
 #else
-#  error No alignned memory allocation function
+#  error No aligned memory allocation function found
 #endif
 
 #include <string.h>
