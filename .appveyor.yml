@@ -2,13 +2,13 @@ version: "{build}"
 
 environment:
   matrix:
-  # - GENERATOR: Visual Studio 14 2015
-  # - GENERATOR: Visual Studio 14 2015 Win64
-  # - GENERATOR: Visual Studio 14 2015 Win64
-  #   TOOLSET: LLVM-vs2014
-  # - GENERATOR: Visual Studio 12 2013
-  # - GENERATOR: Visual Studio 12 2013 Win64
-  # - GENERATOR: MinGW Makefiles
+  - GENERATOR: Visual Studio 14 2015
+  - GENERATOR: Visual Studio 14 2015 Win64
+  - GENERATOR: Visual Studio 14 2015 Win64
+    TOOLSET: LLVM-vs2014
+  - GENERATOR: Visual Studio 12 2013
+  - GENERATOR: Visual Studio 12 2013 Win64
+  - GENERATOR: MinGW Makefiles
   - GENERATOR: MinGW Makefiles
     CC: clang --target=x86_64-w64-mingw32
     CXX: clang++ --target=x86_64-w64-mingw32
