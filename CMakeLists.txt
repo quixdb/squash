@@ -144,7 +144,7 @@ if (ENABLE_COVERAGE)
     message(FATAL_ERROR "Coverage analysis requires a debug build.")
   endif()
 else()
-  if (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+  if (NOT MSVC)
     set(CMAKE_C_FLAGS_DEBUG "-g -O2")
     set(CMAKE_CXX_FLAGS_DEBUG "-g -O2")
 
