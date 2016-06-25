@@ -13,6 +13,7 @@ MunitSuite squash_test_suite_buffer;
 MunitSuite squash_test_suite_bounds;
 MunitSuite squash_test_suite_file;
 MunitSuite squash_test_suite_flush;
+MunitSuite squash_test_suite_interop;
 MunitSuite squash_test_suite_random;
 MunitSuite squash_test_suite_splice;
 MunitSuite squash_test_suite_stream;

@@ -97,6 +97,7 @@ main(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
     squash_test_suite_bounds,
     squash_test_suite_file,
     squash_test_suite_flush,
+    squash_test_suite_interop,
     squash_test_suite_random,
     squash_test_suite_splice,
     squash_test_suite_stream,

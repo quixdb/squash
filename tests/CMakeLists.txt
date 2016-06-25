@@ -9,6 +9,7 @@ set(SQUASH_TEST_SOURCES
   buffer.c
   file.c
   flush.c
+  interop.c
   random-data.c
   splice.c
   stream.c
@@ -24,11 +25,13 @@ set (SQUASH_TESTS
   /bounds/encode/exact
   /bounds/encode/small
   /bounds/encode/tiny
+  /bounds/decode/truncated
   /file/io
   /file/splice/full
   /file/splice/partial
   /file/printf
   /flush
+  /interop/basic
   /random/compress
   /random/decompress
   /splice/custom
