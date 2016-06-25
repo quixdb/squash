@@ -101,3 +101,6 @@
 [submodule "plugins/lzfse/lzfse"]
 	path = plugins/lzfse/lzfse
 	url = https://github.com/lzfse/lzfse.git
+[submodule "plugins/wimlib/wimlib"]
+	path = plugins/wimlib/wimlib
+	url = git://wimlib.net/wimlib

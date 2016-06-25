@@ -29,6 +29,7 @@ for plugin in \
     quicklz \
     snappy \
     wflz \
+    wimlib \
     yalz77 \
     zlib \
     zlib-ng \

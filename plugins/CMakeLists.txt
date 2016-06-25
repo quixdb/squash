@@ -27,6 +27,7 @@ set (plugins_available
   quicklz
   snappy
   wflz
+  wimlib
   yalz77
   zlib
   zlib-ng
