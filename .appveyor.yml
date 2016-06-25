@@ -3,10 +3,10 @@ version: "{build}"
 environment:
   matrix:
   # MSVC
-  - GENERATOR: Visual Studio 14 2015
-  - GENERATOR: Visual Studio 14 2015 Win64
-  - GENERATOR: Visual Studio 12 2013
-  - GENERATOR: Visual Studio 12 2013 Win64
+  # - GENERATOR: Visual Studio 14 2015
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  # - GENERATOR: Visual Studio 12 2013
+  # - GENERATOR: Visual Studio 12 2013 Win64
 
   # Mingw-w64
   - GENERATOR: MinGW Makefiles
@@ -18,8 +18,8 @@ environment:
   #   TOOLSET: v140_clang_3_7
 
   # Clang targeting MSVC
-  - GENERATOR: Visual Studio 14 2015 Win64
-    TOOLSET: LLVM-vs2014
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  #   TOOLSET: LLVM-vs2014
 
   # Clang targeting mingw-w64
   - GENERATOR: MinGW Makefiles
@@ -37,11 +37,19 @@ install:
   - git submodule -q update --init --recursive
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $mingw_install_attempts = 0
         cinst mingw | Out-Null
 
         # Chocolatey sometimes fails to download
-        if (!$?) {
-          throw 'cinst mingw failed'
+        while (!$?) {
+          $mingw_install_attempts++
+          if ($mingw_install_attempts -gt 5) {
+            throw 'cinst mingw failed.'
+          } else {
+            Write-Host "cinst mingw failed, trying again."
+          }
+          Start-Sleep -s 60
+          cinst mingw | Out-Null
         }
 
         $env:Path = 'C:\Tools\mingw64\bin;' + $env:Path
