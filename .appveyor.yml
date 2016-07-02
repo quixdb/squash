@@ -18,8 +18,10 @@ environment:
   #   TOOLSET: v140_clang_3_7
 
   # Clang targeting MSVC
-  - GENERATOR: Visual Studio 14 2015 Win64
-    TOOLSET: LLVM-vs2014
+  # See https://ci.appveyor.com/project/quixdb/squash/build/532
+  # vs. https://ci.appveyor.com/project/quixdb/squash/build/524
+  # - GENERATOR: Visual Studio 14 2015 Win64
+  #   TOOLSET: LLVM-vs2014
 
   # Clang targeting mingw-w64
   - GENERATOR: MinGW Makefiles
