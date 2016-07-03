@@ -119,15 +119,15 @@ squash_charset_get_wide (void) {
   switch (sizeof(wchar_t)) {
     case 2:
       if (memcmp (alias, (uint8_t[]) { 0x61, 0x04 }, 2) == 0)
-	return "UTF-16LE";
+        return "UTF-16LE";
       else if (memcmp (alias, (uint8_t[]) { 0x04, 0x61 }, 2) == 0)
-	return "UTF-16BE";
+        return "UTF-16BE";
       break;
     case 4:
       if (memcmp (alias, (uint8_t[]) { 0x61, 0x04, 0x00, 0x00 }, 4) == 0)
-	return "UTF-32LE";
+        return "UTF-32LE";
       else if (memcmp (alias, (uint8_t[]) { 0x00, 0x00, 0x04, 0x61 }, 4) == 0)
-	return "UTF-32BE";
+        return "UTF-32BE";
       break;
   }
 
@@ -137,7 +137,7 @@ squash_charset_get_wide (void) {
 
 bool
 squash_charset_convert (size_t* output_size, char** output, const char* output_charset,
-			size_t input_size, const char* input, const char* input_charset) {
+                        size_t input_size, const char* input, const char* input_charset) {
   bool res = true;
 
   assert (output != NULL);
@@ -179,15 +179,15 @@ squash_charset_convert (size_t* output_size, char** output, const char* output_c
     size_t r = iconv (ctx, (void*) &in_p, &in_rem, &out_p, &out_rem);
     if (r == ((size_t) -1)) {
       if (errno == E2BIG) {
-	out_off = out_p - out_start;
+        out_off = out_p - out_start;
       } else {
-	res = false;
-	break;
+        res = false;
+        break;
       }
     } else {
       *output = out_start;
       if (output_size != NULL)
-	*output_size = out_p - out_start;
+        *output_size = out_p - out_start;
       break;
     }
   } while (true);
@@ -224,7 +224,7 @@ squash_charset_locale_to_wide (const char* input) {
 
 #if defined(SQUASH_PREFER_ICONV)
   return squash_charset_convert (NULL, (char**) &output, squash_charset_get_wide (),
-				 strlen (input) + 1, input, squash_charset_get_locale ()) ? output : NULL;
+                                 strlen (input) + 1, input, squash_charset_get_locale ()) ? output : NULL;
 #else
   const size_t s = mbstowcs (NULL, input, 0) + 1;
   if (s == ((size_t) -1))
@@ -249,7 +249,7 @@ squash_charset_wide_to_locale (const wchar_t* input) {
 
 #if defined(SQUASH_PREFER_ICONV)
   return squash_charset_convert(NULL, &output, squash_charset_get_locale (),
-				(wcslen (input) + 1) * sizeof (wchar_t), (char*) input, squash_charset_get_wide ()) ? output : NULL;
+                                (wcslen (input) + 1) * sizeof (wchar_t), (char*) input, squash_charset_get_wide ()) ? output : NULL;
 #else
   const size_t s = wcstombs (NULL, input, 0) + 1;
   if (s == ((size_t) -1))
@@ -273,7 +273,7 @@ squash_charset_wide_to_utf8 (const wchar_t* input) {
   assert (input != NULL);
 
   return squash_charset_convert(NULL, &output, "UTF-8",
-				(wcslen (input) + 1) * sizeof (wchar_t), (char*) input, squash_charset_get_wide ()) ? output : NULL;
+                                (wcslen (input) + 1) * sizeof (wchar_t), (char*) input, squash_charset_get_wide ()) ? output : NULL;
 }
 
 wchar_t*
@@ -283,5 +283,5 @@ squash_charset_utf8_to_wide (const char* input) {
   assert (input != NULL);
 
   return squash_charset_convert(NULL, (char**) &output, squash_charset_get_wide (),
-				strlen (input) + 1, input, "UTF-8") ? output : NULL;
+                                strlen (input) + 1, input, "UTF-8") ? output : NULL;
 }

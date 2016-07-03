@@ -293,13 +293,13 @@ squash_context_add_codec (SquashContext* context, SquashCodec* codec) {
 
 static char*
 squash_strndup(const char* s, size_t n) {
-	const char* eos = (const char*) memchr (s, '\0', n);
-	const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
+  const char* eos = (const char*) memchr (s, '\0', n);
+  const size_t res_len = (eos == NULL) ? n : (size_t) (eos - s);
   char* res = (char*) squash_malloc (res_len + 1);
-	memcpy (res, s, res_len);
-	res[res_len] = '\0';
+  memcpy (res, s, res_len);
+  res[res_len] = '\0';
 
-	return res;
+  return res;
 }
 
 /**
