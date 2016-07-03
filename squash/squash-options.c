@@ -163,6 +163,7 @@ squash_options_find (SquashOptions* options, SquashCodec* codec, const char* key
   if (codec == NULL) {
     assert (options != NULL);
     codec = options->codec;
+    assert (codec != NULL);
   }
 
   const SquashOptionInfo* info = squash_codec_get_option_info (codec);

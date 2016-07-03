@@ -39,7 +39,7 @@ int main (int argc, char** argv) {
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to compress data [%d]: %s\n",
              res, squash_status_to_string (res));
-    return EXIT_FAILURE;
+    exit (EXIT_FAILURE);
   }
 
   fprintf (stdout, "Compressed a %u byte buffer to %u bytes.\n",
@@ -52,7 +52,7 @@ int main (int argc, char** argv) {
   if (res != SQUASH_OK) {
     fprintf (stderr, "Unable to decompress data [%d]: %s\n",
              res, squash_status_to_string (res));
-    return EXIT_FAILURE;
+    exit (EXIT_FAILURE);
   }
 
   /* Notice that we didn't compress the *NULL* byte at the end of the
@@ -61,7 +61,7 @@ int main (int argc, char** argv) {
 
   if (strcmp (decompressed, uncompressed) != 0) {
     fprintf (stderr, "Bad decompressed data.\n");
-    return EXIT_FAILURE;
+    exit (EXIT_FAILURE);
   }
 
   fprintf (stdout, "Successfully decompressed.\n");

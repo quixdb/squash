@@ -125,6 +125,7 @@ squash_test_splice_full(const MunitParameter params[], void* user_data) {
   /* Start in the middle of the file, just to make sure it works. */
   offset = (size_t) munit_rand_int_range (1, sizeof(offset_buf));
   bytes_written = fwrite (offset_buf, 1, offset, compressed);
+  munit_assert_size (bytes_written, ==, offset);
   munit_assert_int (ftello (compressed), ==, offset);
 
   SquashStatus res = squash_splice (data->codec, SQUASH_STREAM_COMPRESS, compressed, uncompressed, 0, NULL);
