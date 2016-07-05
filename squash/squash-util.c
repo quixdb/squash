@@ -46,20 +46,20 @@ size_t
 squash_get_page_size (void) {
   static size_t page_size = 0;
 
-  if (SQUASH_UNLIKELY(page_size == 0)) {
+  if (HEDLEY_UNLIKELY(page_size == 0)) {
 #if defined(_WIN32)
     SYSTEM_INFO si;
     GetSystemInfo(&si);
     page_size = si.dwPageSize;
 #elif defined(_SC_PAGESIZE)
     const long ps = sysconf (_SC_PAGESIZE);
-    page_size = SQUASH_UNLIKELY(ps == -1) ? 8192 : ((size_t) ps);
+    page_size = HEDLEY_UNLIKELY(ps == -1) ? 8192 : ((size_t) ps);
 #else
     int hw_pagesize[] = { CTL_HW, HW_PAGESIZE };
     unsigned int ps;
     size_t len = sizeof(ps);
     int sres = sysctl (hw_pagesize, sizeof(hw_pagesize) / sizeof(*hw_pagesize), &ps, &len, null, 0);
-    page_size = SQUASH_LIKELY(sres == 0) ? (size_t) ps : 8192;
+    page_size = HEDLEY_LIKELY(sres == 0) ? (size_t) ps : 8192;
 #endif
   }
 

@@ -36,7 +36,7 @@
 #include <windows.h>
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef SQUASH_TREE_HEAD(SquashPluginTree_, SquashPlugin_) SquashPluginTree;
 typedef SQUASH_TREE_HEAD(SquashCodecTree_, SquashCodec_) SquashCodecTree;
@@ -91,6 +91,6 @@ typedef struct SquashBuffer_ {
   size_t allocated;
 } SquashBuffer;
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_TYPES_INTERNAL_H */

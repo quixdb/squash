@@ -32,7 +32,7 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 #ifndef SQUASH_BUFFER_STREAM_BUFFER_SIZE
 #  define SQUASH_BUFFER_STREAM_BUFFER_SIZE (4096 - sizeof (SquashSList))
@@ -51,13 +51,13 @@ typedef struct SquashBufferStream_ {
   size_t output_pos;
 } SquashBufferStream;
 
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 SquashBufferStream* squash_buffer_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 SquashStatus        squash_buffer_stream_process (SquashBufferStream* stream);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 SquashStatus        squash_buffer_stream_finish  (SquashBufferStream* stream);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_BUFFER_STREAM_INTERNAL_H */

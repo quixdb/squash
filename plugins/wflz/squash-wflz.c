@@ -89,7 +89,7 @@ squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
   const char* codec_name = squash_codec_get_name (codec);
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < uncompressed_size))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
@@ -98,7 +98,7 @@ squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
     wfLZ_GetMaxChunkCompressedSize ((uint32_t) uncompressed_size, SQUASH_WFLZ_MIN_CHUNK_SIZE);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < res))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < res))
     return (squash_error (SQUASH_RANGE));
 #endif
 
@@ -108,14 +108,14 @@ squash_wflz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
 static size_t
 squash_wflz_get_uncompressed_size (SquashCodec* codec,
                                    size_t compressed_size,
-                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+                                   const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)]) {
   if (compressed_size < 12)
     return 0;
 
   const uint32_t res = wfLZ_GetDecompressedSize (compressed);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < res))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < res))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
@@ -125,16 +125,16 @@ squash_wflz_get_uncompressed_size (SquashCodec* codec,
 static SquashStatus
 squash_wflz_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
   const uint32_t swap = ((uint32_t) squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
   const int level = squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_LEVEL);
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < uncompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -161,7 +161,7 @@ squash_wflz_compress_buffer (SquashCodec* codec,
   }
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < wres)) {
+  if (HEDLEY_UNLIKELY(SIZE_MAX < wres)) {
     free (work_mem);
     return squash_error (SQUASH_RANGE);
   }
@@ -171,33 +171,33 @@ squash_wflz_compress_buffer (SquashCodec* codec,
 
   free (work_mem);
 
-  return SQUASH_LIKELY(*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return HEDLEY_LIKELY(*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_wflz_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   const char* codec_name = squash_codec_get_name (codec);
   uint32_t decompressed_s;
 
-  if (SQUASH_UNLIKELY(compressed_size < 12))
+  if (HEDLEY_UNLIKELY(compressed_size < 12))
     return squash_error (SQUASH_BUFFER_EMPTY);
 
   decompressed_s = wfLZ_GetDecompressedSize (compressed);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_s))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < decompressed_s))
     return squash_error (SQUASH_RANGE);
 #endif
 
-  if (SQUASH_UNLIKELY(decompressed_s == 0))
+  if (HEDLEY_UNLIKELY(decompressed_s == 0))
     return squash_error (SQUASH_INVALID_BUFFER);
 
-  if (SQUASH_UNLIKELY(decompressed_s > *decompressed_size))
+  if (HEDLEY_UNLIKELY(decompressed_s > *decompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
   if (codec_name[4] == '\0') {
@@ -210,7 +210,7 @@ squash_wflz_decompress_buffer (SquashCodec* codec,
     while ( (compressed_block = wfLZ_ChunkDecompressLoop ((uint8_t*) compressed, &chunk)) != NULL ) {
       const uint32_t chunk_size = wfLZ_GetDecompressedSize (compressed_block);
 
-      if (SQUASH_UNLIKELY((dest + chunk_size) > (decompressed + *decompressed_size)))
+      if (HEDLEY_UNLIKELY((dest + chunk_size) > (decompressed + *decompressed_size)))
         return squash_error (SQUASH_BUFFER_FULL);
 
       wfLZ_Decompress (compressed_block, dest);
@@ -227,7 +227,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("wflz", name) == 0 ||
+  if (HEDLEY_LIKELY(strcmp ("wflz", name) == 0 ||
                     strcmp ("wflz-chunked", name) == 0)) {
     impl->options = squash_wflz_options;
     impl->get_uncompressed_size = squash_wflz_get_uncompressed_size;

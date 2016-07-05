@@ -94,9 +94,9 @@ squash_zstd_status_from_zstd_error (size_t res) {
 static SquashStatus
 squash_zstd_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   *decompressed_size = ZSTD_decompress (decompressed, *decompressed_size, compressed, compressed_size);
 
@@ -106,9 +106,9 @@ squash_zstd_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_zstd_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   const int level = squash_options_get_int_at (options, codec, SQUASH_ZSTD_OPT_LEVEL);
 
@@ -121,7 +121,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("zstd", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("zstd", name) == 0)) {
     impl->options = squash_zstd_options;
     impl->get_max_compressed_size = squash_zstd_get_max_compressed_size;
     impl->decompress_buffer = squash_zstd_decompress_buffer;

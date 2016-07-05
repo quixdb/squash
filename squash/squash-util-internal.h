@@ -32,7 +32,7 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL
 size_t squash_get_page_size      (void);
@@ -41,6 +41,6 @@ size_t squash_npot               (size_t v);
 SQUASH_INTERNAL
 size_t squash_get_huge_page_size (void);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_UTIL_INTERNAL_H */

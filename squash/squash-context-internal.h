@@ -32,14 +32,14 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 void            squash_context_add_codec     (SquashContext* context, SquashCodec* codec);
 
 SQUASH_TREE_PROTOTYPES(SquashCodecRef_, tree)
 SQUASH_TREE_DEFINE(SquashCodecRef_, tree)
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_CONTEXT_INTERNAL_H */

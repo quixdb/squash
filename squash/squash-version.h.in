@@ -44,11 +44,11 @@
 #define SQUASH_VERSION_EXTRACT_MINOR(version) (((version) >> 8) & 0xff)
 #define SQUASH_VERSION_EXTRACT_REVISION(version) ((version) & 0xff)
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_API unsigned int squash_version     (void);
 SQUASH_API const char*  squash_version_api (void);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_VERSION_H */

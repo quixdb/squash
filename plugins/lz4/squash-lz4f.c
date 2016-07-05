@@ -149,7 +149,7 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   assert (codec != NULL);
 
   stream = (SquashLZ4FStream*) squash_malloc (sizeof (SquashLZ4FStream));
-  if (SQUASH_UNLIKELY(stream == NULL))
+  if (HEDLEY_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
   squash_lz4f_stream_init (stream, codec, stream_type, options, squash_lz4f_stream_destroy);
@@ -179,7 +179,7 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
     ec = LZ4F_createDecompressionContext(&(stream->data.decomp.ctx), LZ4F_VERSION);
   }
 
-  if (SQUASH_UNLIKELY(LZ4F_isError (ec))) {
+  if (HEDLEY_UNLIKELY(LZ4F_isError (ec))) {
     squash_object_unref (stream);
     return (squash_error (SQUASH_FAILED), NULL);
   }
@@ -353,7 +353,7 @@ squash_lz4f_compress_stream (SquashStream* stream, SquashOperation operation) {
         squash_assert_unreachable();
       }
 
-      if (SQUASH_UNLIKELY(LZ4F_isError (olen))) {
+      if (HEDLEY_UNLIKELY(LZ4F_isError (olen))) {
         squash_assert_unreachable();
         return squash_error (SQUASH_FAILED);
       } else {
@@ -458,7 +458,7 @@ SquashStatus
 squash_plugin_init_lz4f (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("lz4", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("lz4", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_lz4f_options;
     impl->get_max_compressed_size = squash_lz4f_get_max_compressed_size;

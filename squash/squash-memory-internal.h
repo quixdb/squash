@@ -32,11 +32,11 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL
 void squash_get_memory_functions (SquashMemoryFuncs* memfns);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_SLIST_INTERNAL_H */

@@ -247,8 +247,8 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
   miniz_stream = &(((SquashMinizStream*) stream)->stream);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < stream->avail_in) ||
-      SQUASH_UNLIKELY(UINT_MAX < stream->avail_out))
+  if (HEDLEY_UNLIKELY(UINT_MAX < stream->avail_in) ||
+      HEDLEY_UNLIKELY(UINT_MAX < stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_MINIZ_STREAM_COPY_TO_MINIZ_STREAM(stream, miniz_stream);
@@ -260,8 +260,8 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
   }
 
 #if SIZE_MAX < UINT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < miniz_stream->avail_out) ||
-      SQUASH_UNLIKELY(SIZE_MAX < miniz_stream->avail_out))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < miniz_stream->avail_out) ||
+      HEDLEY_UNLIKELY(SIZE_MAX < miniz_stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_MINIZ_STREAM_COPY_FROM_MINIZ_STREAM(stream, miniz_stream);
@@ -322,7 +322,7 @@ squash_miniz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
   SquashMinizType type = squash_miniz_codec_to_type (codec);
 
 #if SIZE_MAX < ULONG_MAX
-  if (SQUASH_UNLIKELY(uncompressed_size > ULONG_MAX)) {
+  if (HEDLEY_UNLIKELY(uncompressed_size > ULONG_MAX)) {
     squash_error (SQUASH_BUFFER_TOO_LARGE);
     return 0;
   }

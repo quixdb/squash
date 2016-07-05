@@ -288,9 +288,9 @@ squash_lzo_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size
 static SquashStatus
 squash_lzo_decompress_buffer (SquashCodec* codec,
                               size_t* decompressed_size,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                               size_t compressed_size,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                              const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
   const SquashLZOCodec* lzo_codec;
   const char* codec_name;
@@ -304,8 +304,8 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
   lzo_codec = squash_lzo_codec_from_name (codec_name);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < compressed_size) ||
-      SQUASH_UNLIKELY(UINT_MAX < *decompressed_size))
+  if (HEDLEY_UNLIKELY(UINT_MAX < compressed_size) ||
+      HEDLEY_UNLIKELY(UINT_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
   compressed_len = (lzo_uint) compressed_size;
@@ -313,7 +313,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
 
   if (lzo_codec->work_mem > 0) {
     work_mem = squash_malloc (lzo_codec->work_mem);
-    if (SQUASH_UNLIKELY(work_mem == NULL)) {
+    if (HEDLEY_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
   }
@@ -327,7 +327,7 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
     return squash_lzo_status_to_squash_status (lzo_e);
 
 #if SIZE_MAX < UINT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_len))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < decompressed_len))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -339,9 +339,9 @@ squash_lzo_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_lzo_compress_buffer (SquashCodec* codec,
                             size_t* compressed_size,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                             size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                            const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   const SquashLZOCodec* lzo_codec;
   const SquashLZOCompressor* compressor;
@@ -359,8 +359,8 @@ squash_lzo_compress_buffer (SquashCodec* codec,
   compressor = squash_lzo_codec_get_compressor (lzo_codec, squash_options_get_int_at (options, codec, SQUASH_LZO_OPT_LEVEL));
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < uncompressed_size) ||
-      SQUASH_UNLIKELY(UINT_MAX < *compressed_size))
+  if (HEDLEY_UNLIKELY(UINT_MAX < uncompressed_size) ||
+      HEDLEY_UNLIKELY(UINT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
   uncompressed_len = (lzo_uint) uncompressed_size;
@@ -368,7 +368,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
 
   if (compressor->work_mem > 0) {
     work_mem = squash_malloc (compressor->work_mem);
-    if (SQUASH_UNLIKELY(work_mem == NULL)) {
+    if (HEDLEY_UNLIKELY(work_mem == NULL)) {
       return squash_error (SQUASH_MEMORY);
     }
   }
@@ -383,7 +383,7 @@ squash_lzo_compress_buffer (SquashCodec* codec,
     return squash_lzo_status_to_squash_status (lzo_e);
 
 #if SIZE_MAX < UINT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < decompressed_len))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < decompressed_len))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -401,7 +401,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* codec_name = squash_codec_get_name (codec);
 
-  if (SQUASH_UNLIKELY(strncmp ("lzo1", codec_name, 3) != 0))
+  if (HEDLEY_UNLIKELY(strncmp ("lzo1", codec_name, 3) != 0))
     return squash_error (SQUASH_UNABLE_TO_LOAD);
 
   switch (codec_name[4]) {

@@ -229,7 +229,7 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
 
 static SquashStatus
 squash_stream_read_cb (size_t* data_size,
-                       uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
+                       uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)],
                        void* user_data) {
   assert (user_data != NULL);
   assert (data_size != NULL);
@@ -267,7 +267,7 @@ squash_stream_read_cb (size_t* data_size,
 
 static SquashStatus
 squash_stream_write_cb (size_t* data_size,
-                        const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
+                        const uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)],
                         void* user_data) {
   assert (user_data != NULL);
   assert (data_size != NULL);
@@ -460,7 +460,7 @@ squash_stream_destroy (void* stream) {
 
   s = (SquashStream*) stream;
 
-  if (SQUASH_UNLIKELY(s->priv != NULL)) {
+  if (HEDLEY_UNLIKELY(s->priv != NULL)) {
     SquashStreamPrivate* priv = (SquashStreamPrivate*) s->priv;
 
     if (!priv->finished) {
@@ -577,7 +577,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
 
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
-  if (SQUASH_UNLIKELY(operation == SQUASH_OPERATION_FLUSH && ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0))) {
+  if (HEDLEY_UNLIKELY(operation == SQUASH_OPERATION_FLUSH && ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == 0))) {
     return squash_error (SQUASH_INVALID_OPERATION);
   }
 
@@ -621,7 +621,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       break;
   }
 
-  if (SQUASH_UNLIKELY(current_operation > operation)) {
+  if (HEDLEY_UNLIKELY(current_operation > operation)) {
     return squash_error (SQUASH_STATE);
   }
 
@@ -734,7 +734,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       /* Plugins *should* return SQUASH_OK, not SQUASH_END_OF_STREAM,
          from the finish function, but it's an easy mistake to make
          (and correct), so... */
-      if (SQUASH_UNLIKELY(res == SQUASH_END_OF_STREAM)) {
+      if (HEDLEY_UNLIKELY(res == SQUASH_END_OF_STREAM)) {
         res = SQUASH_OK;
       }
 
@@ -752,7 +752,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
 
     /* Check our internal single byte buffer */
     if (next_out != 0) {
-      if (SQUASH_UNLIKELY(stream->avail_out == 0)) {
+      if (HEDLEY_UNLIKELY(stream->avail_out == 0)) {
         res = squash_error (SQUASH_BUFFER_FULL);
       }
     }

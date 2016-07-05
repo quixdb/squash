@@ -49,10 +49,10 @@ squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
 
 /* We use this because qlz_size_decompressed and qlz_size_compressed
    can read outside the provided source buffer.  */
-static bool squash_qlz_sizes(size_t source_length, const uint8_t source[SQUASH_ARRAY_PARAM(source_length)],
+static bool squash_qlz_sizes(size_t source_length, const uint8_t source[HEDLEY_ARRAY_PARAM(source_length)],
                              size_t* decompressed_size, size_t* compressed_size) {
   uint32_t n = (((*source) & 2) == 2) ? 4 : 1;
-  if (SQUASH_UNLIKELY(source_length < ((2 * n) + 1)))
+  if (HEDLEY_UNLIKELY(source_length < ((2 * n) + 1)))
     return false;
 
   if(n == 4) {
@@ -69,10 +69,10 @@ static bool squash_qlz_sizes(size_t source_length, const uint8_t source[SQUASH_A
 static size_t
 squash_quicklz_get_uncompressed_size (SquashCodec* codec,
                                       size_t compressed_size,
-                                      const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+                                      const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)]) {
   size_t compressed_l, decompressed_l;
 
-  if (!SQUASH_LIKELY(squash_qlz_sizes(compressed_size, compressed, &decompressed_l, &compressed_l)))
+  if (!HEDLEY_LIKELY(squash_qlz_sizes(compressed_size, compressed, &decompressed_l, &compressed_l)))
     return (squash_error (SQUASH_BUFFER_EMPTY)), 0;
 
   return decompressed_l;
@@ -81,38 +81,38 @@ squash_quicklz_get_uncompressed_size (SquashCodec* codec,
 static SquashStatus
 squash_quicklz_decompress_buffer (SquashCodec* codec,
                                   size_t* decompressed_size,
-                                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                  uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                   size_t compressed_size,
-                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                  const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                   SquashOptions* options) {
   size_t decompressed_l, compressed_l;
   qlz_state_decompress qlz_s;
 
-  if (!SQUASH_LIKELY(squash_qlz_sizes(compressed_size, compressed, &decompressed_l, &compressed_l)))
+  if (!HEDLEY_LIKELY(squash_qlz_sizes(compressed_size, compressed, &decompressed_l, &compressed_l)))
     return squash_error (SQUASH_BUFFER_EMPTY);
 
-  if (SQUASH_UNLIKELY(compressed_size < compressed_l))
+  if (HEDLEY_UNLIKELY(compressed_size < compressed_l))
     return squash_error (SQUASH_BUFFER_EMPTY);
-  if (SQUASH_UNLIKELY(*decompressed_size < decompressed_l))
+  if (HEDLEY_UNLIKELY(*decompressed_size < decompressed_l))
     return squash_error (SQUASH_BUFFER_FULL);
 
   *decompressed_size = qlz_decompress ((const char*) compressed,
                                        (void*) decompressed,
                                        &qlz_s);
 
-  return SQUASH_LIKELY(decompressed_l == *decompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return HEDLEY_LIKELY(decompressed_l == *decompressed_size) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_quicklz_compress_buffer (SquashCodec* codec,
                                 size_t* compressed_size,
-                                uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                                 size_t uncompressed_size,
-                                const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                                const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                                 SquashOptions* options) {
   qlz_state_compress qlz_s;
 
-  if (SQUASH_UNLIKELY(*compressed_size < squash_quicklz_get_max_compressed_size (codec, uncompressed_size))) {
+  if (HEDLEY_UNLIKELY(*compressed_size < squash_quicklz_get_max_compressed_size (codec, uncompressed_size))) {
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
@@ -121,14 +121,14 @@ squash_quicklz_compress_buffer (SquashCodec* codec,
                                      uncompressed_size,
                                      &qlz_s);
 
-  return SQUASH_UNLIKELY(*compressed_size == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
+  return HEDLEY_UNLIKELY(*compressed_size == 0) ? squash_error (SQUASH_FAILED) : SQUASH_OK;
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("quicklz", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("quicklz", name) == 0)) {
     impl->get_uncompressed_size = squash_quicklz_get_uncompressed_size;
     impl->get_max_compressed_size = squash_quicklz_get_max_compressed_size;
     impl->decompress_buffer = squash_quicklz_decompress_buffer;

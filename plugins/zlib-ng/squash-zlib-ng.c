@@ -241,8 +241,8 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
   zlib_stream = &(((SquashZlibStream*) stream)->stream);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < stream->avail_in) ||
-      SQUASH_UNLIKELY(UINT_MAX < stream->avail_out))
+  if (HEDLEY_UNLIKELY(UINT_MAX < stream->avail_in) ||
+      HEDLEY_UNLIKELY(UINT_MAX < stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream, zlib_stream);
@@ -254,8 +254,8 @@ squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
   }
 
 #if SIZE_MAX < UINT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < zlib_stream->avail_out) ||
-      SQUASH_UNLIKELY(SIZE_MAX < zlib_stream->avail_out))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < zlib_stream->avail_out) ||
+      HEDLEY_UNLIKELY(SIZE_MAX < zlib_stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_ZLIB_STREAM_COPY_FROM_ZLIB_STREAM(stream, zlib_stream);
@@ -316,7 +316,7 @@ squash_zlib_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
   SquashZlibType type = squash_zlib_codec_to_type (codec);
 
 #if SIZE_MAX < ULONG_MAX
-  if (SQUASH_UNLIKELY(uncompressed_size > ULONG_MAX)) {
+  if (HEDLEY_UNLIKELY(uncompressed_size > ULONG_MAX)) {
     squash_error (SQUASH_BUFFER_TOO_LARGE);
     return 0;
   }

@@ -48,13 +48,13 @@ squash_lzfse_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
 static SquashStatus
 squash_lzfse_decompress_buffer (SquashCodec* codec,
                                 size_t* decompressed_size,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                 size_t compressed_size,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   const size_t workmem_size = lzfse_decode_scratch_size ();
   lzfse_decoder_state* ctx = squash_calloc (workmem_size, 1);
-  if (SQUASH_UNLIKELY(ctx == NULL))
+  if (HEDLEY_UNLIKELY(ctx == NULL))
     return squash_error (SQUASH_FAILED);
 
   ctx->src_begin = ctx->src = compressed;
@@ -82,12 +82,12 @@ squash_lzfse_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_lzfse_compress_buffer (SquashCodec* codec,
                               size_t* compressed_size,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                               size_t uncompressed_size,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                              const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   void* workmem = squash_malloc (lzfse_encode_scratch_size ());
-  if (SQUASH_UNLIKELY(workmem == NULL))
+  if (HEDLEY_UNLIKELY(workmem == NULL))
     return squash_error (SQUASH_FAILED);
 
   const size_t r = lzfse_encode_buffer (compressed, *compressed_size,
@@ -96,7 +96,7 @@ squash_lzfse_compress_buffer (SquashCodec* codec,
 
   squash_free (workmem);
 
-  if (SQUASH_UNLIKELY(r == 0))
+  if (HEDLEY_UNLIKELY(r == 0))
     return squash_error (SQUASH_BUFFER_FULL);
 
   *compressed_size = r;
@@ -111,9 +111,9 @@ squash_lzvn_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
 static SquashStatus
 squash_lzvn_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   lzvn_decoder_state decoder = { 0, };
 
@@ -130,7 +130,7 @@ squash_lzvn_decompress_buffer (SquashCodec* codec,
   const size_t bytes_read = decoder.src - compressed;
   const size_t bytes_written = decoder.dst - decoder.dst_begin;
 
-  if (SQUASH_UNLIKELY(bytes_read != compressed_size)) {
+  if (HEDLEY_UNLIKELY(bytes_read != compressed_size)) {
     if (bytes_written == *decompressed_size)
       return SQUASH_BUFFER_FULL;
     else
@@ -145,15 +145,15 @@ squash_lzvn_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_lzvn_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   uint8_t outbuf[LZVN_ENCODE_MIN_DST_SIZE];
   uint8_t* dest;
   size_t dest_l;
 
-  if (SQUASH_UNLIKELY(*compressed_size < sizeof(outbuf))) {
+  if (HEDLEY_UNLIKELY(*compressed_size < sizeof(outbuf))) {
     dest = outbuf;
     dest_l = sizeof(outbuf);
   } else {
@@ -162,7 +162,7 @@ squash_lzvn_compress_buffer (SquashCodec* codec,
   }
 
   void* workmem = squash_malloc (LZVN_ENCODE_WORK_SIZE);
-  if (SQUASH_UNLIKELY(workmem == NULL))
+  if (HEDLEY_UNLIKELY(workmem == NULL))
     return squash_error (SQUASH_MEMORY);
 
   dest_l =
@@ -172,10 +172,10 @@ squash_lzvn_compress_buffer (SquashCodec* codec,
 
   squash_free (workmem);
 
-  if (SQUASH_UNLIKELY(dest_l == 0))
+  if (HEDLEY_UNLIKELY(dest_l == 0))
     return squash_error (SQUASH_BUFFER_FULL);
 
-  if (SQUASH_UNLIKELY(dest == outbuf)) {
+  if (HEDLEY_UNLIKELY(dest == outbuf)) {
     if (*compressed_size < dest_l)
       return squash_error (SQUASH_BUFFER_FULL);
 

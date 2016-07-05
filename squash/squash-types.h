@@ -34,7 +34,7 @@
 
 #include <stdarg.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashObject_     SquashObject;
 typedef struct SquashOptions_    SquashOptions;
@@ -45,6 +45,6 @@ typedef struct SquashCodecImpl_  SquashCodecImpl;
 typedef struct SquashPlugin_     SquashPlugin;
 typedef struct SquashFile_       SquashFile;
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_TYPES_H */

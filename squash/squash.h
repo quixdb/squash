@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include "hedley/hedley.h"
+
 #if !defined(SQUASH_DISABLE_WIDE_CHAR_API) && !defined(SQUASH_ENABLE_WIDE_CHAR_API)
 #  define SQUASH_ENABLE_WIDE_CHAR_API
 #endif
@@ -41,65 +43,7 @@
 #  include <wchar.h>
 #endif
 
-#ifdef  __cplusplus
-#  define SQUASH_BEGIN_DECLS extern "C" {
-#  define SQUASH_END_DECLS }
-#else
-#  define SQUASH_BEGIN_DECLS
-#  define SQUASH_END_DECLS
-#endif
-
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && !defined(__cplusplus)
-#  define SQUASH_ARRAY_PARAM(name) name
-#else
-#  define SQUASH_ARRAY_PARAM(name)
-#endif
-
-#if defined(__GNUC__)
-#  define squash_assert_unreachable() do { assert(false); __builtin_unreachable(); } while(0)
-#elif defined(_MSC_VER)
-#  define squash_assert_unreachable() __assume(0)
-#else
-#  define squash_assert_unreachable() assert(false)
-#endif
-
-#if defined(__clang__)
-#  if __has_attribute(sentinel)
-#    define SQUASH_SENTINEL __attribute__((__sentinel__))
-#  else
-#    define SQUASH_SENTINEL
-#  endif
-#elif defined(__GNUC__)
-#  define SQUASH_SENTINEL __attribute__((__sentinel__))
-#else
-#  define SQUASH_SENTINEL
-#endif
-
-#if defined(__clang__)
-#  if __has_attribute(nonnull)
-#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
-#  else
-#    define SQUASH_NONNULL(...)
-#  endif
-#elif !defined(__INTEL_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5)
-#  if defined(NDEBUG)
-#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
-#  else
-#    define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__))) __attribute__((__optimize__("no-isolate-erroneous-paths-attribute")))
-#  endif
-#elif defined(__GNUC__)
-#  define SQUASH_NONNULL(...) __attribute__((__nonnull__ (__VA_ARGS__)))
-#else
-#  define SQUASH_NONNULL(...)
-#endif
-
-#if defined(__clang__) || defined(__GNUC__)
-#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
-#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
-#else
-#  define SQUASH_LIKELY(expr) (expr)
-#  define SQUASH_UNLIKELY(expr) (expr)
-#endif
+#define squash_assert_unreachable() do { assert(false); HEDLEY_UNREACHABLE(); } while(0)
 
 #if defined(_Thread_local) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L))
 #  define SQUASH_THREAD_LOCAL _Thread_local
@@ -127,9 +71,9 @@
 #endif
 
 #if defined(SQUASH_COMPILATION)
-#  define SQUASH_API SQUASH_EXTERNAL
+#  define SQUASH_API HEDLEY_PUBLIC
 #else
-#  define SQUASH_API SQUASH_IMPORT
+#  define SQUASH_API HEDLEY_IMPORT
 #endif
 
 #include <squash/squash-version.h>

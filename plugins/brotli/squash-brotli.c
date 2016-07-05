@@ -27,6 +27,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <squash/squash.h>
 
@@ -188,7 +189,7 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
                                   &(stream->avail_out), &(stream->next_out),
                                   NULL);
 
-    if (SQUASH_UNLIKELY(be_ret != 1))
+    if (HEDLEY_UNLIKELY(be_ret != 1))
       return squash_error (SQUASH_FAILED);
     else if (stream->avail_in != 0 || BrotliEncoderHasMoreOutput(s->ctx.encoder))
       return SQUASH_PROCESSING;
@@ -212,7 +213,7 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
         return SQUASH_FAILED;
     }
 
-    if (SQUASH_UNLIKELY(bd_ret != BROTLI_RESULT_SUCCESS))
+    if (HEDLEY_UNLIKELY(bd_ret != BROTLI_RESULT_SUCCESS))
       return squash_error (SQUASH_FAILED);
     else if (BrotliStateIsStreamEnd(s->ctx.decoder))
       return SQUASH_END_OF_STREAM;
@@ -231,9 +232,9 @@ squash_brotli_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_s
 static SquashStatus
 squash_brotli_compress_buffer (SquashCodec* codec,
                                size_t* compressed_size,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                               uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                                size_t uncompressed_size,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                               const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
   const int quality = squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_LEVEL);
   const int lgwin = squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_WINDOW_SIZE);
@@ -242,26 +243,26 @@ squash_brotli_compress_buffer (SquashCodec* codec,
 
   const int res = BrotliEncoderCompress (quality, lgwin, mode, uncompressed_size, uncompressed, compressed_size, compressed);
 
-  return SQUASH_LIKELY(res == 1) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
+  return HEDLEY_LIKELY(res == 1) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
 static SquashStatus
 squash_brotli_decompress_buffer (SquashCodec* codec,
                                  size_t* decompressed_size,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                 uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                  size_t compressed_size,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                 const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
   const BrotliResult res = BrotliDecompressBuffer(compressed_size, compressed, decompressed_size, decompressed);
 
-  return SQUASH_LIKELY(res == BROTLI_RESULT_SUCCESS) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
+  return HEDLEY_LIKELY(res == BROTLI_RESULT_SUCCESS) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("brotli", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("brotli", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_brotli_options;
     impl->get_max_compressed_size = squash_brotli_get_max_compressed_size;

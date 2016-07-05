@@ -44,9 +44,9 @@ squash_fari_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
 static SquashStatus
 squash_fari_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   void* workmem = squash_malloc (FA_WORKMEM);
   int fari_e = (size_t) fa_decompress ((const unsigned char*) compressed, (unsigned char*) decompressed,
@@ -72,23 +72,23 @@ squash_fari_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_fari_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   void* workmem = squash_malloc (FA_WORKMEM);
   int fari_e = fa_compress ((const unsigned char*) uncompressed, (unsigned char*) compressed,
                             uncompressed_size, compressed_size, workmem);
   squash_free (workmem);
 
-  return SQUASH_LIKELY(fari_e == 0) ? SQUASH_OK : SQUASH_FAILED;
+  return HEDLEY_LIKELY(fari_e == 0) ? SQUASH_OK : SQUASH_FAILED;
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("fari", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("fari", name) == 0)) {
     impl->get_max_compressed_size = squash_fari_get_max_compressed_size;
     impl->decompress_buffer = squash_fari_decompress_buffer;
     impl->compress_buffer_unsafe = squash_fari_compress_buffer;

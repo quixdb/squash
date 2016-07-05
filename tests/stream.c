@@ -3,9 +3,9 @@
 static SquashStatus
 buffer_to_buffer_compress_with_stream (SquashCodec* codec,
                                        size_t* compressed_length,
-                                       uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                                       uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_length)],
                                        size_t uncompressed_length,
-                                       const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)]) {
+                                       const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_length)]) {
   size_t step_size = munit_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream (codec, SQUASH_STREAM_COMPRESS, NULL);
   SquashStatus res;
@@ -72,9 +72,9 @@ squash_test_stream_compress(MUNIT_UNUSED const MunitParameter params[], void* us
 static SquashStatus
 buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
                                          size_t* decompressed_length,
-                                         uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                         uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_length)],
                                          size_t compressed_length,
-                                         const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                         const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_length)]) {
   size_t step_size = munit_rand_int_range (64, 255);
   SquashStream* stream = squash_codec_create_stream (codec, SQUASH_STREAM_DECOMPRESS, NULL);
   SquashStatus res = SQUASH_OK;

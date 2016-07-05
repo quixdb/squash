@@ -38,7 +38,7 @@
 #define inline __inline
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashSList_ {
   struct SquashSList_* next;
@@ -91,6 +91,6 @@ squash_slist_append (SquashSList* list, size_t elem_size) {
 #define SQUASH_SLIST_APPEND(l,T) \
   ((T*) squash_slist_append ((SquashSList*) l, sizeof (T)))
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_SLIST_INTERNAL_H */

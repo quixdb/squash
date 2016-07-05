@@ -32,7 +32,7 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 struct SquashStreamPrivate_ {
   thrd_t thread;
@@ -50,6 +50,6 @@ struct SquashStreamPrivate_ {
 #define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
 #define SQUASH_STATUS_INVALID ((SquashStatus) 0)
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* !defined(SQUASH_STREAM_INTERNAL_H) */

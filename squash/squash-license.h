@@ -34,7 +34,7 @@
 
 #include <stdio.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef enum {
   SQUASH_LICENSE_UNKNOWN       = 0,
@@ -80,6 +80,6 @@ typedef enum {
 SQUASH_API SquashLicense squash_license_from_string (const char* license);
 SQUASH_API const char*   squash_license_to_string   (SquashLicense license);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_LICENSE_H */

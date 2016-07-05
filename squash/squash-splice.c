@@ -226,13 +226,13 @@ squash_splice_stream (FILE* fp_in,
 
   if (res != SQUASH_OK) {
     file = squash_file_steal_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
-    if (SQUASH_UNLIKELY(file == NULL)) {
+    if (HEDLEY_UNLIKELY(file == NULL)) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
     }
 
     data = squash_malloc (SQUASH_FILE_BUF_SIZE);
-    if (SQUASH_UNLIKELY(data == NULL)) {
+    if (HEDLEY_UNLIKELY(data == NULL)) {
       res = squash_error (SQUASH_MEMORY);
       goto cleanup;
     }
@@ -243,7 +243,7 @@ squash_splice_stream (FILE* fp_in,
 
         data_size = SQUASH_FREAD_UNLOCKED(data, 1, req_size, fp_in);
         if (data_size == 0) {
-          res = SQUASH_LIKELY(feof (fp_in)) ? SQUASH_OK : squash_error (SQUASH_IO);
+          res = HEDLEY_LIKELY(feof (fp_in)) ? SQUASH_OK : squash_error (SQUASH_IO);
           goto cleanup;
         }
 
@@ -269,7 +269,7 @@ squash_splice_stream (FILE* fp_in,
         if (data_size > 0) {
           size_t bytes_written = SQUASH_FWRITE_UNLOCKED(data, 1, data_size, fp_out);
           assert (bytes_written == data_size);
-          if (SQUASH_UNLIKELY(bytes_written == 0)) {
+          if (HEDLEY_UNLIKELY(bytes_written == 0)) {
             res = squash_error (SQUASH_IO);
             break;
           }
@@ -328,7 +328,7 @@ struct SquashFileSpliceData {
 
 static SquashStatus
 squash_file_splice_read (size_t* data_size,
-                         uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
+                         uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)],
                          void* user_data) {
   struct SquashFileSpliceData* ctx = (struct SquashFileSpliceData*) user_data;
 
@@ -353,7 +353,7 @@ squash_file_splice_read (size_t* data_size,
   ctx->pos += bytes_read;
 
   if (bytes_read == 0) {
-    return SQUASH_LIKELY(feof (ctx->fp_in)) ? SQUASH_END_OF_STREAM : squash_error (SQUASH_IO);
+    return HEDLEY_LIKELY(feof (ctx->fp_in)) ? SQUASH_END_OF_STREAM : squash_error (SQUASH_IO);
   } else {
     return SQUASH_OK;
   }
@@ -361,14 +361,14 @@ squash_file_splice_read (size_t* data_size,
 
 static SquashStatus
 squash_file_splice_write (size_t* data_size,
-                          const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)],
+                          const uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)],
                           void* user_data) {
   struct SquashFileSpliceData* ctx = (struct SquashFileSpliceData*) user_data;
 
   const size_t requested = *data_size;
   *data_size = SQUASH_FWRITE_UNLOCKED(data, 1, requested, ctx->fp_out);
 
-  return SQUASH_LIKELY(*data_size == requested) ? SQUASH_OK : squash_error (SQUASH_IO);
+  return HEDLEY_LIKELY(*data_size == requested) ? SQUASH_OK : squash_error (SQUASH_IO);
 }
 
 /* I would care more about the absurd name if this were exposed publicly. */
@@ -462,7 +462,7 @@ struct SquashSpliceLimitedData {
 static SQUASH_THREAD_LOCAL SquashStatus squash_splice_custom_limited_res;
 
 static SquashStatus
-squash_splice_custom_limited_write (size_t* data_size, const uint8_t data[SQUASH_ARRAY_PARAM(*data_size)], void* user_data) {
+squash_splice_custom_limited_write (size_t* data_size, const uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)], void* user_data) {
   assert (user_data != NULL);
 
   SquashStatus res = SQUASH_OK;
@@ -495,7 +495,7 @@ squash_splice_custom_limited_write (size_t* data_size, const uint8_t data[SQUASH
 }
 
 static SquashStatus
-squash_splice_custom_limited_read (size_t* data_size, uint8_t data[SQUASH_ARRAY_PARAM(*data_size)], void* user_data) {
+squash_splice_custom_limited_read (size_t* data_size, uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)], void* user_data) {
   assert (user_data != NULL);
 
   struct SquashSpliceLimitedData* ctx = user_data;
@@ -553,13 +553,13 @@ squash_splice_custom_with_options (SquashCodec* codec,
     }
   } else if (codec->impl.process_stream) {
     SquashStream* stream = squash_stream_new_with_options(codec, stream_type, options);
-    if (SQUASH_UNLIKELY(stream == NULL))
+    if (HEDLEY_UNLIKELY(stream == NULL))
       return squash_error (SQUASH_FAILED);
 
     uint8_t* const in_buf = squash_malloc (SQUASH_SPLICE_BUF_SIZE);
     uint8_t* const out_buf = squash_malloc (SQUASH_SPLICE_BUF_SIZE);
 
-    if (SQUASH_UNLIKELY(in_buf == NULL) || SQUASH_UNLIKELY(out_buf == NULL)) {
+    if (HEDLEY_UNLIKELY(in_buf == NULL) || HEDLEY_UNLIKELY(out_buf == NULL)) {
       res = squash_error (SQUASH_MEMORY);
       goto cleanup_stream;
     }
@@ -635,14 +635,14 @@ squash_splice_custom_with_options (SquashCodec* codec,
       const size_t old_size = buffer->size;
       const size_t read_request = limit_input ? (size - old_size): SQUASH_SPLICE_BUF_SIZE;
 
-      if (SQUASH_UNLIKELY(!squash_buffer_set_size (buffer, old_size + read_request))) {
+      if (HEDLEY_UNLIKELY(!squash_buffer_set_size (buffer, old_size + read_request))) {
         res = squash_error (SQUASH_MEMORY);
         goto cleanup_buffer;
       }
 
       size_t bytes_read = read_request;
       res = read_cb (&bytes_read, buffer->data + old_size, user_data);
-      if (SQUASH_UNLIKELY(res < 0)) {
+      if (HEDLEY_UNLIKELY(res < 0)) {
         goto cleanup_buffer;
       }
 
@@ -658,7 +658,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
     if (stream_type == SQUASH_STREAM_COMPRESS) {
       out_data_size = squash_codec_get_max_compressed_size (codec, buffer->size);
       out_data = squash_malloc (out_data_size);
-      if (SQUASH_UNLIKELY(out_data == NULL)) {
+      if (HEDLEY_UNLIKELY(out_data == NULL)) {
         res = squash_error (SQUASH_MEMORY);
         goto cleanup_buffer;
       }
@@ -672,13 +672,13 @@ squash_splice_custom_with_options (SquashCodec* codec,
 
       if (knows_uncompressed) {
         out_data_size = squash_codec_get_uncompressed_size(codec, buffer->size, buffer->data);
-        if (SQUASH_UNLIKELY(out_data_size == 0)) {
+        if (HEDLEY_UNLIKELY(out_data_size == 0)) {
           res = squash_error (SQUASH_INVALID_BUFFER);
           goto cleanup_buffer;
         }
 
         out_data = squash_malloc (out_data_size);
-        if (SQUASH_UNLIKELY(out_data == NULL)) {
+        if (HEDLEY_UNLIKELY(out_data == NULL)) {
           res = squash_error (SQUASH_MEMORY);
           goto cleanup_buffer;
         }
@@ -690,7 +690,7 @@ squash_splice_custom_with_options (SquashCodec* codec,
       } else {
         SquashBuffer* decompressed_buffer = squash_buffer_new (0);
         res = squash_codec_decompress_to_buffer (codec, decompressed_buffer, buffer->size, buffer->data, options);
-        if (SQUASH_UNLIKELY(res != SQUASH_OK)) {
+        if (HEDLEY_UNLIKELY(res != SQUASH_OK)) {
           squash_buffer_free (decompressed_buffer);
           goto cleanup_buffer;
         }

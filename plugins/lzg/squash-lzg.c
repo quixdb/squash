@@ -63,14 +63,14 @@ SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashC
 static size_t
 squash_lzg_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < uncompressed_size))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
   const lzg_uint32_t res = LZG_MaxEncodedSize ((lzg_uint32_t) uncompressed_size);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < res))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < res))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
@@ -80,16 +80,16 @@ squash_lzg_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size
 static size_t
 squash_lzg_get_uncompressed_size (SquashCodec* codec,
                                   size_t compressed_size,
-                                  const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+                                  const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)]) {
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < compressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < compressed_size))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
   const lzg_uint32_t res = LZG_DecodedSize ((const unsigned char*) compressed, (lzg_uint32_t) compressed_size);
 
 #if SIZE_MAX < UINT32_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < res))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < res))
     return (squash_error (SQUASH_RANGE), 0);
 #endif
 
@@ -99,9 +99,9 @@ squash_lzg_get_uncompressed_size (SquashCodec* codec,
 static SquashStatus
 squash_lzg_compress_buffer (SquashCodec* codec,
                             size_t* compressed_size,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                             size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                            const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   lzg_encoder_config_t cfg = {
     squash_options_get_int_at (options, codec, SQUASH_LZG_OPT_LEVEL),
@@ -111,13 +111,13 @@ squash_lzg_compress_buffer (SquashCodec* codec,
   };
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < uncompressed_size) ||
-      SQUASH_UNLIKELY(UINT32_MAX < *compressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < uncompressed_size) ||
+      HEDLEY_UNLIKELY(UINT32_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
   uint8_t* workmem = squash_calloc (LZG_WorkMemSize (&cfg), 1);
-  if (SQUASH_UNLIKELY(workmem == NULL))
+  if (HEDLEY_UNLIKELY(workmem == NULL))
     return squash_error (SQUASH_MEMORY);
   lzg_uint32_t res = LZG_EncodeFull ((const unsigned char*) uncompressed, (lzg_uint32_t) uncompressed_size,
                                      (unsigned char*) compressed, (lzg_uint32_t) *compressed_size,
@@ -128,7 +128,7 @@ squash_lzg_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_FAILED);
   } else {
 #if SIZE_MAX < UINT32_MAX
-    if (SQUASH_UNLIKELY(SIZE_MAX < res))
+    if (HEDLEY_UNLIKELY(SIZE_MAX < res))
       return squash_error (SQUASH_RANGE);
 #endif
     *compressed_size = (size_t) res;
@@ -139,15 +139,15 @@ squash_lzg_compress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_lzg_decompress_buffer (SquashCodec* codec,
                               size_t* decompressed_size,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                               size_t compressed_size,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                              const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
   lzg_uint32_t res;
 
 #if UINT32_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT32_MAX < compressed_size) ||
-      SQUASH_UNLIKELY(UINT32_MAX < *decompressed_size))
+  if (HEDLEY_UNLIKELY(UINT32_MAX < compressed_size) ||
+      HEDLEY_UNLIKELY(UINT32_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -157,11 +157,11 @@ squash_lzg_decompress_buffer (SquashCodec* codec,
   res = LZG_Decode ((const unsigned char*) compressed, (lzg_uint32_t) compressed_size,
                     (unsigned char*) decompressed, (lzg_uint32_t) *decompressed_size);
 
-  if (SQUASH_UNLIKELY(res == 0)) {
+  if (HEDLEY_UNLIKELY(res == 0)) {
     return squash_error (SQUASH_FAILED);
   } else {
 #if SIZE_MAX < UINT32_MAX
-    if (SQUASH_UNLIKELY(SIZE_MAX < res))
+    if (HEDLEY_UNLIKELY(SIZE_MAX < res))
       return squash_error (SQUASH_RANGE);
 #endif
     *decompressed_size = (size_t) res;
@@ -173,7 +173,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("lzg", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("lzg", name) == 0)) {
     impl->options = squash_lzg_options;
     impl->get_uncompressed_size = squash_lzg_get_uncompressed_size;
     impl->get_max_compressed_size = squash_lzg_get_max_compressed_size;

@@ -212,7 +212,7 @@ static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
 
 static void* squash_lzma_calloc (void *opaque, size_t nmemb, size_t size) {
   void* ptr = squash_malloc (nmemb * size);
-  if (SQUASH_UNLIKELY(ptr == NULL))
+  if (HEDLEY_UNLIKELY(ptr == NULL))
     return ptr;
   return memset (ptr, 0, nmemb * size);
 }

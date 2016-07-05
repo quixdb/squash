@@ -253,7 +253,7 @@ squash_object_unref (void* obj) {
   unsigned int ref_count = squash_atomic_dec (&(object->ref_count));
 
   if (ref_count == 1) {
-    if (SQUASH_LIKELY(object->destroy_notify != NULL))
+    if (HEDLEY_LIKELY(object->destroy_notify != NULL))
       object->destroy_notify (obj);
 
     squash_free (obj);

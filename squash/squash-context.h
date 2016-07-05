@@ -33,32 +33,32 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_API void           squash_set_default_search_path          (const char* search_path);
 SQUASH_API SquashContext* squash_context_get_default              (void);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashPlugin*  squash_context_get_plugin               (SquashContext* context, const char* plugin);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashCodec*   squash_context_get_codec                (SquashContext* context, const char* codec);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API void           squash_context_foreach_plugin           (SquashContext* context, SquashPluginForeachFunc func, void* data);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API void           squash_context_foreach_codec            (SquashContext* context, SquashCodecForeachFunc func, void* data);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashCodec*   squash_context_get_codec_from_extension (SquashContext* context, const char* extension);
 
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashPlugin*  squash_get_plugin                       (const char* plugin);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashCodec*   squash_get_codec                        (const char* codec);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void           squash_foreach_plugin                   (SquashPluginForeachFunc func, void* data);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void           squash_foreach_codec                    (SquashCodecForeachFunc func, void* data);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashCodec*   squash_get_codec_from_extension         (const char* extension);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_CONTEXT_H */

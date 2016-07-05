@@ -77,7 +77,7 @@ squash_buffer_stream_process (SquashBufferStream* stream) {
     return SQUASH_OK;
 
   const bool s = squash_buffer_append (stream->input, stream->base_object.avail_in, stream->base_object.next_in);
-  if (SQUASH_LIKELY(s)) {
+  if (HEDLEY_LIKELY(s)) {
     stream->base_object.next_in += stream->base_object.avail_in;
     stream->base_object.avail_in = 0;
   } else {
@@ -96,7 +96,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
   SquashBuffer* input = stream->input;
   SquashBuffer* output = stream->output;
 
-  if (SQUASH_UNLIKELY(input->size == 0))
+  if (HEDLEY_UNLIKELY(input->size == 0))
     return squash_error (SQUASH_FAILED);
 
   /* Squash should handle making sure process is called until the
@@ -114,7 +114,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
            contents of the compressed data, so write directly to
            it. */
         res = squash_codec_compress_with_options(codec, &compressed_size, s->next_out, input->size, input->data, s->options);
-        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+        if (HEDLEY_UNLIKELY(res != SQUASH_OK))
           return res;
 
         s->next_out += compressed_size;
@@ -124,11 +124,11 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
       } else {
         /* Write the compressed data into an internal buffer. */
         stream->output = output = squash_buffer_new (compressed_size);
-        if (SQUASH_UNLIKELY(output == NULL))
+        if (HEDLEY_UNLIKELY(output == NULL))
           return squash_error (SQUASH_MEMORY);
 
         res = squash_codec_compress_with_options (codec, &compressed_size, output->data, input->size, input->data, s->options);
-        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+        if (HEDLEY_UNLIKELY(res != SQUASH_OK))
           return res;
 
         output->size = compressed_size;
@@ -140,7 +140,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         if (s->avail_out >= decompressed_size) {
           /* And there is enough room in next_out to hold it, so write directly to next_out */
           res = squash_codec_decompress_with_options (codec, &decompressed_size, s->next_out, input->size, input->data, s->options);
-          if (SQUASH_UNLIKELY(res != SQUASH_OK))
+          if (HEDLEY_UNLIKELY(res != SQUASH_OK))
             return res;
 
           s->next_out += decompressed_size;
@@ -150,11 +150,11 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         } else {
           /* But there isn't enough room in next_out, so we have to buffer. */
           stream->output = output = squash_buffer_new (decompressed_size);
-          if (SQUASH_UNLIKELY(output == NULL))
+          if (HEDLEY_UNLIKELY(output == NULL))
             return squash_error (SQUASH_MEMORY);
 
           res = squash_codec_decompress_with_options (codec, &decompressed_size, output->data, input->size, input->data, s->options);
-          if (SQUASH_UNLIKELY(res != SQUASH_OK))
+          if (HEDLEY_UNLIKELY(res != SQUASH_OK))
             return res;
 
           output->size = decompressed_size;
@@ -177,11 +177,11 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
         }
 
         stream->output = output = squash_buffer_new (0);
-        if (SQUASH_UNLIKELY(output == NULL))
+        if (HEDLEY_UNLIKELY(output == NULL))
           return squash_error (SQUASH_MEMORY);
 
         res = squash_codec_decompress_to_buffer(codec, output, input->size, input->data, s->options);
-        if (SQUASH_UNLIKELY(res != SQUASH_OK))
+        if (HEDLEY_UNLIKELY(res != SQUASH_OK))
           return res;
       }
     }
@@ -191,7 +191,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
 
   const size_t remaining = output->size - stream->output_pos;
   const size_t cp_size = (remaining < s->avail_out) ? remaining : s->avail_out;
-  if (SQUASH_LIKELY(cp_size != 0)) {
+  if (HEDLEY_LIKELY(cp_size != 0)) {
     memcpy (s->next_out, output->data + stream->output_pos, cp_size);
     s->next_out += cp_size;
     s->avail_out -= cp_size;

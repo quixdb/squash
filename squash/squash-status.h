@@ -32,7 +32,7 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef enum {
   SQUASH_OK                    =  1,
@@ -58,6 +58,6 @@ SQUASH_API const char* squash_status_to_string (SquashStatus status);
 
 SQUASH_API SquashStatus squash_error (SquashStatus status);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_STATUS_H */

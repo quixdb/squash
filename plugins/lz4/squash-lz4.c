@@ -61,13 +61,13 @@ squash_lz4_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size
 static SquashStatus
 squash_lz4_decompress_buffer (SquashCodec* codec,
                               size_t* decompressed_size,
-                              uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                              uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                               size_t compressed_size,
-                              const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                              const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                               SquashOptions* options) {
 #if INT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(INT_MAX < compressed_size) ||
-      SQUASH_UNLIKELY(INT_MAX < *decompressed_size))
+  if (HEDLEY_UNLIKELY(INT_MAX < compressed_size) ||
+      HEDLEY_UNLIKELY(INT_MAX < *decompressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -80,7 +80,7 @@ squash_lz4_decompress_buffer (SquashCodec* codec,
     return SQUASH_FAILED;
   } else {
 #if SIZE_MAX < INT_MAX
-    if (SQUASH_UNLIKELY(SIZE_MAX < lz4_e))
+    if (HEDLEY_UNLIKELY(SIZE_MAX < lz4_e))
       return squash_error (SQUASH_RANGE);
 #endif
     *decompressed_size = (size_t) lz4_e;
@@ -133,15 +133,15 @@ squash_lz4_level_to_hc_level (const int level) {
 static SquashStatus
 squash_lz4_compress_buffer (SquashCodec* codec,
                             size_t* compressed_size,
-                            uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                            uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                             size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                            const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                             SquashOptions* options) {
   int level = squash_options_get_int_at (options, codec, SQUASH_LZ4_OPT_LEVEL);
 
 #if INT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size) ||
-      SQUASH_UNLIKELY(INT_MAX < *compressed_size))
+  if (HEDLEY_UNLIKELY(INT_MAX < uncompressed_size) ||
+      HEDLEY_UNLIKELY(INT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -169,27 +169,27 @@ squash_lz4_compress_buffer (SquashCodec* codec,
   }
 
 #if SIZE_MAX < INT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < lz4_r))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < lz4_r))
     return squash_error (SQUASH_RANGE);
 #endif
 
   *compressed_size = lz4_r;
 
-  return SQUASH_UNLIKELY(lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
+  return HEDLEY_UNLIKELY(lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
 }
 
 static SquashStatus
 squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                    size_t* compressed_size,
-                                   uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                   uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                                    size_t uncompressed_size,
-                                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                                   const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                                    SquashOptions* options) {
   int level = squash_options_get_int_at (options, codec, SQUASH_LZ4_OPT_LEVEL);
 
 #if INT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(INT_MAX < uncompressed_size) ||
-      SQUASH_UNLIKELY(INT_MAX < *compressed_size))
+  if (HEDLEY_UNLIKELY(INT_MAX < uncompressed_size) ||
+      HEDLEY_UNLIKELY(INT_MAX < *compressed_size))
     return squash_error (SQUASH_RANGE);
 #endif
 
@@ -215,7 +215,7 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
   }
 
 #if SIZE_MAX < INT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < lz4_r))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < lz4_r))
     return squash_error (SQUASH_RANGE);
 #endif
 

@@ -145,7 +145,7 @@ squash_file_open_with_options (SquashCodec* codec, const char* filename, const c
 
 #if !defined(_WIN32)
   FILE* fp = fopen (filename, mode);
-  if (SQUASH_LIKELY(fp == NULL))
+  if (HEDLEY_LIKELY(fp == NULL))
     return NULL;
 
   return squash_file_steal_with_options (codec, fp, options);
@@ -209,7 +209,7 @@ squash_file_wopen_with_options (SquashCodec* codec, const wchar_t* filename, con
   return file;
 #else
   FILE* fp = _wfopen (filename, mode);
-  if (SQUASH_UNLIKELY(fp == NULL))
+  if (HEDLEY_UNLIKELY(fp == NULL))
     return NULL;
 
   return squash_file_steal_with_options (codec, fp, options);
@@ -321,7 +321,7 @@ squash_file_steal_with_options (SquashCodec* codec, FILE* fp, SquashOptions* opt
 SquashStatus
 squash_file_read (SquashFile* file,
                   size_t* decompressed_size,
-                  uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]) {
+                  uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)]) {
   assert (file != NULL);
   assert (decompressed_size != NULL);
   assert (decompressed != NULL);
@@ -352,17 +352,17 @@ squash_file_read (SquashFile* file,
 SquashStatus
 squash_file_read_unlocked (SquashFile* file,
                            size_t* decompressed_size,
-                           uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)]) {
+                           uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)]) {
   assert (file != NULL);
   assert (decompressed_size != NULL);
   assert (decompressed != NULL);
 
-  if (SQUASH_UNLIKELY(file->last_status < 0))
+  if (HEDLEY_UNLIKELY(file->last_status < 0))
     return file->last_status;
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_DECOMPRESS, file->options);
-    if (SQUASH_UNLIKELY(file->stream == NULL)) {
+    if (HEDLEY_UNLIKELY(file->stream == NULL)) {
       return file->last_status = squash_error (SQUASH_FAILED);
     }
   }
@@ -436,18 +436,18 @@ squash_file_read_unlocked (SquashFile* file,
 static SquashStatus
 squash_file_write_internal (SquashFile* file,
                             size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                            const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                             SquashOperation operation) {
   SquashStatus res;
 
   assert (file != NULL);
 
-  if (SQUASH_UNLIKELY(file->last_status < 0))
+  if (HEDLEY_UNLIKELY(file->last_status < 0))
     return file->last_status;
 
   if (file->stream == NULL) {
     file->stream = squash_codec_create_stream_with_options (file->codec, SQUASH_STREAM_COMPRESS, file->options);
-    if (SQUASH_UNLIKELY(file->stream == NULL)) {
+    if (HEDLEY_UNLIKELY(file->stream == NULL)) {
       res = squash_error (SQUASH_FAILED);
       goto cleanup;
     }
@@ -527,7 +527,7 @@ squash_file_write_internal (SquashFile* file,
 SquashStatus
 squash_file_write (SquashFile* file,
                    size_t uncompressed_size,
-                   const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]) {
+                   const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)]) {
   squash_file_lock (file);
   SquashStatus res = squash_file_write_unlocked (file, uncompressed_size, uncompressed);
   squash_file_unlock (file);
@@ -605,11 +605,11 @@ squash_file_vwprintf (SquashFile* file,
   assert (format != NULL);
 
   size = _vscwprintf (format, ap);
-  if (SQUASH_UNLIKELY(size < 0))
+  if (HEDLEY_UNLIKELY(size < 0))
     return squash_error (SQUASH_FAILED);
 
   buf = calloc (size + 1, sizeof (wchar_t));
-  if (SQUASH_UNLIKELY(buf == NULL))
+  if (HEDLEY_UNLIKELY(buf == NULL))
     return squash_error (SQUASH_MEMORY);
 
 #if !defined(_WIN32)
@@ -617,7 +617,7 @@ squash_file_vwprintf (SquashFile* file,
 #else
   const int written = _vsnwprintf (buf, size + 1, format, ap);
 #endif
-  if (SQUASH_UNLIKELY(written != size)) {
+  if (HEDLEY_UNLIKELY(written != size)) {
     res = squash_error (SQUASH_FAILED);
   } else {
     size_t data_size;
@@ -626,7 +626,7 @@ squash_file_vwprintf (SquashFile* file,
       squash_charset_convert (&data_size, &data, "UTF-8",
                               size * sizeof(wchar_t), (char*) buf, squash_charset_get_wide ());
 
-    if (SQUASH_LIKELY(conv_success))
+    if (HEDLEY_LIKELY(conv_success))
       res = squash_file_write (file, data_size, (uint8_t*) data);
     else
       res = squash_error (SQUASH_FAILED);
@@ -663,26 +663,26 @@ squash_file_vprintf (SquashFile* file,
 
 #if defined(_WIN32)
   size = _vscprintf (format, ap);
-  if (SQUASH_UNLIKELY(size < 0))
+  if (HEDLEY_UNLIKELY(size < 0))
     return squash_error (SQUASH_FAILED);
 #else
   char buf[256];
   size = vsnprintf (buf, sizeof (buf), format, ap);
-  if (SQUASH_UNLIKELY(size < 0))
+  if (HEDLEY_UNLIKELY(size < 0))
     return squash_error (SQUASH_FAILED);
   else if (size >= (int) sizeof (buf))
 #endif
   {
     heap_buf = squash_malloc (size + 1);
-    if (SQUASH_UNLIKELY(heap_buf == NULL))
+    if (HEDLEY_UNLIKELY(heap_buf == NULL))
       return squash_error (SQUASH_MEMORY);
 
     const int written = vsnprintf (heap_buf, size + 1, format, ap);
-    if (SQUASH_UNLIKELY(written != size))
+    if (HEDLEY_UNLIKELY(written != size))
       res = squash_error (SQUASH_FAILED);
   }
 
-  if (SQUASH_LIKELY(res == SQUASH_OK)) {
+  if (HEDLEY_LIKELY(res == SQUASH_OK)) {
     res = squash_file_write (file, size,
 #if !defined(_WIN32)
                              (heap_buf == NULL) ? (uint8_t*) buf :
@@ -731,7 +731,7 @@ squash_file_printf (SquashFile* file,
 SquashStatus
 squash_file_write_unlocked (SquashFile* file,
                             size_t uncompressed_size,
-                            const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)]) {
+                            const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)]) {
   return squash_file_write_internal (file, uncompressed_size, uncompressed, SQUASH_OPERATION_PROCESS);
 }
 
@@ -832,8 +832,8 @@ squash_file_close (SquashFile* file) {
     res = SQUASH_OK;
 
   if (fp != NULL) {
-    const SquashStatus cres = SQUASH_LIKELY(fclose (fp) == 0) ? SQUASH_OK : squash_error (SQUASH_IO);
-    if (SQUASH_LIKELY(res > 0))
+    const SquashStatus cres = HEDLEY_LIKELY(fclose (fp) == 0) ? SQUASH_OK : squash_error (SQUASH_IO);
+    if (HEDLEY_LIKELY(res > 0))
       res = cres;
   }
   return res;
@@ -862,7 +862,7 @@ SquashStatus
 squash_file_free (SquashFile* file, FILE** fp) {
   SquashStatus res = SQUASH_OK;
 
-  if (SQUASH_UNLIKELY(file == NULL)) {
+  if (HEDLEY_UNLIKELY(file == NULL)) {
     if (fp != NULL)
       *fp = NULL;
     return SQUASH_OK;
