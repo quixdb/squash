@@ -145,7 +145,7 @@ squash_file_open_with_options (SquashCodec* codec, const char* filename, const c
 
 #if !defined(_WIN32)
   FILE* fp = fopen (filename, mode);
-  if (SQUASH_LIKELY(fp == NULL))
+  if (SQUASH_UNLIKELY(fp == NULL))
     return NULL;
 
   return squash_file_steal_with_options (codec, fp, options);
@@ -457,9 +457,6 @@ squash_file_write_internal (SquashFile* file,
   assert (file->stream->avail_in == 0);
   assert (file->stream->next_out == NULL);
   assert (file->stream->avail_out == 0);
-
-  file->stream->next_in = uncompressed;
-  file->stream->avail_in = uncompressed_size;
 
   file->stream->next_in = uncompressed;
   file->stream->avail_in = uncompressed_size;

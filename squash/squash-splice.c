@@ -224,66 +224,64 @@ squash_splice_stream (FILE* fp_in,
  nomap:
 #endif /* defined(SQUASH_MMAP_IO) */
 
-  if (res != SQUASH_OK) {
-    file = squash_file_steal_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
-    if (SQUASH_UNLIKELY(file == NULL)) {
-      res = squash_error (SQUASH_FAILED);
-      goto cleanup;
+  file = squash_file_steal_with_options (codec, (stream_type == SQUASH_STREAM_COMPRESS ? fp_out : fp_in), options);
+  if (SQUASH_UNLIKELY(file == NULL)) {
+    res = squash_error (SQUASH_FAILED);
+    goto cleanup;
+  }
+
+  data = squash_malloc (SQUASH_FILE_BUF_SIZE);
+  if (SQUASH_UNLIKELY(data == NULL)) {
+    res = squash_error (SQUASH_MEMORY);
+    goto cleanup;
+  }
+
+  if (stream_type == SQUASH_STREAM_COMPRESS) {
+    while (size == 0 || remaining != 0) {
+      const size_t req_size = (size == 0 || remaining > SQUASH_FILE_BUF_SIZE) ? SQUASH_FILE_BUF_SIZE : remaining;
+
+      data_size = SQUASH_FREAD_UNLOCKED(data, 1, req_size, fp_in);
+      if (data_size == 0) {
+        res = SQUASH_LIKELY(feof (fp_in)) ? SQUASH_OK : squash_error (SQUASH_IO);
+        goto cleanup;
+      }
+
+      res = squash_file_write (file, data_size, data);
+      if (res != SQUASH_OK)
+        goto cleanup;
+
+      if (remaining != 0) {
+        assert (data_size <= remaining);
+        remaining -= data_size;
+      }
     }
+  } else {
+    while (size == 0 || remaining != 0) {
+      data_size = (size == 0 || remaining > SQUASH_FILE_BUF_SIZE) ? SQUASH_FILE_BUF_SIZE : remaining;
+      res = squash_file_read (file, &data_size, data);
+      if (res < 0) {
+        break;
+      } else if (res == SQUASH_PROCESSING) {
+        res = SQUASH_OK;
+      }
 
-    data = squash_malloc (SQUASH_FILE_BUF_SIZE);
-    if (SQUASH_UNLIKELY(data == NULL)) {
-      res = squash_error (SQUASH_MEMORY);
-      goto cleanup;
-    }
-
-    if (stream_type == SQUASH_STREAM_COMPRESS) {
-      while (size == 0 || remaining != 0) {
-        const size_t req_size = (size == 0 || remaining > SQUASH_FILE_BUF_SIZE) ? SQUASH_FILE_BUF_SIZE : remaining;
-
-        data_size = SQUASH_FREAD_UNLOCKED(data, 1, req_size, fp_in);
-        if (data_size == 0) {
-          res = SQUASH_LIKELY(feof (fp_in)) ? SQUASH_OK : squash_error (SQUASH_IO);
-          goto cleanup;
+      if (data_size > 0) {
+        size_t bytes_written = SQUASH_FWRITE_UNLOCKED(data, 1, data_size, fp_out);
+        assert (bytes_written == data_size);
+        if (SQUASH_UNLIKELY(bytes_written == 0)) {
+          res = squash_error (SQUASH_IO);
+          break;
         }
-
-        res = squash_file_write (file, data_size, data);
-        if (res != SQUASH_OK)
-          goto cleanup;
 
         if (remaining != 0) {
           assert (data_size <= remaining);
           remaining -= data_size;
         }
       }
-    } else {
-      while (size == 0 || remaining != 0) {
-        data_size = (size == 0 || remaining > SQUASH_FILE_BUF_SIZE) ? SQUASH_FILE_BUF_SIZE : remaining;
-        res = squash_file_read (file, &data_size, data);
-        if (res < 0) {
-          break;
-        } else if (res == SQUASH_PROCESSING) {
-          res = SQUASH_OK;
-        }
 
-        if (data_size > 0) {
-          size_t bytes_written = SQUASH_FWRITE_UNLOCKED(data, 1, data_size, fp_out);
-          assert (bytes_written == data_size);
-          if (SQUASH_UNLIKELY(bytes_written == 0)) {
-            res = squash_error (SQUASH_IO);
-            break;
-          }
-
-          if (remaining != 0) {
-            assert (data_size <= remaining);
-            remaining -= data_size;
-          }
-        }
-
-        if (res == SQUASH_END_OF_STREAM) {
-          res = SQUASH_OK;
-          break;
-        }
+      if (res == SQUASH_END_OF_STREAM) {
+        res = SQUASH_OK;
+        break;
       }
     }
   }

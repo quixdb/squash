@@ -94,8 +94,8 @@
 #endif
 
 #if defined(__clang__) || defined(__GNUC__)
-#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr), true))
-#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr), false))
+#  define SQUASH_LIKELY(expr) (__builtin_expect ((expr) != 0, 1))
+#  define SQUASH_UNLIKELY(expr) (__builtin_expect ((expr) != 0, 0))
 #else
 #  define SQUASH_LIKELY(expr) (expr)
 #  define SQUASH_UNLIKELY(expr) (expr)

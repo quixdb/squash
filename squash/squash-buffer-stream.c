@@ -91,7 +91,6 @@ SquashStatus
 squash_buffer_stream_finish (SquashBufferStream* stream) {
   SquashStream* s = (SquashStream*) stream;
   SquashCodec* codec = s->codec;
-  SquashStatus res;
 
   SquashBuffer* input = stream->input;
   SquashBuffer* output = stream->output;
@@ -107,6 +106,7 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
      compression/decompression, and are just working on writting the
      output buffer to the stream. */
   if (output == NULL) {
+    SquashStatus res;
     if (s->stream_type == SQUASH_STREAM_COMPRESS) {
       size_t compressed_size = squash_codec_get_max_compressed_size (codec, input->size);
       if (s->avail_out >= compressed_size) {
@@ -164,7 +164,6 @@ squash_buffer_stream_finish (SquashBufferStream* stream) {
            first attempt to decompress directly to next_out.  If it
            works, it saves us a squash_malloc and a memcpy. */
         decompressed_size = squash_npot (input->size) << 3;
-        decompressed_size = 1;
         if (decompressed_size <= s->avail_out) {
           decompressed_size = s->avail_out;
           res = squash_codec_decompress_with_options (codec, &decompressed_size, s->next_out, input->size, input->data, s->options);

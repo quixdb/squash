@@ -170,9 +170,9 @@ squash_options_find (SquashOptions* options, SquashCodec* codec, const char* key
   if (info == NULL)
     return -1;
 
-  ptrdiff_t option_n = 0;
-
   {
+    ptrdiff_t option_n = 0;
+
     while (info->name != NULL) {
       if (strcasecmp (key, info->name) == 0)
         return option_n;
@@ -875,13 +875,12 @@ squash_options_parsea (SquashOptions* options, const char* const* keys, const ch
 SquashStatus
 squash_options_parsev (SquashOptions* options, va_list options_list) {
   const char* key;
-  const char* value;
   SquashStatus status = SQUASH_OK;
 
   assert (options != NULL);
 
   while ( (key = va_arg (options_list, char*)) != NULL ) {
-    value = va_arg (options_list, char*);
+    const char* value = va_arg (options_list, char*);
 
     status = squash_options_parse_option (options, key, value);
     if (status != SQUASH_OK)
@@ -1152,13 +1151,12 @@ squash_options_parseaw (SquashOptions* options, const wchar_t* const* keys, cons
 SquashStatus
 squash_options_parsevw (SquashOptions* options, va_list options_list) {
   const wchar_t* key;
-  const wchar_t* value;
   SquashStatus status = SQUASH_OK;
 
   assert (options != NULL);
 
   while ( (key = va_arg (options_list, wchar_t*)) != NULL ) {
-    value = va_arg (options_list, wchar_t*);
+     const wchar_t* value = va_arg (options_list, wchar_t*);
 
     status = squash_options_parse_optionw (options, key, value);
     if (status != SQUASH_OK)

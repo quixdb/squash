@@ -206,10 +206,10 @@
  */
 static SquashOperation
 squash_stream_yield (SquashStream* stream, SquashStatus status) {
-  SquashStreamPrivate* priv = stream->priv;
   SquashOperation operation;
 
   assert (stream != NULL);
+  SquashStreamPrivate* priv = stream->priv;
   assert (priv != NULL);
 
   priv->request = SQUASH_OPERATION_INVALID;

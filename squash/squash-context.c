@@ -671,9 +671,10 @@ squash_foreach_codec (SquashCodecForeachFunc func, void* data) {
 static SquashContext*
 squash_context_new (void) {
   SquashContext* context = squash_malloc (sizeof (SquashContext));
-  memset (context, 0, sizeof (SquashContext));
+  if (SQUASH_UNLIKELY(context == NULL))
+    return NULL;
 
-  assert (context != NULL);
+  memset (context, 0, sizeof (SquashContext));
 
   SQUASH_TREE_INIT(&(context->codecs), squash_codec_ref_compare);
   SQUASH_TREE_INIT(&(context->plugins), squash_plugin_compare);
