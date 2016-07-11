@@ -65,6 +65,7 @@ include (AddCompilerFlags)
 
 set(THREADS_PREFER_PTHREAD_FLAG)
 find_package (Threads REQUIRED)
+find_package (CppCheck)
 
 enable_testing ()
 
