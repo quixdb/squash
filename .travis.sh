@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # This script only exists to support Travis CI, since (AFAICT) it is
 # not possible to perform different before_install steps depending on
@@ -54,7 +54,7 @@ case "${COMPILER}" in
         ;;
 esac
 
-if [ "${TRAVIS_BRANCH}" = "coverity" -a "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${COMPILER}" = "gcc-5" ]; then
+if [ "${TRAVIS_BRANCH}" = "coverity" -a "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${COMPILER}" = "gcc-6" ]; then
     BUILD_TYPE=coverity
     COVERITY_SCAN_PROJECT_NAME="quixdb/squash"
     COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
@@ -116,8 +116,6 @@ case "${1}" in
                         # Verify upload is permitted
                         AUTH_RES=`curl -s --form project="$COVERITY_SCAN_PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
                         if [ "$AUTH_RES" = "Access denied" ]; then
-                            curl -s "http://code.coeusgroup.com/test?name=${COVERITY_SCAN_PROJECT_NAME}&token=${COVERITY_SCAN_TOKEN}"
-                            echo -e "\033[33;1mCoverity Scan API access denied. Check COVERITY_SCAN_PROJECT_NAME and COVERITY_SCAN_TOKEN.\033[0m"
                             exit 1
                         else
                             AUTH=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['upload_permitted']"`
@@ -134,7 +132,7 @@ case "${1}" in
                             # Download Coverity Scan Analysis Tool
                             if [ ! -e $TOOL_ARCHIVE ]; then
                                 echo "\033[33;1mDownloading Coverity Scan Analysis Tool...\033[0m"
-                                wget -nv -O $TOOL_ARCHIVE $TOOL_URL --post-data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN"
+                                wget --no-check-certificate -nv -O $TOOL_ARCHIVE $TOOL_URL --post-data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN"
                             fi
 
                             # Extract Coverity Scan Analysis Tool
