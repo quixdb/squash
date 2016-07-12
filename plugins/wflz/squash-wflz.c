@@ -129,6 +129,8 @@ squash_wflz_compress_buffer (SquashCodec* codec,
                              size_t uncompressed_size,
                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
+  assert (codec != NULL);
+
   const char* codec_name = squash_codec_get_name (codec);
   const uint32_t swap = ((uint32_t) squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_ENDIANNESS) != SQUASH_WFLZ_HOST_ORDER);
   const int level = squash_options_get_int_at (options, codec, SQUASH_WFLZ_OPT_LEVEL);

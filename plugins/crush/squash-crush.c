@@ -103,6 +103,8 @@ squash_crush_splice (SquashCodec* codec,
                      SquashReadFunc read_cb,
                      SquashWriteFunc write_cb,
                      void* user_data) {
+  assert (codec != NULL);
+
   struct SquashCrushData data = {
     user_data,
     read_cb,

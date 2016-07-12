@@ -254,7 +254,7 @@ enum CompressStatus compress (uint8_t* compressed, size_t* compressed_length, co
   int maxbits = BITS;
   int block_mode = BLOCK_MODE;
   char_type outbuf[OBUFSIZ+2048];
-  count_int htab[HSIZE];
+  count_int htab[HSIZE] = { 0, };
   unsigned short codetab[HSIZE];
 
 	ratio = 0;
@@ -490,12 +490,12 @@ enum CompressStatus decompress (uint8_t* decompressed, size_t* decompressed_leng
 	insize = 0;
 
   bytes_read = insize = rsize = compressed_length < IBUFSIZ ? compressed_length : IBUFSIZ;
+  if (rsize < 0)
+    return COMPRESS_READ_ERROR;
+
   memcpy (inbuf, compressed, rsize);
 
 	if (insize < 3 || inbuf[0] != MAGIC_1 || inbuf[1] != MAGIC_2) {
-		if (rsize < 0)
-      return COMPRESS_READ_ERROR;
-
 		return COMPRESS_FAILED;
 	}
 

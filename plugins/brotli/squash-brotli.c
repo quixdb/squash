@@ -214,8 +214,6 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
 
     if (SQUASH_UNLIKELY(bd_ret != BROTLI_RESULT_SUCCESS))
       return squash_error (SQUASH_FAILED);
-    else if (BrotliStateIsStreamEnd(s->ctx.decoder))
-      return SQUASH_END_OF_STREAM;
   } else {
     squash_assert_unreachable ();
   }

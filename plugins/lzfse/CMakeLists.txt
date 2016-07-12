@@ -27,7 +27,6 @@ squash_plugin (
     lzfse/src/lzfse_encode_base.c
     lzfse/src/lzfse_encode.c
     lzfse/src/lzfse_fse.c
-    lzfse/src/lzfse_main.c
     lzfse/src/lzvn_decode_base.c
     lzfse/src/lzvn_encode_base.c
   COMPILER_FLAGS
