@@ -244,7 +244,8 @@ static void put_bits(CrushContext* ctx, int n, int x)
 	ctx->bit_count+=n;
 	while (ctx->bit_count>=8)
 	{
-		ctx->writer(&(ctx->bit_buf), 1, ctx->user_data);
+		const unsigned char b = ctx->bit_buf & 0xff;
+		ctx->writer(&b, 1, ctx->user_data);
 		ctx->bit_buf>>=8;
 		ctx->bit_count-=8;
 	}
@@ -549,7 +550,7 @@ int crush_decompress(CrushContext* ctx)
 #if defined(CRUSH_CLI)
 int main(int argc, char* argv[])
 {
-	CrushContext ctx;
+	CrushContext ctx = { 0, };
 	FILE* in;
 	FILE* out;
   int res;
@@ -577,6 +578,9 @@ int main(int argc, char* argv[])
 		perror(argv[3]);
 		exit(1);
 	}
+
+  ctx.alloc = crush_malloc;
+  ctx.dealloc = crush_free;
 
 	res = crush_init_stdio(&ctx, in, out);
   if (res != 0)
