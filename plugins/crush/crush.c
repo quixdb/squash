@@ -40,6 +40,7 @@
 #define MAX_MATCH ((F-1)+MIN_MATCH)
 
 #define BUF_SIZE (1<<26)
+#define OBUF_SIZE (1<<13)
 
 #define TOO_FAR (1<<16)
 
@@ -172,17 +173,19 @@ int crush_init_full(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writ
 	ctx->writer = writer;
 	ctx->user_data = user_data;
 	ctx->user_data_destroy = destroy_data;
-  ctx->alloc = alloc;
-  ctx->dealloc = dealloc;
+	ctx->alloc = alloc;
+	ctx->dealloc = dealloc;
 
 	ctx->buf = (unsigned char*)alloc(BUF_SIZE+MAX_MATCH, user_data);
+	ctx->obuf = (unsigned char*)alloc(OBUF_SIZE, user_data);
+	ctx->obuf_pos = 0;
 
-  return 0;
+	return 0;
 }
 
 int crush_init(CrushContext* ctx, CrushReadFunc reader, CrushWriteFunc writer, void* user_data, CrushDestroyNotify destroy_data)
 {
-  return crush_init_full(ctx, reader, writer, crush_malloc, crush_free, user_data, destroy_data);
+	return crush_init_full(ctx, reader, writer, crush_malloc, crush_free, user_data, destroy_data);
 }
 
 struct CrushStdioData {
@@ -215,8 +218,8 @@ static size_t crush_stdio_fwrite (const void* ptr, size_t size, void* user_data)
 int crush_init_stdio(CrushContext* ctx, FILE* in, FILE* out)
 {
 	struct CrushStdioData* data = (struct CrushStdioData*)ctx->alloc(sizeof(struct CrushStdioData), ctx->user_data);
-  if (data == NULL)
-    return -1;
+	if (data == NULL)
+		return -1;
 
 	data->in = in;
 	data->out = out;
@@ -231,11 +234,19 @@ void crush_destroy(CrushContext* ctx)
 		ctx->user_data_destroy(ctx->user_data);
 	}
 	ctx->dealloc(ctx->buf, ctx->user_data);
+	ctx->dealloc(ctx->obuf, ctx->user_data);
 }
 
 static void init_bits(CrushContext* ctx)
 {
 	ctx->bit_count=ctx->bit_buf=0;
+}
+
+static void write_obuf(CrushContext* ctx) {
+	if (ctx->obuf_pos != 0) {
+		ctx->writer(ctx->obuf, ctx->obuf_pos, ctx->user_data);
+		ctx->obuf_pos = 0;
+	}
 }
 
 static void put_bits(CrushContext* ctx, int n, int x)
@@ -244,8 +255,9 @@ static void put_bits(CrushContext* ctx, int n, int x)
 	ctx->bit_count+=n;
 	while (ctx->bit_count>=8)
 	{
-		const unsigned char b = ctx->bit_buf & 0xff;
-		ctx->writer(&b, 1, ctx->user_data);
+		ctx->obuf[ctx->obuf_pos++] = (unsigned char) (ctx->bit_buf & 0xff);
+		if(ctx->obuf_pos == OBUF_SIZE)
+			write_obuf(ctx);
 		ctx->bit_buf>>=8;
 		ctx->bit_count-=8;
 	}
@@ -255,6 +267,7 @@ static void flush_bits(CrushContext* ctx)
 {
 	put_bits(ctx, 7, 0);
 	ctx->bit_count=ctx->bit_buf=0;
+	write_obuf(ctx);
 }
 
 static int get_bits(CrushContext* ctx, int n)

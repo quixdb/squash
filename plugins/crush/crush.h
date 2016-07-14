@@ -17,6 +17,8 @@ typedef struct {
 	int bit_buf;
 	int bit_count;
 	unsigned char* buf;
+  unsigned char* obuf;
+  int obuf_pos;
 	CrushReadFunc reader;
 	CrushWriteFunc writer;
   CrushMalloc alloc;
