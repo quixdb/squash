@@ -53,6 +53,8 @@ endif()
 add_executable (test-squash ${SQUASH_TEST_SOURCES})
 set_property(TARGET test-squash
   APPEND PROPERTY COMPILE_DEFINITIONS "SQUASH_TEST_PLUGIN_DIR=\"${CMAKE_BINARY_DIR}/plugins\"")
+set_property(TARGET test-squash
+  APPEND PROPERTY COMPILE_DEFINITIONS "SQUASH_TEST_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
 target_add_extra_warning_flags (test-squash)
 target_require_c_standard (test-squash "c99")
 target_add_compiler_flags (test-squash ${extra_compiler_flags})
