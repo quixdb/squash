@@ -62,41 +62,6 @@
  */
 
 /**
- * @def SQUASH_VERSION_EXTRACT_MAJOR
- *
- * Extract the major version number from an encoded version
- *
- * @see SQUASH_VERSION
- */
-
-/**
- * @def SQUASH_VERSION_EXTRACT_MINOR
- *
- * Extract the minor version number from an encoded version
- *
- * @see SQUASH_VERSION
- */
-
-/**
- * @def SQUASH_VERSION_EXTRACT_REVISION
- *
- * Extract the revision number from an encoded version
- *
- * @see SQUASH_VERSION
- */
-
-/**
- * @def SQUASH_VERSION(major,minor,revision)
- *
- * Encode the major, minor, and revisions into a single number
- *
- * @param major Major version number
- * @param minor Minor version number
- * @param revision Revision number
- * @return Encoded version
- */
-
-/**
  * @brief Get the library version
  *
  * This function will return the version of the library currently in

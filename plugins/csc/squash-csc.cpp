@@ -144,16 +144,16 @@ squash_csc_splice (SquashCodec* codec,
 
     CSCEnc_WriteProperties (&props, props_buf, 0);
     size_t bytes_written = squash_csc_writer ((void*) &out_stream, props_buf, CSC_PROP_SIZE);
-    if (SQUASH_UNLIKELY(bytes_written != CSC_PROP_SIZE))
+    if (HEDLEY_UNLIKELY(bytes_written != CSC_PROP_SIZE))
       return squash_error (SQUASH_FAILED);
 
     CSCEncHandle comp = CSCEnc_Create (&props, (ISeqOutStream*) &out_stream, (ISzAlloc*) &squash_csc_allocator);
     csc_res = CSCEnc_Encode (comp, (ISeqInStream*) &in_stream, NULL);
-    if (SQUASH_UNLIKELY(csc_res != 0)) {
+    if (HEDLEY_UNLIKELY(csc_res != 0)) {
       res = squash_error (SQUASH_FAILED);
     } else {
       csc_res = CSCEnc_Encode_Flush (comp);
-      if (SQUASH_UNLIKELY(csc_res != 0)) {
+      if (HEDLEY_UNLIKELY(csc_res != 0)) {
         res = squash_error (SQUASH_FAILED);
       }
     }
@@ -161,7 +161,7 @@ squash_csc_splice (SquashCodec* codec,
   } else {
     size_t prop_l = CSC_PROP_SIZE;
     squash_csc_reader ((void*) &in_stream, props_buf, &prop_l);
-    if (SQUASH_UNLIKELY(prop_l != CSC_PROP_SIZE))
+    if (HEDLEY_UNLIKELY(prop_l != CSC_PROP_SIZE))
       return squash_error (SQUASH_FAILED);
 
     CSCDec_ReadProperties (&props, props_buf);
@@ -204,7 +204,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("csc", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("csc", name) == 0)) {
     impl->options = squash_csc_options;
     impl->splice = squash_csc_splice;
     impl->get_max_compressed_size = squash_csc_get_max_compressed_size;

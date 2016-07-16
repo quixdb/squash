@@ -49,7 +49,7 @@ squash_snappy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_l
 static size_t
 squash_snappy_get_uncompressed_size (SquashCodec* codec,
                                      size_t compressed_length,
-                                     const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)]) {
+                                     const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_length)]) {
   size_t uncompressed_size = 0;
 
   snappy_uncompressed_length ((const char*) compressed, compressed_length, &uncompressed_size);
@@ -79,9 +79,9 @@ squash_snappy_status (snappy_status status) {
 static SquashStatus
 squash_snappy_decompress_buffer (SquashCodec* codec,
                                  size_t* decompressed_length,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_length)],
+                                 uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_length)],
                                  size_t compressed_length,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_length)],
+                                 const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_length)],
                                  SquashOptions* options) {
   snappy_status e;
 
@@ -94,9 +94,9 @@ squash_snappy_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_snappy_compress_buffer (SquashCodec* codec,
                                size_t* compressed_length,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_length)],
+                               uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_length)],
                                size_t uncompressed_length,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_length)],
+                               const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_length)],
                                SquashOptions* options) {
   snappy_status e;
 

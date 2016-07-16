@@ -129,7 +129,7 @@ static SquashMinizType squash_miniz_codec_to_type (SquashCodec* codec) {
   } else if (strcmp ("deflate", name) == 0) {
     return SQUASH_MINIZ_TYPE_DEFLATE;
   } else {
-    squash_assert_unreachable();
+    HEDLEY_UNREACHABLE();
   }
 }
 
@@ -192,7 +192,7 @@ squash_miniz_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squas
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     miniz_e = mz_inflateInit2 (&(stream->stream), window_bits);
   } else {
-    squash_assert_unreachable();
+    HEDLEY_UNREACHABLE();
   }
 
   if (miniz_e != MZ_OK) {
@@ -229,11 +229,11 @@ squash_operation_to_miniz (SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return MZ_FINISH;
     case SQUASH_OPERATION_TERMINATE:
-      squash_assert_unreachable();
+      HEDLEY_UNREACHABLE();
       break;
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 static SquashStatus
@@ -247,8 +247,8 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
   miniz_stream = &(((SquashMinizStream*) stream)->stream);
 
 #if UINT_MAX < SIZE_MAX
-  if (SQUASH_UNLIKELY(UINT_MAX < stream->avail_in) ||
-      SQUASH_UNLIKELY(UINT_MAX < stream->avail_out))
+  if (HEDLEY_UNLIKELY(UINT_MAX < stream->avail_in) ||
+      HEDLEY_UNLIKELY(UINT_MAX < stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_MINIZ_STREAM_COPY_TO_MINIZ_STREAM(stream, miniz_stream);
@@ -260,8 +260,8 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
   }
 
 #if SIZE_MAX < UINT_MAX
-  if (SQUASH_UNLIKELY(SIZE_MAX < miniz_stream->avail_out) ||
-      SQUASH_UNLIKELY(SIZE_MAX < miniz_stream->avail_out))
+  if (HEDLEY_UNLIKELY(SIZE_MAX < miniz_stream->avail_out) ||
+      HEDLEY_UNLIKELY(SIZE_MAX < miniz_stream->avail_out))
     return squash_error (SQUASH_RANGE);
 #endif
   SQUASH_MINIZ_STREAM_COPY_FROM_MINIZ_STREAM(stream, miniz_stream);
@@ -277,7 +277,7 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
           res = SQUASH_PROCESSING;
           break;
         case SQUASH_OPERATION_TERMINATE:
-          squash_assert_unreachable ();
+          HEDLEY_UNREACHABLE ();
           break;
       }
       break;
@@ -299,7 +299,7 @@ squash_miniz_process_stream (SquashStream* stream, SquashOperation operation) {
           }
           break;
         case SQUASH_OPERATION_TERMINATE:
-          squash_assert_unreachable ();
+          HEDLEY_UNREACHABLE ();
           break;
       }
       break;
@@ -322,7 +322,7 @@ squash_miniz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
   SquashMinizType type = squash_miniz_codec_to_type (codec);
 
 #if SIZE_MAX < ULONG_MAX
-  if (SQUASH_UNLIKELY(uncompressed_size > ULONG_MAX)) {
+  if (HEDLEY_UNLIKELY(uncompressed_size > ULONG_MAX)) {
     squash_error (SQUASH_BUFFER_TOO_LARGE);
     return 0;
   }

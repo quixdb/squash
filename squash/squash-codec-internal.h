@@ -32,30 +32,30 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL
 SquashCodec*            squash_codec_new                     (SquashPlugin* plugin, const char* name);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 void                    squash_codec_set_extension           (SquashCodec* codec, const char* extension);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 void                    squash_codec_set_priority            (SquashCodec* codec, unsigned int priority);
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 int                     squash_codec_compare                 (SquashCodec* a, SquashCodec* b);
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 int                     squash_codec_extension_compare       (SquashCodec* a, SquashCodec* b);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 SquashCodecImpl*        squash_codec_get_impl                (SquashCodec* codec);
-SQUASH_NONNULL(1, 2, 4) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2, 4) SQUASH_INTERNAL
 SquashStatus            squash_codec_decompress_to_buffer    (SquashCodec* codec,
                                                               SquashBuffer* decompressed,
                                                               size_t compressed_size,
-                                                              uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                                              uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                                               SquashOptions* options);
 
 SQUASH_TREE_PROTOTYPES(SquashCodec_, tree)
 SQUASH_TREE_DEFINE(SquashCodec_, tree)
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_CODEC_INTERNAL_H */

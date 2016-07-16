@@ -373,7 +373,7 @@ static SquashStatus
 squash_codecs_file_parser_parse (SquashCodecsFileParser* parser, FILE* input) {
   bool res = squash_ini_parse (input, squash_codecs_file_parser_callback, parser);
 
-  if (SQUASH_LIKELY(res && parser->codec != NULL)) {
+  if (HEDLEY_LIKELY(res && parser->codec != NULL)) {
     squash_plugin_add_codec (parser->plugin, parser->codec);
     return SQUASH_OK;
   } else {
@@ -671,7 +671,7 @@ squash_foreach_codec (SquashCodecForeachFunc func, void* data) {
 static SquashContext*
 squash_context_new (void) {
   SquashContext* context = squash_malloc (sizeof (SquashContext));
-  if (SQUASH_UNLIKELY(context == NULL))
+  if (HEDLEY_UNLIKELY(context == NULL))
     return NULL;
 
   memset (context, 0, sizeof (SquashContext));

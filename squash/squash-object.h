@@ -34,7 +34,7 @@
 
 #include <stdbool.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_API void*        squash_object_ref           (void* obj);
 SQUASH_API void*        squash_object_unref         (void* obj);
@@ -49,11 +49,11 @@ struct SquashObject_ {
   SquashDestroyNotify destroy_notify;
 };
 
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void         squash_object_init          (void* obj, bool is_floating, SquashDestroyNotify destroy_notify);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void         squash_object_destroy       (void* obj);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_OBJECT_H */

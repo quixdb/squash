@@ -44,20 +44,20 @@ squash_lzjb_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
 static SquashStatus
 squash_lzjb_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
   *compressed_size = lzjb_compress (uncompressed, compressed, uncompressed_size, *compressed_size);
-  return SQUASH_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
+  return HEDLEY_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
 
 static SquashStatus
 squash_lzjb_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
   LZJBResult res = lzjb_decompress (compressed, decompressed, compressed_size, decompressed_size);
   switch (res) {
@@ -68,14 +68,14 @@ squash_lzjb_decompress_buffer (SquashCodec* codec,
     case LZJB_WOULD_OVERFLOW:
       return SQUASH_BUFFER_FULL;
   }
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("lzjb", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("lzjb", name) == 0)) {
     impl->get_max_compressed_size = squash_lzjb_get_max_compressed_size;
     impl->decompress_buffer = squash_lzjb_decompress_buffer;
     impl->compress_buffer = squash_lzjb_compress_buffer;

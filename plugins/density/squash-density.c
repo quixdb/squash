@@ -170,7 +170,7 @@ squash_density_level_to_mode (int level) {
     case 9:
       return DENSITY_COMPRESSION_MODE_LION_ALGORITHM;
     default:
-      squash_assert_unreachable ();
+      HEDLEY_UNREACHABLE ();
   }
 }
 
@@ -195,7 +195,7 @@ squash_density_flush_internal_buffer (SquashStream* stream) {
     }
   }
 
-  squash_assert_unreachable();
+  HEDLEY_UNREACHABLE();
 }
 
 static size_t total_bytes_written = 0;
@@ -220,7 +220,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
       s->buffer_active = false;
       s->state = density_stream_prepare (s->stream, (uint8_t*) stream->next_in, s->active_input_size, stream->next_out, stream->avail_out);
     }
-    if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
+    if (HEDLEY_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
       res = squash_error (SQUASH_FAILED);
       goto finish;
     }
@@ -325,7 +325,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         } else {
           s->state = density_stream_decompress_init (s->stream, NULL);
         }
-        if (SQUASH_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
+        if (HEDLEY_UNLIKELY(s->state != DENSITY_STREAM_STATE_READY)) {
           res = squash_error (SQUASH_FAILED);
           goto finish;
         }
@@ -359,7 +359,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         break;
       case SQUASH_DENSITY_ACTION_FINISHED:
       default:
-        squash_assert_unreachable();
+        HEDLEY_UNREACHABLE();
         break;
     }
   }
@@ -404,7 +404,7 @@ squash_density_process_stream (SquashStream* stream, SquashOperation operation) 
         res = SQUASH_PROCESSING;
         goto finish;
       } else {
-        squash_assert_unreachable();
+        HEDLEY_UNREACHABLE();
       }
     }
   }
@@ -422,7 +422,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("density", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("density", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_DECOMPRESS_UNSAFE;
     impl->options = squash_density_options;
     impl->create_stream = squash_density_create_stream;

@@ -90,7 +90,7 @@ squash_test_endianness(MUNIT_UNUSED const MunitParameter params[], void* user_da
       return MUNIT_SKIP;
 
     FILE* fp = fopen(filename, "rb");
-    if (SQUASH_UNLIKELY(fp == NULL))
+    if (HEDLEY_UNLIKELY(fp == NULL))
       return MUNIT_ERROR;
 
     compressed_length = fread(compressed, 1, compressed_length, fp);

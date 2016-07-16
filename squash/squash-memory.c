@@ -60,7 +60,7 @@ squash_wrap_aligned_alloc (size_t alignment, size_t size) {
 #if defined(HAVE_POSIX_MEMALIGN)
   void* ptr;
   int r = posix_memalign (&ptr, alignment, size);
-  if (SQUASH_UNLIKELY(r != 0))
+  if (HEDLEY_UNLIKELY(r != 0))
     return (squash_error (SQUASH_MEMORY), NULL);
   return ptr;
 #elif defined(HAVE__ALIGNED_MALLOC)
@@ -233,7 +233,7 @@ squash_aligned_alloc (size_t alignment, size_t size) {
     return (void*) (addr + padding);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**

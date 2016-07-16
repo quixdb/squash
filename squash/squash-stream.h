@@ -36,7 +36,7 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashStreamPrivate_ SquashStreamPrivate;
 
@@ -81,41 +81,41 @@ struct SquashStream_ {
   SquashDestroyNotify destroy_user_data;
 };
 
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStream*   squash_stream_new                    (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  ...);
-SQUASH_NONNULL(1, 3)
+HEDLEY_NON_NULL(1, 3)
 SQUASH_API SquashStream*   squash_stream_newv                   (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  va_list options);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStream*   squash_stream_newa                   (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  const char* const* keys,
                                                                  const char* const* values);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStream*   squash_stream_new_with_options       (SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options);
 
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus    squash_stream_process                (SquashStream* stream);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus    squash_stream_flush                  (SquashStream* stream);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus    squash_stream_finish                 (SquashStream* stream);
 
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API void            squash_stream_init                   (void* stream,
                                                                  SquashCodec* codec,
                                                                  SquashStreamType stream_type,
                                                                  SquashOptions* options,
                                                                  SquashDestroyNotify destroy_notify);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void            squash_stream_destroy                (void* stream);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_STREAM_H */

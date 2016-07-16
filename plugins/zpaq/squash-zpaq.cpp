@@ -82,7 +82,7 @@ __attribute__((__noreturn__))
 #endif
 void
 libzpaq::error (const char* msg) {
-  if (SQUASH_UNLIKELY(strcmp (msg, "Out of memory") == 0))
+  if (HEDLEY_UNLIKELY(strcmp (msg, "Out of memory") == 0))
     throw squash_error (SQUASH_MEMORY);
   else
     throw squash_error (SQUASH_FAILED);

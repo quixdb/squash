@@ -37,7 +37,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashOptionInfoEnumStringMap_ SquashOptionInfoEnumStringMap;
 typedef struct SquashOptionInfoEnumString_    SquashOptionInfoEnumString;
@@ -116,12 +116,12 @@ struct SquashOptionInfo_ {
   SquashOptionValue default_value;
 };
 
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashOptions* squash_options_new           (SquashCodec* codec, ...);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashOptions* squash_options_newv          (SquashCodec* codec, va_list options);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashOptions* squash_options_newa          (SquashCodec* codec, const char* const* keys, const char* const* values);
 
 SQUASH_API const char*    squash_options_get_string    (SquashOptions* options, SquashCodec* codec, const char* key);
@@ -134,69 +134,69 @@ SQUASH_API bool           squash_options_get_bool_at   (SquashOptions* options, 
 SQUASH_API int            squash_options_get_int_at    (SquashOptions* options, SquashCodec* codec, size_t index);
 SQUASH_API size_t         squash_options_get_size_at   (SquashOptions* options, SquashCodec* codec, size_t index);
 
-SQUASH_NONNULL(1, 2, 3)
+HEDLEY_NON_NULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_set_string    (SquashOptions* options, const char* key, const char* value);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashStatus   squash_options_set_bool      (SquashOptions* options, const char* key, bool value);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashStatus   squash_options_set_int       (SquashOptions* options, const char* key, int value);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashStatus   squash_options_set_size      (SquashOptions* options, const char* key, size_t value);
 
-SQUASH_NONNULL(1, 3)
+HEDLEY_NON_NULL(1, 3)
 SQUASH_API SquashStatus   squash_options_set_string_at (SquashOptions* options, size_t index, const char* value);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_set_bool_at   (SquashOptions* options, size_t index, bool value);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_set_int_at    (SquashOptions* options, size_t index, int value);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_set_size_at   (SquashOptions* options, size_t index, size_t value);
 
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_parse         (SquashOptions* options, ...);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashStatus   squash_options_parsev        (SquashOptions* options, va_list options_list);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_parsea        (SquashOptions* options, const char* const* keys, const char* const* values);
 
-SQUASH_NONNULL(1, 2, 3)
+HEDLEY_NON_NULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_parse_option  (SquashOptions* options, const char* key, const char* value);
 
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API void           squash_options_init          (void* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API void           squash_options_destroy       (void* options);
 
 #if defined(SQUASH_ENABLE_WIDE_CHAR_API)
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashOptions* squash_options_neww          (SquashCodec* codec, ...);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashOptions* squash_options_newvw         (SquashCodec* codec, va_list options);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashOptions* squash_options_newaw         (SquashCodec* codec, const wchar_t* const* keys, const wchar_t* const* values);
 
-SQUASH_NONNULL(2, 3)
+HEDLEY_NON_NULL(2, 3)
 SQUASH_API const char*    squash_options_get_stringw   (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2, 3)
+HEDLEY_NON_NULL(2, 3)
 SQUASH_API bool           squash_options_get_boolw     (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2, 3)
+HEDLEY_NON_NULL(2, 3)
 SQUASH_API int            squash_options_get_intw      (SquashOptions* options, SquashCodec* codec, const char* key);
-SQUASH_NONNULL(2, 3)
+HEDLEY_NON_NULL(2, 3)
 SQUASH_API size_t         squash_options_get_sizew     (SquashOptions* options, SquashCodec* codec, const char* key);
 
-SQUASH_SENTINEL
-SQUASH_NONNULL(1)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_parsew        (SquashOptions* options, ...);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashStatus   squash_options_parsevw       (SquashOptions* options, va_list options_list);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_options_parseaw       (SquashOptions* options, const wchar_t* const* keys, const wchar_t* const* values);
-SQUASH_NONNULL(1, 2, 3)
+HEDLEY_NON_NULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_parse_optionw (SquashOptions* options, const wchar_t* key, const wchar_t* value);
 #endif
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_OPTIONS_H */

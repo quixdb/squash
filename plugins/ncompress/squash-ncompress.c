@@ -52,15 +52,15 @@ squash_ncompress_status_to_squash_status (enum CompressStatus status) {
     case COMPRESS_FAILED:
       return SQUASH_FAILED;
   }
-  squash_assert_unreachable();
+  HEDLEY_UNREACHABLE();
 }
 
 static SquashStatus
 squash_ncompress_decompress_buffer (SquashCodec* codec,
                                     size_t* decompressed_size,
-                                    uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                    uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                     size_t compressed_size,
-                                    const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                    const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                     SquashOptions* options) {
   enum CompressStatus res = decompress (decompressed, decompressed_size, compressed, compressed_size);
 
@@ -70,9 +70,9 @@ squash_ncompress_decompress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_ncompress_compress_buffer (SquashCodec* codec,
                                   size_t* compressed_size,
-                                  uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                                  uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                                   size_t uncompressed_size,
-                                  const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                                  const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                                   SquashOptions* options) {
   enum CompressStatus res = compress (compressed, compressed_size, uncompressed, uncompressed_size);
 
@@ -83,7 +83,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("compress", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("compress", name) == 0)) {
     impl->get_max_compressed_size = squash_ncompress_get_max_compressed_size;
     impl->decompress_buffer = squash_ncompress_decompress_buffer;
     impl->compress_buffer = squash_ncompress_compress_buffer;

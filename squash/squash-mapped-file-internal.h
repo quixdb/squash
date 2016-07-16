@@ -34,7 +34,7 @@
 
 #include <sys/mman.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashMappedFile_s {
   uint8_t* data;
@@ -47,21 +47,21 @@ typedef struct SquashMappedFile_s {
 
 static const SquashMappedFile squash_mapped_file_empty = { MAP_FAILED, 0 };
 
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 bool squash_mapped_file_init_full (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t size,
                                    bool size_is_suggestion,
                                    bool writable);
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 bool squash_mapped_file_init      (SquashMappedFile* mapped,
                                    FILE* fp,
                                    size_t size,
                                    bool writable);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 bool squash_mapped_file_destroy   (SquashMappedFile* mapped,
                                    bool success);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_FILE_INTERNAL_H */

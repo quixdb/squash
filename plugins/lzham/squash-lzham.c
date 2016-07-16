@@ -219,11 +219,11 @@ squash_operation_to_lzham (SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return LZHAM_FINISH;
     case SQUASH_OPERATION_TERMINATE:
-      squash_assert_unreachable ();
+      HEDLEY_UNREACHABLE ();
       break;
   }
 
-  squash_assert_unreachable();
+  HEDLEY_UNREACHABLE();
 }
 
 static SquashStatus
@@ -300,9 +300,9 @@ squash_lzham_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
 static SquashStatus
 squash_lzham_compress_buffer (SquashCodec* codec,
                               size_t* compressed_size,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                               size_t uncompressed_size,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                              const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   lzham_compress_status_t status;
   lzham_compress_params params;
@@ -314,7 +314,7 @@ squash_lzham_compress_buffer (SquashCodec* codec,
                                   uncompressed, uncompressed_size,
                                   NULL);
 
-  if (SQUASH_UNLIKELY(status != LZHAM_COMP_STATUS_SUCCESS)) {
+  if (HEDLEY_UNLIKELY(status != LZHAM_COMP_STATUS_SUCCESS)) {
     switch ((int) status) {
       case LZHAM_COMP_STATUS_INVALID_PARAMETER:
         return squash_error (SQUASH_BAD_VALUE);
@@ -331,9 +331,9 @@ squash_lzham_compress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_lzham_decompress_buffer (SquashCodec* codec,
                                 size_t* decompressed_size,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                 size_t compressed_size,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   lzham_decompress_status_t status;
   lzham_decompress_params params;
@@ -356,12 +356,12 @@ squash_lzham_decompress_buffer (SquashCodec* codec,
       return squash_error (SQUASH_FAILED);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
-  if (SQUASH_LIKELY(strcmp ("lzham", squash_codec_get_name (codec)) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("lzham", squash_codec_get_name (codec)) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_lzham_options;
     impl->create_stream = squash_lzham_create_stream;

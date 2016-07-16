@@ -34,7 +34,7 @@
 
 #include "tinycthread/source/tinycthread.h"
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 #ifdef __GNUC__
 #  define SQUASH_POSSIBLY_UNUSED __attribute__((__unused__))
@@ -58,6 +58,6 @@ SQUASH_BEGIN_DECLS
     assert (mtx_unlock (&(SQUASH_MTX_NAME(name,mtx))) == thrd_success); \
   } while(0);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_MTX_INTERNAL_H */

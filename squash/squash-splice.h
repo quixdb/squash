@@ -36,25 +36,25 @@
 #include <stddef.h>
 #include <stdio.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
-SQUASH_SENTINEL
-SQUASH_NONNULL(1, 3, 4)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice                     (SquashCodec* codec,
                                                            SquashStreamType stream_type,
                                                            FILE* fp_out,
                                                            FILE* fp_in,
                                                            size_t size,
                                                            ...);
-SQUASH_NONNULL(1, 3, 4)
+HEDLEY_NON_NULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice_with_options        (SquashCodec* codec,
                                                            SquashStreamType stream_type,
                                                            FILE* fp_out,
                                                            FILE* fp_in,
                                                            size_t size,
                                                            SquashOptions* options);
-SQUASH_SENTINEL
-SQUASH_NONNULL(1, 3, 4)
+HEDLEY_SENTINEL(0)
+HEDLEY_NON_NULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice_custom              (SquashCodec* codec,
                                                            SquashStreamType stream_type,
                                                            SquashWriteFunc write_cb,
@@ -62,7 +62,7 @@ SQUASH_API SquashStatus squash_splice_custom              (SquashCodec* codec,
                                                            void* user_data,
                                                            size_t size,
                                                            ...);
-SQUASH_NONNULL(1, 3, 4)
+HEDLEY_NON_NULL(1, 3, 4)
 SQUASH_API SquashStatus squash_splice_custom_with_options (SquashCodec* codec,
                                                            SquashStreamType stream_type,
                                                            SquashWriteFunc write_cb,
@@ -71,6 +71,6 @@ SQUASH_API SquashStatus squash_splice_custom_with_options (SquashCodec* codec,
                                                            size_t size,
                                                            SquashOptions* options);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_SPLICE_H */

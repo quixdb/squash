@@ -59,9 +59,9 @@ squash_yalz77_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_s
 static SquashStatus
 squash_yalz77_compress_buffer (SquashCodec* codec,
                                size_t* compressed_size,
-                               uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                               uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                                size_t uncompressed_size,
-                               const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                               const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                                SquashOptions* options) {
 
   const size_t searchlen = squash_options_get_size_at (options, codec, SQUASH_YALZ77_OPT_SEARCH_LENGTH);
@@ -71,7 +71,7 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
     lz77::compress_t compress(searchlen, blocksize);
     std::string res = compress.feed(uncompressed, uncompressed + uncompressed_size);
 
-    if (SQUASH_UNLIKELY(res.size() > *compressed_size))
+    if (HEDLEY_UNLIKELY(res.size() > *compressed_size))
       return squash_error (SQUASH_BUFFER_FULL);
 
     memcpy(compressed, res.c_str(), res.size());
@@ -88,9 +88,9 @@ squash_yalz77_compress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_yalz77_decompress_buffer (SquashCodec* codec,
                                  size_t* decompressed_size,
-                                 uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                 uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                  size_t compressed_size,
-                                 const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                 const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
   try {
     lz77::decompress_t decompress(*decompressed_size);
@@ -124,7 +124,7 @@ extern "C" SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("yalz77", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("yalz77", name) == 0)) {
     impl->options = squash_yalz77_options;
     impl->get_max_compressed_size = squash_yalz77_get_max_compressed_size;
     impl->decompress_buffer = squash_yalz77_decompress_buffer;

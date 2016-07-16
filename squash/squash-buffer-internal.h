@@ -32,29 +32,29 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL
 SquashBuffer* squash_buffer_new            (size_t preallocated_len);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
-bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, const uint8_t data[SQUASH_ARRAY_PARAM(data_size)]);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
+bool          squash_buffer_append         (SquashBuffer* buffer, size_t data_size, const uint8_t data[HEDLEY_ARRAY_PARAM(data_size)]);
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 bool          squash_buffer_append_c       (SquashBuffer* buffer, char c);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 void          squash_buffer_clear          (SquashBuffer* buffer);
 SQUASH_INTERNAL
 void          squash_buffer_free           (SquashBuffer* buffer);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 bool          squash_buffer_set_size       (SquashBuffer* buffer, size_t size);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 void          squash_buffer_steal          (SquashBuffer* buffer,
                                             size_t data_size,
                                             size_t data_allocated,
-                                            uint8_t data[SQUASH_ARRAY_PARAM(data_allocated)]);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+                                            uint8_t data[HEDLEY_ARRAY_PARAM(data_allocated)]);
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 uint8_t*      squash_buffer_release        (SquashBuffer* buffer,
                                             size_t* size);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_SLIST_INTERNAL_H */

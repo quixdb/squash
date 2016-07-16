@@ -33,21 +33,21 @@
 #error "Only <squash/squash.h> can be included directly."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashStatus   squash_plugin_init           (SquashPlugin* plugin);
 
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API const char*    squash_plugin_get_name       (SquashPlugin* plugin);
-SQUASH_NONNULL(1)
+HEDLEY_NON_NULL(1)
 SQUASH_API SquashLicense* squash_plugin_get_licenses   (SquashPlugin* plugin);
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API SquashCodec*   squash_plugin_get_codec      (SquashPlugin* plugin, const char* codec);
 
 typedef void (*SquashPluginForeachFunc) (SquashPlugin* plugin, void* data);
 
-SQUASH_NONNULL(1, 2)
+HEDLEY_NON_NULL(1, 2)
 SQUASH_API void           squash_plugin_foreach_codec  (SquashPlugin* plugin, SquashCodecForeachFunc func, void* data);
 
 #if defined _WIN32 || defined __CYGWIN__
@@ -64,6 +64,6 @@ SQUASH_API void           squash_plugin_foreach_codec  (SquashPlugin* plugin, Sq
 #  endif
 #endif
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_PLUGIN_H */

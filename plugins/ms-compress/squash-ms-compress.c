@@ -62,7 +62,7 @@ squash_ms_format_from_codec (SquashCodec* codec) {
   else if (name[14] == 0)
     return MSCOMP_XPRESS_HUFF;
   else
-    squash_assert_unreachable();
+    HEDLEY_UNREACHABLE();
 }
 
 static SquashStatus
@@ -93,7 +93,7 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
   stream = squash_malloc (sizeof (SquashMSCompStream));
-  if (SQUASH_UNLIKELY(stream == NULL))
+  if (HEDLEY_UNLIKELY(stream == NULL))
     return (squash_error (SQUASH_MEMORY), NULL);
 
   squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_destroy);
@@ -106,7 +106,7 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
     status = ms_inflate_init (format, &(stream->mscomp));
   }
 
-  if (SQUASH_UNLIKELY(status != MSCOMP_OK)) {
+  if (HEDLEY_UNLIKELY(status != MSCOMP_OK)) {
     squash_object_unref (stream);
     return (squash_error (squash_ms_status_to_squash_status (status)), NULL);
   }
@@ -151,9 +151,9 @@ squash_ms_comp_flush_from_operation (SquashOperation operation) {
     case SQUASH_OPERATION_FINISH:
       return MSCOMP_FINISH;
     case SQUASH_OPERATION_TERMINATE:
-      squash_assert_unreachable ();
+      HEDLEY_UNREACHABLE ();
   }
-  squash_assert_unreachable();
+  HEDLEY_UNREACHABLE();
 }
 
 static SquashStatus
@@ -215,7 +215,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
           }
           break;
         case SQUASH_OPERATION_TERMINATE:
-          squash_assert_unreachable ();
+          HEDLEY_UNREACHABLE ();
           break;
       }
       break;
@@ -235,7 +235,7 @@ squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
           }
           break;
         case SQUASH_OPERATION_TERMINATE:
-          squash_assert_unreachable ();
+          HEDLEY_UNREACHABLE ();
       }
       break;
   }
@@ -251,9 +251,9 @@ squash_ms_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size)
 static SquashStatus
 squash_ms_compress_buffer (SquashCodec* codec,
                            size_t* compressed_size,
-                           uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                           uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                            size_t uncompressed_size,
-                           const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                           const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                            SquashOptions* options) {
   MSCompStatus status = ms_compress (squash_ms_format_from_codec (codec),
                                      uncompressed, uncompressed_size, compressed, compressed_size);
@@ -263,9 +263,9 @@ squash_ms_compress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_ms_decompress_buffer (SquashCodec* codec,
                              size_t* decompressed_size,
-                             uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                             uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                              size_t compressed_size,
-                             const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                             const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                              SquashOptions* options) {
   MSCompStatus status = ms_decompress (squash_ms_format_from_codec (codec),
                                        compressed, compressed_size, decompressed, decompressed_size);
@@ -276,7 +276,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("lznt1", name) == 0 ||
+  if (HEDLEY_LIKELY(strcmp ("lznt1", name) == 0 ||
                     strcmp ("xpress", name) == 0 ||
                     strcmp ("xpress-huffman", name) == 0)) {
     impl->get_max_compressed_size = squash_ms_get_max_compressed_size;

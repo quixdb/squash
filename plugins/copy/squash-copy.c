@@ -54,7 +54,7 @@ squash_copy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
 static size_t
 squash_copy_get_uncompressed_size (SquashCodec* codec,
                                    size_t compressed_size,
-                                   const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)]) {
+                                   const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)]) {
   return compressed_size;
 }
 
@@ -108,11 +108,11 @@ squash_copy_process_stream (SquashStream* stream, SquashOperation operation) {
 static SquashStatus
 squash_copy_compress_buffer (SquashCodec* codec,
                              size_t* compressed_size,
-                             uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                             uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                              size_t uncompressed_size,
-                             const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                             const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                              SquashOptions* options) {
-  if (SQUASH_UNLIKELY(*compressed_size < uncompressed_size))
+  if (HEDLEY_UNLIKELY(*compressed_size < uncompressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
   memcpy (compressed, uncompressed, uncompressed_size);
@@ -124,11 +124,11 @@ squash_copy_compress_buffer (SquashCodec* codec,
 static SquashStatus
 squash_copy_decompress_buffer (SquashCodec* codec,
                                size_t* decompressed_size,
-                               uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                               uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                size_t compressed_size,
-                               const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                               const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                SquashOptions* options) {
-  if (SQUASH_UNLIKELY(*decompressed_size < compressed_size))
+  if (HEDLEY_UNLIKELY(*decompressed_size < compressed_size))
     return squash_error (SQUASH_BUFFER_FULL);
 
   memcpy (decompressed, compressed, compressed_size);
@@ -141,7 +141,7 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("copy", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("copy", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->get_uncompressed_size = squash_copy_get_uncompressed_size;
     impl->get_max_compressed_size = squash_copy_get_max_compressed_size;

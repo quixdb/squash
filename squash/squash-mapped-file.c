@@ -121,12 +121,12 @@ squash_mapped_file_destroy (SquashMappedFile* mapped, bool success) {
 
     if (success) {
       const int sres = fseeko (mapped->fp, mapped->size, SEEK_CUR);
-      if (SQUASH_LIKELY(sres != -1)) {
+      if (HEDLEY_LIKELY(sres != -1)) {
         if (mapped->writable) {
           const off_t pos = ftello (mapped->fp);
-          if (SQUASH_LIKELY(pos != -1)) {
+          if (HEDLEY_LIKELY(pos != -1)) {
             const int tr = ftruncate (fileno (mapped->fp), pos);
-            return SQUASH_LIKELY(tr != -1) ? true : false;
+            return HEDLEY_LIKELY(tr != -1) ? true : false;
           } else {
             return false;
           }

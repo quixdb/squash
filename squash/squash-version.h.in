@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Squash Authors
+/* Copyright (c) 2013, 2016 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -37,18 +37,13 @@
 #define SQUASH_VERSION_REVISION ${SQUASH_VERSION_REVISION}
 #define SQUASH_VERSION_API "${SQUASH_VERSION_API}"
 
-#define SQUASH_VERSION(major,minor,revision) (((major) << 16) | ((minor) << 8) | (revision))
-#define SQUASH_VERSION_CURRENT SQUASH_VERSION(SQUASH_VERSION_MAJOR, SQUASH_VERSION_MINOR, SQUASH_VERSION_REVISION)
+#define SQUASH_VERSION_CURRENT HEDLEY_VERSION_ENCODE(SQUASH_VERSION_MAJOR, SQUASH_VERSION_MINOR, SQUASH_VERSION_REVISION)
 
-#define SQUASH_VERSION_EXTRACT_MAJOR(version) (((version) >> 16) & 0xff)
-#define SQUASH_VERSION_EXTRACT_MINOR(version) (((version) >> 8) & 0xff)
-#define SQUASH_VERSION_EXTRACT_REVISION(version) ((version) & 0xff)
-
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_API unsigned int squash_version     (void);
 SQUASH_API const char*  squash_version_api (void);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_VERSION_H */

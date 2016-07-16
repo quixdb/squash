@@ -61,23 +61,23 @@ squash_libdeflate_get_max_compressed_size (SquashCodec* codec, size_t uncompress
 static SquashStatus
 squash_libdeflate_compress_buffer (SquashCodec* codec,
                               size_t* compressed_size,
-                              uint8_t compressed[SQUASH_ARRAY_PARAM(*compressed_size)],
+                              uint8_t compressed[HEDLEY_ARRAY_PARAM(*compressed_size)],
                               size_t uncompressed_size,
-                              const uint8_t uncompressed[SQUASH_ARRAY_PARAM(uncompressed_size)],
+                              const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   const int level = squash_options_get_int_at (options, codec, SQUASH_LIBDEFLATE_OPT_LEVEL);
   struct deflate_compressor *compressor = deflate_alloc_compressor(level);
   *compressed_size = deflate_compress(compressor, uncompressed, uncompressed_size, compressed, *compressed_size);
   deflate_free_compressor(compressor);
-  return SQUASH_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
+  return HEDLEY_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
 static SquashStatus
 squash_libdeflate_decompress_buffer (SquashCodec* codec,
                                 size_t* decompressed_size,
-                                uint8_t decompressed[SQUASH_ARRAY_PARAM(*decompressed_size)],
+                                uint8_t decompressed[HEDLEY_ARRAY_PARAM(*decompressed_size)],
                                 size_t compressed_size,
-                                const uint8_t compressed[SQUASH_ARRAY_PARAM(compressed_size)],
+                                const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
   struct deflate_decompressor *decompressor = deflate_alloc_decompressor();
   size_t actual_out_nbytes;
@@ -96,14 +96,14 @@ squash_libdeflate_decompress_buffer (SquashCodec* codec,
       return squash_error (SQUASH_BUFFER_FULL);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
-  if (SQUASH_LIKELY(strcmp ("deflate", name) == 0)) {
+  if (HEDLEY_LIKELY(strcmp ("deflate", name) == 0)) {
     impl->options = squash_libdeflate_options;
     impl->get_max_compressed_size = squash_libdeflate_get_max_compressed_size;
     impl->decompress_buffer = squash_libdeflate_decompress_buffer;

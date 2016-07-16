@@ -143,6 +143,9 @@ install(FILES
     squash-types.h
     "${CMAKE_CURRENT_BINARY_DIR}/squash-version.h"
   DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash)
+install(FILES
+    hedley/hedley.h
+  DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}/squash-${SQUASH_VERSION_API}/squash/hedley)
 
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/SquashConfig.cmake.in"

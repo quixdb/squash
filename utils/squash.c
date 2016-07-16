@@ -74,9 +74,9 @@ print_version_and_exit (int argc, char** argv, int exit_code) {
   const unsigned int libversion = squash_version ();
   fprintf (stdout, "squash version %d.%d.%d (library version %d.%d.%d)\n",
            SQUASH_VERSION_MAJOR, SQUASH_VERSION_MINOR, SQUASH_VERSION_REVISION,
-           SQUASH_VERSION_EXTRACT_MAJOR(libversion),
-           SQUASH_VERSION_EXTRACT_MINOR(libversion),
-           SQUASH_VERSION_EXTRACT_REVISION(libversion));
+           HEDLEY_VERSION_DECODE_MAJOR(libversion),
+           HEDLEY_VERSION_DECODE_MINOR(libversion),
+           HEDLEY_VERSION_DECODE_REVISION(libversion));
 
   exit (exit_code);
 }

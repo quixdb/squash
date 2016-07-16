@@ -12,7 +12,7 @@ static unsigned int
 squash_test_cpu_count (void) {
   static unsigned int count = 0;
 
-  if (SQUASH_UNLIKELY (count == 0)) {
+  if (HEDLEY_UNLIKELY (count == 0)) {
     unsigned int c = 0;
 
 #if defined(_WIN32)

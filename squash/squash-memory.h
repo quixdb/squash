@@ -38,7 +38,7 @@
 #define SQUASH_MALLOC
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 typedef struct SquashMemoryFuncs_ {
   void* (* malloc)                (size_t size);
@@ -60,6 +60,6 @@ SQUASH_API void  squash_free                 (void* ptr);
 SQUASH_API void* squash_aligned_alloc        (size_t alignment, size_t size);
 SQUASH_API void  squash_aligned_free         (void* ptr);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_MEMORY_H */

@@ -34,28 +34,28 @@
 
 #include <wchar.h>
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL
 const char*  squash_charset_get_locale     (void);
 SQUASH_INTERNAL
 const char*  squash_charset_get_wide       (void);
-SQUASH_NONNULL(2, 3, 5, 6) SQUASH_INTERNAL
+HEDLEY_NON_NULL(2, 3, 5, 6) SQUASH_INTERNAL
 bool         squash_charset_convert        (size_t* output_size, char** output, const char* output_charset,
                                             size_t input_size, const char* input, const char* input_charset);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 char*        squash_charset_utf8_to_locale (const char* input);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 char*        squash_charset_locale_to_utf8 (const char* input);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 wchar_t*     squash_charset_locale_to_wide (const char* input);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 char*        squash_charset_wide_to_locale (const wchar_t* input);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 char*        squash_charset_wide_to_utf8   (const wchar_t* input);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 wchar_t*     squash_charset_utf8_to_wide   (const char* input);
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_CHARSET_INTERNAL_H */

@@ -212,7 +212,7 @@ static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
 
 static void* squash_lzma_calloc (void *opaque, size_t nmemb, size_t size) {
   void* ptr = squash_malloc (nmemb * size);
-  if (SQUASH_UNLIKELY(ptr == NULL))
+  if (HEDLEY_UNLIKELY(ptr == NULL))
     return ptr;
   return memset (ptr, 0, nmemb * size);
 }
@@ -292,7 +292,7 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
       lzma_e = lzma_raw_encoder(&(stream->stream), filters);
     } else {
-      squash_assert_unreachable();
+      HEDLEY_UNREACHABLE();
     }
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
@@ -306,10 +306,10 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
       lzma_e = lzma_raw_decoder(&(stream->stream), filters);
     } else {
-      squash_assert_unreachable();
+      HEDLEY_UNREACHABLE();
     }
   } else {
-    squash_assert_unreachable();
+    HEDLEY_UNREACHABLE();
   }
 
   if (lzma_e != LZMA_OK) {
@@ -356,7 +356,7 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
       lzma_e = lzma_code (s, LZMA_FINISH);
       break;
     case SQUASH_OPERATION_TERMINATE:
-      squash_assert_unreachable ();
+      HEDLEY_UNREACHABLE ();
   }
   SQUASH_LZMA_STREAM_COPY_FROM_LZMA_STREAM(stream, s);
 
@@ -372,7 +372,7 @@ squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
         return SQUASH_PROCESSING;
         break;
       case SQUASH_OPERATION_TERMINATE:
-        squash_assert_unreachable ();
+        HEDLEY_UNREACHABLE ();
         break;
     }
   } else if (lzma_e == LZMA_STREAM_END) {
@@ -399,7 +399,7 @@ squash_lzma_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_siz
       break;
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 SquashStatus

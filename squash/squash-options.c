@@ -199,7 +199,7 @@ squash_options_find (SquashOptions* options, SquashCodec* codec, const char* key
 const char*
 squash_options_get_string (SquashOptions* options, SquashCodec* codec, const char* key) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return NULL;
     codec = options->codec;
   }
@@ -221,7 +221,7 @@ squash_options_get_string (SquashOptions* options, SquashCodec* codec, const cha
 bool
 squash_options_get_bool (SquashOptions* options, SquashCodec* codec, const char* key) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return false;
     codec = options->codec;
   }
@@ -243,7 +243,7 @@ squash_options_get_bool (SquashOptions* options, SquashCodec* codec, const char*
 int
 squash_options_get_int (SquashOptions* options, SquashCodec* codec, const char* key) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return -1;
     codec = options->codec;
   }
@@ -265,7 +265,7 @@ squash_options_get_int (SquashOptions* options, SquashCodec* codec, const char* 
 size_t
 squash_options_get_size (SquashOptions* options, SquashCodec* codec, const char* key) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return 0;
     codec = options->codec;
   }
@@ -280,7 +280,7 @@ squash_options_get_size (SquashOptions* options, SquashCodec* codec, const char*
 static const SquashOptionValue*
 squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const SquashOptionInfo** info, SquashOptionType* type, size_t idx) {
   const SquashOptionInfo* ci = squash_codec_get_option_info (codec);
-  if (SQUASH_UNLIKELY(ci == NULL))
+  if (HEDLEY_UNLIKELY(ci == NULL))
     return NULL;
   ci = &(ci[idx]);
 
@@ -310,7 +310,7 @@ squash_options_get_value_at (SquashOptions* options, SquashCodec* codec, const S
 const char*
 squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return NULL;
     codec = options->codec;
   }
@@ -318,7 +318,7 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
   const SquashOptionInfo* info;
   SquashOptionType type;
   const SquashOptionValue* val = squash_options_get_value_at (options, codec, &info, &type, idx);
-  if (SQUASH_UNLIKELY(val == NULL))
+  if (HEDLEY_UNLIKELY(val == NULL))
     return NULL;
 
   switch ((int) type) {
@@ -330,7 +330,7 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
       return NULL;
   }
 
- /*  squash_assert_unreachable (); */
+ /*  HEDLEY_UNREACHABLE (); */
   return NULL;
 }
 
@@ -347,14 +347,14 @@ squash_options_get_string_at (SquashOptions* options, SquashCodec* codec, size_t
 bool
 squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return false;
     codec = options->codec;
   }
 
   SquashOptionType type;
   const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
-  if (SQUASH_UNLIKELY(val == NULL))
+  if (HEDLEY_UNLIKELY(val == NULL))
     return false;
 
   switch ((int) type) {
@@ -364,7 +364,7 @@ squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t i
       return false;
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -380,14 +380,14 @@ squash_options_get_bool_at (SquashOptions* options, SquashCodec* codec, size_t i
 int
 squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return -1;
     codec = options->codec;
   }
 
   SquashOptionType type;
   const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
-  if (SQUASH_UNLIKELY(val == NULL))
+  if (HEDLEY_UNLIKELY(val == NULL))
     return -1;
 
   switch ((int) type) {
@@ -402,7 +402,7 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t id
       return -1;
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -418,14 +418,14 @@ squash_options_get_int_at (SquashOptions* options, SquashCodec* codec, size_t id
 size_t
 squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t idx) {
   if (codec == NULL) {
-    if (SQUASH_UNLIKELY(options == NULL))
+    if (HEDLEY_UNLIKELY(options == NULL))
       return 0;
     codec = options->codec;
   }
 
   SquashOptionType type;
   const SquashOptionValue* val = squash_options_get_value_at (options, codec, NULL, &type, idx);
-  if (SQUASH_UNLIKELY(val == NULL))
+  if (HEDLEY_UNLIKELY(val == NULL))
     return 0;
 
   switch ((int) type) {
@@ -436,7 +436,7 @@ squash_options_get_size_at (SquashOptions* options, SquashCodec* codec, size_t i
       return 0;
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -571,7 +571,7 @@ squash_options_set_string_at (SquashOptions* options, size_t idx, const char* va
       return squash_error (SQUASH_BAD_VALUE);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -605,7 +605,7 @@ squash_options_set_bool_at (SquashOptions* options, size_t idx, bool value) {
       return squash_error (SQUASH_BAD_VALUE);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -645,7 +645,7 @@ squash_options_set_int_at (SquashOptions* options, size_t idx, int value) {
       return squash_error (SQUASH_BAD_VALUE);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -679,7 +679,7 @@ squash_options_set_size_at (SquashOptions* options, size_t idx, size_t value) {
             (value != 0 || !info->info.range_size.allow_zero))
           return squash_error (SQUASH_BAD_VALUE);
 
-        if (SQUASH_UNLIKELY(!((value == 0 && info->info.range_size.allow_zero) ||
+        if (HEDLEY_UNLIKELY(!((value == 0 && info->info.range_size.allow_zero) ||
                               (value >= info->info.range_size.min && value <= info->info.range_size.max))))
           return squash_error (SQUASH_BAD_VALUE);
       }
@@ -689,7 +689,7 @@ squash_options_set_size_at (SquashOptions* options, size_t idx, size_t value) {
       return squash_error (SQUASH_BAD_VALUE);
   }
 
-  squash_assert_unreachable ();
+  HEDLEY_UNREACHABLE ();
 }
 
 /**
@@ -725,16 +725,16 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
         char* endptr;
         long int res = strtol (value, &endptr, 0);
 
-        if (SQUASH_UNLIKELY(*endptr != '\0'))
+        if (HEDLEY_UNLIKELY(*endptr != '\0'))
           return squash_error (SQUASH_BAD_VALUE);
 
 #if INT_MAX < LONG_MAX
-        if (SQUASH_UNLIKELY(res > INT_MAX))
+        if (HEDLEY_UNLIKELY(res > INT_MAX))
           return squash_error (SQUASH_RANGE);
 #endif
 
 #if INT_MIN > LONG_MIN
-        if (SQUASH_UNLIKELY(res < INT_MIN))
+        if (HEDLEY_UNLIKELY(res < INT_MIN))
           return squash_error (SQUASH_RANGE);
 #endif
         return squash_options_set_int_at (options, option_n, res);
@@ -747,7 +747,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
         unsigned long long int i = strtoull (value, &endptr, 10);
 
 #if SIZE_MAX < ULLONG_MAX
-        if (SQUASH_UNLIKELY(i > SIZE_MAX))
+        if (HEDLEY_UNLIKELY(i > SIZE_MAX))
           return squash_error (SQUASH_RANGE);
 #endif
 
@@ -759,19 +759,19 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
             switch (*endptr) {
               case 'g':
               case 'G':
-                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                if (HEDLEY_UNLIKELY((SIZE_MAX / 1024) < res))
                   return squash_error (SQUASH_RANGE);
                 res *= 1024;
                 /* Fall through */
               case 'm':
               case 'M':
-                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                if (HEDLEY_UNLIKELY((SIZE_MAX / 1024) < res))
                   return squash_error (SQUASH_RANGE);
                 res *= 1024;
                 /* Fall through */
               case 'k':
               case 'K':
-                if (SQUASH_UNLIKELY((SIZE_MAX / 1024) < res))
+                if (HEDLEY_UNLIKELY((SIZE_MAX / 1024) < res))
                   return squash_error (SQUASH_RANGE);
                 res *= 1024;
                 break;
@@ -785,12 +785,12 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
             if (*endptr == 'i' || *endptr == 'I')
               endptr++;
 
-            if (SQUASH_LIKELY(*endptr == 'b' || *endptr == 'B'))
+            if (HEDLEY_LIKELY(*endptr == 'b' || *endptr == 'B'))
               endptr++;
             else
               return squash_error (SQUASH_BAD_VALUE);
 
-            if (SQUASH_UNLIKELY(*endptr != '\0'))
+            if (HEDLEY_UNLIKELY(*endptr != '\0'))
               return squash_error (SQUASH_BAD_VALUE);
           }
         }
@@ -830,10 +830,10 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
 
     case SQUASH_OPTION_TYPE_NONE:
     default:
-      squash_assert_unreachable();
+      HEDLEY_UNREACHABLE();
   }
 
-  squash_assert_unreachable();
+  HEDLEY_UNREACHABLE();
 }
 
 /**
@@ -1036,7 +1036,7 @@ squash_options_init (void* options,
           break;
         case SQUASH_OPTION_TYPE_NONE:
         default:
-          squash_assert_unreachable();
+          HEDLEY_UNREACHABLE();
       }
     }
   }
@@ -1092,13 +1092,13 @@ squash_options_parse_optionw (SquashOptions* options, const wchar_t* key, const 
   SquashStatus res = SQUASH_OK;
 
   nkey = squash_charset_wide_to_utf8 (key);
-  if (SQUASH_UNLIKELY(nkey == NULL)) {
+  if (HEDLEY_UNLIKELY(nkey == NULL)) {
     res = squash_error (SQUASH_FAILED);
     goto finish;
   }
 
   nvalue = squash_charset_wide_to_utf8 (value);
-  if (SQUASH_UNLIKELY(nvalue == NULL)) {
+  if (HEDLEY_UNLIKELY(nvalue == NULL)) {
     res = squash_error (SQUASH_FAILED);
     goto finish;
   }

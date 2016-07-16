@@ -32,22 +32,22 @@
 #error "This is internal API; you cannot use it."
 #endif
 
-SQUASH_BEGIN_DECLS
+HEDLEY_BEGIN_C_DECLS
 
-SQUASH_NONNULL(1, 2, 3) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2, 3) SQUASH_INTERNAL
 SquashPlugin*   squash_plugin_new        (char* name, char* directory, SquashContext* context);
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 void            squash_plugin_add_codec  (SquashPlugin* plugin, SquashCodec* codec);
-SQUASH_NONNULL(1) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1) SQUASH_INTERNAL
 SquashStatus    squash_plugin_load       (SquashPlugin* plugin);
-SQUASH_NONNULL(1, 2, 3) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2, 3) SQUASH_INTERNAL
 SquashStatus    squash_plugin_init_codec (SquashPlugin* plugin, SquashCodec* codec, SquashCodecImpl* impl);
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 int             squash_plugin_compare    (SquashPlugin* a, SquashPlugin* b);
 
 SQUASH_TREE_PROTOTYPES(SquashPlugin_, tree)
 SQUASH_TREE_DEFINE(SquashPlugin_, tree)
 
-SQUASH_END_DECLS
+HEDLEY_END_C_DECLS
 
 #endif /* SQUASH_PLUGIN_INTERNAL_H */

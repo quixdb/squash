@@ -38,7 +38,7 @@ typedef bool (* SquashIniParserCallback) (const char* section,
                                           size_t value_size,
                                           void* user_data);
 
-SQUASH_NONNULL(1, 2) SQUASH_INTERNAL
+HEDLEY_NON_NULL(1, 2) SQUASH_INTERNAL
 bool squash_ini_parse (FILE* input,
                        SquashIniParserCallback callback,
                        void* user_data);
