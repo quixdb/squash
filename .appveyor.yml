@@ -69,9 +69,9 @@ before_build:
 
       if ($env:GENERATOR -like 'Visual Studio*') {
         if ($env:TOOLSET -like 'LLVM*') {
-          cmake -T "$env:TOOLSET" -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LIBDEFLATE=no -DENABLE_LZMA=no -DENABLE_ZLIB_NG=no -DENABLE_ZSTD=no -DENABLE_LZFSE=no ..
+          cmake -T "$env:TOOLSET" -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_BROTLI=no -DENABLE_GIPFELI=no -DENABLE_LIBDEFLATE=no -DENABLE_LZMA=no -DENABLE_ZLIB_NG=no -DENABLE_ZSTD=no ..
         } else {
-          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_DENSITY=no -DENABLE_GIPFELI=no -DENABLE_LZFSE=no ..
+          cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
         }
       } else {
         if ($env:CC -like 'clang*') {
