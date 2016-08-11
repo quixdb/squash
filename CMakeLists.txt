@@ -79,6 +79,11 @@ if (MSVC)
   add_definitions (-D_CRT_SECURE_NO_WARNINGS)
 endif (MSVC)
 
+# https://cmake.org/Bug/view.php?id=8246
+if(NOT MSVC)
+  set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -fno-builtin")
+endif()
+
 set (PACKAGE_NAME Squash)
 set (SQUASH_TOP_SRCDIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set (SQUASH_TOP_BUILDDIR "${CMAKE_CURRENT_BINARY_DIR}")
