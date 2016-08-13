@@ -136,7 +136,7 @@ squash_csc_splice (SquashCodec* codec,
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     CSCEncProps_Init (&props,
-                      squash_codec_get_option_size_index (codec, options, SQUASH_CSC_OPT_DICT_SIZE),
+                      squash_options_get_size_at (options, codec, SQUASH_CSC_OPT_DICT_SIZE),
                       squash_options_get_int_at (options, codec, SQUASH_CSC_OPT_LEVEL));
     props.DLTFilter = squash_options_get_bool_at (options, codec, SQUASH_CSC_OPT_DELTA_FILTER);
     props.EXEFilter = squash_options_get_bool_at (options, codec, SQUASH_CSC_OPT_EXE_FILTER);
