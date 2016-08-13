@@ -145,29 +145,27 @@ function (squash_set_target_visibility target visibility)
   unset (abbrev_test_name)
 endfunction (squash_set_target_visibility)
 
+set_compiler_specific_flags(
+  VARIABLE release_flags
+  GCCISH -O3 -DNDEBUG
+  MSVC /O2 /DNDEBUG)
+foreach(flag ${release_flags})
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${flag}")
+endforeach(flag)
+unset(release_flags)
+
+set_compiler_specific_flags(
+  VARIABLE debug_flags
+  GCCISH -g -O2
+  MSVC /Od)
+foreach(flag ${debug_flags})
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${flag}")
+endforeach(flag)
+unset(debug_flags)
+
 if (ENABLE_COVERAGE)
   if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(FATAL_ERROR "Coverage analysis requires a debug build.")
-  endif()
-else()
-  if (NOT MSVC)
-    set(CMAKE_C_FLAGS_DEBUG "-g -O2")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -O2")
-
-    check_c_compiler_flag("-Os" "CFLAG__Os")
-    check_cxx_compiler_flag("-Os" "CXXFLAG__Os")
-
-    if(CFLAG__Os)
-      set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG")
-    else()
-      set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-    endif()
-
-    if(CFLAG__Os)
-      set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG")
-    else()
-      set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-    endif()
   endif()
 endif()
 
