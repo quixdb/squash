@@ -2,6 +2,7 @@ include (SquashPlugin)
 
 squash_plugin (
   NAME zling
+  NO_BIG_ENDIAN
   SOURCES squash-zling.cpp
   EMBED_SOURCES
     libzling/src/libzling.cpp

@@ -94,6 +94,11 @@ else ()
   list (APPEND lzma_embed_defines MYTHREAD_POSIX)
 endif ()
 
+test_big_endian(LZMA_IS_BIG_ENDIAN)
+if(LZMA_IS_BIG_ENDIAN)
+  list (APPEND lzma_embed_defines "WORDS_BIGENDIAN")
+endif(LZMA_IS_BIG_ENDIAN)
+
 find_package(LZMA)
 
 squash_plugin (

@@ -2,6 +2,7 @@ include (SquashPlugin)
 
 squash_plugin (
   NAME gipfeli
+  NO_BIG_ENDIAN
   SOURCES squash-gipfeli.cpp
   CXX_STANDARD c++11
   EMBED_SOURCES

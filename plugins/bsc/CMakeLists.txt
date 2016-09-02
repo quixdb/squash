@@ -3,6 +3,7 @@ include (SquashPlugin)
 squash_plugin (
   NAME bsc
   SOURCES squash-bsc.c
+  NO_BIG_ENDIAN
   EMBED_SOURCES
     libbsc/libbsc/bwt/divsufsort/divsufsort.c
     libbsc/libbsc/adler32/adler32.cpp

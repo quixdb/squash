@@ -19,6 +19,7 @@ set_compiler_specific_flags(
 
 squash_plugin (
   NAME lzfse
+  NO_BIG_ENDIAN
   SOURCES squash-lzfse.c
   C_STANDARD c99
   EMBED_SOURCES
