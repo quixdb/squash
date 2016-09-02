@@ -32,19 +32,15 @@
 
 #include "lzham/include/lzham.h"
 
-typedef struct SquashLZHAMStream_s {
-  SquashStream base_object;
-
-  union {
-    struct {
-      lzham_compress_state_ptr ctx;
-      lzham_compress_params params;
-    } comp;
-    struct {
-      lzham_decompress_state_ptr ctx;
+typedef union {
+  struct {
+    lzham_compress_state_ptr ctx;
+    lzham_compress_params params;
+  } comp;
+  struct {
+    lzham_decompress_state_ptr ctx;
       lzham_decompress_params params;
-    } decomp;
-  } lzham;
+  } decomp;
 } SquashLZHAMStream;
 
 enum SquashLZHAMOptIndex {
@@ -102,14 +98,6 @@ static SquashOptionInfo squash_lzham_options[] = {
 SQUASH_PLUGIN_EXPORT
 SquashStatus               squash_plugin_init_codec     (SquashCodec* codec, SquashCodecImpl* impl);
 
-static void                squash_lzham_stream_init     (SquashLZHAMStream* stream,
-                                                         SquashCodec* codec,
-                                                         SquashStreamType stream_type,
-                                                         SquashOptions* options,
-                                                         SquashDestroyNotify destroy_notify);
-static SquashLZHAMStream*  squash_lzham_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void                squash_lzham_stream_destroy  (void* stream);
-
 static void                squash_lzham_compress_apply_options   (SquashCodec* codec,
                                                                   lzham_compress_params* params,
                                                                   SquashOptions* options);
@@ -161,52 +149,35 @@ squash_lzham_decompress_apply_options (SquashCodec* codec,
   *params = opts;
 }
 
-static SquashLZHAMStream*
-squash_lzham_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashLZHAMStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashLZHAMStream*) squash_malloc (sizeof (SquashLZHAMStream));
-  squash_lzham_stream_init (stream, codec, stream_type, options, squash_lzham_stream_destroy);
-
-  return stream;
-}
-
-static void
-squash_lzham_stream_init (SquashLZHAMStream* stream,
-                          SquashCodec* codec,
+static bool
+squash_lzham_init_stream (SquashStream* stream,
                           SquashStreamType stream_type,
                           SquashOptions* options,
-                          SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+                          void* priv) {
+  SquashLZHAMStream* s = priv;
 
-  if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    squash_lzham_compress_apply_options (codec, &(stream->lzham.comp.params), options);
-    stream->lzham.comp.ctx = lzham_compress_init (&(stream->lzham.comp.params));
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    squash_lzham_compress_apply_options (stream->codec, &(s->comp.params), options);
+    s->comp.ctx = lzham_compress_init (&(s->comp.params));
   } else {
-    squash_lzham_decompress_apply_options (codec, &(stream->lzham.decomp.params), options);
-    stream->lzham.decomp.ctx = lzham_decompress_init (&(stream->lzham.decomp.params));
+    squash_lzham_decompress_apply_options (stream->codec, &(s->decomp.params), options);
+    s->decomp.ctx = lzham_decompress_init (&(s->decomp.params));
   }
+
+  return true;
 }
 
 static void
-squash_lzham_stream_destroy (void* stream) {
-  SquashLZHAMStream* s = (SquashLZHAMStream*) stream;
+squash_lzham_destroy_stream (SquashStream* stream, void* priv) {
+  SquashLZHAMStream* s = priv;
 
-  if (s->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    lzham_compress_deinit (s->lzham.comp.ctx);
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    lzham_compress_deinit (s->comp.ctx);
   } else {
-    lzham_decompress_deinit (s->lzham.decomp.ctx);
+    lzham_decompress_deinit (s->decomp.ctx);
   }
 
   squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_lzham_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_lzham_stream_new (codec, stream_type, options);
 }
 
 static lzham_flush_t
@@ -227,8 +198,8 @@ squash_operation_to_lzham (SquashOperation operation) {
 }
 
 static SquashStatus
-squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashLZHAMStream* s = (SquashLZHAMStream*) stream;
+squash_lzham_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
+  SquashLZHAMStream* s = priv;
   SquashStatus res = SQUASH_FAILED;
 
   size_t input_size = stream->avail_in;
@@ -237,7 +208,7 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     lzham_compress_status_t status;
 
-    status = lzham_compress2 (s->lzham.comp.ctx,
+    status = lzham_compress2 (s->comp.ctx,
                               stream->next_in, &input_size,
                               stream->next_out, &output_size,
                               squash_operation_to_lzham (operation));
@@ -258,7 +229,7 @@ squash_lzham_process_stream (SquashStream* stream, SquashOperation operation) {
   } else {
     lzham_decompress_status_t status;
 
-    status = lzham_decompress (s->lzham.comp.ctx,
+    status = lzham_decompress (s->comp.ctx,
                                stream->next_in, &input_size,
                                stream->next_out, &output_size,
                                (operation == SQUASH_OPERATION_FINISH && input_size == 0));
@@ -364,7 +335,9 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   if (HEDLEY_LIKELY(strcmp ("lzham", squash_codec_get_name (codec)) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_lzham_options;
-    impl->create_stream = squash_lzham_create_stream;
+    impl->priv_size = sizeof(SquashLZHAMStream);
+    impl->init_stream = squash_lzham_init_stream;
+    impl->destroy_stream = squash_lzham_destroy_stream;
     impl->process_stream = squash_lzham_process_stream;
     impl->get_max_compressed_size = squash_lzham_get_max_compressed_size;
     impl->decompress_buffer = squash_lzham_decompress_buffer;

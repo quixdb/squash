@@ -73,27 +73,13 @@ static SquashOptionInfo squash_brotli_options[] = {
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
-typedef struct SquashBrotliStream_s {
-  SquashStream base_object;
-
-  union {
-    BrotliEncoderState* encoder;
-    BrotliState* decoder;
-  } ctx;
-} SquashBrotliStream;
+typedef union {
+  BrotliEncoderState* encoder;
+  BrotliState* decoder;
+} SquashBrotliPrivate;
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init_codec      (SquashCodec* codec, SquashCodecImpl* impl);
-
-static void                 squash_brotli_stream_init     (SquashBrotliStream* stream,
-                                                           SquashCodec* codec,
-                                                           SquashStreamType stream_type,
-                                                           SquashOptions* options,
-                                                           SquashDestroyNotify destroy_notify);
-static SquashBrotliStream*  squash_brotli_stream_new      (SquashCodec* codec,
-                                                           SquashStreamType stream_type,
-                                                           SquashOptions* options);
-static void                 squash_brotli_stream_destroy  (void* stream);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static void*
 squash_brotli_malloc (void* opaque, size_t size) {
@@ -105,60 +91,46 @@ squash_brotli_free (void* opaque, void* ptr) {
   squash_free (ptr);
 }
 
-static SquashBrotliStream*
-squash_brotli_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashBrotliStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashBrotliStream*) squash_malloc (sizeof (SquashBrotliStream));
-  squash_brotli_stream_init (stream, codec, stream_type, options, squash_brotli_stream_destroy);
-
-  return stream;
-}
-
-static void
-squash_brotli_stream_init (SquashBrotliStream* s,
-                           SquashCodec* codec,
+static bool
+squash_brotli_init_stream (SquashStream* stream,
                            SquashStreamType stream_type,
                            SquashOptions* options,
-                           SquashDestroyNotify destroy_notify) {
-  SquashStream* stream = (SquashStream*) s;
-  squash_stream_init (stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+                           void* priv) {
+  SquashBrotliPrivate* p = (SquashBrotliPrivate*) priv;
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
-    s->ctx.encoder = BrotliEncoderCreateInstance(squash_brotli_malloc, squash_brotli_free, NULL);
+    p->encoder = BrotliEncoderCreateInstance(squash_brotli_malloc, squash_brotli_free, NULL);
+    if (HEDLEY_UNLIKELY(p->encoder == NULL))
+      return false;
 
-    BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_QUALITY, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_LEVEL));
-    BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_LGWIN, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_WINDOW_SIZE));
-    BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_LGBLOCK, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_BLOCK_SIZE));
-    BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_MODE, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_MODE));
+    BrotliEncoderSetParameter(p->encoder, BROTLI_PARAM_QUALITY, squash_options_get_int_at (options, stream->codec, SQUASH_BROTLI_OPT_LEVEL));
+    BrotliEncoderSetParameter(p->encoder, BROTLI_PARAM_LGWIN, squash_options_get_int_at (options, stream->codec, SQUASH_BROTLI_OPT_WINDOW_SIZE));
+    BrotliEncoderSetParameter(p->encoder, BROTLI_PARAM_LGBLOCK, squash_options_get_int_at (options, stream->codec, SQUASH_BROTLI_OPT_BLOCK_SIZE));
+    BrotliEncoderSetParameter(p->encoder, BROTLI_PARAM_MODE, squash_options_get_int_at (options, stream->codec, SQUASH_BROTLI_OPT_MODE));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    s->ctx.decoder = BrotliCreateState(squash_brotli_malloc, squash_brotli_free, NULL);
+    p->decoder = BrotliCreateState(squash_brotli_malloc, squash_brotli_free, NULL);
+    if (HEDLEY_UNLIKELY(p->decoder == NULL))
+      return false;
   } else {
     HEDLEY_UNREACHABLE();
   }
+
+  return true;
 }
 
 static void
-squash_brotli_stream_destroy (void* stream) {
-  SquashBrotliStream* s = (SquashBrotliStream*) stream;
+squash_brotli_destroy_stream (SquashStream* stream, void* priv) {
+  SquashBrotliPrivate* p = (SquashBrotliPrivate*) priv;
 
-  if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_COMPRESS) {
-    BrotliEncoderDestroyInstance(s->ctx.encoder);
-  } else if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_DECOMPRESS) {
-    BrotliDestroyState(s->ctx.decoder);
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    BrotliEncoderDestroyInstance(p->encoder);
+  } else if (stream->stream_type == SQUASH_STREAM_DECOMPRESS) {
+    BrotliDestroyState(p->decoder);
   } else {
     HEDLEY_UNREACHABLE();
   }
 
   squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_brotli_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_brotli_stream_new (codec, stream_type, options);
 }
 
 static BrotliEncoderOperation
@@ -177,12 +149,12 @@ squash_brotli_encoder_operation_from_squash_operation (const SquashOperation ope
 }
 
 static SquashStatus
-squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashBrotliStream* s = (SquashBrotliStream*) stream;
+squash_brotli_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
+  SquashBrotliPrivate* p = (SquashBrotliPrivate*) priv;
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     const int be_ret =
-      BrotliEncoderCompressStream(s->ctx.encoder,
+      BrotliEncoderCompressStream(p->encoder,
                                   squash_brotli_encoder_operation_from_squash_operation(operation),
                                   &(stream->avail_in), &(stream->next_in),
                                   &(stream->avail_out), &(stream->next_out),
@@ -190,7 +162,7 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
 
     if (HEDLEY_UNLIKELY(be_ret != 1))
       return squash_error (SQUASH_FAILED);
-    else if (stream->avail_in != 0 || BrotliEncoderHasMoreOutput(s->ctx.encoder))
+    else if (stream->avail_in != 0 || BrotliEncoderHasMoreOutput(p->encoder))
       return SQUASH_PROCESSING;
     else
       return SQUASH_OK;
@@ -199,7 +171,7 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
       BrotliDecompressStream(&(stream->avail_in), &(stream->next_in),
                              &(stream->avail_out), &(stream->next_out),
                              NULL,
-                             s->ctx.decoder);
+                             p->decoder);
 
     switch (bd_ret) {
       case BROTLI_RESULT_SUCCESS:
@@ -261,9 +233,11 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
 
   if (HEDLEY_LIKELY(strcmp ("brotli", name) == 0)) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
+    impl->priv_size = sizeof(SquashBrotliPrivate);
     impl->options = squash_brotli_options;
     impl->get_max_compressed_size = squash_brotli_get_max_compressed_size;
-    impl->create_stream = squash_brotli_create_stream;
+    impl->init_stream = squash_brotli_init_stream;
+    impl->destroy_stream = squash_brotli_destroy_stream;
     impl->process_stream = squash_brotli_process_stream;
     impl->decompress_buffer = squash_brotli_decompress_buffer;
     impl->compress_buffer = squash_brotli_compress_buffer;

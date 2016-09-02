@@ -32,6 +32,32 @@
 #error "This is internal API; you cannot use it."
 #endif
 
+union squash_max_align_t {
+  short a;
+  int b;
+  long int c;
+  long long int d;
+  double e;
+  long double f;
+  void* g;
+  void (* h)(void);
+  union squash_max_align_t* i;
+};
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#  include <stddef.h>
+#  define SQUASH_MAX_ALIGNMENT _Alignof(max_align_t)
+#elif HEDLEY_GCC_VERSION_CHECK(2,95,0)
+#  define SQUASH_MAX_ALIGNMENT __alignof__(union squash_max_align_t)
+#elif HEDLEY_MSVC_VERSION_CHECK(13,10,0)
+#  define SQUASH_MAX_ALIGNMENT __alignof(union squash_max_align_t)
+#else
+#  define SQUASH_MAX_ALIGNMENT (32)
+#endif
+
+#define SQUASH_ALLOC_SIZE(T) \
+	(sizeof(T) + ((sizeof(T) % SQUASH_MAX_ALIGNMENT != 0) * (SQUASH_MAX_ALIGNMENT - (sizeof(T) % SQUASH_MAX_ALIGNMENT))))
+
 HEDLEY_BEGIN_C_DECLS
 
 SQUASH_INTERNAL

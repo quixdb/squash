@@ -48,8 +48,6 @@ typedef struct SquashOptionInfo_              SquashOptionInfo;
 typedef union  SquashOptionValue_             SquashOptionValue;
 
 struct SquashOptions_ {
-  SquashObject base_object;
-
   SquashCodec* codec;
 
   SquashOptionValue* values;
@@ -162,11 +160,6 @@ SQUASH_API SquashStatus   squash_options_parsea        (SquashOptions* options, 
 
 HEDLEY_NON_NULL(1, 2, 3)
 SQUASH_API SquashStatus   squash_options_parse_option  (SquashOptions* options, const char* key, const char* value);
-
-HEDLEY_NON_NULL(1, 2)
-SQUASH_API void           squash_options_init          (void* options, SquashCodec* codec, SquashDestroyNotify destroy_notify);
-HEDLEY_NON_NULL(1)
-SQUASH_API void           squash_options_destroy       (void* options);
 
 #if defined(SQUASH_ENABLE_WIDE_CHAR_API)
 HEDLEY_SENTINEL(0)

@@ -50,6 +50,10 @@ struct SquashStreamPrivate_ {
 #define SQUASH_OPERATION_INVALID ((SquashOperation) 0)
 #define SQUASH_STATUS_INVALID ((SquashStatus) 0)
 
+#define SQUASH_STREAM_ALLOC_SIZE SQUASH_ALLOC_SIZE(SquashStream)
+#define SQUASH_STREAM_PRIVATE(stream) ((void*) (((uintptr_t) stream) + SQUASH_STREAM_ALLOC_SIZE))
+#define SQUASH_STREAM_PRIVATE_C(T, stream) ((T*) SQUASH_STREAM_PRIVATE(stream))
+
 HEDLEY_END_C_DECLS
 
 #endif /* !defined(SQUASH_STREAM_INTERNAL_H) */

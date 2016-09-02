@@ -104,3 +104,6 @@
 [submodule "squash/hedley"]
 	path = squash/hedley
 	url = https://github.com/nemequ/hedley.git
+[submodule "squash/portable-snippets"]
+	path = squash/portable-snippets
+	url = https://github.com/nemequ/portable-snippets.git

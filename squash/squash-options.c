@@ -930,10 +930,68 @@ squash_options_new (SquashCodec* codec, ...) {
   return options;
 }
 
+static void
+squash_options_destroy (void* options) {
+  SquashOptions* o;
+
+  assert (options != NULL);
+
+  o = (SquashOptions*) options;
+
+  SquashOptionValue* values = o->values;
+  if (values != NULL) {
+    const SquashOptionInfo* info = squash_codec_get_option_info (o->codec);
+    assert (info != NULL);
+
+    for (int i = 0 ; info[i].name != NULL ; i++)
+      if (info[i].type == SQUASH_OPTION_TYPE_STRING)
+        squash_free (values[i].string_value);
+
+    squash_free (values);
+  }
+}
+
 static SquashOptions*
 squash_options_create (SquashCodec* codec) {
-  SquashOptions* options = squash_malloc (sizeof (SquashOptions));
-  squash_options_init (options, codec, squash_options_destroy);
+  SquashOptions* options = squash_object_new(SquashOptions, true, squash_options_destroy);
+
+  options->codec = codec;
+
+  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
+  if (info != NULL) {
+    size_t n_options;
+    for (n_options = 0 ; info[n_options].name != NULL ; n_options++) { }
+
+    assert (n_options != 0);
+
+    options->values = squash_malloc (n_options * sizeof (SquashOptionValue));
+    assert (options->values != NULL);
+    memset (options->values, 0, n_options * sizeof (SquashOptionValue));
+    for (size_t c_option = 0 ; c_option < n_options ; c_option++) {
+      switch (info[c_option].type) {
+        case SQUASH_OPTION_TYPE_ENUM_STRING:
+        case SQUASH_OPTION_TYPE_RANGE_INT:
+        case SQUASH_OPTION_TYPE_INT:
+        case SQUASH_OPTION_TYPE_ENUM_INT:
+          options->values[c_option].int_value = info[c_option].default_value.int_value;
+          break;
+        case SQUASH_OPTION_TYPE_BOOL:
+          options->values[c_option].bool_value = info[c_option].default_value.bool_value;
+          break;
+        case SQUASH_OPTION_TYPE_SIZE:
+        case SQUASH_OPTION_TYPE_RANGE_SIZE:
+          options->values[c_option].size_value = info[c_option].default_value.size_value;
+          break;
+        case SQUASH_OPTION_TYPE_STRING:
+          options->values[c_option].string_value = strdup (info[c_option].default_value.string_value);
+          break;
+        case SQUASH_OPTION_TYPE_NONE:
+        default:
+          HEDLEY_UNREACHABLE();
+      }
+    }
+  }
+
   return options;
 }
 
@@ -979,98 +1037,6 @@ squash_options_newa (SquashCodec* codec, const char* const* keys, const char* co
   }
 
   return opts;
-}
-
-/**
- * @brief Initialize a new %SquashOptions instance.
- *
- * This function should only be used for subclassing.  See
- * ::squash_object_init for more information.
- *
- * @param options The instance to initialize.
- * @param codec The codec to use.
- * @param destroy_notify The function to be called when the reference
- *   count reaches 0
- */
-void
-squash_options_init (void* options,
-                     SquashCodec* codec,
-                     SquashDestroyNotify destroy_notify) {
-  SquashOptions* o;
-
-  assert (options != NULL);
-  assert (codec != NULL);
-
-  o = (SquashOptions*) options;
-
-  squash_object_init (o, true, destroy_notify);
-  o->codec = codec;
-
-  const SquashOptionInfo* info = squash_codec_get_option_info (codec);
-  if (info != NULL) {
-    size_t n_options;
-    for (n_options = 0 ; info[n_options].name != NULL ; n_options++) { }
-
-    assert (n_options != 0);
-
-    o->values = squash_malloc (n_options * sizeof (SquashOptionValue));
-    assert (o->values != NULL);
-    memset (o->values, 0, n_options * sizeof (SquashOptionValue));
-    for (size_t c_option = 0 ; c_option < n_options ; c_option++) {
-      switch (info[c_option].type) {
-        case SQUASH_OPTION_TYPE_ENUM_STRING:
-        case SQUASH_OPTION_TYPE_RANGE_INT:
-        case SQUASH_OPTION_TYPE_INT:
-        case SQUASH_OPTION_TYPE_ENUM_INT:
-          o->values[c_option].int_value = info[c_option].default_value.int_value;
-          break;
-        case SQUASH_OPTION_TYPE_BOOL:
-          o->values[c_option].bool_value = info[c_option].default_value.bool_value;
-          break;
-        case SQUASH_OPTION_TYPE_SIZE:
-        case SQUASH_OPTION_TYPE_RANGE_SIZE:
-          o->values[c_option].size_value = info[c_option].default_value.size_value;
-          break;
-        case SQUASH_OPTION_TYPE_STRING:
-          o->values[c_option].string_value = strdup (info[c_option].default_value.string_value);
-          break;
-        case SQUASH_OPTION_TYPE_NONE:
-        default:
-          HEDLEY_UNREACHABLE();
-      }
-    }
-  }
-}
-
-/**
- * @brief Destroy a %SquashOptions instance.
- *
- * This function should only be used for subclassing.  See
- * ::squash_object_destroy for more information.
- *
- * @param options The instance to destroy.
- */
-void
-squash_options_destroy (void* options) {
-  SquashOptions* o;
-
-  assert (options != NULL);
-
-  o = (SquashOptions*) options;
-
-  SquashOptionValue* values = o->values;
-  if (values != NULL) {
-    const SquashOptionInfo* info = squash_codec_get_option_info (o->codec);
-    assert (info != NULL);
-
-    for (int i = 0 ; info[i].name != NULL ; i++)
-      if (info[i].type == SQUASH_OPTION_TYPE_STRING)
-        squash_free (values[i].string_value);
-
-    squash_free (values);
-  }
-
-  squash_object_destroy (o);
 }
 
 #if defined(SQUASH_ENABLE_WIDE_CHAR_API)

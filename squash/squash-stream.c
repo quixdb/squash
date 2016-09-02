@@ -209,7 +209,7 @@ squash_stream_yield (SquashStream* stream, SquashStatus status) {
   SquashOperation operation;
 
   assert (stream != NULL);
-  SquashStreamPrivate* priv = stream->priv;
+  SquashStreamPrivate* priv = SQUASH_STREAM_PRIVATE(stream);
   assert (priv != NULL);
 
   priv->request = SQUASH_OPERATION_INVALID;
@@ -235,10 +235,9 @@ squash_stream_read_cb (size_t* data_size,
   assert (data_size != NULL);
 
   SquashStream* s = (SquashStream*) user_data;
-  assert (s->priv != NULL);
   const size_t requested = *data_size;
   size_t remaining = *data_size;
-  SquashOperation operation = s->priv->request;
+  SquashOperation operation = SQUASH_STREAM_PRIVATE_C(SquashStreamPrivate, s)->request;
 
   while (remaining != 0) {
     const size_t cp_size = (s->avail_in < remaining) ? s->avail_in : remaining;
@@ -273,10 +272,9 @@ squash_stream_write_cb (size_t* data_size,
   assert (data_size != NULL);
 
   SquashStream* s = (SquashStream*) user_data;
-  assert (s->priv != NULL);
   const size_t requested = *data_size;
   size_t remaining = *data_size;
-  SquashOperation operation = s->priv->request;
+  SquashOperation operation = SQUASH_STREAM_PRIVATE_C(SquashStreamPrivate, s)->request;
 
   while (remaining != 0) {
     const size_t cp_size = (s->avail_out < remaining) ? s->avail_out : remaining;
@@ -309,7 +307,7 @@ static int
 squash_stream_thread_func (SquashStream* stream) {
   assert (stream != NULL);
 
-  SquashStreamPrivate* priv = stream->priv;
+  SquashStreamPrivate* priv = SQUASH_STREAM_PRIVATE(stream);
   SquashOperation operation;
   SquashCodec* codec = stream->codec;
 
@@ -340,7 +338,7 @@ squash_stream_thread_func (SquashStream* stream) {
 
 static SquashStatus
 squash_stream_send_to_thread (SquashStream* stream, SquashOperation operation) {
-  SquashStreamPrivate* priv = stream->priv;
+  SquashStreamPrivate* priv = SQUASH_STREAM_PRIVATE(stream);
   SquashStatus result;
 
   priv->request = operation;
@@ -390,8 +388,6 @@ squash_stream_init (void* stream,
 
   s = (SquashStream*) stream;
 
-  squash_object_init (stream, false, destroy_notify);
-
   s->next_in = NULL;
   s->avail_in = 0;
   s->total_in = 0;
@@ -408,30 +404,28 @@ squash_stream_init (void* stream,
   s->user_data = NULL;
   s->destroy_user_data = NULL;
 
-  if (codec->impl.create_stream == NULL && codec->impl.splice != NULL) {
-    s->priv = squash_malloc (sizeof (SquashStreamPrivate));
+  if (codec->impl.init_stream == NULL && codec->impl.splice != NULL) {
+    SquashStreamPrivate* priv = SQUASH_STREAM_PRIVATE(s);
 
-    mtx_init (&(s->priv->io_mtx), mtx_plain);
-    mtx_lock (&(s->priv->io_mtx));
+    mtx_init (&(priv->io_mtx), mtx_plain);
+    mtx_lock (&(priv->io_mtx));
 
-    s->priv->request = SQUASH_OPERATION_INVALID;
-    cnd_init (&(s->priv->request_cnd));
+    priv->request = SQUASH_OPERATION_INVALID;
+    cnd_init (&(priv->request_cnd));
 
-    s->priv->result = SQUASH_STATUS_INVALID;
-    cnd_init (&(s->priv->result_cnd));
+    priv->result = SQUASH_STATUS_INVALID;
+    cnd_init (&(priv->result_cnd));
 
-    s->priv->finished = false;
+    priv->finished = false;
 #if !defined(NDEBUG)
     int res =
 #endif
-      thrd_create (&(s->priv->thread), (thrd_start_t) squash_stream_thread_func, s);
+      thrd_create (&(priv->thread), (thrd_start_t) squash_stream_thread_func, s);
     assert (res == thrd_success);
 
-    while (s->priv->result == SQUASH_STATUS_INVALID)
-      cnd_wait (&(s->priv->result_cnd), &(s->priv->io_mtx));
-    s->priv->result = SQUASH_STATUS_INVALID;
-  } else {
-    s->priv = NULL;
+    while (priv->result == SQUASH_STATUS_INVALID)
+      cnd_wait (&(priv->result_cnd), &(priv->io_mtx));
+    priv->result = SQUASH_STATUS_INVALID;
   }
 }
 
@@ -460,8 +454,8 @@ squash_stream_destroy (void* stream) {
 
   s = (SquashStream*) stream;
 
-  if (HEDLEY_UNLIKELY(s->priv != NULL)) {
-    SquashStreamPrivate* priv = (SquashStreamPrivate*) s->priv;
+  if (s->codec->impl.init_stream == NULL && s->codec->impl.splice != NULL) {
+    SquashStreamPrivate* priv = SQUASH_STREAM_PRIVATE_C(SquashStreamPrivate, s);
 
     if (!priv->finished) {
       squash_stream_send_to_thread (s, SQUASH_OPERATION_TERMINATE);
@@ -469,8 +463,6 @@ squash_stream_destroy (void* stream) {
     cnd_destroy (&(priv->request_cnd));
     cnd_destroy (&(priv->result_cnd));
     mtx_destroy (&(priv->io_mtx));
-
-    squash_free (s->priv);
   }
 
   if (s->destroy_user_data != NULL && s->user_data != NULL) {
@@ -480,8 +472,6 @@ squash_stream_destroy (void* stream) {
   if (s->options != NULL) {
     s->options = squash_object_unref (s->options);
   }
-
-  squash_object_destroy (stream);
 }
 
 /**
@@ -568,12 +558,15 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
   SquashCodecImpl* impl = NULL;
   SquashStatus res = SQUASH_OK;
   SquashOperation current_operation = SQUASH_OPERATION_PROCESS;
+  void* priv;
 
   assert (stream != NULL);
   codec = stream->codec;
   assert (codec != NULL);
   impl = squash_codec_get_impl (codec);
   assert (impl != NULL);
+
+  priv = SQUASH_STREAM_PRIVATE(stream);
 
   /* Flush is optional, so return an error if it doesn't exist but
      flushing was requested. */
@@ -668,7 +661,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
         stream->state = SQUASH_STREAM_STATE_RUNNING;
 
         if (impl->process_stream != NULL) {
-          res = impl->process_stream (stream, current_operation);
+          res = impl->process_stream (stream, current_operation, priv);
         } else if (impl->splice != NULL) {
           res = squash_stream_send_to_thread (stream, current_operation);
         } else {
@@ -696,7 +689,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
         if ((impl->info & SQUASH_CODEC_INFO_CAN_FLUSH) == SQUASH_CODEC_INFO_CAN_FLUSH) {
           assert (impl->process_stream != NULL);
 
-          res = impl->process_stream (stream, current_operation);
+          res = impl->process_stream (stream, current_operation, priv);
         } else {
           /* We aready checked to make sure the stream is flushable if
              the user called flush directly, so if this code is
@@ -724,7 +717,7 @@ squash_stream_process_internal (SquashStream* stream, SquashOperation operation)
       stream->state = SQUASH_STREAM_STATE_FINISHING;
 
       if (impl->process_stream != NULL) {
-        res = impl->process_stream (stream, current_operation);
+        res = impl->process_stream (stream, current_operation, priv);
       } else if (impl->splice) {
         res = squash_stream_send_to_thread (stream, current_operation);
       } else {

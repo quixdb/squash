@@ -36,7 +36,6 @@
 
 HEDLEY_BEGIN_C_DECLS
 
-typedef struct SquashObject_     SquashObject;
 typedef struct SquashOptions_    SquashOptions;
 typedef struct SquashStream_     SquashStream;
 typedef struct SquashContext_    SquashContext;

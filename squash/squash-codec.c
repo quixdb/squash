@@ -73,7 +73,7 @@
  */
 
 /**
- * @var SquashCodecImpl_::create_stream
+ * @var SquashCodecImpl_::init_stream
  * @brief Create a new %SquashStream.
  *
  * @param codec The codec.
@@ -572,6 +572,32 @@ squash_codec_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_si
     return impl->get_max_compressed_size (codec, uncompressed_size);
 }
 
+static void
+squash_codec_destroy_stream (void* str) {
+  SquashStream* s = str;
+  const SquashCodecImpl* impl = squash_codec_get_impl (s->codec);
+  impl->destroy_stream (s, SQUASH_STREAM_PRIVATE(s));
+  squash_object_unref (s->options);
+}
+
+static void
+squash_codec_init_stream (SquashStream* stream,
+                          SquashCodec* codec,
+                          SquashOptions* options,
+                          SquashStreamType stream_type) {
+  static const SquashStream tmp = {
+    NULL, 0, 0,
+    NULL, 0, 0,
+    NULL, NULL, SQUASH_STREAM_COMPRESS, SQUASH_STREAM_STATE_IDLE,
+    NULL, NULL
+  };
+
+  *stream = tmp;
+  stream->codec = codec;
+  stream->options = squash_object_ref (options);
+  stream->stream_type = stream_type;
+}
+
 /**
  * @brief Create a new stream with existing @ref SquashOptions
  *
@@ -593,8 +619,25 @@ squash_codec_create_stream_with_options (SquashCodec* codec, SquashStreamType st
     return NULL;
   }
 
-  if (impl->create_stream != NULL) {
-    return impl->create_stream (codec, stream_type, options);
+  if (impl->init_stream != NULL) {
+    size_t priv_size;
+    if (impl->init_stream == NULL && impl->splice != NULL)
+      priv_size = sizeof(SquashStreamPrivate);
+    else
+      priv_size = impl->priv_size;
+
+    SquashStream* stream = squash_object_alloc (SQUASH_ALLOC_SIZE(SquashStream) + priv_size, false, squash_codec_destroy_stream);
+    if (HEDLEY_UNLIKELY(stream == NULL))
+      return (squash_error(SQUASH_MEMORY), NULL);
+
+    squash_codec_init_stream(stream, codec, options, stream_type);
+
+    bool success = impl->init_stream (stream, stream_type, options, SQUASH_STREAM_PRIVATE(stream));
+    if (HEDLEY_UNLIKELY(!success)) {
+      squash_free (stream);
+      return NULL;
+    }
+    return stream;
   } else {
     if (impl->process_stream == NULL) {
       return (SquashStream*) squash_buffer_stream_new (codec, stream_type, options);

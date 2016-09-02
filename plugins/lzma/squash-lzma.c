@@ -39,13 +39,10 @@ typedef enum SquashLZMAType_e {
   SQUASH_LZMA_TYPE_LZMA2
 } SquashLZMAType;
 
-typedef struct SquashLZMAStream_s {
-  SquashStream base_object;
-
-  SquashLZMAType type;
+typedef struct {
   lzma_stream stream;
   lzma_allocator allocator;
-} SquashLZMAStream;
+} SquashLZMACtx;
 
 enum SquashLZMAOptIndex {
   SQUASH_LZMA_OPT_LEVEL = 0,
@@ -184,80 +181,60 @@ static SquashOptionInfo squash_lzma_xz_options[] = {
 SQUASH_PLUGIN_EXPORT
 SquashStatus              squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
 
-static SquashLZMAType     squash_lzma_codec_to_type   (SquashCodec* codec);
-
-static void               squash_lzma_stream_init     (SquashLZMAStream* stream,
-                                                       SquashCodec* codec,
-                                                       SquashLZMAType type,
-                                                       SquashStreamType stream_type,
-                                                       SquashOptions* options,
-                                                       SquashDestroyNotify destroy_notify);
-static SquashLZMAStream*  squash_lzma_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void               squash_lzma_stream_destroy  (void* stream);
-
 static SquashLZMAType squash_lzma_codec_to_type (SquashCodec* codec) {
   const char* name = squash_codec_get_name (codec);
-  if (strcmp ("xz", name) == 0) {
+  if (name[0] == 'x')
     return SQUASH_LZMA_TYPE_XZ;
-  } else if (strcmp ("lzma2", name) == 0) {
-    return SQUASH_LZMA_TYPE_LZMA2;
-  } else if (strcmp ("lzma", name) == 0) {
-    return SQUASH_LZMA_TYPE_LZMA;
-  } else if (strcmp ("lzma1", name) == 0) {
-    return SQUASH_LZMA_TYPE_LZMA1;
-  } else {
-    return (SquashLZMAType) 0;
+  else {
+    switch (name[4]) {
+      case '2':
+        return SQUASH_LZMA_TYPE_LZMA2;
+      case '\0':
+        return SQUASH_LZMA_TYPE_LZMA;
+      case '1':
+        return SQUASH_LZMA_TYPE_LZMA1;
+    }
   }
+
+  HEDLEY_UNREACHABLE();
 }
 
-static void* squash_lzma_calloc (void *opaque, size_t nmemb, size_t size) {
+static void* squash_lzma_alloc (void *opaque, size_t nmemb, size_t size) {
   void* ptr = squash_malloc (nmemb * size);
   if (HEDLEY_UNLIKELY(ptr == NULL))
-    return ptr;
-  return memset (ptr, 0, nmemb * size);
+    squash_error(SQUASH_MEMORY);
+  return ptr;
 }
 
 static void squash_lzma_free (void *opaque, void* ptr) {
   squash_free (ptr);
 }
 
-static void
-squash_lzma_stream_init (SquashLZMAStream* stream,
-                         SquashCodec* codec,
-                         SquashLZMAType type,
-                         SquashStreamType stream_type,
-                         SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-
-  stream->allocator.opaque = squash_codec_get_context (codec);
-  stream->allocator.alloc = squash_lzma_calloc;
-  stream->allocator.free = squash_lzma_free;
-
-  lzma_stream s = LZMA_STREAM_INIT;
-  s.allocator = &(stream->allocator);
-
-  stream->stream = s;
-  stream->type = type;
-}
+static const lzma_allocator squash_lzma_allocator = {
+  squash_lzma_alloc,
+  squash_lzma_free,
+  NULL
+};
 
 static void
-squash_lzma_stream_destroy (void* stream) {
-  lzma_end (&((SquashLZMAStream*) stream)->stream);
-  squash_stream_destroy (stream);
+squash_lzma_destroy_stream (SquashStream* stream, void* priv) {
+  lzma_end ((lzma_stream*) priv);
 }
 
-static SquashLZMAStream*
-squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  lzma_ret lzma_e;
-  SquashLZMAStream* stream;
-  SquashLZMAType lzma_type;
+static bool
+squash_lzma_init_stream (SquashStream* stream, SquashStreamType stream_type, SquashOptions* options, void* priv) {
+  SquashCodec* codec = stream->codec;
+  lzma_stream* s = priv;
+  SquashLZMAType lzma_type = squash_lzma_codec_to_type (codec);
   lzma_options_lzma lzma_options = { 0, };
   lzma_filter filters[2];
+  lzma_ret lzma_e;
 
-  assert (codec != NULL);
-
-  lzma_type = squash_lzma_codec_to_type (codec);
+  {
+    const lzma_stream tmp = LZMA_STREAM_INIT;
+    *s = tmp;
+  }
+  s->allocator = &squash_lzma_allocator;
 
   lzma_lzma_preset (&lzma_options, (uint32_t) squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_LEVEL));
   lzma_options.lc = squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_LC);
@@ -280,31 +257,28 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   filters[1].id = LZMA_VLI_UNKNOWN;
   filters[1].options = NULL;
 
-  stream = (SquashLZMAStream*) squash_malloc (sizeof (SquashLZMAStream));
-  squash_lzma_stream_init (stream, codec, lzma_type, stream_type, options, squash_lzma_stream_destroy);
-
   if (stream_type == SQUASH_STREAM_COMPRESS) {
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
-      lzma_e = lzma_stream_encoder (&(stream->stream), filters, (lzma_check) squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_CHECK));
+      lzma_e = lzma_stream_encoder (s, filters, (lzma_check) squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_CHECK));
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA) {
-      lzma_e = lzma_alone_encoder (&(stream->stream), filters[0].options);
+      lzma_e = lzma_alone_encoder (s, filters[0].options);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
-      lzma_e = lzma_raw_encoder(&(stream->stream), filters);
+      lzma_e = lzma_raw_encoder(s, filters);
     } else {
       HEDLEY_UNREACHABLE();
     }
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
     if (lzma_type == SQUASH_LZMA_TYPE_XZ) {
       const uint64_t memlimit = squash_options_get_size_at (options, codec, SQUASH_LZMA_OPT_MEM_LIMIT);
-      lzma_e = lzma_stream_decoder(&(stream->stream), memlimit, 0);
+      lzma_e = lzma_stream_decoder(s, memlimit, 0);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA) {
       const uint64_t memlimit = squash_options_get_size_at (options, codec, SQUASH_LZMA_OPT_MEM_LIMIT);
-      lzma_e = lzma_alone_decoder(&(stream->stream), memlimit);
+      lzma_e = lzma_alone_decoder(s, memlimit);
       assert (lzma_e == LZMA_OK);
     } else if (lzma_type == SQUASH_LZMA_TYPE_LZMA1 ||
                lzma_type == SQUASH_LZMA_TYPE_LZMA2) {
-      lzma_e = lzma_raw_decoder(&(stream->stream), filters);
+      lzma_e = lzma_raw_decoder(s, filters);
     } else {
       HEDLEY_UNREACHABLE();
     }
@@ -312,16 +286,12 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
     HEDLEY_UNREACHABLE();
   }
 
-  if (lzma_e != LZMA_OK) {
-    stream = squash_object_unref (stream);
+  if (HEDLEY_UNLIKELY(lzma_e != LZMA_OK)) {
+    lzma_end (s);
+    return false;
   }
 
-  return stream;
-}
-
-static SquashStream*
-squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_lzma_stream_new (codec, stream_type, options);
+  return true;
 }
 
 #define SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream,lzma_stream)  \
@@ -337,12 +307,9 @@ squash_lzma_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
   stream->avail_out = lzma_stream->avail_out
 
 static SquashStatus
-squash_lzma_process_stream (SquashStream* stream, SquashOperation operation) {
-  lzma_stream* s;
+squash_lzma_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
+  lzma_stream* s = priv;
   lzma_ret lzma_e = LZMA_OK;
-
-  assert (stream != NULL);
-  s = &(((SquashLZMAStream*) stream)->stream);
 
   SQUASH_LZMA_STREAM_COPY_TO_LZMA_STREAM(stream, s);
   switch (operation) {
@@ -423,7 +390,9 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
       break;
   }
 
-  impl->create_stream = squash_lzma_create_stream;
+  impl->priv_size = sizeof(lzma_stream);
+  impl->init_stream = squash_lzma_init_stream;
+  impl->destroy_stream = squash_lzma_destroy_stream;
   impl->process_stream = squash_lzma_process_stream;
   impl->get_max_compressed_size = squash_lzma_get_max_compressed_size;
 

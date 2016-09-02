@@ -57,22 +57,8 @@ static SquashOptionInfo squash_bz2_options[] = {
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
-typedef struct SquashBZ2Stream_s {
-  SquashStream base_object;
-
-  bz_stream stream;
-} SquashBZ2Stream;
-
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
-
-static void              squash_bz2_stream_init     (SquashBZ2Stream* stream,
-                                                     SquashCodec* codec,
-                                                     SquashStreamType stream_type,
-                                                     SquashOptions* options,
-                                                     SquashDestroyNotify destroy_notify);
-static SquashBZ2Stream*  squash_bz2_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void              squash_bz2_stream_destroy  (void* stream);
 
 static void*
 squash_bz2_malloc (void* opaque, int a, int b) {
@@ -84,71 +70,40 @@ squash_bz2_free (void* opaque, void* ptr) {
   squash_free (ptr);
 }
 
-static SquashBZ2Stream*
-squash_bz2_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
+static bool
+squash_bz2_init_stream (SquashStream* stream, SquashStreamType stream_type, SquashOptions* options, void* priv) {
   int bz2_e = 0;
-  SquashBZ2Stream* stream;
+  bz_stream* s = priv;
 
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = squash_malloc (sizeof (SquashBZ2Stream));
-  squash_bz2_stream_init (stream, codec, stream_type, options, squash_bz2_stream_destroy);
+  memset(s, 0, sizeof(bz_stream));
+  s->bzalloc = squash_bz2_malloc;
+  s->bzfree  = squash_bz2_free;
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
-    bz2_e = BZ2_bzCompressInit (&(stream->stream),
-                                squash_options_get_int_at (options, codec, SQUASH_BZ2_OPT_LEVEL),
-                                0,
-                                squash_options_get_int_at (options, codec, SQUASH_BZ2_OPT_WORK_FACTOR));
+    bz2_e = BZ2_bzCompressInit (s, squash_options_get_int_at (options, stream->codec, SQUASH_BZ2_OPT_LEVEL),
+                                0, squash_options_get_int_at (options, stream->codec, SQUASH_BZ2_OPT_WORK_FACTOR));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    bz2_e = BZ2_bzDecompressInit (&(stream->stream),
-                                  0,
-                                  squash_options_get_bool_at (options, codec, SQUASH_BZ2_OPT_SMALL));
+    bz2_e = BZ2_bzDecompressInit (s, 0, squash_options_get_bool_at (options, stream->codec, SQUASH_BZ2_OPT_SMALL));
   } else {
     HEDLEY_UNREACHABLE();
   }
 
-  if (bz2_e != BZ_OK) {
-    /* We validate the params so OOM is really the only time this
-       should happen, and that really shouldn't be happening here. */
-    stream = squash_object_unref (stream);
-  }
-
-  return stream;
+  return (bz2_e == BZ_OK);
 }
 
 static void
-squash_bz2_stream_init (SquashBZ2Stream* stream,
-                        SquashCodec* codec,
-                        SquashStreamType stream_type,
-                        SquashOptions* options,
-                        SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-
-  bz_stream tmp   = { 0, };
-  tmp.bzalloc     = squash_bz2_malloc;
-  tmp.bzfree      = squash_bz2_free;
-  tmp.opaque      = squash_codec_get_context (codec);
-  stream->stream  = tmp;
-}
-
-static void
-squash_bz2_stream_destroy (void* stream) {
-  switch (((SquashStream*) stream)->stream_type) {
+squash_bz2_destroy_stream (SquashStream* stream, void* priv) {
+  bz_stream* s = priv;
+  switch (stream->stream_type) {
     case SQUASH_STREAM_COMPRESS:
-      BZ2_bzCompressEnd (&(((SquashBZ2Stream*) stream)->stream));
+      BZ2_bzCompressEnd (s);
       break;
     case SQUASH_STREAM_DECOMPRESS:
-      BZ2_bzDecompressEnd (&(((SquashBZ2Stream*) stream)->stream));
+      BZ2_bzDecompressEnd (s);
       break;
   }
 
   squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_bz2_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_bz2_stream_new (codec, stream_type, options);
 }
 
 static SquashStatus
@@ -181,8 +136,7 @@ squash_bz2_status_to_squash_status (int status) {
   stream->avail_out = (size_t) bz2_stream->avail_out
 
 static SquashStatus
-squash_bz2_process_stream_ex (SquashStream* stream, int action) {
-  bz_stream* bz2_stream;
+squash_bz2_process_stream_ex (SquashStream* stream, int action, bz_stream* bz2_stream) {
   int bz2_res;
   SquashStatus res;
 
@@ -190,8 +144,6 @@ squash_bz2_process_stream_ex (SquashStream* stream, int action) {
 
   if (stream->avail_out == 0)
     return SQUASH_BUFFER_FULL;
-
-  bz2_stream = &(((SquashBZ2Stream*) stream)->stream);
 
   SQUASH_BZ2_STREAM_COPY_TO_BZ_STREAM(stream, bz2_stream);
 
@@ -219,21 +171,17 @@ squash_bz2_process_stream_ex (SquashStream* stream, int action) {
 }
 
 static SquashStatus
-squash_bz2_finish_stream (SquashStream* stream) {
-  bz_stream* bz2_stream;
+squash_bz2_finish_stream (SquashStream* stream, bz_stream* bz2_stream) {
   int bz2_res;
   SquashStatus res;
 
-  if (stream->stream_type != SQUASH_STREAM_COMPRESS) {
-    return squash_bz2_process_stream_ex (stream, BZ_RUN);
-  }
+  if (stream->stream_type != SQUASH_STREAM_COMPRESS)
+    return squash_bz2_process_stream_ex (stream, BZ_RUN, bz2_stream);
 
   assert (stream != NULL);
 
   if (stream->avail_out == 0)
     return SQUASH_BUFFER_FULL;
-
-  bz2_stream = &(((SquashBZ2Stream*) stream)->stream);
 
   SQUASH_BZ2_STREAM_COPY_TO_BZ_STREAM(stream, bz2_stream);
 
@@ -257,14 +205,14 @@ squash_bz2_finish_stream (SquashStream* stream) {
 }
 
 static SquashStatus
-squash_bz2_process_stream (SquashStream* stream, SquashOperation operation) {
+squash_bz2_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
   switch (operation) {
     case SQUASH_OPERATION_PROCESS:
-      return squash_bz2_process_stream_ex (stream, BZ_RUN);
+      return squash_bz2_process_stream_ex (stream, BZ_RUN, (bz_stream*) priv);
     case SQUASH_OPERATION_FLUSH:
-      return squash_bz2_process_stream_ex (stream, BZ_FLUSH);
+      return squash_bz2_process_stream_ex (stream, BZ_FLUSH, (bz_stream*) priv);
     case SQUASH_OPERATION_FINISH:
-      return squash_bz2_finish_stream (stream);
+      return squash_bz2_finish_stream (stream, (bz_stream*) priv);
     case SQUASH_OPERATION_TERMINATE:
       HEDLEY_UNREACHABLE ();
       break;
@@ -286,8 +234,10 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   if (strcmp ("bzip2", squash_codec_get_name (codec)) == 0) {
     /* Doesn't work—see plugin documentation */
     /* impl->info |= SQUASH_CODEC_INFO_CAN_FLUSH; */
+    impl->priv_size = sizeof(bz_stream);
     impl->options = squash_bz2_options;
-    impl->create_stream = squash_bz2_create_stream;
+    impl->init_stream = squash_bz2_init_stream;
+    impl->destroy_stream = squash_bz2_destroy_stream;
     impl->process_stream = squash_bz2_process_stream;
     impl->get_max_compressed_size = squash_bz2_get_max_compressed_size;
   } else {

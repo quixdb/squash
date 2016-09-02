@@ -33,14 +33,10 @@
 #include "heatshrink/heatshrink_encoder.h"
 #include "heatshrink/heatshrink_decoder.h"
 
-typedef struct SquashHeatshrinkStream_s {
-  SquashStream base_object;
-
-  union {
-    heatshrink_encoder* comp;
-    heatshrink_decoder* decomp;
-  } ctx;
-} SquashHeatshrinkStream;
+typedef union {
+  heatshrink_encoder* comp;
+  heatshrink_decoder* decomp;
+} SquashHeatshrinkCtx;
 
 enum SquashHeatshrinkOptIndex {
   SQUASH_HEATSHRINK_OPT_WINDOW_SIZE = 0,
@@ -66,76 +62,41 @@ static SquashOptionInfo squash_heatshrink_options[] = {
 SQUASH_PLUGIN_EXPORT
 SquashStatus                   squash_plugin_init_codec          (SquashCodec* codec, SquashCodecImpl* impl);
 
-static void                    squash_heatshrink_stream_init     (SquashHeatshrinkStream* stream,
-                                                                  SquashCodec* codec,
-                                                                  SquashStreamType stream_type,
-                                                                  SquashOptions* options,
-                                                                  SquashDestroyNotify destroy_notify);
-static SquashHeatshrinkStream* squash_heatshrink_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void                    squash_heatshrink_stream_destroy  (void* stream);
 
-static SquashHeatshrinkStream*
-squash_heatshrink_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashHeatshrinkStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = squash_malloc (sizeof (SquashHeatshrinkStream));
-  if (HEDLEY_UNLIKELY(stream == NULL))
-    return (squash_error (SQUASH_MEMORY), NULL);
-
-  squash_heatshrink_stream_init (stream, codec, stream_type, options, squash_heatshrink_stream_destroy);
+static bool
+squash_heatshrink_init_stream (SquashStream* stream, SquashStreamType stream_type, SquashOptions* options, void* priv) {
+  SquashHeatshrinkCtx* ctx = priv;
+  SquashCodec* codec = stream->codec;
 
   const uint8_t window_size = (uint8_t) squash_options_get_int_at (options, codec, SQUASH_HEATSHRINK_OPT_WINDOW_SIZE);
   const uint8_t lookahead_size = (uint8_t) squash_options_get_int_at (options, codec, SQUASH_HEATSHRINK_OPT_LOOKAHEAD_SIZE);
 
   if (stream_type == SQUASH_STREAM_COMPRESS) {
-    stream->ctx.comp = heatshrink_encoder_alloc (window_size, lookahead_size);
-    if (HEDLEY_UNLIKELY(stream->ctx.comp == NULL)) {
-      squash_object_unref (stream);
-      return (squash_error (SQUASH_MEMORY), NULL);
-    }
+    ctx->comp = heatshrink_encoder_alloc (window_size, lookahead_size);
+    if (HEDLEY_UNLIKELY(ctx->comp == NULL))
+      return (squash_error (SQUASH_MEMORY), false);
   } else {
-    stream->ctx.decomp = heatshrink_decoder_alloc (256, window_size, lookahead_size);
-    if (HEDLEY_UNLIKELY(stream->ctx.decomp == NULL)) {
-      squash_object_unref (stream);
-      return (squash_error (SQUASH_MEMORY), NULL);
-    }
+    ctx->decomp = heatshrink_decoder_alloc (256, window_size, lookahead_size);
+    if (HEDLEY_UNLIKELY(ctx->decomp == NULL))
+      return (squash_error (SQUASH_MEMORY), false);
   }
 
-  return stream;
+  return true;
 }
 
 static void
-squash_heatshrink_stream_init (SquashHeatshrinkStream* stream,
-                               SquashCodec* codec,
-                               SquashStreamType stream_type,
-                               SquashOptions* options,
-                               SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-}
+squash_heatshrink_destroy_stream (SquashStream* stream, void* priv) {
+  SquashHeatshrinkCtx* ctx = priv;
 
-static void
-squash_heatshrink_stream_destroy (void* stream) {
-  const SquashHeatshrinkStream* s = (SquashHeatshrinkStream*) stream;
-
-  if (s->base_object.stream_type == SQUASH_STREAM_COMPRESS)
-    heatshrink_encoder_free (s->ctx.comp);
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS)
+    heatshrink_encoder_free (ctx->comp);
   else
-    heatshrink_decoder_free (s->ctx.decomp);
-
-  squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_heatshrink_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_heatshrink_stream_new (codec, stream_type, options);
+    heatshrink_decoder_free (ctx->decomp);
 }
 
 static SquashStatus
-squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operation) {
-  SquashHeatshrinkStream* s = (SquashHeatshrinkStream*) stream;
+squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
+  SquashHeatshrinkCtx* ctx = priv;
 
   if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
     HSE_poll_res hsp;
@@ -144,7 +105,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
 
     assert (stream->avail_out != 0);
 
-    hsp = heatshrink_encoder_poll (s->ctx.comp, stream->next_out, stream->avail_out, &processed);
+    hsp = heatshrink_encoder_poll (ctx->comp, stream->next_out, stream->avail_out, &processed);
     if (HEDLEY_UNLIKELY(0 > hsp))
       return squash_error (SQUASH_FAILED);
 
@@ -156,7 +117,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
     if (HSER_POLL_MORE == hsp || 0 == stream->avail_out) {
       return SQUASH_PROCESSING;
     } else if (SQUASH_OPERATION_FINISH == operation) {
-      HSE_finish_res hsf = heatshrink_encoder_finish (s->ctx.comp);
+      HSE_finish_res hsf = heatshrink_encoder_finish (ctx->comp);
       if (HEDLEY_UNLIKELY(hsf < 0))
         return squash_error (SQUASH_FAILED);
 
@@ -165,14 +126,14 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
 
     {
       if (stream->avail_in != 0) {
-        hss = heatshrink_encoder_sink (s->ctx.comp, (uint8_t*) stream->next_in, stream->avail_in, &processed);
+        hss = heatshrink_encoder_sink (ctx->comp, (uint8_t*) stream->next_in, stream->avail_in, &processed);
         if (HEDLEY_UNLIKELY(0 > hss))
           return squash_error (SQUASH_FAILED);
         stream->next_in += processed;
         stream->avail_in -= processed;
       }
 
-      hsp = heatshrink_encoder_poll (s->ctx.comp, stream->next_out, stream->avail_out, &processed);
+      hsp = heatshrink_encoder_poll (ctx->comp, stream->next_out, stream->avail_out, &processed);
       if (HEDLEY_UNLIKELY(0 > hsp))
         return squash_error (SQUASH_FAILED);
 
@@ -180,7 +141,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
         stream->next_out += processed;
         stream->avail_out -= processed;
       } else if (SQUASH_OPERATION_FINISH == operation) {
-        HSE_finish_res hsf = heatshrink_encoder_finish (s->ctx.comp);
+        HSE_finish_res hsf = heatshrink_encoder_finish (ctx->comp);
         if (HEDLEY_UNLIKELY(hsf < 0))
           return squash_error (SQUASH_FAILED);
 
@@ -203,7 +164,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
 
     assert (stream->avail_out != 0);
 
-    hsp = heatshrink_decoder_poll (s->ctx.decomp, stream->next_out, stream->avail_out, &processed);
+    hsp = heatshrink_decoder_poll (ctx->decomp, stream->next_out, stream->avail_out, &processed);
     if (HEDLEY_UNLIKELY(0 > hsp))
       return squash_error (SQUASH_FAILED);
 
@@ -215,7 +176,7 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
     if (HSDR_POLL_MORE == hsp) {
       return SQUASH_PROCESSING;
     } else if (SQUASH_OPERATION_FINISH == operation) {
-      HSD_finish_res hsf = heatshrink_decoder_finish (s->ctx.decomp);
+      HSD_finish_res hsf = heatshrink_decoder_finish (ctx->decomp);
       if (HEDLEY_UNLIKELY(hsf < 0))
         return squash_error (SQUASH_FAILED);
 
@@ -224,14 +185,14 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
 
     {
       if (stream->avail_in != 0) {
-        hss = heatshrink_decoder_sink (s->ctx.decomp, (uint8_t*) stream->next_in, stream->avail_in, &processed);
+        hss = heatshrink_decoder_sink (ctx->decomp, (uint8_t*) stream->next_in, stream->avail_in, &processed);
         if (HEDLEY_UNLIKELY(0 > hss))
           return squash_error (SQUASH_FAILED);
         stream->next_in += processed;
         stream->avail_in -= processed;
       }
 
-      hsp = heatshrink_decoder_poll (s->ctx.decomp, stream->next_out, stream->avail_out, &processed);
+      hsp = heatshrink_decoder_poll (ctx->decomp, stream->next_out, stream->avail_out, &processed);
       if (HEDLEY_UNLIKELY(0 > hsp))
         return squash_error (SQUASH_FAILED);
 
@@ -263,7 +224,9 @@ SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   if (HEDLEY_LIKELY(strcmp ("heatshrink", squash_codec_get_name (codec)) == 0)) {
     impl->options = squash_heatshrink_options;
-    impl->create_stream = squash_heatshrink_create_stream;
+    impl->priv_size = sizeof(SquashHeatshrinkCtx);
+    impl->init_stream = squash_heatshrink_init_stream;
+    impl->destroy_stream = squash_heatshrink_destroy_stream;
     impl->process_stream = squash_heatshrink_process_stream;
     impl->get_max_compressed_size = squash_heatshrink_get_max_compressed_size;
   } else {

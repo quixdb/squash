@@ -39,13 +39,6 @@ typedef enum SquashZlibType_e {
   SQUASH_ZLIB_TYPE_DEFLATE
 } SquashZlibType;
 
-typedef struct SquashZlibStream_s {
-  SquashStream base_object;
-
-  SquashZlibType type;
-  z_stream stream;
-} SquashZlibStream;
-
 #define SQUASH_ZLIB_DEFAULT_LEVEL 6
 #define SQUASH_ZLIB_DEFAULT_WINDOW_BITS 15
 #define SQUASH_ZLIB_DEFAULT_MEM_LEVEL 8
@@ -92,17 +85,7 @@ static SquashOptionInfo squash_zlib_options[] = {
 };
 
 SQUASH_PLUGIN_EXPORT
-SquashStatus              squash_plugin_init_codec   (SquashCodec* codec, SquashCodecImpl* impl);
-
-static SquashZlibType     squash_zlib_codec_to_type  (SquashCodec* codec);
-
-static void               squash_zlib_stream_init    (SquashZlibStream* stream,
-                                                      SquashCodec* codec,
-                                                      SquashStreamType stream_type,
-                                                      SquashOptions* options,
-                                                      SquashDestroyNotify destroy_notify);
-static SquashZlibStream*  squash_zlib_stream_new     (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void               squash_zlib_stream_destroy (void* stream);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static voidpf
 squash_zlib_malloc (voidpf opaque, uInt items, uInt size) {
@@ -116,89 +99,78 @@ squash_zlib_free (voidpf opaque, voidpf address) {
 
 static SquashZlibType squash_zlib_codec_to_type (SquashCodec* codec) {
   const char* name = squash_codec_get_name (codec);
-  if (strcmp ("gzip", name) == 0) {
-    return SQUASH_ZLIB_TYPE_GZIP;
-  } else if (strcmp ("zlib", name) == 0) {
-    return SQUASH_ZLIB_TYPE_ZLIB;
-  } else if (strcmp ("deflate", name) == 0) {
-    return SQUASH_ZLIB_TYPE_DEFLATE;
-  } else {
-    HEDLEY_UNREACHABLE();
+  switch (name[0]) {
+    case 'z':
+      return SQUASH_ZLIB_TYPE_ZLIB;
+      break;
+    case 'g':
+      return SQUASH_ZLIB_TYPE_GZIP;
+      break;
+    case 'd':
+      return SQUASH_ZLIB_TYPE_DEFLATE;
+      break;
+    default:
+      HEDLEY_UNREACHABLE();
   }
 }
 
-static void
-squash_zlib_stream_init (SquashZlibStream* stream,
-                         SquashCodec* codec,
-                         SquashStreamType stream_type,
-                         SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
-
-  z_stream tmp = { 0, };
-  stream->stream = tmp;
-  stream->stream.zalloc = squash_zlib_malloc;
-  stream->stream.zfree  = squash_zlib_free;
-}
-
-static void
-squash_zlib_stream_destroy (void* stream) {
-  switch (((SquashStream*) stream)->stream_type) {
-    case SQUASH_STREAM_COMPRESS:
-      deflateEnd (&(((SquashZlibStream*) stream)->stream));
-      break;
-    case SQUASH_STREAM_DECOMPRESS:
-      inflateEnd (&(((SquashZlibStream*) stream)->stream));
-      break;
-  }
-
-  squash_stream_destroy (stream);
-}
-
-static SquashZlibStream*
-squash_zlib_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
+static bool
+squash_zlib_init_stream (SquashStream* stream, SquashStreamType stream_type, SquashOptions* options, void* priv) {
+  z_stream* s = priv;
+  SquashCodec* codec = stream->codec;
+  SquashZlibType type = squash_zlib_codec_to_type (codec);
   int zlib_e = 0;
-  SquashZlibStream* stream;
   int window_bits;
 
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
+  const z_stream tmp = { 0, };
+  *s = tmp;
 
-  stream = squash_malloc (sizeof (SquashZlibStream));
-  squash_zlib_stream_init (stream, codec, stream_type, options, squash_zlib_stream_destroy);
-
-  stream->type = squash_zlib_codec_to_type (codec);
+  s->zalloc = squash_zlib_malloc;
+  s->zfree  = squash_zlib_free;
 
   window_bits = squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_WINDOW_BITS);
-  if (stream->type == SQUASH_ZLIB_TYPE_DEFLATE) {
-    window_bits = -window_bits;
-  } else if (stream->type == SQUASH_ZLIB_TYPE_GZIP) {
-    window_bits += 16;
+  switch (type) {
+    case SQUASH_ZLIB_TYPE_DEFLATE:
+      window_bits = -window_bits;
+      break;
+    case SQUASH_ZLIB_TYPE_GZIP:
+      window_bits += 16;
+      break;
+    case SQUASH_ZLIB_TYPE_ZLIB:
+      break;
   }
 
-  if (stream_type == SQUASH_STREAM_COMPRESS) {
-    zlib_e = deflateInit2 (&(stream->stream),
-                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_LEVEL),
-                           Z_DEFLATED,
-                           window_bits,
-                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_MEM_LEVEL),
-                           squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_STRATEGY));
-  } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    zlib_e = inflateInit2 (&(stream->stream), window_bits);
-  } else {
-    HEDLEY_UNREACHABLE();
+  switch (stream_type) {
+    case SQUASH_STREAM_COMPRESS:
+      zlib_e = deflateInit2 (s,
+                             squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_LEVEL),
+                             Z_DEFLATED,
+                             window_bits,
+                             squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_MEM_LEVEL),
+                             squash_options_get_int_at (options, codec, SQUASH_ZLIB_OPT_STRATEGY));
+      break;
+    case SQUASH_STREAM_DECOMPRESS:
+      zlib_e = inflateInit2 (s, window_bits);
+      break;
+    default:
+      HEDLEY_UNREACHABLE();
   }
 
-  if (zlib_e != Z_OK) {
-    stream = squash_object_unref (stream);
-  }
-
-  return stream;
+  return zlib_e == Z_OK;
 }
 
-static SquashStream*
-squash_zlib_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_zlib_stream_new (codec, stream_type, options);
+static void
+squash_zlib_destroy_stream (SquashStream* stream, void* priv) {
+  z_stream* s = priv;
+
+  switch (stream->stream_type) {
+    case SQUASH_STREAM_COMPRESS:
+      deflateEnd (s);
+      break;
+    case SQUASH_STREAM_DECOMPRESS:
+      inflateEnd (s);
+      break;
+  }
 }
 
 #define SQUASH_ZLIB_STREAM_COPY_TO_ZLIB_STREAM(stream,zlib_stream) \
@@ -231,14 +203,12 @@ squash_operation_to_zlib (SquashOperation operation) {
 }
 
 static SquashStatus
-squash_zlib_process_stream (SquashStream* stream, SquashOperation operation) {
-  z_stream* zlib_stream;
+squash_zlib_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
+  z_stream* zlib_stream = priv;
   int zlib_e;
   SquashStatus res = SQUASH_FAILED;
 
   assert (stream != NULL);
-
-  zlib_stream = &(((SquashZlibStream*) stream)->stream);
 
 #if UINT_MAX < SIZE_MAX
   if (HEDLEY_UNLIKELY(UINT_MAX < stream->avail_in) ||
@@ -363,7 +333,9 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
       strcmp ("deflate", name) == 0) {
     impl->info = SQUASH_CODEC_INFO_CAN_FLUSH;
     impl->options = squash_zlib_options;
-    impl->create_stream = squash_zlib_create_stream;
+    impl->priv_size = sizeof(z_stream);
+    impl->init_stream = squash_zlib_init_stream;
+    impl->destroy_stream = squash_zlib_destroy_stream;
     impl->process_stream = squash_zlib_process_stream;
     impl->get_max_compressed_size = squash_zlib_get_max_compressed_size;
   } else {

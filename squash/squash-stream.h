@@ -61,9 +61,6 @@ typedef enum {
 } SquashOperation;
 
 struct SquashStream_ {
-  SquashObject base_object;
-  SquashStreamPrivate* priv;
-
   const uint8_t* next_in;
   size_t avail_in;
   size_t total_in;

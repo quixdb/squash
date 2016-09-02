@@ -34,22 +34,8 @@
 #include "ms-compress/include/mscomp.h"
 #include "ms-compress/include/xpress_huff.h"
 
-typedef struct SquashMSCompStream_s {
-  SquashStream base_object;
-
-  mscomp_stream mscomp;
-} SquashMSCompStream;
-
 SQUASH_PLUGIN_EXPORT
-SquashStatus                squash_plugin_init_codec  (SquashCodec* codec, SquashCodecImpl* impl);
-
-static void                 squash_ms_stream_init     (SquashMSCompStream* stream,
-                                                       SquashCodec* codec,
-                                                       SquashStreamType stream_type,
-                                                       SquashOptions* options,
-                                                       SquashDestroyNotify destroy_notify);
-static SquashMSCompStream*  squash_ms_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void                 squash_ms_stream_destroy  (void* stream);
+SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
 
 static MSCompFormat
 squash_ms_format_from_codec (SquashCodec* codec) {
@@ -85,25 +71,18 @@ squash_ms_status_to_squash_status (MSCompStatus status) {
   }
 }
 
-static SquashMSCompStream*
-squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashMSCompStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = squash_malloc (sizeof (SquashMSCompStream));
-  if (HEDLEY_UNLIKELY(stream == NULL))
-    return (squash_error (SQUASH_MEMORY), NULL);
-
-  squash_ms_stream_init (stream, codec, stream_type, options, squash_ms_stream_destroy);
+static bool
+squash_ms_init_stream (SquashStream* stream, SquashStreamType stream_type, SquashOptions* options, void* priv) {
+  mscomp_stream* s = priv;
 
   MSCompStatus status;
-  MSCompFormat format = squash_ms_format_from_codec (codec);
-  if (stream->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    status = ms_deflate_init (format, &(stream->mscomp));
+  MSCompFormat format = squash_ms_format_from_codec (stream->codec);
+  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
+    status = ms_deflate_init (format, s);
+  } else if (stream->stream_type == SQUASH_STREAM_DECOMPRESS) {
+    status = ms_inflate_init (format, s);
   } else {
-    status = ms_inflate_init (format, &(stream->mscomp));
+    HEDLEY_UNREACHABLE();
   }
 
   if (HEDLEY_UNLIKELY(status != MSCOMP_OK)) {
@@ -115,30 +94,19 @@ squash_ms_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOp
 }
 
 static void
-squash_ms_stream_init (SquashMSCompStream* stream,
-                       SquashCodec* codec,
-                       SquashStreamType stream_type,
-                       SquashOptions* options,
-                       SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, options, destroy_notify);
-}
+squash_ms_destroy_stream (SquashStream* stream, void* priv) {
+  mscomp_stream* s = priv;
 
-static void
-squash_ms_stream_destroy (void* stream) {
-  SquashMSCompStream* s = (SquashMSCompStream*) stream;
-
-  if (s->base_object.stream_type == SQUASH_STREAM_COMPRESS) {
-    ms_deflate_end(&(s->mscomp));
-  } else {
-    ms_inflate_end(&(s->mscomp));
+  switch (stream->stream_type) {
+    case SQUASH_STREAM_COMPRESS:
+      ms_deflate_end(s);
+      break;
+    case SQUASH_STREAM_DECOMPRESS:
+      ms_inflate_end(s);
+      break;
+    default:
+      HEDLEY_UNREACHABLE();
   }
-
-  squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_ms_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_ms_stream_new (codec, stream_type, (SquashOptions*) options);
 }
 
 static MSCompFlush
@@ -157,26 +125,31 @@ squash_ms_comp_flush_from_operation (SquashOperation operation) {
 }
 
 static SquashStatus
-squash_ms_process_stream (SquashStream* stream, SquashOperation operation) {
+squash_ms_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
   SquashStatus status = SQUASH_FAILED;
   MSCompStatus res;
-  SquashMSCompStream* s = (SquashMSCompStream*) stream;
+  mscomp_stream* s = priv;
 
-  s->mscomp.in = stream->next_in;
-  s->mscomp.in_avail = stream->avail_in;
-  s->mscomp.out = stream->next_out;
-  s->mscomp.out_avail = stream->avail_out;
+  s->in = stream->next_in;
+  s->in_avail = stream->avail_in;
+  s->out = stream->next_out;
+  s->out_avail = stream->avail_out;
 
-  if (stream->stream_type == SQUASH_STREAM_COMPRESS) {
-    res = ms_deflate(&(s->mscomp), squash_ms_comp_flush_from_operation (operation));
-  } else {
-    res = ms_inflate(&(s->mscomp));
+  switch (stream->stream_type) {
+    case SQUASH_STREAM_COMPRESS:
+      res = ms_deflate(s, squash_ms_comp_flush_from_operation (operation));
+      break;
+    case SQUASH_STREAM_DECOMPRESS:
+      res = ms_inflate(s);
+      break;
+    default:
+      HEDLEY_UNREACHABLE();
   }
 
-  stream->next_in = s->mscomp.in;
-  stream->avail_in = s->mscomp.in_avail;
-  stream->next_out = s->mscomp.out;
-  stream->avail_out = s->mscomp.out_avail;
+  stream->next_in = s->in;
+  stream->avail_in = s->in_avail;
+  stream->next_out = s->out;
+  stream->avail_out = s->out_avail;
 
   switch (stream->stream_type) {
     case SQUASH_STREAM_COMPRESS:
@@ -283,9 +256,11 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->decompress_buffer       = squash_ms_decompress_buffer;
     impl->compress_buffer         = squash_ms_compress_buffer;
     if (strcmp ("lznt1", name) == 0) {
-      impl->info                    = SQUASH_CODEC_INFO_CAN_FLUSH;
-      impl->create_stream           = squash_ms_create_stream;
-      impl->process_stream          = squash_ms_process_stream;
+      impl->info           = SQUASH_CODEC_INFO_CAN_FLUSH;
+      impl->priv_size      = sizeof(mscomp_stream);
+      impl->init_stream    = squash_ms_init_stream;
+      impl->destroy_stream = squash_ms_destroy_stream;
+      impl->process_stream = squash_ms_process_stream;
     }
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);

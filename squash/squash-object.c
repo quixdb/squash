@@ -28,154 +28,58 @@
 #include "squash-internal.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include "portable-snippets/atomic/atomic.h"
 
-#if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
-#  define squash_atomic_inc(var) __sync_fetch_and_add(var, 1)
-#  define squash_atomic_dec(var) __sync_fetch_and_sub(var, 1)
-#  define squash_atomic_cas(var, orig, val) __sync_val_compare_and_swap(var, orig, val)
-#elif defined(_WIN32)
-#  define squash_atomic_cas(var, orig, val) InterlockedCompareExchange(var, val, orig)
-#else
-SQUASH_MTX_DEFINE(atomic_ref)
+typedef struct {
+	psnip_atomic_int32 ref_count;
+	psnip_atomic_int32 is_floating;
+	SquashDestroyNotify destroy_notify;
+} SquashObject;
 
-static unsigned int
-squash_atomic_cas (volatile unsigned int* var,
-                   unsigned int orig,
-                   unsigned int val) {
-  unsigned int res;
-
-  SQUASH_MTX_LOCK(atomic_ref);
-  res = *var;
-  if (res == orig)
-    *var = val;
-  SQUASH_MTX_UNLOCK(atomic_ref);
-
-  return res;
-}
-#endif
-
-#if !defined(squash_atomic_inc)
-static unsigned int
-squash_atomic_inc (volatile unsigned int* var) {
-  while (true) {
-    unsigned int tmp = *var;
-    if (squash_atomic_cas (var, tmp, tmp + 1) == tmp) {
-      return tmp;
-    }
-  }
-}
-#endif /* defined(squash_atomic_inc) */
-
-#if !defined(squash_atomic_dec)
-static unsigned int
-squash_atomic_dec (volatile unsigned int* var) {
-  while (true) {
-    unsigned int tmp = *var;
-    assert (tmp > 0);
-    if (squash_atomic_cas (var, tmp, tmp - 1) == tmp) {
-      return tmp;
-    }
-  }
-}
-#endif /* defined(squash_atomic_dec) */
-
-/**
- * @var SquashObject_::ref_count
- * @brief The reference count.
- */
-
-/**
- * @var SquashObject_::is_floating
- * @brief Whether or not the object has a floating reference.
- */
-
-/**
- * @var SquashObject_::destroy_notify
- * @brief Function to call when the reference count reaches 0.
- */
+static const size_t squash_object_offset = (sizeof(SquashObject) + (sizeof(SquashObject) % SQUASH_MAX_ALIGNMENT));
+#define SQUASH_OBJECT_TO_PTR(obj) ((void*)(((uintptr_t) obj) + squash_object_offset))
+#define SQUASH_PTR_TO_OBJECT(ptr) ((SquashObject*)(((uintptr_t) ptr) - squash_object_offset))
 
 /**
  * @defgroup SquashObject SquashObject
  * @brief Base object for several Squash types.
  *
- * @ref SquashObject is designed to provide a lightweight
- * reference-counted type which can be used as a base class for other
- * types in Squash.
+ * @ref SquashObject is designed to provide a lightweight reference
+ * counting.  It serves as a base class for other types in Squash.
  *
- * @section Subclassing Subclassing
+ * @section Creating a reference-counted instance
  *
- * Subclassing @ref SquashObject is relatively straightforward.  The
- * first step is to embed @ref SquashObject in your object.  Assuming
- * you're inheriting directly from @ref SquashObject, your code would
- * look something like this:
+ * Creating a reference-counted instance is very easy; you need only
+ * call @ref squash_object_alloc, which behaves much like malloc but
+ * takes two additional parameters: is_floating and destroy_notify.
+ *
+ * We'll get back to is_floating in a bit.  destroy_notify is just a
+ * callback where you destroy your struct members.  A simple example:
  *
  * @code
  * struct MyObject {
- *   SquashObject base_object;
  *   char* greeting;
+ *   int x;
+ * }
+ *
+ * static void my_object_destroy(void* ptr) {
+ *   struct MyObject* obj = (struct MyObject*) ptr;
+ *   free(obj->greeting);
+ * }
+ *
+ * struct MyObject*
+ * my_object_new(char* greeting) {
+ *   struct MyObject* obj = squash_object_alloc(sizeof(struct MyObject), false, my_object_destroy);
+ *   obj->greeting = strdup(greeting);
  * }
  * @endcode
  *
- * If you are subclassing another type (which inherits, possibly
- * indirectly, from @ref SquashObject) then you should use that type
- * instead.
- *
- * Next, you should to create an *_init function which takes an
- * existing instance of your class, chains up to the *_init function
- * provided by your base class, and initializes any fields you want
- * initialized:
- *
- * @code
- * void
- * my_object_init (MyObject* obj,
- *                 char* greeting,
- *                 SquashDestroyNotify destroy_notify) {
- *   squash_object_init ((SquashObject*) obj, false, destroy_notify);
- *
- *   obj->greeting = strdup (greeting);
- * }
- * @endcode
- *
- * Of course, whatever is created must be destroyed, so you'll also
- * want to create a *_destroy method to be called when the reference
- * count reaches 0.  Destroy any of your fields first, then chain up
- * to the base class' *_destroy function:
- *
- * @code
- * void
- * my_object_destroy (MyObject* obj) {
- *   if (obj->greeting != NULL) {
- *     squash_free (obj->greeting);
- *   }
- *
- *   squash_object_destroy (obj);
- * }
- * @endcode
- *
- * If your class is not abstract (it is meant to be instantiated, not
- * just subclassed), you should create a constructor:
- *
- * @code
- * MyObject*
- * my_object_new (char* greeting) {
- *   MyObject obj;
- *
- *   obj = squash_malloc (sizeof (MyObject));
- *   my_object_init (obj, greeting, (SquashDestroyNotify) my_object_free);
- *
- *   return obj;
- * }
- * @endcode
- *
- * Note that you *must* use @ref squash_malloc to allocate your
- * object; Squash will call @ref squash_free on it later.
+ * Consumers can simply call @ref squash_object_ref and @ref
+ * squash_object_unref to increase or decrease the reference count.
+ * Once the count reaches 0, the destroy notify is called and the
+ * storage is deallocated.
  *
  * @{
- */
-
-/**
- * @struct SquashObject_
- * @brief Reference-counting base class for other types
  */
 
 /**
@@ -189,27 +93,45 @@ squash_atomic_dec (volatile unsigned int* var) {
  */
 
 /**
+ * @brief Create a new reference-counted instance
+ *
+ * @param size Storage size
+ * @param is_floating Whether the initial reference is floating
+ * @param destroy_notify Callback to invoke when the instance is destroyed
+ */
+void*
+squash_object_alloc(size_t size, bool is_floating, SquashDestroyNotify destroy_notify) {
+	SquashObject* obj = squash_malloc(squash_object_offset + size);
+	obj->ref_count = 1;
+	obj->is_floating = is_floating;
+	obj->destroy_notify = destroy_notify;
+	psnip_atomic_fence();
+
+	return SQUASH_OBJECT_TO_PTR(obj);
+}
+
+/**
  * @brief Increment the reference count on an object.
  *
- * @param obj The object to increase the reference count of.
+ * @param ptr The object to increase the reference count of.
  * @return The object which was passed in.
  */
 void*
-squash_object_ref (void* obj) {
-  if (obj == NULL)
-    return NULL;
+squash_object_ref (void* ptr) {
+	if (HEDLEY_UNLIKELY(ptr == NULL))
+		return NULL;
 
-  SquashObject* object = (SquashObject*) obj;
+	SquashObject* obj = SQUASH_PTR_TO_OBJECT(ptr);
 
-  if (object->is_floating != 0) {
-    if (squash_atomic_cas (&(object->is_floating), 1, 0) == 0) {
-      squash_atomic_inc (&(object->ref_count));
-    }
-  } else {
-    squash_atomic_inc (&(object->ref_count));
+  const psnip_nonatomic_int32 is_floating = 1;
+  if (HEDLEY_UNLIKELY(psnip_atomic_int32_compare_exchange(&(obj->is_floating), &is_floating, 0))) {
+    return ptr;
   }
 
-  return obj;
+	psnip_nonatomic_int32 ref_count = psnip_atomic_int32_add(&(obj->ref_count), 1);
+	assert(ref_count > 0);
+
+	return ptr;
 }
 
 /**
@@ -226,13 +148,17 @@ squash_object_ref (void* obj) {
  * @return The object which was passed in.
  */
 void*
-squash_object_ref_sink (void* obj) {
-  SquashObject* object = (SquashObject*) obj;
+squash_object_ref_sink (void* ptr) {
+	if (HEDLEY_UNLIKELY(ptr == NULL))
+		return NULL;
 
-  if (object == NULL)
-    return object;
+	SquashObject* obj = SQUASH_PTR_TO_OBJECT(ptr);
 
-  return (squash_atomic_cas (&(object->is_floating), 1, 0) == 1) ? obj : NULL;
+  const psnip_nonatomic_int32 is_floating = 1;
+  if (HEDLEY_UNLIKELY(psnip_atomic_int32_compare_exchange(&(obj->is_floating), &is_floating, 0)))
+    return ptr;
+
+	return ptr;
 }
 
 /**
@@ -240,87 +166,43 @@ squash_object_ref_sink (void* obj) {
  *
  * Once the reference count reaches 0 the object will be freed.
  *
- * @param obj The object to decrease the reference count of.
+ * @param ptr The object to decrease the reference count of.
  * @return NULL
  */
 void*
-squash_object_unref (void* obj) {
-  if (obj == NULL)
-    return NULL;
+squash_object_unref (void* ptr) {
+	if (HEDLEY_UNLIKELY(ptr == NULL))
+		return NULL;
 
-  SquashObject* object = (SquashObject*) obj;
+	SquashObject* obj = SQUASH_PTR_TO_OBJECT(ptr);
 
-  unsigned int ref_count = squash_atomic_dec (&(object->ref_count));
-
-  if (ref_count == 1) {
-    if (HEDLEY_LIKELY(object->destroy_notify != NULL))
-      object->destroy_notify (obj);
-
-    squash_free (obj);
-
-    return NULL;
-  } else {
-    return NULL;
+	const psnip_nonatomic_int32 ref_count = psnip_atomic_int32_sub(&(obj->ref_count), 1);
+	if (ref_count == 1) {
+		if (obj->destroy_notify != NULL) {
+			obj->destroy_notify(ptr);
+      squash_free(obj);
+		}
+	} else {
+    assert(ref_count > 1);
   }
+
+	return NULL;
 }
 
 /**
  * @brief Get the current reference count of an object.
  *
- * @param obj The object in question.
- * @return The reference count of _obj_.
+ * This should really only be used for debugging.
+ *
+ * @param ptr The object in question.
+ * @return The reference count of @a ptr.
  */
 unsigned int
-squash_object_get_ref_count (void* obj) {
-  if (obj == NULL)
-    return 0;
+squash_object_get_ref_count (void* ptr) {
+	if (HEDLEY_UNLIKELY(ptr == NULL))
+		return 0;
 
-  return ((SquashObject*) obj)->ref_count;
-}
-
-/**
- * @brief Initialize a new object.
- * @protected
- *
- * @warning This function must only be used to implement a subclass
- * of @ref SquashObject.  Objects returned by *_new functions will
- * already be initialized, and you *must* *not* call this function on
- * them; doing so will likely trigger a memory leak.
- *
- * @param obj The object to initialize.
- * @param is_floating Whether or not the object's reference is
- *   floating
- * @param destroy_notify Function to call when the reference count
- *     reaches 0
- */
-void
-squash_object_init (void* obj, bool is_floating, SquashDestroyNotify destroy_notify) {
-  SquashObject* object = (SquashObject*) obj;
-
-  assert (object != NULL);
-
-  object->ref_count = 1;
-  object->is_floating = is_floating ? 1 : 0;
-  object->destroy_notify = destroy_notify;
-}
-
-/**
- * @brief Destroy an object.
- * @protected
- *
- * @warning This function must only be used to implement a subclass of
- * @ref SquashObject.  Each subclass should implement a *_destroy
- * function which should perform any operations needed to destroy
- * their own data and chain up to the *_destroy function of the base
- * class, eventually invoking ::squash_object_destroy.  Invoking this
- * function in any other context is likely to cause a memory leak or
- * crash.
- *
- * @param obj The object to destroy.
- */
-void
-squash_object_destroy (void* obj) {
-  assert (obj != NULL);
+	return (unsigned int) psnip_atomic_int32_load(&(SQUASH_PTR_TO_OBJECT(ptr)->ref_count));
 }
 
 /**

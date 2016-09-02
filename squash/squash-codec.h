@@ -62,12 +62,18 @@ typedef SquashStatus (*SquashWriteFunc) (size_t* data_size,
 
 struct SquashCodecImpl_ {
   SquashCodecInfo           info;
-
   const SquashOptionInfo*   options;
+  size_t                    priv_size;
 
   /* Streams */
-  SquashStream*           (* create_stream)            (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-  SquashStatus            (* process_stream)           (SquashStream* stream, SquashOperation operation);
+  bool                    (* init_stream)              (SquashStream* stream,
+                                                        SquashStreamType stream_type,
+                                                        SquashOptions* options,
+                                                        void* priv);
+  void                    (* destroy_stream)           (SquashStream* stream, void* priv);
+  SquashStatus            (* process_stream)           (SquashStream* stream,
+                                                        SquashOperation operation,
+                                                        void* priv);
 
   /* Splicing */
   SquashStatus            (* splice)                   (SquashCodec* codec,

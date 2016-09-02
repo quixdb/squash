@@ -43,16 +43,12 @@ SQUASH_API void*        squash_object_ref_sink      (void* obj);
 
 typedef void (*SquashDestroyNotify) (void* data);
 
-struct SquashObject_ {
-  volatile unsigned int ref_count;
-  volatile int is_floating;
-  SquashDestroyNotify destroy_notify;
-};
+SQUASH_API void*        squash_object_alloc         (size_t size,
+                                                     bool is_floating,
+                                                     SquashDestroyNotify destroy_notify);
 
-HEDLEY_NON_NULL(1)
-SQUASH_API void         squash_object_init          (void* obj, bool is_floating, SquashDestroyNotify destroy_notify);
-HEDLEY_NON_NULL(1)
-SQUASH_API void         squash_object_destroy       (void* obj);
+#define squash_object_new(T, is_floating, destroy_notify) \
+  ((T*) squash_object_alloc(sizeof(T), is_floating, destroy_notify))
 
 HEDLEY_END_C_DECLS
 

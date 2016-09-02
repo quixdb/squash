@@ -425,7 +425,7 @@ squash_splice_with_options (SquashCodec* codec,
     res = squash_file_splice (fp_in, fp_out, size, stream_type, codec, options);
   } else {
 #if !defined(_WIN32)
-    if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.create_stream == NULL)) {
+    if (squash_splice_try_mmap == 3 || (squash_splice_try_mmap == 2 && codec->impl.init_stream == NULL)) {
       res = squash_splice_map (fp_in, fp_out, size, stream_type, codec, options);
     }
 #endif

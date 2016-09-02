@@ -30,21 +30,8 @@
 
 #include <squash/squash.h>
 
-typedef struct SquashCopyStream_s {
-  SquashStream base_object;
-} SquashCopyStream;
-
 SQUASH_PLUGIN_EXPORT
 SquashStatus             squash_plugin_init_codec    (SquashCodec* codec, SquashCodecImpl* impl);
-
-static void              squash_copy_stream_init     (SquashCopyStream* stream,
-                                                      SquashCodec* codec,
-                                                      SquashStreamType stream_type,
-                                                      SquashOptions* options,
-                                                      SquashDestroyNotify destroy_notify);
-static SquashCopyStream* squash_copy_stream_new      (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options);
-static void              squash_copy_stream_destroy  (void* stream);
-
 
 static size_t
 squash_copy_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
@@ -58,40 +45,20 @@ squash_copy_get_uncompressed_size (SquashCodec* codec,
   return compressed_size;
 }
 
-static SquashCopyStream*
-squash_copy_stream_new (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  SquashCopyStream* stream;
-
-  assert (codec != NULL);
-  assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
-
-  stream = (SquashCopyStream*) squash_malloc (sizeof (SquashCopyStream));
-  squash_copy_stream_init (stream, codec, stream_type, options, squash_copy_stream_destroy);
-
-  return stream;
-}
-
-static void
-squash_copy_stream_init (SquashCopyStream* stream,
-                         SquashCodec* codec,
+static bool
+squash_copy_init_stream (SquashStream* stream,
                          SquashStreamType stream_type,
                          SquashOptions* options,
-                         SquashDestroyNotify destroy_notify) {
-  squash_stream_init ((SquashStream*) stream, codec, stream_type, (SquashOptions*) options, destroy_notify);
+                         void* priv) {
+  return true;
 }
 
 static void
-squash_copy_stream_destroy (void* stream) {
-  squash_stream_destroy (stream);
-}
-
-static SquashStream*
-squash_copy_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
-  return (SquashStream*) squash_copy_stream_new (codec, stream_type, options);
+squash_copy_destroy_stream (SquashStream* stream, void* priv) {
 }
 
 static SquashStatus
-squash_copy_process_stream (SquashStream* stream, SquashOperation operation) {
+squash_copy_process_stream (SquashStream* stream, SquashOperation operation, void* priv) {
   const size_t cp_size = stream->avail_in < stream->avail_out ? stream->avail_in : stream->avail_out;
 
   if (cp_size != 0) {
@@ -147,7 +114,8 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->get_max_compressed_size = squash_copy_get_max_compressed_size;
     impl->decompress_buffer = squash_copy_decompress_buffer;
     impl->compress_buffer = squash_copy_compress_buffer;
-    impl->create_stream = squash_copy_create_stream;
+    impl->init_stream = squash_copy_init_stream;
+    impl->destroy_stream = squash_copy_destroy_stream;
     impl->process_stream = squash_copy_process_stream;
   } else {
     return squash_error (SQUASH_UNABLE_TO_LOAD);
