@@ -84,6 +84,8 @@ squash_zstd_status_from_zstd_error (size_t res) {
     case ZSTD_error_compressionParameter_unsupported:
     case ZSTD_error_checksum_wrong:
     case ZSTD_error_dictionary_wrong:
+    case ZSTD_error_version_unsupported:
+    case ZSTD_error_parameter_unknown:
     default:
       return squash_error (SQUASH_FAILED);
   }

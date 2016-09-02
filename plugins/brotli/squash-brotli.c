@@ -30,8 +30,8 @@
 
 #include <squash/squash.h>
 
-#include "brotli/enc/encode.h"
-#include "brotli/dec/decode.h"
+#include <brotli/decode.h>
+#include <brotli/encode.h>
 
 enum SquashBrotliOptionIndex {
   SQUASH_BROTLI_OPT_LEVEL = 0,
