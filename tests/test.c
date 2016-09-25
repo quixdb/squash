@@ -102,6 +102,7 @@ main(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
     squash_test_suite_splice,
     squash_test_suite_stream,
     squash_test_suite_threads,
+    squash_test_suite_version,
     { NULL, NULL, 0, 0 }
   };
   MunitSuite squash_suite = {

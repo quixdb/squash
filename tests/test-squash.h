@@ -18,6 +18,7 @@ MunitSuite squash_test_suite_random;
 MunitSuite squash_test_suite_splice;
 MunitSuite squash_test_suite_stream;
 MunitSuite squash_test_suite_threads;
+MunitSuite squash_test_suite_version;
 
 #ifndef MIN
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
