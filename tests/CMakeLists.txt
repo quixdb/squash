@@ -14,6 +14,7 @@ set(SQUASH_TEST_SOURCES
   splice.c
   stream.c
   threads.c
+  version.c
   ../squash/tinycthread/source/tinycthread.c)
 
 set (SQUASH_TESTS
@@ -38,7 +39,8 @@ set (SQUASH_TESTS
   /stream/compress
   /stream/decompress
   /stream/single-byte
-  /threads/buffer)
+  /threads/buffer
+  /version)
 
 set_compiler_specific_flags(
   VARIABLE extra_compiler_flags
