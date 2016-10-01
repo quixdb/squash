@@ -7,7 +7,6 @@ os:
 branches:
   except:
     - /^(wip\/)?(appveyor|msvc|mingw|windows)(\-.+)?$/
-    - /^master$/
 env:
   matrix:
     # Latest versions of each compiler
