@@ -212,35 +212,34 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
       case SQUASH_OPERATION_PROCESS: ;
           size_t hint = ZSTD_compressStream(stream->cstream, &output, &input);
           
-          if(ZSTD_isError(hint))
-              return squash_error (SQUASH_FAILED);
-          
-          
           ss->avail_in -= input.pos;
           ss->next_in += input.pos;
           ss->avail_out -= output.pos;
           ss->next_out += output.pos;
           
+          if(ZSTD_isError(hint))
+            return squash_zstd_status_from_zstd_error(hint);
+          
           return  (ss->avail_in != 0) ? SQUASH_PROCESSING : SQUASH_OK;
       case SQUASH_OPERATION_FLUSH: {
           size_t remaining = ZSTD_flushStream(stream->cstream, &output);
           
-          if(ZSTD_isError(remaining))
-              return squash_error (SQUASH_FAILED);
-          
           ss->avail_out -= output.pos;
           ss->next_out += output.pos;
+          
+          if(ZSTD_isError(remaining))
+            return squash_zstd_status_from_zstd_error(remaining);
           
           return (remaining > 0) ? SQUASH_PROCESSING : SQUASH_OK;
       }
       case SQUASH_OPERATION_FINISH: {
           size_t remaining = ZSTD_endStream(stream->cstream, &output);
           
-          if(ZSTD_isError(remaining))
-              return squash_error (SQUASH_FAILED);
-          
           ss->avail_out -= output.pos;
           ss->next_out += output.pos;
+          
+          if(ZSTD_isError(remaining))
+            return squash_zstd_status_from_zstd_error(remaining);
           
           return (remaining > 0) ? SQUASH_PROCESSING : SQUASH_OK;
       }
@@ -250,13 +249,13 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
   } else {
     size_t remaining = ZSTD_decompressStream(stream->dstream, &output, &input);
     
-    if(ZSTD_isError(remaining))
-      return squash_error (SQUASH_FAILED);
-    
     ss->avail_in -= input.pos;
     ss->next_in += input.pos;
     ss->avail_out -= output.pos;
     ss->next_out += output.pos;
+    
+    if(ZSTD_isError(remaining))
+      return squash_zstd_status_from_zstd_error(remaining);
     
     return (remaining > 0) ? ((ss->avail_in != 0 || ss->avail_out == 0) ? SQUASH_PROCESSING : SQUASH_OK) : SQUASH_END_OF_STREAM;
   }
