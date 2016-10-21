@@ -103,6 +103,9 @@ buffer_to_buffer_decompress_with_stream (SquashCodec* codec,
 
       res = squash_stream_finish (stream);
     } while (res == SQUASH_PROCESSING);
+    if (res == SQUASH_END_OF_STREAM) {
+      res = SQUASH_OK;
+    }
   }
 
   if (res == SQUASH_OK) {
