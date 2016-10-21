@@ -258,7 +258,7 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
     ss->avail_out -= output.pos;
     ss->next_out += output.pos;
     
-    return (remaining > 0) ? ((ss->avail_in != 0) ? SQUASH_PROCESSING : SQUASH_OK) : SQUASH_END_OF_STREAM;
+    return (remaining > 0) ? ((ss->avail_in != 0 || ss->avail_out == 0) ? SQUASH_PROCESSING : SQUASH_OK) : SQUASH_END_OF_STREAM;
   }
   return squash_error (SQUASH_FAILED);
 }
