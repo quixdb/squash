@@ -40,6 +40,7 @@ typedef struct SquashZstdStream_s {
   SquashStream base_object;
   ZSTD_CStream* cstream;
   ZSTD_DStream* dstream;
+  size_t last_res;
 } SquashZstdStream;
 
 static void*
@@ -167,6 +168,7 @@ squash_zstd_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
   if(stream_type == SQUASH_STREAM_COMPRESS) {
     stream->cstream = ZSTD_createCStream_advanced(cMem);
     stream->dstream = NULL;
+    stream->last_res = 0;
 
     if(stream->cstream == NULL) {
       squash_free(stream);
@@ -209,20 +211,21 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
 
   if(ss->stream_type == SQUASH_STREAM_COMPRESS) {
     switch (operation) {
-      case SQUASH_OPERATION_PROCESS: ;
-      size_t hint = ZSTD_compressStream(stream->cstream, &output, &input);
+      case SQUASH_OPERATION_PROCESS: {
+        size_t hint = stream->last_res = ZSTD_compressStream(stream->cstream, &output, &input);
 
-      ss->avail_in -= input.pos;
-      ss->next_in += input.pos;
-      ss->avail_out -= output.pos;
-      ss->next_out += output.pos;
+        ss->avail_in -= input.pos;
+        ss->next_in += input.pos;
+        ss->avail_out -= output.pos;
+        ss->next_out += output.pos;
 
-      if(ZSTD_isError(hint))
-        return squash_zstd_status_from_zstd_error(hint);
+        if(ZSTD_isError(hint))
+          return squash_zstd_status_from_zstd_error(hint);
 
-      return  (ss->avail_in != 0) ? SQUASH_PROCESSING : SQUASH_OK;
+        return  (ss->avail_in != 0) ? SQUASH_PROCESSING : SQUASH_OK;
+      }
       case SQUASH_OPERATION_FLUSH: {
-        size_t remaining = ZSTD_flushStream(stream->cstream, &output);
+        size_t remaining = stream->last_res = ZSTD_flushStream(stream->cstream, &output);
 
         ss->avail_out -= output.pos;
         ss->next_out += output.pos;
@@ -233,7 +236,7 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
         return (remaining > 0) ? SQUASH_PROCESSING : SQUASH_OK;
       }
       case SQUASH_OPERATION_FINISH: {
-        size_t remaining = ZSTD_endStream(stream->cstream, &output);
+        size_t remaining = stream->last_res = ZSTD_endStream(stream->cstream, &output);
 
         ss->avail_out -= output.pos;
         ss->next_out += output.pos;
@@ -247,7 +250,10 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
         HEDLEY_UNREACHABLE();
     }
   } else {
-    size_t remaining = ZSTD_decompressStream(stream->dstream, &output, &input);
+    if (stream->last_res == 0 && ss->avail_in == 0)
+      return SQUASH_OK;
+
+    size_t remaining = stream->last_res = ZSTD_decompressStream(stream->dstream, &output, &input);
 
     ss->avail_in -= input.pos;
     ss->next_in += input.pos;
@@ -257,7 +263,13 @@ squash_zstd_process_stream (SquashStream* ss, SquashOperation operation) {
     if(ZSTD_isError(remaining))
       return squash_zstd_status_from_zstd_error(remaining);
 
-    return (remaining > 0) ? ((ss->avail_in != 0 || ss->avail_out == 0) ? SQUASH_PROCESSING : SQUASH_OK) : SQUASH_END_OF_STREAM;
+    if (ss->avail_in != 0) {
+      return SQUASH_PROCESSING;
+    } else if (operation != SQUASH_OPERATION_PROCESS && remaining != 0) {
+      return SQUASH_PROCESSING;
+    } else {
+      return SQUASH_OK;
+    }
   }
   return squash_error (SQUASH_FAILED);
 }
