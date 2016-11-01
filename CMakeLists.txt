@@ -227,5 +227,5 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 if (ENABLE_COVERAGE STREQUAL "yes")
-  SETUP_TARGET_FOR_COVERAGE(coverage test coverage)
+  SETUP_TARGET_FOR_COVERAGE(lcov test coverage)
 endif ()

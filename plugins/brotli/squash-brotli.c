@@ -78,7 +78,7 @@ typedef struct SquashBrotliStream_s {
 
   union {
     BrotliEncoderState* encoder;
-    BrotliState* decoder;
+    BrotliDecoderState* decoder;
   } ctx;
 } SquashBrotliStream;
 
@@ -135,7 +135,7 @@ squash_brotli_stream_init (SquashBrotliStream* s,
     BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_LGBLOCK, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_BLOCK_SIZE));
     BrotliEncoderSetParameter(s->ctx.encoder, BROTLI_PARAM_MODE, squash_options_get_int_at (options, codec, SQUASH_BROTLI_OPT_MODE));
   } else if (stream_type == SQUASH_STREAM_DECOMPRESS) {
-    s->ctx.decoder = BrotliCreateState(squash_brotli_malloc, squash_brotli_free, NULL);
+    s->ctx.decoder = BrotliDecoderCreateInstance(squash_brotli_malloc, squash_brotli_free, NULL);
   } else {
     HEDLEY_UNREACHABLE();
   }
@@ -148,7 +148,7 @@ squash_brotli_stream_destroy (void* stream) {
   if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_COMPRESS) {
     BrotliEncoderDestroyInstance(s->ctx.encoder);
   } else if (((SquashStream*) stream)->stream_type == SQUASH_STREAM_DECOMPRESS) {
-    BrotliDestroyState(s->ctx.decoder);
+    BrotliDecoderDestroyInstance(s->ctx.decoder);
   } else {
     HEDLEY_UNREACHABLE();
   }
@@ -195,24 +195,24 @@ squash_brotli_process_stream (SquashStream* stream, SquashOperation operation) {
     else
       return SQUASH_OK;
   } else if (stream->stream_type == SQUASH_STREAM_DECOMPRESS) {
-    const BrotliResult bd_ret =
-      BrotliDecompressStream(&(stream->avail_in), &(stream->next_in),
-                             &(stream->avail_out), &(stream->next_out),
-                             NULL,
-                             s->ctx.decoder);
+    const BrotliDecoderResult bd_ret =
+      BrotliDecoderDecompressStream(s->ctx.decoder,
+                                    &(stream->avail_in), &(stream->next_in),
+                                    &(stream->avail_out), &(stream->next_out),
+                                    NULL);
 
     switch (bd_ret) {
-      case BROTLI_RESULT_SUCCESS:
+      case BROTLI_DECODER_RESULT_SUCCESS:
         return SQUASH_OK;
-      case BROTLI_RESULT_NEEDS_MORE_INPUT:
+      case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
         return SQUASH_OK;
-      case BROTLI_RESULT_NEEDS_MORE_OUTPUT:
+      case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
         return SQUASH_PROCESSING;
-      case BROTLI_RESULT_ERROR:
+      case BROTLI_DECODER_RESULT_ERROR:
         return SQUASH_FAILED;
     }
 
-    if (HEDLEY_UNLIKELY(bd_ret != BROTLI_RESULT_SUCCESS))
+    if (HEDLEY_UNLIKELY(bd_ret != BROTLI_DECODER_RESULT_SUCCESS))
       return squash_error (SQUASH_FAILED);
   } else {
     HEDLEY_UNREACHABLE ();
@@ -250,9 +250,9 @@ squash_brotli_decompress_buffer (SquashCodec* codec,
                                  size_t compressed_size,
                                  const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                  SquashOptions* options) {
-  const BrotliResult res = BrotliDecompressBuffer(compressed_size, compressed, decompressed_size, decompressed);
+  const BrotliDecoderResult res = BrotliDecoderDecompress(compressed_size, compressed, decompressed_size, decompressed);
 
-  return HEDLEY_LIKELY(res == BROTLI_RESULT_SUCCESS) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
+  return HEDLEY_LIKELY(res == BROTLI_DECODER_RESULT_SUCCESS) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
 SquashStatus
