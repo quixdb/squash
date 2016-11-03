@@ -214,6 +214,7 @@ add_subdirectory (docs)
 add_subdirectory (examples)
 add_subdirectory (bindings)
 add_subdirectory (tests)
+add_subdirectory (packaging)
 
 include (GenPkgConfig)
 generate_pkg_config ("${CMAKE_CURRENT_BINARY_DIR}/squash-${SQUASH_VERSION_API}.pc"

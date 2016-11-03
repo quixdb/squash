@@ -1,0 +1,66 @@
+%define squash_api_version @SQUASH_VERSION_API@
+%define squash_version @SQUASH_VERSION_MAJOR@.@SQUASH_VERSION_MINOR@.@SQUASH_VERSION_REVISION@
+
+Name:           squash
+Version:        %{squash_version}
+Release:        1%{?dist}
+Summary:        Compression abstraction library
+
+License:        MIT, Others
+URL:            https://quixdb.github.io/squash
+Source0:        https://github.com/quixdb/squash/releases/download/v%{squash_version}/squash-%{squash_version}.tar.bz2
+
+Requires:      snappy zlib xz-libs libzstd bzip2-libs zpaq-libs lzo lz4
+BuildRequires: snappy-devel zlib-devel xz-devel libzstd-devel bzip2-devel zpaq-devel lzo-devel lz4-devel
+
+%description
+Squash provides a single API to access many compression libraries,
+allowing applications a great deal of flexibility in choosing
+compression algorithms, including the option to pass that choice along
+to the user.
+
+
+%package devel
+Group: Development/Libraries
+Summary: Development package for Squash
+Requires: squash
+
+%description devel
+The squash-devel package contains files necessary
+for building software using the Squash compression library.
+
+
+%prep
+%autosetup
+
+
+%build
+cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_BINDIR=%{_bindir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir} -DCMAKE_INSTALL_SBINDIR=%{_sbindir} -DCMAKE_INSTALL_SHAREDSTATEDIR=%{_sharedstatedir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_INFODIR=%{_infodir} -DCMAKE_INSTALL_MANDIR=%{_mandir} -DCMAKE_INSTALL_LOCALSTATEDIR=%{_localstatedir}
+make %{?_smp_mflags}
+
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%make_install
+
+
+%files
+%{_libdir}/libsquash*
+%{_libdir}/squash/%{squash_api_version}/plugins/*/libsquash%{squash_api_version}-plugin-*.so
+%{_libdir}/squash/%{squash_api_version}/plugins/*/squash.ini
+%license COPYING
+%doc AUTHORS
+%{_bindir}/squash
+%{_mandir}/man1/squash.1.*
+
+
+%files devel
+%{_includedir}/squash-%{squash_api_version}/*
+%{_libdir}/pkgconfig/squash-%{squash_api_version}.pc
+%{_datadir}/vala/vapi/squash-*.vapi
+%{_libdir}/cmake/Squash-%{squash_version}/SquashConfig.cmake
+
+
+%changelog
+* Thu Nov  3 2016 Evan Nemerson <evan@nemerson.com>
+- Initial packaging
