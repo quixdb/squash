@@ -45,7 +45,7 @@ env:
     # Coverity Scan
     - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
     # Intel C Compiler
-    - secure: "mlMhIsz3GCfm796RN4jqNVMTdNkOXwTIgCKTv/om/KqU2+yUhCweOD4u98QmYIFNGnaPkqur6xGwkUtyJOrgY4FTZ6BtHUWY9y7+Z7cTdvCpnXA28LtcBYTq2F+S8q+Z3mJcz9LNz1ufiK2ZzOFVm03d1sYu0QMNz6FLZ6HtaEU="
+    - secure: "QhS53AneaQ0zCgm5XNci7aq8AgQCRFtOLVMYIbjyxvTi6zuGLXFjA6l0SkMTsRfdb4QMdnmrE0d1haRxEAD5ldYj+UBbgv6gEm8uwHap2l7zl9tSPddxqB3F145+UWgXAAx85AxmkXLc3oIg58MMk5WzpF7eTz19JfxoBbBB+Cg="
 matrix:
   exclude:
     # Limit OS X to 1 debug and 1 release build.
