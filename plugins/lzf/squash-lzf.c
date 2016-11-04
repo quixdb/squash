@@ -32,8 +32,8 @@
 #include <squash/squash.h>
 #include <lzf.h>
 
-/* No header :( */
-#include <lzf_c_best.c>
+/* No header, not publicly installed */
+#include "liblzf/lzf_c_best.c"
 
 enum SquashLzfOptIndex {
   SQUASH_LZF_OPT_LEVEL = 0,

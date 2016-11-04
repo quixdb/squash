@@ -16,10 +16,11 @@ set_compiler_specific_flags(
 squash_plugin (
   NAME lzf
   SOURCES squash-lzf.c
+  EXTERNAL_PKG liblzf
   EMBED_SOURCES
     liblzf/lzf_c.c
     liblzf/lzf_d.c
-  INCLUDE_DIRS
+  EMBED_INCLUDE_DIRS
     liblzf
   COMPILER_FLAGS
     ${compiler_flags}
