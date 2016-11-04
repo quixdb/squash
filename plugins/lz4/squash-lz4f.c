@@ -31,7 +31,12 @@
 
 #include <squash/squash.h>
 #include <lz4.h>
-#include <lz4frame_static.h>
+
+#if defined(SQUASH_LZ4_EMBED)
+#  include <lz4frame_static.h>
+#else
+#  include <lz4frame.h>
+#endif
 
 SquashStatus squash_plugin_init_lz4f (SquashCodec* codec, SquashCodecImpl* impl);
 
@@ -108,6 +113,7 @@ squash_lz4f_get_status (size_t res) {
   if (!LZ4F_isError (res))
     return SQUASH_OK;
 
+#if defined(SQUASH_LZ4_EMBED)
   switch ((LZ4F_errorCodes) (-(int)(res))) {
     case LZ4F_OK_NoError:
       return SQUASH_OK;
@@ -139,6 +145,9 @@ squash_lz4f_get_status (size_t res) {
     default:
       HEDLEY_UNREACHABLE ();
   }
+#else
+  return squash_error (SQUASH_FAILED);
+#endif
 }
 
 static SquashLZ4FStream*

@@ -248,7 +248,7 @@ libdeflate plugin for Squash
 # LZ4
 %package plugin-lz4
 Summary: LZ4 plugin for Squash
-Requires: squash lz4-devel
+Requires: squash lz4
 License: 3-clause BSD and MIT
 
 %description plugin-lz4
