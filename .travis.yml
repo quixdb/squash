@@ -10,35 +10,35 @@ branches:
     - /^master$/
 env:
   matrix:
-    # Latest versions of each compiler
-    - COMPILER=gcc-6 BUILD_TYPE=debug
-    - COMPILER=clang-3.8 BUILD_TYPE=debug
-    - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
-    - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
+    # # Latest versions of each compiler
+    # - COMPILER=gcc-6 BUILD_TYPE=debug
+    # - COMPILER=clang-3.8 BUILD_TYPE=debug
+    # - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
+    # - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=icc BUILD_TYPE=debug
 
-    # Sanitizers
-    - COMPILER=gcc-6 BUILD_TYPE=asan
-    # - COMPILER=gcc-6 BUILD_TYPE=ubsan
-    # - COMPILER=gcc-6 BUILD_TYPE=tsan
+    # # Sanitizers
+    # - COMPILER=gcc-6 BUILD_TYPE=asan
+    # # - COMPILER=gcc-6 BUILD_TYPE=ubsan
+    # # - COMPILER=gcc-6 BUILD_TYPE=tsan
 
-    # Test release mode
-    - COMPILER=gcc-6 BUILD_TYPE=release
-    - COMPILER=clang BUILD_TYPE=release
+    # # Test release mode
+    # - COMPILER=gcc-6 BUILD_TYPE=release
+    # - COMPILER=clang BUILD_TYPE=release
 
-    # Older compilers
-    - COMPILER=gcc-4.6 BUILD_TYPE=debug
-    - COMPILER=gcc-4.7 BUILD_TYPE=debug
-    - COMPILER=gcc-4.8 BUILD_TYPE=debug
-    - COMPILER=gcc-4.9 BUILD_TYPE=debug
-    - COMPILER=gcc-5 BUILD_TYPE=debug
-    - COMPILER=clang-3.4 BUILD_TYPE=debug
-    - COMPILER=clang-3.5 BUILD_TYPE=debug
-    - COMPILER=clang-3.6 BUILD_TYPE=debug
+    # # Older compilers
+    # - COMPILER=gcc-4.6 BUILD_TYPE=debug
+    # - COMPILER=gcc-4.7 BUILD_TYPE=debug
+    # - COMPILER=gcc-4.8 BUILD_TYPE=debug
+    # - COMPILER=gcc-4.9 BUILD_TYPE=debug
+    # - COMPILER=gcc-5 BUILD_TYPE=debug
+    # - COMPILER=clang-3.4 BUILD_TYPE=debug
+    # - COMPILER=clang-3.5 BUILD_TYPE=debug
+    # - COMPILER=clang-3.6 BUILD_TYPE=debug
     - COMPILER=clang-3.7 BUILD_TYPE=debug
 
-    # Coverage analysis
-    - COMPILER=gcc-6 BUILD_TYPE=coverage
+    # # Coverage analysis
+    # - COMPILER=gcc-6 BUILD_TYPE=coverage
   global:
     # Coveralls.io
     - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
