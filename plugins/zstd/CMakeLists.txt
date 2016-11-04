@@ -12,16 +12,17 @@ squash_plugin (
     zstd/lib/legacy/zstd_v05.c
     zstd/lib/legacy/zstd_v06.c
     zstd/lib/legacy/zstd_v07.c
+    zstd/lib/common/zstd_common.c
     zstd/lib/common/entropy_common.c
+    zstd/lib/common/error_private.c
     zstd/lib/common/fse_decompress.c
     zstd/lib/common/xxhash.c
-    zstd/lib/common/zstd_common.c
+    zstd/lib/compress/zbuff_compress.c
     zstd/lib/compress/fse_compress.c
     zstd/lib/compress/huf_compress.c
-    zstd/lib/compress/zbuff_compress.c
     zstd/lib/compress/zstd_compress.c
-    zstd/lib/decompress/huf_decompress.c
     zstd/lib/decompress/zbuff_decompress.c
+    zstd/lib/decompress/huf_decompress.c
     zstd/lib/decompress/zstd_decompress.c
     zstd/lib/dictBuilder/divsufsort.c
     zstd/lib/dictBuilder/zdict.c
