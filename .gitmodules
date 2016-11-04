@@ -104,3 +104,6 @@
 [submodule "squash/hedley"]
 	path = squash/hedley
 	url = https://github.com/nemequ/hedley.git
+[submodule "fuzzer/libFuzzer"]
+	path = utils/libFuzzer
+	url = https://chromium.googlesource.com/chromium/llvm-project/llvm/lib/Fuzzer

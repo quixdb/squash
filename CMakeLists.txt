@@ -193,6 +193,15 @@ if (ENABLE_COVERAGE STREQUAL "yes")
   endif ()
 endif ()
 
+if (ENABLE_FUZZER)
+  if (NOT ENABLE_SANITIZER)
+    set (ENABLE_SANITIZER "address")
+  endif (NOT ENABLE_SANITIZER)
+
+  set(CMAKE_C_FLAGS " ${CMAKE_C_FLAGS} -fsanitize-coverage=trace-pc-guard")
+  set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fsanitize-coverage=trace-pc-guard")
+endif (ENABLE_FUZZER)
+
 if (ENABLE_SANITIZER)
   set(CMAKE_C_FLAGS " ${CMAKE_C_FLAGS} -fsanitize=${ENABLE_SANITIZER}")
   set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fsanitize=${ENABLE_SANITIZER}")
