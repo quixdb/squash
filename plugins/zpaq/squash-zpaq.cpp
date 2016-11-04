@@ -38,7 +38,7 @@
 
 #include <squash/squash.h>
 
-#include "libzpaq.h"
+#include <libzpaq.h>
 
 #define SQUASH_ZPAQ_DEFAULT_LEVEL 1
 
