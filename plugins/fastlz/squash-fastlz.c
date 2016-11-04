@@ -32,7 +32,7 @@
 
 #include <squash/squash.h>
 
-#include "fastlz/fastlz.h"
+#include <fastlz.h>
 
 enum SquashFastLZOptIndex {
   SQUASH_FASTLZ_OPT_LEVEL = 0
