@@ -3,6 +3,7 @@ include (SquashPlugin)
 squash_plugin (
   NAME zstd
   SOURCES squash-zstd.c
+  EXTERNAL_PKG libzstd
   EMBED_SOURCES
     zstd/lib/legacy/zstd_v01.c
     zstd/lib/legacy/zstd_v02.c
@@ -26,8 +27,8 @@ squash_plugin (
     zstd/lib/dictBuilder/zdict.c
   EMBED_DEFINES
     ZSTD_LEGACY_SUPPORT=1
+    SQUASH_ZSTD_EMBED
   EMBED_INCLUDE_DIRS
     zstd/lib
     zstd/lib/common
-    zstd/lib/compress
     zstd/lib/legacy)

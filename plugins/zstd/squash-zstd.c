@@ -31,9 +31,13 @@
 
 #include <squash/squash.h>
 
-#define ZSTD_STATIC_LINKING_ONLY
-#include "zstd.h"
-#include "error_public.h"
+#include <zstd.h>
+
+/* Use non-public APIs. */
+#if defined(SQUASH_ZSTD_EMBED)
+#  define ZSTD_STATIC_LINKING_ONLY
+#  include "zstd/lib/common/error_public.h"
+#endif
 
 
 typedef struct SquashZstdStream_s {
@@ -43,6 +47,7 @@ typedef struct SquashZstdStream_s {
   size_t last_res;
 } SquashZstdStream;
 
+#if defined(ZSTD_STATIC_LINKING_ONLY)
 static void*
 squash_zstd_malloc (void* opaque, size_t size) {
   void* address = squash_malloc (size);
@@ -55,6 +60,7 @@ squash_zstd_free (void * opaque, void* address) {
   (void)opaque;
   squash_free (address);
 }
+#endif
 
 
 SQUASH_PLUGIN_EXPORT
@@ -84,12 +90,17 @@ squash_zstd_status_from_zstd_error (size_t res) {
   if (!ZSTD_isError (res))
     return SQUASH_OK;
 
-  switch ((ZSTD_ErrorCode) (-(int)(res))) {
+#if defined(ZSTD_STATIC_LINKING_ONLY)
+  const ZSTD_ErrorCode error_code = (ZSTD_ErrorCode) (-(int)(res));
+
+  switch (error_code) {
     case ZSTD_error_no_error:
       return SQUASH_OK;
     case ZSTD_error_memory_allocation:
       return squash_error (SQUASH_MEMORY);
     case ZSTD_error_dstSize_tooSmall:
+      /* To detect ABI breaks */
+      assert (strcmp (ZSTD_getErrorName (res), "Destination buffer is too small") == 0);
       return squash_error (SQUASH_BUFFER_FULL);
     case ZSTD_error_GENERIC:
     case ZSTD_error_prefix_unknown:
@@ -112,8 +123,12 @@ squash_zstd_status_from_zstd_error (size_t res) {
     default:
       return squash_error (SQUASH_FAILED);
   }
+#else
+  if (strcmp (ZSTD_getErrorName (res), "Destination buffer is too small") == 0)
+    return squash_error (SQUASH_BUFFER_FULL);
 
-  HEDLEY_UNREACHABLE ();
+  return squash_error (SQUASH_FAILED);
+#endif
 }
 
 static SquashStatus
@@ -160,13 +175,19 @@ static SquashStream*
 squash_zstd_create_stream (SquashCodec* codec, SquashStreamType stream_type, SquashOptions* options) {
   assert (stream_type == SQUASH_STREAM_COMPRESS || stream_type == SQUASH_STREAM_DECOMPRESS);
 
+#if defined(ZSTD_STATIC_LINKING_ONLY)
   ZSTD_customMem cMem = { squash_zstd_malloc, squash_zstd_free, NULL };
+#endif
 
   SquashZstdStream* stream = squash_malloc(sizeof (SquashZstdStream));
   squash_stream_init ((SquashStream*)stream, codec, stream_type, options, squash_zstd_stream_destroy);
 
   if(stream_type == SQUASH_STREAM_COMPRESS) {
+#if defined(ZSTD_STATIC_LINKING_ONLY)
     stream->cstream = ZSTD_createCStream_advanced(cMem);
+#else
+    stream->cstream = ZSTD_createCStream();
+#endif
     stream->dstream = NULL;
     stream->last_res = 0;
 
@@ -184,7 +205,11 @@ squash_zstd_create_stream (SquashCodec* codec, SquashStreamType stream_type, Squ
     }
 
   } else {
+#if defined(ZSTD_STATIC_LINKING_ONLY)
     stream->dstream = ZSTD_createDStream_advanced(cMem);
+#else
+    stream->dstream = ZSTD_createDStream();
+#endif
     stream->cstream = NULL;
 
     if(stream->dstream == NULL) {
