@@ -15,7 +15,7 @@ env:
     - COMPILER=clang-3.8 BUILD_TYPE=debug
     - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
     - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
-    - COMPILER=icc BUILD_TYPE=debug
+    # - COMPILER=icc BUILD_TYPE=debug
 
     # Sanitizers
     - COMPILER=gcc-6 BUILD_TYPE=asan
