@@ -1,11 +1,5 @@
 include (SquashPlugin)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set_compiler_specific_flags(
-    VARIABLE no_lto
-    GCC -fno-lto)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
 squash_plugin (
   NAME libdeflate
   SOURCES squash-libdeflate.c
@@ -24,8 +18,6 @@ squash_plugin (
   DEFINES
     _ANSI_SOURCE
     SUPPORT_NEAR_OPTIMAL_PARSING=1
-  COMPILER_FLAGS
-    ${no_lto}
   INCLUDE_DIRS
     libdeflate
     libdeflate/common

@@ -55,7 +55,7 @@ SquashStatus               squash_plugin_init_codec     (SquashCodec* codec,
 
 static size_t
 squash_libdeflate_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
-  return deflate_compress_bound(NULL, uncompressed_size);
+  return libdeflate_deflate_compress_bound(NULL, uncompressed_size);
 }
 
 static SquashStatus
@@ -66,9 +66,9 @@ squash_libdeflate_compress_buffer (SquashCodec* codec,
                               const uint8_t uncompressed[HEDLEY_ARRAY_PARAM(uncompressed_size)],
                               SquashOptions* options) {
   const int level = squash_options_get_int_at (options, codec, SQUASH_LIBDEFLATE_OPT_LEVEL);
-  struct deflate_compressor *compressor = deflate_alloc_compressor(level);
-  *compressed_size = deflate_compress(compressor, uncompressed, uncompressed_size, compressed, *compressed_size);
-  deflate_free_compressor(compressor);
+  struct libdeflate_compressor *compressor = libdeflate_alloc_compressor(level);
+  *compressed_size = libdeflate_deflate_compress(compressor, uncompressed, uncompressed_size, compressed, *compressed_size);
+  libdeflate_free_compressor(compressor);
   return HEDLEY_LIKELY(*compressed_size != 0) ? SQUASH_OK : squash_error (SQUASH_BUFFER_FULL);
 }
 
@@ -79,20 +79,20 @@ squash_libdeflate_decompress_buffer (SquashCodec* codec,
                                 size_t compressed_size,
                                 const uint8_t compressed[HEDLEY_ARRAY_PARAM(compressed_size)],
                                 SquashOptions* options) {
-  struct deflate_decompressor *decompressor = deflate_alloc_decompressor();
+  struct libdeflate_decompressor *decompressor = libdeflate_alloc_decompressor();
   size_t actual_out_nbytes;
-  enum decompress_result ret = deflate_decompress(decompressor, compressed, compressed_size,
+  enum libdeflate_result ret = libdeflate_deflate_decompress(decompressor, compressed, compressed_size,
                                              decompressed, *decompressed_size, &actual_out_nbytes);
-  deflate_free_decompressor(decompressor);
+  libdeflate_free_decompressor(decompressor);
   *decompressed_size = actual_out_nbytes;
   switch (ret) {
-    case DECOMPRESS_SUCCESS:
+    case LIBDEFLATE_SUCCESS:
       return SQUASH_OK;
-    case DECOMPRESS_BAD_DATA:
+    case LIBDEFLATE_BAD_DATA:
       return squash_error (SQUASH_FAILED);
-    case DECOMPRESS_SHORT_OUTPUT:
+    case LIBDEFLATE_SHORT_OUTPUT:
       return squash_error (SQUASH_BUFFER_FULL);
-    case DECOMPRESS_INSUFFICIENT_SPACE:
+    case LIBDEFLATE_INSUFFICIENT_SPACE:
       return squash_error (SQUASH_BUFFER_FULL);
   }
 
