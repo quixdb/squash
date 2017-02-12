@@ -1,7 +1,20 @@
 include (AddCompilerFlags)
 
 function (target_require_c_standard target standard)
-  if (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
+  if ("${CMAKE_C_COMPILER_ID}" STREQUAL "PGI")
+    get_target_property (sources ${target} SOURCES)
+    if ("${standard}" STREQUAL "c90")
+      set(standard "c89")
+    endif ()
+
+    foreach (source ${sources})
+      if ("${source}" MATCHES "\\.c$")
+        source_file_add_compiler_flags ("${source}" "-${standard}")
+      endif ()
+    endforeach (source)
+
+    unset (sources)
+  elseif (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
     get_target_property (sources ${target} SOURCES)
 
     foreach (source ${sources})
@@ -29,7 +42,17 @@ function (target_require_c_standard target standard)
 endfunction ()
 
 function (target_require_cxx_standard target standard)
-  if (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "PGI")
+    get_target_property (sources ${target} SOURCES)
+
+    foreach (source ${sources})
+      if ("${source}" MATCHES "\\.(cpp|cc|cxx)$")
+        source_file_add_compiler_flags ("${source}" "-${standard}")
+      endif ()
+    endforeach (source)
+
+    unset (sources)
+  elseif (${CMAKE_VERSION} VERSION_LESS 3.1 OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     get_target_property (sources ${target} SOURCES)
 
     foreach (source ${sources})
