@@ -80,7 +80,8 @@ if (MSVC)
 endif (MSVC)
 
 # https://cmake.org/Bug/view.php?id=8246
-if(NOT MSVC)
+check_c_compiler_flag("-fno-builtin" CFLAG_fno_builtin)
+if(CFLAG_fno_builtin)
   set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -fno-builtin")
 endif()
 
