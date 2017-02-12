@@ -60,6 +60,8 @@ if [ "${TRAVIS_BRANCH}" = "coverity" -a "${TRAVIS_OS_NAME}" = "linux" -a "${BUIL
     COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
 fi
 
+INSTALL_PREFIX="${HOME}/squash-install"
+
 case "${1}" in
     "deps")
         case "${TRAVIS_OS_NAME}" in
@@ -223,7 +225,9 @@ case "${1}" in
 
         git submodule update --init --recursive
         echo "cmake . ${CONFIGURE_FLAGS} -DCMAKE_C_FLAGS=\"${COMMON_COMPILER_FLAGS}\" -DCMAKE_CXX_FLAGS=\"${COMMON_COMPILER_FLAGS}\""
-        cmake . ${CONFIGURE_FLAGS} -DCMAKE_C_FLAGS="${COMMON_COMPILER_FLAGS}" -DCMAKE_CXX_FLAGS="${COMMON_COMPILER_FLAGS}"
+        cmake . ${CONFIGURE_FLAGS} \
+              -DCMAKE_C_FLAGS="${COMMON_COMPILER_FLAGS}" -DCMAKE_CXX_FLAGS="${COMMON_COMPILER_FLAGS}" \
+              -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_INSTALL_LIBDIR="${INSTALL_PREFIX}/lib"
         ;;
 
     "make")
@@ -248,11 +252,14 @@ case "${1}" in
                 ;;
             *)
                 make VERBOSE=1
+                make install
                 ;;
         esac
         ;;
 
     "test")
+        ${CC} -o examples/simple-installed $(PKG_CONFIG_PATH="${INSTALL_PATH}/lib/pkgconfig" pkg-config --libs --cflags squash-0.8) examples/simple.c
+
         if [ "x${CROSS_COMPILE}" != "xyes" ]; then
             ./tests/test-squash || exit 1
         fi
