@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -457,7 +457,7 @@ struct SquashSpliceLimitedData {
   size_t written;
 };
 
-static SQUASH_THREAD_LOCAL SquashStatus squash_splice_custom_limited_res;
+static SquashStatus squash_splice_custom_limited_res;
 
 static SquashStatus
 squash_splice_custom_limited_write (size_t* data_size, const uint8_t data[HEDLEY_ARRAY_PARAM(*data_size)], void* user_data) {

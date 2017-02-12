@@ -61,6 +61,7 @@ function (SQUASH_PLUGIN)
   add_library (${PLUGIN_TARGET} SHARED ${sources})
   target_link_libraries (${PLUGIN_TARGET} squash${SQUASH_VERSION_API})
   target_include_directories (${PLUGIN_TARGET} PRIVATE ${SQUASH_PLUGIN_INCLUDE_DIRS})
+  target_include_directories (${PLUGIN_TARGET} PRIVATE "${CMAKE_SOURCE_DIR}/squash")
   set_property (TARGET ${PLUGIN_TARGET} APPEND PROPERTY COMPILE_DEFINITIONS ${SQUASH_PLUGIN_DEFINES})
 
   if (NOT "${ALLOW_UNDEFINED}" STREQUAL "yes")

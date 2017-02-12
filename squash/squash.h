@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include "hedley/hedley.h"
+#include <squash/hedley/hedley.h>
 
 #if !defined(SQUASH_DISABLE_WIDE_CHAR_API) && !defined(SQUASH_ENABLE_WIDE_CHAR_API)
 #  define SQUASH_ENABLE_WIDE_CHAR_API

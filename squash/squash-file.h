@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,10 +29,10 @@
 #define SQUASH_FILE_H
 
 #if !defined (SQUASH_H_INSIDE) && !defined (SQUASH_COMPILATION)
-#error "Only <squash/squash.h> can be included directly."
+#error "Only <squash.h> can be included directly."
 #endif
 
-#include <squash/squash.h>
+#include <squash.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

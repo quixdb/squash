@@ -60,6 +60,7 @@ set_property(TARGET test-squash
 target_add_extra_warning_flags (test-squash)
 target_require_c_standard (test-squash "c99")
 target_add_compiler_flags (test-squash ${extra_compiler_flags})
+target_include_directories (test-squash PRIVATE "${CMAKE_SOURCE_DIR}/squash")
 
 if ($CMAKE_VERSION VERSION_LESS 3.1)
   target_link_libraries (test-squash squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
@@ -73,6 +74,7 @@ if (ENABLE_INSTALLED_TESTS)
   target_link_libraries (squash-all squash${SQUASH_VERSION_API} ${CMAKE_THREAD_LIBS_INIT})
   target_require_c_standard (squash-all "c99")
   target_add_compiler_flags (squash-all ${extra_compiler_flags})
+  target_include_directories (squash-all PRIVATE "${CMAKE_SOURCE_DIR}/squash")
 
   install (TARGETS squash-all
     EXPORT "squash-all"
