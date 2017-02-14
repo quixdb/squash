@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -53,6 +53,7 @@ enum SquashLZMAOptIndex {
   SQUASH_LZMA_OPT_LC,
   SQUASH_LZMA_OPT_LP,
   SQUASH_LZMA_OPT_PB,
+  SQUASH_LZMA_OPT_MF,
   SQUASH_LZMA_OPT_MEM_LIMIT,
   SQUASH_LZMA_OPT_CHECK,
 };
@@ -88,6 +89,17 @@ static SquashOptionInfo squash_lzma_options[] = {
       .min = 0,
       .max = 4 },
     .default_value.int_value = 2 },
+  { "mf",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "hc3", LZMA_MF_HC3 },
+        { "hc4", LZMA_MF_HC4 },
+        { "bt2", LZMA_MF_BT2 },
+        { "bt3", LZMA_MF_BT3 },
+        { "bt4", LZMA_MF_BT4 },
+        { NULL, 0 } } },
+    .default_value.int_value = 0 },
   { "mem-limit",
     SQUASH_OPTION_TYPE_RANGE_SIZE,
     .info.range_size = {
@@ -128,6 +140,17 @@ static SquashOptionInfo squash_lzma12_options[] = {
       .min = 0,
       .max = 4 },
     .default_value.int_value = 2 },
+  { "mf",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "hc3", LZMA_MF_HC3 },
+        { "hc4", LZMA_MF_HC4 },
+        { "bt2", LZMA_MF_BT2 },
+        { "bt3", LZMA_MF_BT3 },
+        { "bt4", LZMA_MF_BT4 },
+        { NULL, 0 } } },
+    .default_value.int_value = 0 },
   { NULL, SQUASH_OPTION_TYPE_NONE, }
 };
 
@@ -162,6 +185,17 @@ static SquashOptionInfo squash_lzma_xz_options[] = {
       .min = 0,
       .max = 4 },
     .default_value.int_value = 2 },
+  { "mf",
+    SQUASH_OPTION_TYPE_ENUM_STRING,
+    .info.enum_string = {
+      .values = (const SquashOptionInfoEnumStringMap []) {
+        { "hc3", LZMA_MF_HC3 },
+        { "hc4", LZMA_MF_HC4 },
+        { "bt2", LZMA_MF_BT2 },
+        { "bt3", LZMA_MF_BT3 },
+        { "bt4", LZMA_MF_BT4 },
+        { NULL, 0 } } },
+    .default_value.int_value = 0 },
   { "mem-limit",
     SQUASH_OPTION_TYPE_RANGE_SIZE,
     .info.range_size = {
@@ -260,9 +294,16 @@ squash_lzma_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
   lzma_type = squash_lzma_codec_to_type (codec);
 
   lzma_lzma_preset (&lzma_options, (uint32_t) squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_LEVEL));
+  lzma_options.dict_size = squash_options_get_size_at (options, codec, SQUASH_LZMA_OPT_DICT_SIZE);
   lzma_options.lc = squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_LC);
   lzma_options.lp = squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_LP);
   lzma_options.pb = squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_PB);
+
+  {
+    const int mf = squash_options_get_int_at (options, codec, SQUASH_LZMA_OPT_MF);
+    if (mf != 0)
+      lzma_options.mf = (lzma_match_finder) mf;
+  }
 
   filters[0].options = &(lzma_options);
 

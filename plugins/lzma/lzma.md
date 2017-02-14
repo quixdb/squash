@@ -101,6 +101,12 @@ project](http://tukaani.org/xz/).
    > LZMA1 and LZMA2 still slightly favor 16-byte alignment.  It might
    > be worth taking into account when designing file formats that are
    > likely to be often compressed with LZMA1 or LZMA2.
+ * **mf** (enumeration, default varies based on level): Match finder
+   * *hc3*: Hash Chain with 2- and 3-byte hashing.
+   * *hc4*: Hash Chain with 2-, 3-, and 4-byte hashing
+   * *bt2*: Binary Tree with 2-byte hashing
+   * *bt3*: Binary Tree with 2- and 3-byte hashing
+   * *bt4*: Binary Tree with 2-, 3-, and 4-byte hashing
 
 ### xz-only ###
 
