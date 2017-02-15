@@ -47,7 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 %package devel
 Group: Development/Libraries
 Summary: Development package for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 
 %description devel
 The squash-devel package contains files necessary
@@ -66,7 +66,7 @@ for building software using the Squash compression library.
 # BriefLZ
 %package plugin-brieflz
 Summary: BriefLZ plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: zlib and MIT
 
 %description plugin-brieflz
@@ -80,7 +80,7 @@ BriefLZ plugin for Squash
 # Brotli
 %package plugin-brotli
 Summary: Brotly plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Apache 2.0 and MIT
 
 %description plugin-brotli
@@ -94,7 +94,7 @@ Brotli plugin for Squash
 # libbsc
 %package plugin-bsc
 Summary: libbsc plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Apache 2.0 and MIT
 
 %files plugin-bsc
@@ -108,7 +108,7 @@ libbsc plugin for Squash
 # bzip2
 %package plugin-bzip2
 Summary: bzip2 plugin for Squash
-Requires: squash bzip2-libs
+Requires: squash = %{version}-%{release} bzip2-libs
 License: zlib and MIT
 
 %description plugin-bzip2
@@ -122,7 +122,7 @@ bzip2 plugin for Squash
 # CRUSH
 %package plugin-crush
 Summary: CRUSH plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Public Domain and MIT
 
 %description plugin-crush
@@ -136,7 +136,7 @@ CRUSH plugin for Squash
 # CSC
 # %package plugin-csc
 # Summary: CSC plugin for Squash
-# Requires: squash
+# Requires: squash = %{version}-%{release}
 # License: Public Domain and MIT
 
 # %description plugin-csc
@@ -150,7 +150,7 @@ CRUSH plugin for Squash
 # DENSITY
 # %package plugin-density
 # Summary: DENSITY plugin for Squash
-# Requires: squash
+# Requires: squash = %{version}-%{release}
 # License: 3-clause BSD and MIT
 
 # %description plugin-density
@@ -164,7 +164,7 @@ CRUSH plugin for Squash
 # Doboz
 # %package plugin-doboz
 # Summary: Doboz plugin for Squash
-# Requires: squash
+# Requires: squash = %{version}-%{release}
 # License: zlib and MIT
 
 # %description plugin-doboz
@@ -178,7 +178,7 @@ CRUSH plugin for Squash
 # FastARI
 %package plugin-fari
 Summary: FastARI plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: GPLv3+ and MIT
 
 %description plugin-fari
@@ -192,7 +192,7 @@ FastARI plugin for Squash
 # FastLZ
 %package plugin-fastlz
 Summary: FastLZ plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: MIT
 
 %description plugin-fastlz
@@ -206,7 +206,7 @@ FastLZ plugin for Squash
 # Gipfeli
 %package plugin-gipfeli
 Summary: Gipfeli plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: 3-clause BSD
 
 %description plugin-gipfeli
@@ -220,7 +220,7 @@ Gipfeli plugin for Squash
 # Heatshrink
 %package plugin-heatshrink
 Summary: Heatshrink plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: ISC and MIT
 
 %description plugin-heatshrink
@@ -234,7 +234,7 @@ Heatshrink plugin for Squash
 # libdeflate
 %package plugin-libdeflate
 Summary: libdeflate plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Public Domain and MIT
 
 %description plugin-libdeflate
@@ -248,7 +248,7 @@ libdeflate plugin for Squash
 # LZ4
 %package plugin-lz4
 Summary: LZ4 plugin for Squash
-Requires: squash lz4
+Requires: squash = %{version}-%{release} lz4
 License: 3-clause BSD and MIT
 
 %description plugin-lz4
@@ -262,7 +262,7 @@ LZ4 plugin for Squash
 # liblzf
 %package plugin-lzf
 Summary: LZF plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: MIT and 2-clause BSD or GPLv2
 
 %description plugin-lzf
@@ -276,7 +276,7 @@ LZF plugin for Squash
 # LZFSE
 %package plugin-lzfse
 Summary: LZFSE plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: 3-clause BSD and MIT
 
 %description plugin-lzfse
@@ -290,7 +290,7 @@ LZFSE plugin for Squash
 # liblzg
 %package plugin-lzg
 Summary: liblzg plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: zlib and MIT
 
 %description plugin-lzg
@@ -304,7 +304,7 @@ liblzg plugin for Squash
 # LZHAM
 %package plugin-lzham
 Summary: LZHAM plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: MIT
 
 %description plugin-lzham
@@ -318,7 +318,7 @@ LZHAMW plugin for Squash
 # LZJB
 %package plugin-lzjb
 Summary: LZJB plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: CDDL and MIT
 
 %description plugin-lzjb
@@ -332,7 +332,7 @@ LZJB plugin for Squash
 # LZMA
 %package plugin-lzma
 Summary: LZMA plugin for Squash
-Requires: squash xz-libs
+Requires: squash = %{version}-%{release} xz-libs
 License: Public Domain and MIT
 
 %description plugin-lzma
@@ -346,7 +346,7 @@ LZMA plugin for Squash
 # LZO
 %package plugin-lzo
 Summary: LZO plugin for Squash
-Requires: squash lzo
+Requires: squash = %{version}-%{release} lzo
 License: GPLv2?+ and MIT
 
 %description plugin-lzo
@@ -360,7 +360,7 @@ LZO plugin for Squash
 # MiniZ
 %package plugin-miniz
 Summary: miniz plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Public Domain and MIT
 
 %description plugin-miniz
@@ -374,7 +374,7 @@ miniz plugin for Squash
 # MS Compress
 %package plugin-ms-compress
 Summary: ms-compress plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: GPLv3+ and MIT
 
 %description plugin-ms-compress
@@ -388,7 +388,7 @@ ms-compress plugin for Squash
 # ncompress
 %package plugin-ncompress
 Summary: ncompress plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Public Domain and MIT
 
 %description plugin-ncompress
@@ -402,7 +402,7 @@ ncompress plugin for Squash
 # QuickLZ
 %package plugin-quicklz
 Summary: QuickLZ plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: MIT and GPLv1, GPLv2, or GPLv3
 
 %description plugin-quicklz
@@ -416,7 +416,7 @@ QuickLZ plugin for Squash
 # Snappy
 %package plugin-snappy
 Summary: Snappy plugin for Squash
-Requires: squash snappy
+Requires: squash = %{version}-%{release} snappy
 License: 3-clause BSD and MIT
 
 %description plugin-snappy
@@ -430,7 +430,7 @@ Snappy plugin for Squash
 # wfLZ
 %package plugin-wflz
 Summary: wfLZ plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: WTFPL and MIT
 
 %description plugin-wflz
@@ -444,7 +444,7 @@ wfLZ plugin for Squash
 # yalz77
 %package plugin-yalz77
 Summary: yalz77 plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: Public Domain and MIT
 
 %description plugin-yalz77
@@ -458,7 +458,7 @@ yalz77 plugin for Squash
 # zlib
 %package plugin-zlib
 Summary: zlib plugin for Squash
-Requires: squash zlib
+Requires: squash = %{version}-%{release} zlib
 License: zlib and MIT
 
 %description plugin-zlib
@@ -472,7 +472,7 @@ zlib plugin for Squash
 # zlib-ng
 %package plugin-zlib-ng
 Summary: zlib-ng plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: zlib and MIT
 
 %description plugin-zlib-ng
@@ -486,7 +486,7 @@ zlib-ng plugin for Squash
 # zling
 %package plugin-zling
 Summary: zling plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 License: 3-clause BSD and MIT
 
 %description plugin-zling
@@ -499,7 +499,7 @@ zling plugin for Squash
 
 %package plugin-zpaq
 Summary: ZPAQ plugin for Squash
-Requires: squash zpaq-devel
+Requires: squash = %{version}-%{release} zpaq-libs
 License: Public Domain and MIT
 
 %description plugin-zpaq
@@ -513,7 +513,7 @@ ZPAQ plugin for Squash
 # zstd
 %package plugin-zstd
 Summary: zstd plugin for Squash
-Requires: squash
+Requires: squash = %{version}-%{release}
 %if 0%{?fedora} >= 25
 Requires: libzstd
 %else
