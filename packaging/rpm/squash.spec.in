@@ -34,6 +34,10 @@ rm -rf $RPM_BUILD_ROOT
 %make_install
 
 
+%check
+make test
+
+
 %files
 %{_libdir}/libsquash*
 %license COPYING
