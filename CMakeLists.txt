@@ -45,7 +45,7 @@ set (SQUASH_SOVERSION_AGE      ${SQUASH_VERSION_REVISION})
 
 cmake_minimum_required (VERSION 2.8.6)
 
-if (CMAKE_BUILD_TYPE STREQUAL "")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
   set (CMAKE_BUILD_TYPE "Debug")
 endif ()
 
