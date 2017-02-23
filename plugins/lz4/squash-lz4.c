@@ -34,6 +34,11 @@
 #include <lz4.h>
 #include <lz4hc.h>
 
+#if LZ4_VERSION_NUMBER < 10700
+#define LZ4_compress_default LZ4_compress_limitedOutput
+#define LZ4_compress_HC LZ4_compressHC2_limitedOutput
+#endif
+
 enum SquashLZ4OptIndex {
   SQUASH_LZ4_OPT_LEVEL = 0
 };
@@ -148,10 +153,10 @@ squash_lz4_compress_buffer (SquashCodec* codec,
   int lz4_r;
 
   if (level == 7) {
-    lz4_r = LZ4_compress_limitedOutput ((char*) uncompressed,
-                                        (char*) compressed,
-                                        (int) uncompressed_size,
-                                        (int) *compressed_size);
+    lz4_r = LZ4_compress_default ((char*) uncompressed,
+                                  (char*) compressed,
+                                  (int) uncompressed_size,
+                                  (int) *compressed_size);
   } else if (level < 7) {
     lz4_r = LZ4_compress_fast ((const char*) uncompressed,
                                (char*) compressed,
@@ -159,11 +164,11 @@ squash_lz4_compress_buffer (SquashCodec* codec,
                                (int) *compressed_size,
                                squash_lz4_level_to_fast_mode (level));
   } else if (level < 17) {
-    lz4_r = LZ4_compressHC2_limitedOutput ((char*) uncompressed,
-                                           (char*) compressed,
-                                           (int) uncompressed_size,
-                                           (int) *compressed_size,
-                                           squash_lz4_level_to_hc_level (level));
+    lz4_r = LZ4_compress_HC ((char*) uncompressed,
+                             (char*) compressed,
+                             (int) uncompressed_size,
+                             (int) *compressed_size,
+                             squash_lz4_level_to_hc_level (level));
   } else {
     HEDLEY_UNREACHABLE();
   }
@@ -178,6 +183,7 @@ squash_lz4_compress_buffer (SquashCodec* codec,
   return HEDLEY_UNLIKELY(lz4_r == 0) ? squash_error (SQUASH_BUFFER_FULL) : SQUASH_OK;
 }
 
+#if LZ4_VERSION_NUMBER < 10700
 static SquashStatus
 squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
                                    size_t* compressed_size,
@@ -223,6 +229,7 @@ squash_lz4_compress_buffer_unsafe (SquashCodec* codec,
 
   return (lz4_r == 0) ? SQUASH_BUFFER_FULL : SQUASH_OK;
 }
+#endif
 
 SquashStatus
 squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
@@ -233,7 +240,9 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
     impl->get_max_compressed_size = squash_lz4_get_max_compressed_size;
     impl->decompress_buffer = squash_lz4_decompress_buffer;
     impl->compress_buffer = squash_lz4_compress_buffer;
+#if LZ4_VERSION_NUMBER < 10700
     impl->compress_buffer_unsafe = squash_lz4_compress_buffer_unsafe;
+#endif
   } else {
     return squash_plugin_init_lz4f (codec, impl);
   }
