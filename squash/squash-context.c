@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -417,19 +417,13 @@ static void
 squash_context_find_plugins_in_directory (SquashContext* context, const char* directory_name) {
 #if !defined(_WIN32)
   DIR* directory = opendir (directory_name);
-  struct dirent* result = NULL;
   struct dirent* entry = NULL;
 
   if (directory == NULL) {
     return;
-  } else {
-    long name_max = pathconf (directory_name, _PC_NAME_MAX);
-    if (name_max == -1)
-      name_max = 255;
-    entry = (struct dirent*) squash_malloc (offsetof (struct dirent, d_name) + name_max + 1);
   }
 
-  while ( readdir_r (directory, entry, &result) == 0 && result != NULL ) {
+  while ((entry = readdir(directory)) != NULL) {
 #ifdef _DIRENT_HAVE_D_TYPE
     if ( entry->d_type != DT_DIR &&
          entry->d_type != DT_UNKNOWN &&
