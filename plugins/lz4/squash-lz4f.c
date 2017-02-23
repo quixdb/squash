@@ -38,6 +38,13 @@
 #  include <lz4frame.h>
 #endif
 
+#if LZ4_VERSION_NUMBER < 10700
+#define LZ4F_max64KB max64KB
+#define LZ4F_blockLinked blockLinked
+#define LZ4F_contentChecksumEnabled contentChecksumEnabled
+#define LZ4F_noContentChecksum noContentChecksum
+#endif
+
 SquashStatus squash_plugin_init_lz4f (SquashCodec* codec, SquashCodecImpl* impl);
 
 #define SQUASH_LZ4F_DICT_SIZE ((size_t) 65536)
@@ -177,10 +184,10 @@ squash_lz4f_stream_new (SquashCodec* codec, SquashStreamType stream_type, Squash
     stream->data.comp.prefs = (LZ4F_preferences_t) {
       {
         (LZ4F_blockSizeID_t) squash_options_get_int_at (options, codec, SQUASH_LZ4F_OPT_BLOCK_SIZE),
-        blockLinked,
+        LZ4F_blockLinked,
         squash_options_get_bool_at (options, codec, SQUASH_LZ4F_OPT_CHECKSUM) ?
-          contentChecksumEnabled :
-          noContentChecksum,
+          LZ4F_contentChecksumEnabled :
+          LZ4F_noContentChecksum,
       },
       squash_options_get_int_at (options, codec, SQUASH_LZ4F_OPT_LEVEL)
     };
@@ -446,7 +453,7 @@ squash_lz4f_process_stream (SquashStream* stream, SquashOperation operation) {
 static size_t
 squash_lz4f_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_size) {
   static const LZ4F_preferences_t prefs = {
-    { max64KB, blockLinked, contentChecksumEnabled, },
+    { LZ4F_max64KB, LZ4F_blockLinked, LZ4F_contentChecksumEnabled, },
     0, 0,
   };
 
