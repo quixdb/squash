@@ -534,7 +534,13 @@ squash_stream_newa (SquashCodec* codec,
                     SquashStreamType stream_type,
                     const char* const* keys,
                     const char* const* values) {
-  return NULL;
+  SquashOptions* opts;
+
+  assert (codec != NULL);
+
+  opts = squash_options_newa (codec, keys, values);
+
+  return squash_stream_new_with_options (codec, stream_type, opts);
 }
 
 /**
