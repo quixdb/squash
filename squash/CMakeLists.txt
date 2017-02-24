@@ -52,6 +52,10 @@ target_add_extra_warning_flags (squash${SQUASH_VERSION_API})
 squash_set_target_visibility (squash${SQUASH_VERSION_API} hidden)
 target_require_c_standard (squash${SQUASH_VERSION_API} "c99")
 
+set_compiler_specific_flags(VARIABLE SQUASH_INI_CFLAGS
+  GCCISH "-Wno-sign-conversion" "-Wno-conversion" "-Wno-unused-variable" "-Wno-unused-const-variable")
+source_file_add_compiler_flags("${SQUASH_INI}" ${SQUASH_INI_CFLAGS})
+
 set_target_properties ("squash${SQUASH_VERSION_API}" PROPERTIES
   SOVERSION "${SQUASH_SOVERSION_CURRENT}.${SQUASH_SOVERSION_REVISION}.${SQUASH_SOVERSION_AGE}"
   VERSION   "${SQUASH_SOVERSION_CURRENT}.${SQUASH_SOVERSION_REVISION}")

@@ -1,97 +1,144 @@
 language: c
-sudo: required
+sudo: false
 dist: trusty
-os:
-  - linux
-  - osx
+
 branches:
   except:
     - /^(wip\/)?(appveyor|msvc|mingw|windows)(\-.+)?$/
     - /^master$/
-env:
-  matrix:
-    # Latest versions of each compiler
-    - COMPILER=gcc-6 BUILD_TYPE=debug
-    - COMPILER=clang-3.8 BUILD_TYPE=debug
-    - COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
-    - COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
-    # - COMPILER=icc BUILD_TYPE=debug
 
-    # Sanitizers
-    - COMPILER=gcc-6 BUILD_TYPE=asan
-    # - COMPILER=gcc-6 BUILD_TYPE=ubsan
-    # - COMPILER=gcc-6 BUILD_TYPE=tsan
-
-    # Test release mode
-    - COMPILER=gcc-6 BUILD_TYPE=release
-    - COMPILER=clang BUILD_TYPE=release
-
-    # Older compilers
-    - COMPILER=gcc-4.6 BUILD_TYPE=debug
-    - COMPILER=gcc-4.7 BUILD_TYPE=debug
-    - COMPILER=gcc-4.8 BUILD_TYPE=debug
-    - COMPILER=gcc-4.9 BUILD_TYPE=debug
-    - COMPILER=gcc-5 BUILD_TYPE=debug
-    - COMPILER=clang-3.4 BUILD_TYPE=debug
-    - COMPILER=clang-3.5 BUILD_TYPE=debug
-    - COMPILER=clang-3.6 BUILD_TYPE=debug
-    - COMPILER=clang-3.7 BUILD_TYPE=debug
-
-    # Coverage analysis
-    - COMPILER=gcc-6 BUILD_TYPE=coverage
-  global:
-    # Coveralls.io
-    - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
-    # Coverity Scan
-    - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
-    # Intel C Compiler
-    - secure: "QhS53AneaQ0zCgm5XNci7aq8AgQCRFtOLVMYIbjyxvTi6zuGLXFjA6l0SkMTsRfdb4QMdnmrE0d1haRxEAD5ldYj+UBbgv6gEm8uwHap2l7zl9tSPddxqB3F145+UWgXAAx85AxmkXLc3oIg58MMk5WzpF7eTz19JfxoBbBB+Cg="
 matrix:
-  exclude:
-    # Limit OS X to 1 debug and 1 release build.
+  include:
+    ####
+    ## GCC
+    ####
+    - compiler: gcc-6
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - gcc-6
+          - g++-6
+        coverity_scan:
+          project:
+            name: quixdb/squash
+            derscription: Squash Compression Abstraction Library
+          build_command_prepend: ./.travis.sh configure
+          build_command: ./.travis.sh make
+          branch_pattern: coverity_scan
+    - compiler: gcc-5
+      env: BUILD_TYPE=coverage
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - gcc-5
+          - g++-5
+          - lcov
+    - compiler: gcc-4.8
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - gcc-4.8
+          - g++-4.8
+    - compiler: gcc-4.6
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - gcc-4.6
+          - g++-4.6
+    # - compiler: gcc-4.4
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - gcc-4.4
+    #       - g++-4.4
+
+    ####
+    ## clang
+    ####
+    # - compiler: clang-3.9
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - llvm-toolchain-precise-3.9
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - clang-3.9
+    - compiler: clang-3.8
+      env: BUILD_TYPE=asan
+      addons:
+        apt:
+          sources:
+          - llvm-toolchain-precise-3.8
+          - ubuntu-toolchain-r-test
+          packages:
+          - clang-3.8
+    - compiler: clang-3.7
+      addons:
+        apt:
+          sources:
+          - llvm-toolchain-precise-3.7
+          - ubuntu-toolchain-r-test
+          packages:
+          - clang-3.7
+    - compiler: clang-3.5
+      addons:
+        apt:
+          sources:
+          - llvm-toolchain-precise-3.5
+          - ubuntu-toolchain-r-test
+          packages:
+          - clang-3.5
+
+    ####
+    ## OS X
+    ####
     - os: osx
-      env: COMPILER=x86_64-w64-mingw32-gcc BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=i686-w64-mingw32-gcc BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=icc BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-6 BUILD_TYPE=asan
-    - os: osx
-      env: COMPILER=gcc-6 BUILD_TYPE=ubsan
-    - os: osx
-      env: COMPILER=gcc-6 BUILD_TYPE=tsan
-    - os: osx
-      env: COMPILER=clang BUILD_TYPE=release
-    - os: osx
-      env: COMPILER=clang BUILD_TYPE=release
-    - os: osx
-      env: COMPILER=gcc-4.6 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-4.7 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-4.8 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-4.9 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-5 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=clang-3.4 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=clang-3.5 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=clang-3.6 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=clang-3.7 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=clang-3.8 BUILD_TYPE=debug
-    - os: osx
-      env: COMPILER=gcc-6 BUILD_TYPE=coverage
+      compiler: gcc-5
+
+    ####
+    ## mingw
+    ####
+    - env: RC_COMPILER=x86_64-w64-mingw32-windres CROSS_COMPILE=yes
+      compiler: x86_64-w64-mingw32-gcc
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          packages:
+          - binutils-mingw-w64-x86-64
+          - g++-mingw-w64-x86-64
+          - gcc-mingw-w64-x86-64
+          - binutils-mingw-w64-x86-64
+
+global:
+  # Coveralls.io
+  - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
+  # Coverity Scan
+  - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
+  # Intel C Compiler
+  - secure: "QhS53AneaQ0zCgm5XNci7aq8AgQCRFtOLVMYIbjyxvTi6zuGLXFjA6l0SkMTsRfdb4QMdnmrE0d1haRxEAD5ldYj+UBbgv6gEm8uwHap2l7zl9tSPddxqB3F145+UWgXAAx85AxmkXLc3oIg58MMk5WzpF7eTz19JfxoBbBB+Cg="
+
 before_install:
- - ./.travis.sh deps
+  - if [ "${BUILD_TYPE}" = "coverage" ]; then pip install --user cpp-coveralls; fi
+
+install:
+  - ./.travis.sh configure
+  - source ~/.bashrc # For ICC
+  - ./.travis.sh make
+
 script:
- - source ~/.bashrc # For ICC
- - ./.travis.sh configure && ./.travis.sh make && ./.travis.sh test
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./.travis.sh test; fi
+
 notifications:
   irc:
     channels:
