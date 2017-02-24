@@ -177,14 +177,14 @@ SQUASH_API SquashOptions* squash_options_newvw         (SquashCodec* codec, va_l
 HEDLEY_NON_NULL(1)
 SQUASH_API SquashOptions* squash_options_newaw         (SquashCodec* codec, const wchar_t* const* keys, const wchar_t* const* values);
 
-HEDLEY_NON_NULL(2, 3)
-SQUASH_API const char*    squash_options_get_stringw   (SquashOptions* options, SquashCodec* codec, const char* key);
-HEDLEY_NON_NULL(2, 3)
-SQUASH_API bool           squash_options_get_boolw     (SquashOptions* options, SquashCodec* codec, const char* key);
-HEDLEY_NON_NULL(2, 3)
-SQUASH_API int            squash_options_get_intw      (SquashOptions* options, SquashCodec* codec, const char* key);
-HEDLEY_NON_NULL(2, 3)
-SQUASH_API size_t         squash_options_get_sizew     (SquashOptions* options, SquashCodec* codec, const char* key);
+HEDLEY_NON_NULL(3)
+SQUASH_API wchar_t*       squash_options_get_stringw   (SquashOptions* options, SquashCodec* codec, const wchar_t* key);
+HEDLEY_NON_NULL(3)
+SQUASH_API bool           squash_options_get_boolw     (SquashOptions* options, SquashCodec* codec, const wchar_t* key);
+HEDLEY_NON_NULL(3)
+SQUASH_API int            squash_options_get_intw      (SquashOptions* options, SquashCodec* codec, const wchar_t* key);
+HEDLEY_NON_NULL(3)
+SQUASH_API size_t         squash_options_get_sizew     (SquashOptions* options, SquashCodec* codec, const wchar_t* key);
 
 HEDLEY_SENTINEL(0)
 HEDLEY_NON_NULL(1)

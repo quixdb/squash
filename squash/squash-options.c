@@ -1249,6 +1249,109 @@ squash_options_parsew (SquashOptions* options, ...) {
 
   return status;
 }
+
+/**
+ * Retrieve the value of a string option
+ *
+ * @note If the option is not natively a string (e.g., if it is an
+ * integer, size, or boolean), it will not be serialized to one.
+ *
+ * @param options the options to retrieve the value from
+ * @param codec the codec to use
+ * @param key name of the option to retrieve the value from
+ * @returns the value, or *NULL* on failure. Value must be freed by caller.
+ */
+wchar_t*
+squash_options_get_stringw (SquashOptions* options, SquashCodec* codec, const wchar_t* key) {
+  char *nkey;
+  const char *nvalue;
+  wchar_t *value = NULL;
+
+  assert (key != NULL);
+
+  nkey = squash_charset_wide_to_utf8(key);
+
+  if (nkey != NULL) {
+    nvalue = squash_options_get_string (options, codec, nkey);
+    squash_free (nkey);
+    value = squash_charset_utf8_to_wide (nvalue);
+  }
+
+  return value;
+}
+
+/**
+ * Retrieve the value of a boolean option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value, or false on failure.
+ */
+bool
+squash_options_get_boolw (SquashOptions* options, SquashCodec* codec, const wchar_t* key) {
+  char *nkey;
+  bool value = false;
+
+  assert (key != NULL);
+
+  nkey = squash_charset_wide_to_utf8(key);
+
+  if (nkey != NULL) {
+    value = squash_options_get_bool (options, codec, nkey);
+    squash_free (nkey);
+  }
+
+  return value;
+}
+
+/**
+ * Retrieve the value of an integer option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value, or -1 on failure.
+ */
+int
+squash_options_get_intw (SquashOptions* options, SquashCodec* codec, const wchar_t* key) {
+  char *nkey;
+  int value = -1;
+
+  assert (key != NULL);
+
+  nkey = squash_charset_wide_to_utf8(key);
+
+  if (nkey != NULL) {
+    value = squash_options_get_int (options, codec, nkey);
+    squash_free (nkey);
+  }
+
+  return value;
+}
+
+/**
+ * Retrieve the value of a size option
+ *
+ * @param options the options to retrieve the value from
+ * @param key name of the option to retrieve the value from
+ * @returns the value, or 0 on failure.
+ */
+size_t
+squash_options_get_sizew (SquashOptions* options, SquashCodec* codec, const wchar_t* key) {
+  char *nkey;
+  size_t value = 0;
+
+  assert (key != NULL);
+
+  nkey = squash_charset_wide_to_utf8(key);
+
+  if (nkey != NULL) {
+    value = squash_options_get_size (options, codec, nkey);
+    squash_free (nkey);
+  }
+
+  return value;
+}
+
 #endif
 
 /**
