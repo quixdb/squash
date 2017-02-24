@@ -846,7 +846,7 @@ squash_options_parse_option (SquashOptions* options, const char* key, const char
  */
 SquashStatus
 squash_options_parsea (SquashOptions* options, const char* const* keys, const char* const* values) {
-  SquashStatus status = SQUASH_OK;
+  SquashStatus s, status = SQUASH_OK;
   int n;
 
   assert (options != NULL);
@@ -855,10 +855,9 @@ squash_options_parsea (SquashOptions* options, const char* const* keys, const ch
     return SQUASH_OK;
 
   for ( n = 0 ; keys[n] != NULL ; n++ ) {
-    status = squash_options_parse_option (options, keys[n], values[n]);
-    if (status != SQUASH_OK) {
-      break;
-    }
+    s = squash_options_parse_option (options, keys[n], values[n]);
+    if (s != SQUASH_OK && status == SQUASH_OK)
+      status = s;
   }
 
   return status;
@@ -875,16 +874,16 @@ squash_options_parsea (SquashOptions* options, const char* const* keys, const ch
 SquashStatus
 squash_options_parsev (SquashOptions* options, va_list options_list) {
   const char* key;
-  SquashStatus status = SQUASH_OK;
+  SquashStatus s, status = SQUASH_OK;
 
   assert (options != NULL);
 
   while ( (key = va_arg (options_list, char*)) != NULL ) {
     const char* value = va_arg (options_list, char*);
 
-    status = squash_options_parse_option (options, key, value);
-    if (status != SQUASH_OK)
-      break;
+    s = squash_options_parse_option (options, key, value);
+    if (s != SQUASH_OK && status == SQUASH_OK)
+      status = s;
   }
 
   return status;
@@ -1122,7 +1121,7 @@ squash_options_parse_optionw (SquashOptions* options, const wchar_t* key, const 
  */
 SquashStatus
 squash_options_parseaw (SquashOptions* options, const wchar_t* const* keys, const wchar_t* const* values) {
-  SquashStatus status = SQUASH_OK;
+  SquashStatus s, status = SQUASH_OK;
   int n;
 
   assert (options != NULL);
@@ -1131,10 +1130,9 @@ squash_options_parseaw (SquashOptions* options, const wchar_t* const* keys, cons
     return SQUASH_OK;
 
   for ( n = 0 ; keys[n] != NULL ; n++ ) {
-    status = squash_options_parse_optionw (options, keys[n], values[n]);
-    if (status != SQUASH_OK) {
-      break;
-    }
+    s = squash_options_parse_optionw (options, keys[n], values[n]);
+    if (s != SQUASH_OK && status ==  SQUASH_OK)
+      status = s;
   }
 
   return status;
@@ -1151,16 +1149,16 @@ squash_options_parseaw (SquashOptions* options, const wchar_t* const* keys, cons
 SquashStatus
 squash_options_parsevw (SquashOptions* options, va_list options_list) {
   const wchar_t* key;
-  SquashStatus status = SQUASH_OK;
+  SquashStatus s, status = SQUASH_OK;
 
   assert (options != NULL);
 
   while ( (key = va_arg (options_list, wchar_t*)) != NULL ) {
      const wchar_t* value = va_arg (options_list, wchar_t*);
 
-    status = squash_options_parse_optionw (options, key, value);
-    if (status != SQUASH_OK)
-      break;
+    s = squash_options_parse_optionw (options, key, value);
+    if (s != SQUASH_OK && status ==  SQUASH_OK)
+      status = s;
   }
 
   return status;
