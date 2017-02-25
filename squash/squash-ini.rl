@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 Evan Nemerson <evan@nemerson.com>
+/* Copyright (c) 2015-2017 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,14 +32,14 @@
 #define SQUASH_INI_PARSER_MAX_KEY_LENGTH     1024
 #define SQUASH_INI_PARSER_MAX_VALUE_LENGTH   4096
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#if __GNUC__ >= 6
-#pragma GCC diagnostic ignored "-Wunused-const-variable"
-#endif
+#if HEDLEY_GCC_VERSION_CHECK(4,5,0)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wunused-variable"
+#  if HEDLEY_GCC_VERSION_CHECK(6,0,0)
+#    pragma GCC diagnostic ignored "-Wunused-const-variable"
+#  endif
 #endif /* defined(__GNUC__) */
 
 %%{
@@ -225,6 +225,6 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   return result;
 }
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif /* defined(__GNUC__) */
+#if HEDLEY_GCC_VERSION_CHECK(4,5,0)
+#  pragma GCC diagnostic pop
+#endif /* HEDLEY_GCC_VERSION_CHECK(4,5,0) */

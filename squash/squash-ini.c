@@ -1,6 +1,6 @@
 
-/* #line 1 "squash-ini.rl" */
-/* Copyright (c) 2015-2016 Evan Nemerson <evan@nemerson.com>
+/* #line 1 "/home/nemequ/local/src/squash/build/squash/squash-ini.rl" */
+/* Copyright (c) 2015-2017 Evan Nemerson <evan@nemerson.com>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,14 +34,14 @@
 #define SQUASH_INI_PARSER_MAX_KEY_LENGTH     1024
 #define SQUASH_INI_PARSER_MAX_VALUE_LENGTH   4096
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#if __GNUC__ >= 6
-#pragma GCC diagnostic ignored "-Wunused-const-variable"
-#endif
+#if HEDLEY_GCC_VERSION_CHECK(4,5,0)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wunused-variable"
+#  if HEDLEY_GCC_VERSION_CHECK(6,0,0)
+#    pragma GCC diagnostic ignored "-Wunused-const-variable"
+#  endif
 #endif /* defined(__GNUC__) */
 
 
@@ -75,7 +75,7 @@ squash_ini_parse (FILE* input, SquashIniParserCallback callback, void* user_data
   }
 
 
-/* #line 79 "ini.c" */
+/* #line 79 "squash-ini.c" */
 static const char _SquashIniParser_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1,
 	3, 1, 4, 1, 5, 1, 7, 1,
@@ -152,7 +152,7 @@ static const int SquashIniParser_en_main = 11;
 
 /* #line 198 "squash-ini.rl" */
 
-/* #line 156 "ini.c" */
+/* #line 156 "squash-ini.c" */
 	{
 	cs = SquashIniParser_start;
 	}
@@ -174,7 +174,7 @@ static const int SquashIniParser_en_main = 11;
     pe = cur_block + bytes_read;
 
 
-/* #line 178 "ini.c" */
+/* #line 178 "squash-ini.c" */
 	{
 	int _klen;
 	unsigned int _trans;
@@ -370,7 +370,7 @@ _match:
 /* #line 159 "squash-ini.rl" */
 	{value_escaped = true;}
 	break;
-/* #line 374 "ini.c" */
+/* #line 374 "squash-ini.c" */
 		}
 	}
 
@@ -393,7 +393,7 @@ _again:
     goto cleanup;
   }
 	break;
-/* #line 397 "ini.c" */
+/* #line 397 "squash-ini.c" */
 		}
 	}
 	}
@@ -415,6 +415,6 @@ _again:
   return result;
 }
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif /* defined(__GNUC__) */
+#if HEDLEY_GCC_VERSION_CHECK(4,5,0)
+#  pragma GCC diagnostic pop
+#endif /* HEDLEY_GCC_VERSION_CHECK(4,5,0) */
