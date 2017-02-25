@@ -99,11 +99,11 @@ matrix:
           packages:
           - clang-3.5
 
-    ####
-    ## OS X
-    ####
-    - os: osx
-      compiler: gcc-5
+    # ####
+    # ## OS X
+    # ####
+    # - os: osx
+    #   compiler: gcc-5
 
     ####
     ## mingw
