@@ -75,6 +75,9 @@ squash_test_threads_buffer(MUNIT_UNUSED const MunitParameter params[], void* use
   munit_assert_not_null(user_data);
   SquashCodec* codec = (SquashCodec*) user_data;
 
+  if (strcmp ("lzham", squash_codec_get_name (codec)) == 0)
+    return MUNIT_SKIP;
+
   const unsigned int n_threads = squash_test_cpu_count ();
   thrd_t* threads = munit_newa(thrd_t, n_threads);
 
