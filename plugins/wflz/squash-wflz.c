@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -156,9 +156,12 @@ squash_wflz_compress_buffer (SquashCodec* codec,
                             compressed, work_mem, swap);
     }
   } else {
+    const size_t chunk_size = squash_options_get_size_at (options, codec, SQUASH_WFLZ_OPT_CHUNK_SIZE);
+    assert(chunk_size >= 4096);
+
     wres =
       wfLZ_ChunkCompress ((uint8_t*) uncompressed, (uint32_t) uncompressed_size,
-                          squash_options_get_size_at (options, codec, SQUASH_WFLZ_OPT_CHUNK_SIZE),
+                          chunk_size,
                           compressed, work_mem, swap, level == 1 ? 1 : 0);
   }
 

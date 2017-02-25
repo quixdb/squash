@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -883,8 +883,6 @@ squash_file_free (SquashFile* file, FILE** fp) {
   squash_object_unref (file->options);
 
   squash_file_unlock (file);
-
-  mtx_destroy (&(file->mtx));
 
   squash_free (file);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -47,6 +47,15 @@ squash_quicklz_get_max_compressed_size (SquashCodec* codec, size_t uncompressed_
   return uncompressed_size + 400;
 }
 
+static uint32_t
+squash_quicklz_read_uint32_le(const uint8_t source[HEDLEY_ARRAY_PARAM(4)]) {
+  return
+    (((uint32_t) source[0]) << 0)  |
+    (((uint32_t) source[1]) << 8)  |
+    (((uint32_t) source[2]) << 16) |
+    (((uint32_t) source[3]) << 24);
+}
+
 /* We use this because qlz_size_decompressed and qlz_size_compressed
    can read outside the provided source buffer.  */
 static bool squash_qlz_sizes(size_t source_length, const uint8_t source[HEDLEY_ARRAY_PARAM(source_length)],
@@ -56,8 +65,8 @@ static bool squash_qlz_sizes(size_t source_length, const uint8_t source[HEDLEY_A
     return false;
 
   if(n == 4) {
-    *compressed_size   = (source[1] | source[2] << 8 | source[3] << 16 | source[4] << 24);
-    *decompressed_size = (source[5] | source[6] << 8 | source[7] << 16 | source[8] << 24);
+    *compressed_size   = (size_t) squash_quicklz_read_uint32_le(&(source[1]));
+    *decompressed_size = (size_t) squash_quicklz_read_uint32_le(&(source[5]));
   } else {
     *compressed_size = source[1];
     *decompressed_size = source[2];

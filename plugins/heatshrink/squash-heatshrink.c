@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -179,12 +179,15 @@ squash_heatshrink_process_stream (SquashStream* stream, SquashOperation operatio
       if (0 != processed) {
         stream->next_out += processed;
         stream->avail_out -= processed;
-      } else if (SQUASH_OPERATION_FINISH == operation) {
-        HSE_finish_res hsf = heatshrink_encoder_finish (s->ctx.comp);
-        if (HEDLEY_UNLIKELY(hsf < 0))
-          return squash_error (SQUASH_FAILED);
+      } else {
+        assert(SQUASH_OPERATION_FINISH != operation);
+      /* } else if (SQUASH_OPERATION_FINISH == operation) { */
+      /*   abort(); */
+      /*   HSE_finish_res hsf = heatshrink_encoder_finish (s->ctx.comp); */
+      /*   if (HEDLEY_UNLIKELY(hsf < 0)) */
+      /*     return squash_error (SQUASH_FAILED); */
 
-        return (HSER_FINISH_MORE == hsf) ? SQUASH_PROCESSING : SQUASH_OK;
+      /*   return (HSER_FINISH_MORE == hsf) ? SQUASH_PROCESSING : SQUASH_OK; */
       }
 
       if (HSER_POLL_MORE == hsp)
