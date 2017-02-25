@@ -63,20 +63,9 @@ fi
 
 case "${1}" in
     "configure")
-        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
-        case "${BUILD_TYPE}" in
-            "asan")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=address"
-                ;;
-            "tsan")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=thread"
-                ;;
-            "ubsan")
-                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=undefined"
-                ;;
-        esac
-
         CONFIGURE_FLAGS="-DFORCE_IN_TREE_DEPENDENCIES=yes"
+        COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
+
         if [ "${BUILD_TYPE}" = "release" ]; then
             CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_BUILD_TYPE=Release"
         else
@@ -84,6 +73,15 @@ case "${1}" in
         fi
 
         case "${BUILD_TYPE}" in
+            "asan")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=address -DENABLE_DENSITY=no"
+                ;;
+            "tsan")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=thread"
+                ;;
+            "ubsan")
+                CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_SANITIZER=undefined"
+                ;;
             "coverage")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DENABLE_COVERAGE=yes"
                 ;;
@@ -95,9 +93,11 @@ case "${1}" in
         case "${CC}" in
             "i686-w64-mingw32-gcc")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_FIND_ROOT_PATH=/usr/i686-w64-mingw32"
+                CROSS_COMPILE="yes"
                 ;;
             "x86_64-w64-mingw32-gcc")
                 CONFIGURE_FLAGS="${CONFIGURE_FLAGS} -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32"
+                CROSS_COMPILE="yes"
                 ;;
         esac
 
