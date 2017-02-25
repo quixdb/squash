@@ -27,104 +27,103 @@ matrix:
           build_command_prepend: ./.travis.sh configure
           build_command: ./.travis.sh make
           branch_pattern: coverity_scan
-    - compiler: gcc-5
-      env: BUILD_TYPE=coverage
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-5
-          - g++-5
-          - lcov
-    - compiler: gcc-4.8
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-4.8
-          - g++-4.8
-    - compiler: gcc-4.6
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-4.6
-          - g++-4.6
-    # - compiler: gcc-4.4
+    # - compiler: gcc-5
+    #   env: BUILD_TYPE=coverage
     #   addons:
     #     apt:
     #       sources:
     #       - ubuntu-toolchain-r-test
     #       packages:
-    #       - gcc-4.4
-    #       - g++-4.4
-
-    ####
-    ## clang
-    ####
-    # - compiler: clang-3.9
+    #       - gcc-5
+    #       - g++-5
+    #       - lcov
+    # - compiler: gcc-4.8
     #   addons:
     #     apt:
     #       sources:
-    #       - llvm-toolchain-precise-3.9
     #       - ubuntu-toolchain-r-test
     #       packages:
-    #       - clang-3.9
-    - compiler: clang-3.8
-      env: BUILD_TYPE=asan
-      addons:
-        apt:
-          sources:
-          - llvm-toolchain-precise-3.8
-          - ubuntu-toolchain-r-test
-          packages:
-          - clang-3.8
-    - compiler: clang-3.7
-      addons:
-        apt:
-          sources:
-          - llvm-toolchain-precise-3.7
-          - ubuntu-toolchain-r-test
-          packages:
-          - clang-3.7
-    - compiler: clang-3.5
-      addons:
-        apt:
-          sources:
-          - llvm-toolchain-precise-3.5
-          - ubuntu-toolchain-r-test
-          packages:
-          - clang-3.5
+    #       - gcc-4.8
+    #       - g++-4.8
+    # - compiler: gcc-4.6
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - gcc-4.6
+    #       - g++-4.6
+    # # - compiler: gcc-4.4
+    # #   addons:
+    # #     apt:
+    # #       sources:
+    # #       - ubuntu-toolchain-r-test
+    # #       packages:
+    # #       - gcc-4.4
+    # #       - g++-4.4
 
     # ####
-    # ## OS X
+    # ## clang
     # ####
-    # - os: osx
-    #   compiler: gcc-5
+    # # - compiler: clang-3.9
+    # #   addons:
+    # #     apt:
+    # #       sources:
+    # #       - llvm-toolchain-precise-3.9
+    # #       - ubuntu-toolchain-r-test
+    # #       packages:
+    # #       - clang-3.9
+    # - compiler: clang-3.8
+    #   env: BUILD_TYPE=asan
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - llvm-toolchain-precise-3.8
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - clang-3.8
+    # - compiler: clang-3.7
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - llvm-toolchain-precise-3.7
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - clang-3.7
+    # - compiler: clang-3.5
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - llvm-toolchain-precise-3.5
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - clang-3.5
 
-    ####
-    ## mingw
-    ####
-    - env: RC_COMPILER=x86_64-w64-mingw32-windres CROSS_COMPILE=yes
-      compiler: x86_64-w64-mingw32-gcc
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - binutils-mingw-w64-x86-64
-          - g++-mingw-w64-x86-64
-          - gcc-mingw-w64-x86-64
-          - binutils-mingw-w64-x86-64
+    # # ####
+    # # ## OS X
+    # # ####
+    # # - os: osx
+    # #   compiler: gcc-5
+
+    # ####
+    # ## mingw
+    # ####
+    # - compiler: x86_64-w64-mingw32-gcc
+    #   addons:
+    #     apt:
+    #       sources:
+    #       - ubuntu-toolchain-r-test
+    #       packages:
+    #       - binutils-mingw-w64-x86-64
+    #       - g++-mingw-w64-x86-64
+    #       - gcc-mingw-w64-x86-64
+    #       - binutils-mingw-w64-x86-64
 
 global:
   # Coveralls.io
   - secure: "QDuBYD70tDc+2v4WdNEbmv4BE/jVHrDp9QZ+a7ZYPgnUe5hRnKfKSOhsuzGDRkMBnrJFbaeFITrGY7WQKcwLcMxKq11/Lk6Of9ai+TxN4VY+p1yt3Poz/7pDg7bVTPepnEgVUjjLQC8UoGXo7jaLscqJuU3vAl/LVQ9igC8TwKQ="
   # Coverity Scan
-  - secure: "GkdtM9uoDVQoJ0h5BNrwGwURPYWvBm/7wcgqrrrqAu3AB+/MkAsUVzIs+Y9+iGOB8WrkOLEHC0+bD/Zhr1YfDa6MKhnP+GhFknfB8bIND+hEhYaRi7521evQOkZQU5RYXXl6QFdlhTNxkWDZdctlrXWIHWu6SagAsJUrBbPWAtY="
+  - secure: "VOuL5f+7BwCaJ4cOq2mDVE44cENpoNzIAjJ4GaVfrxRKOkX1S4EjDEDhHE02HAlaitDmb6CsyeIqT5ehZCrEjUxgkJo8/rN0QG7AUUMEXPM8cc1UX/PjXPQh/ZOnIkprw934IkTB3G6fWLh97QoMzHAYPx+qfrrhxnrra2fiOQ0="
   # Intel C Compiler
   - secure: "QhS53AneaQ0zCgm5XNci7aq8AgQCRFtOLVMYIbjyxvTi6zuGLXFjA6l0SkMTsRfdb4QMdnmrE0d1haRxEAD5ldYj+UBbgv6gEm8uwHap2l7zl9tSPddxqB3F145+UWgXAAx85AxmkXLc3oIg58MMk5WzpF7eTz19JfxoBbBB+Cg="
 

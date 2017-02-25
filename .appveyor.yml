@@ -32,6 +32,7 @@ branches:
   except:
     - /^(wip\/)?(travis|osx|ipp)(\-.+)?$/
     - /^master$/
+    - /^coverity(_scan)?$/
 
 configuration: Debug
 

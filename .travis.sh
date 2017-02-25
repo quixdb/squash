@@ -55,12 +55,6 @@ case "${CC}" in
         ;;
 esac
 
-if [ "${TRAVIS_BRANCH}" = "coverity" -a "${TRAVIS_OS_NAME}" = "linux" -a "${BUILD_TYPE}" = "debug" -a "${CC}" = "gcc-6" ]; then
-    BUILD_TYPE=coverity
-    COVERITY_SCAN_PROJECT_NAME="quixdb/squash"
-    COVERITY_TOOL_BASE="/tmp/coverity-scan-analysis"
-fi
-
 case "${1}" in
     "configure")
         COMMON_COMPILER_FLAGS="-Werror -fno-omit-frame-pointer -fstack-protector-all -D_FORTIFY_SOURCE=2"
