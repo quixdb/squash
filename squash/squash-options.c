@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016 The Squash Authors
+/* Copyright (c) 2013-2017 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -913,6 +913,10 @@ squash_options_parse (SquashOptions* options, ...) {
 /**
  * @brief Create a new group of options.
  *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
+ *
  * @param codec The codec to create the options for.
  * @param ... A variadic list of string key/value pairs followed by *NULL*
  * @return A new option group, or *NULL* on failure.
@@ -939,6 +943,10 @@ squash_options_create (SquashCodec* codec) {
 /**
  * @brief Create a new group of options from a variadic list.
  *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
+ *
  * @param codec The codec to create the options for.
  * @param options A variadic list of string key/value pairs followed by *NULL*
  * @return A new option group, or *NULL* if @a codec does not accept
@@ -960,6 +968,10 @@ squash_options_newv (SquashCodec* codec, va_list options) {
 
 /**
  * @brief Create a new group of options from key and value arrays.
+ *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
  *
  * @param codec The codec to create the options for.
  * @param keys A *NULL*-terminated array of keys.
@@ -1167,6 +1179,10 @@ squash_options_parsevw (SquashOptions* options, va_list options_list) {
 /**
  * @brief Create a new group of options.
  *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
+ *
  * @param codec The codec to create the options for.
  * @param ... A variadic list of string key/value pairs followed by *NULL*
  * @return A new option group, or *NULL* on failure.
@@ -1185,6 +1201,10 @@ squash_options_neww (SquashCodec* codec, ...) {
 
 /**
  * @brief Create a new group of options from a variadic list.
+ *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
  *
  * @param codec The codec to create the options for.
  * @param options A variadic list of string key/value pairs followed by *NULL*
@@ -1207,6 +1227,10 @@ squash_options_newvw (SquashCodec* codec, va_list options) {
 
 /**
  * @brief Create a new group of options from key and value arrays.
+ *
+ * This function returns a floating reference; if you need to keep a
+ * local reference you must ref the options before passing them to
+ * another function.
  *
  * @param codec The codec to create the options for.
  * @param keys A *NULL*-terminated array of keys.
