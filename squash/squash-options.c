@@ -641,6 +641,14 @@ squash_options_set_int_at (SquashOptions* options, size_t idx, int value) {
       }
       val->int_value = value;
       return SQUASH_OK;
+    case SQUASH_OPTION_TYPE_ENUM_INT:
+      for (size_t i = 0; i < info->info.enum_int.values_length; i++) {
+        if (value == info->info.enum_int.values[i]) {
+          val->int_value = value;
+          return SQUASH_OK;
+        }
+      }
+      return squash_error (SQUASH_BAD_VALUE);
     default:
       return squash_error (SQUASH_BAD_VALUE);
   }
