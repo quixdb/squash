@@ -3,7 +3,7 @@
 LZ4 is a small, fast compression library.
 
 For more information about LZ4, see
-https://cyan4973.github.io/lz4/
+https://lz4.github.io/lz4/
 
 ## Codecs ##
 
