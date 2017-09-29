@@ -8,11 +8,6 @@ function(generate_cmakein input output)
   file(WRITE "${output}" "${output_data}")
 endfunction(generate_cmakein)
 
-generate_cmakein("${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng/zconf.h.in" "${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein")
-
-configure_file(	${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein
-		${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
-
 ## End copied from zlib-ng
 
 include (SquashPlugin)
@@ -42,3 +37,10 @@ squash_plugin(
   EMBED_COMPILER_FLAGS
     -Wno-shift-negative-value)
 list (APPEND zlibng_sources ${libzlibng_sources})
+
+if (ENABLE_ZLIB_NG)
+  generate_cmakein("${CMAKE_CURRENT_SOURCE_DIR}/zlib-ng/zconf.h.in" "${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein")
+
+  configure_file(	${CMAKE_CURRENT_BINARY_DIR}/zconf.h.cmakein
+		  ${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
+endif ()
