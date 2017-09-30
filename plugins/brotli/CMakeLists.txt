@@ -4,7 +4,7 @@ set(BROTLI_BUNDLED_MODE ON)
 
 SQUASH_PLUGIN(
   SOURCES squash-brotli.c
-  EXTERNAL_PKG brotli
+  EXTERNAL_PKG "libbrotlicommon libbrotlidec libbrotlienc"
   NAME brotli
   C_STANDARD c99
   EMBED_SUBDIR brotli
