@@ -145,7 +145,7 @@ squash_align (void* ptr, size_t alignment) {
  */
 void
 squash_set_memory_functions (SquashMemoryFuncs memfn) {
-  assert (memfn.malloc != NULL);
+  assert (memfn.malloc != NULL || memfn.calloc != NULL);
   assert (memfn.realloc != NULL);
   assert (memfn.free != NULL);
 
@@ -157,7 +157,7 @@ squash_set_memory_functions (SquashMemoryFuncs memfn) {
     memfn.malloc = squash_wrap_malloc;
   }
 
-  if (memfn.aligned_alloc == NULL || memfn.aligned_free) {
+  if (memfn.aligned_alloc == NULL || memfn.aligned_free == NULL) {
     assert (memfn.aligned_alloc == NULL);
     assert (memfn.aligned_free == NULL);
   }
@@ -206,7 +206,6 @@ squash_free (void* ptr) {
  * implementation defined, but a fair assumption is that they must be
  * a power of two and multiple of `sizeof(void*)`.
  *
- * @param ctx The context
  * @param alignment Alignment of the buffer
  * @param size Number of bytes to allocate
  */
@@ -228,7 +227,7 @@ squash_aligned_alloc (size_t alignment, size_t size) {
      * implementation. */
 
     unsigned char* ptr = squash_memfns.malloc (alignment - 1 + sizeof(void*) + size);
-    if (ptr == NULL) {
+    if (HEDLEY_UNLIKELY(ptr == NULL)) {
       return NULL;
     }
     unsigned char* aligned_ptr = squash_align (ptr + sizeof(void*), alignment);
@@ -242,7 +241,6 @@ squash_aligned_alloc (size_t alignment, size_t size) {
 /**
  * Deallocate an aligned buffer
  *
- * @param ctx The context
  * @param ptr Buffer to deallocate
  */
 void squash_aligned_free (void* ptr) {
