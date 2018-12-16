@@ -10,6 +10,9 @@ environment:
   - GENERATOR: Visual Studio 14 2015
   - GENERATOR: Visual Studio 14 2015 Win64
 
+  - GENERATOR: NMake Makefiles
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
   # Clang targeting MSVC
   - GENERATOR: NMake Makefiles
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -32,15 +35,20 @@ branches:
 configuration: Debug
 
 install:
+  - echo %TIME%
   - git submodule -q update --init --recursive
+  - echo %TIME%
   - ps: |
       if ($env:GENERATOR -eq "MinGW Makefiles") {
-        cinst mingw | Out-Null
+        Get-Date
+        cinst mingw --no-progress
 
         # Chocolatey sometimes fails to download
         if (!$?) {
           throw 'cinst mingw failed'
         }
+
+        Get-Date
 
         # Workaround for Chocolatey shims being first on path
         $env:Path = 'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;' + $env:Path
@@ -49,7 +57,7 @@ install:
         # Workaround for CMake not wanting sh.exe on PATH for MinGW Makefiles
         $env:Path = $env:Path -replace 'C:\\Program Files\\Git\\usr\\bin;',$null
       }
-  - if "%CC%" == "clang-cl" ( call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat" )
+  - if "%GENERATOR%" == "NMake Makefiles" ( call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat" )
   - cmake --version
 
 before_build:
@@ -57,6 +65,7 @@ before_build:
       mkdir build
       cd build
 
+      Get-Date
       # Run CMake, disable plugins based on compiler
       if ($env:GENERATOR -like 'Visual Studio*') {
         cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DENABLE_DENSITY=no -DENABLE_GIPFELI=no ..
@@ -67,7 +76,14 @@ before_build:
           cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE="$env:CONFIGURATION" -DCMAKE_VERBOSE_MAKEFILE=ON ..
         }
       }
+      Get-Date
 
-build_script: cmake --build . --config %CONFIGURATION%
+build_script:
+  - echo %TIME%
+  - cmake --build . --config %CONFIGURATION%
+  - echo %TIME%
 
-test_script: ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION%
+test_script:
+  - echo %TIME%
+  - ctest -V --interactive-debug-mode 0 --timeout 600 -C %CONFIGURATION%
+  - echo %TIME%
