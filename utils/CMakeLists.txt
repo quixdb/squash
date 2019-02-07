@@ -1,3 +1,6 @@
+set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_executable (squash squash.c parg/parg.c)
 target_add_extra_warning_flags (squash)
 target_link_libraries (squash squash${SQUASH_VERSION_API})
