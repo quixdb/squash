@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2018 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -102,6 +102,16 @@ squash_wrap_malloc (size_t size) {
   return squash_memfns.calloc (1, size);
 }
 
+static void*
+squash_align (void* ptr, size_t alignment) {
+  assert (alignment > 0);
+  size_t delta = (uintptr_t) ptr % alignment;
+  if (delta > 0) {
+    delta = alignment - delta;
+  }
+  return (void*) ((unsigned char*) ptr + delta);
+}
+
 /**
  * @defgroup Memory
  * @brief Low-level memory management
@@ -135,7 +145,7 @@ squash_wrap_malloc (size_t size) {
  */
 void
 squash_set_memory_functions (SquashMemoryFuncs memfn) {
-  assert (memfn.malloc != NULL);
+  assert (memfn.malloc != NULL || memfn.calloc != NULL);
   assert (memfn.realloc != NULL);
   assert (memfn.free != NULL);
 
@@ -147,7 +157,7 @@ squash_set_memory_functions (SquashMemoryFuncs memfn) {
     memfn.malloc = squash_wrap_malloc;
   }
 
-  if (memfn.aligned_alloc == NULL || memfn.aligned_free) {
+  if (memfn.aligned_alloc == NULL || memfn.aligned_free == NULL) {
     assert (memfn.aligned_alloc == NULL);
     assert (memfn.aligned_free == NULL);
   }
@@ -196,7 +206,6 @@ squash_free (void* ptr) {
  * implementation defined, but a fair assumption is that they must be
  * a power of two and multiple of `sizeof(void*)`.
  *
- * @param ctx The context
  * @param alignment Alignment of the buffer
  * @param size Number of bytes to allocate
  */
@@ -217,20 +226,13 @@ squash_aligned_alloc (size_t alignment, size_t size) {
      * that then feel free to provide your own aligned_alloc
      * implementation. */
 
-    const size_t ms = size + alignment + sizeof(void*);
-    const void* ptr = squash_memfns.malloc (ms);
-    const uintptr_t addr = (uintptr_t) ptr;
-
-    /* Figure out where to put the object.  We want a pointer to the
-       real allocation to immediately precede the object (so we can
-       recover it later to pass to free()/ */
-    size_t padding = alignment - (addr % alignment);
-    if (padding < sizeof(void*))
-      padding += alignment;
-    assert ((padding + size) <= ms);
-
-    memcpy ((void*) (addr + padding - sizeof(void*)), &ptr, sizeof(void*));
-    return (void*) (addr + padding);
+    unsigned char* ptr = squash_memfns.malloc (alignment - 1 + sizeof(void*) + size);
+    if (HEDLEY_UNLIKELY(ptr == NULL)) {
+      return NULL;
+    }
+    unsigned char* aligned_ptr = squash_align (ptr + sizeof(void*), alignment);
+    memcpy (aligned_ptr - sizeof(void*), &ptr, sizeof(void*));
+    return (void*) aligned_ptr;
   }
 
   HEDLEY_UNREACHABLE ();
@@ -239,14 +241,15 @@ squash_aligned_alloc (size_t alignment, size_t size) {
 /**
  * Deallocate an aligned buffer
  *
- * @param ctx The context
  * @param ptr Buffer to deallocate
  */
 void squash_aligned_free (void* ptr) {
   if (squash_memfns.aligned_free != NULL) {
     squash_memfns.aligned_free (ptr);
   } else if (ptr != NULL) {
-    squash_memfns.free ((void*) (((uintptr_t) ptr) - sizeof(void*)));
+    void* org_ptr = NULL;
+    memcpy (&org_ptr, (unsigned char*) ptr - sizeof(void*), sizeof(void*));
+    squash_memfns.free (org_ptr);
   }
 }
 
