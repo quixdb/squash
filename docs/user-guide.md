@@ -68,7 +68,7 @@ value to the true size of the compressed data upon successful
 compression.
 
 @a uncompressed and @a uncompressed_length are the buffer you wish to
-compress.  @a uncompressed_length is a `size_t`, not a `size_t`,
+compress.  @a uncompressed_length is a `size_t`, not a `size_t*`,
 because the function does not need to modify the value.
 
 Finally, this function is variadic—it accepts an arbitrary number of
