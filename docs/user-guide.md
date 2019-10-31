@@ -1,4 +1,4 @@
-User Guide
+User Guide :
 ==========
 
 While the Squash API is fairly large, it is conceptually fairly
