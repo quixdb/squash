@@ -144,7 +144,7 @@ squash_wflz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
-  uint8_t* work_mem = (uint8_t*) malloc (wfLZ_GetWorkMemSize ());
+  uint8_t* work_mem = (uint8_t*) squash_malloc (wfLZ_GetWorkMemSize ());
   uint32_t wres;
 
   if (codec_name[4] == '\0') {
@@ -167,14 +167,14 @@ squash_wflz_compress_buffer (SquashCodec* codec,
 
 #if SIZE_MAX < UINT32_MAX
   if (HEDLEY_UNLIKELY(SIZE_MAX < wres)) {
-    free (work_mem);
+    squash_free (work_mem);
     return squash_error (SQUASH_RANGE);
   }
 #endif
 
   *compressed_size = (size_t) wres;
 
-  free (work_mem);
+  squash_free (work_mem);
 
   return HEDLEY_LIKELY(*compressed_size > 0) ? SQUASH_OK : squash_error (SQUASH_FAILED);
 }
