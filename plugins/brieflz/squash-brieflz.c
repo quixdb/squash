@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2016 The Squash Authors
+/* Copyright (c) 2015-2020 The Squash Authors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,15 +26,33 @@
  */
 
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <squash/squash.h>
 #include <brieflz.h>
 
-#include <stdio.h>
+enum SquashBriefLZOptIndex {
+  SQUASH_BRIEFLZ_OPT_LEVEL = 0,
+  SQUASH_BRIEFLZ_OPT_OPTIMAL
+};
+
+static SquashOptionInfo squash_brieflz_options[] = {
+  { "level",
+    SQUASH_OPTION_TYPE_RANGE_INT,
+    .info.range_int = {
+      .min = 1,
+      .max = 9 },
+    .default_value.int_value = 1 },
+  { "optimal",
+    SQUASH_OPTION_TYPE_BOOL,
+    .default_value.bool_value = false },
+  { NULL, SQUASH_OPTION_TYPE_NONE, }
+};
+
 
 SQUASH_PLUGIN_EXPORT
 SquashStatus squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl);
@@ -98,6 +116,8 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
   uint8_t *dst = compressed;
   void *workmem = NULL;
   unsigned long size;
+  int level = squash_options_get_bool_at (options, codec, SQUASH_BRIEFLZ_OPT_OPTIMAL) ? 10
+            : squash_options_get_int_at (options, codec, SQUASH_BRIEFLZ_OPT_LEVEL);
 
 #if ULONG_MAX < SIZE_MAX
   if (HEDLEY_UNLIKELY(ULONG_MAX < uncompressed_size) ||
@@ -110,15 +130,15 @@ squash_brieflz_compress_buffer (SquashCodec* codec,
     return squash_error (SQUASH_BUFFER_FULL);
   }
 
-  workmem = squash_malloc (blz_workmem_size ((unsigned long) uncompressed_size));
+  workmem = squash_malloc (blz_workmem_size_level ((unsigned long) uncompressed_size, level));
 
   if (HEDLEY_UNLIKELY(workmem == NULL)) {
     return squash_error (SQUASH_MEMORY);
   }
 
-  size = blz_pack (uncompressed, dst,
-                   (unsigned long) uncompressed_size,
-                   workmem);
+  size = blz_pack_level (uncompressed, dst,
+                         (unsigned long) uncompressed_size,
+                         workmem, level);
 
   squash_free (workmem);
 
@@ -137,6 +157,7 @@ squash_plugin_init_codec (SquashCodec* codec, SquashCodecImpl* impl) {
   const char* name = squash_codec_get_name (codec);
 
   if (HEDLEY_LIKELY(strcmp ("brieflz", name) == 0)) {
+    impl->options = squash_brieflz_options;
     impl->info = SQUASH_CODEC_INFO_WRAP_SIZE;
     /* impl->get_uncompressed_size = squash_brieflz_get_uncompressed_size; */
     impl->get_max_compressed_size = squash_brieflz_get_max_compressed_size;
